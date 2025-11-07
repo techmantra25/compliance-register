@@ -44,7 +44,7 @@
                                     <a href="javascript:void(0)" class="text-decoration-none text-muted small">Forgot your password?</a>
                                 </div>
 
-                                <button type="submit" class="btn w-100 text-white py-2" style="background-color: #438a7a;">
+                                <button type="submit" class="btn w-100 text-white py-2" style="background-color: #3A1212;">
                                     Log In
                                 </button>
                             </form>
@@ -54,7 +54,7 @@
                         <div class="col-md-6 d-none d-md-block position-relative" 
                              style="background: url('{{ asset('assets/img/logo-background.jpg') }}') center/cover no-repeat;">
                             <div class="overlay position-absolute top-0 start-0 w-100 h-100" 
-                                 style="background-color: rgba(67, 138, 122, 0.8);"></div>
+                                 style="background-color: #8359599c"></div>
                         </div>
 
                     </div>

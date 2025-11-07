@@ -4,7 +4,7 @@
         <div class="d-flex flex-wrap justify-content-between align-items-center">
             <div>
                 <h4 class="fw-bold mb-1 text-dark">
-                    <i class="bi bi-person-lines-fill me-2 text-primary"></i> Candidate Contact List
+                    <i class="bi bi-person-lines-fill me-2 text-primary"></i> Candidate Nomination List
                 </h4>
                 <nav aria-label="breadcrumb">
                     <ol class="breadcrumb mb-0 small">
@@ -53,6 +53,7 @@
                                     <th style="width: 60px;">#</th>
                                     <th>Candidate Details</th>
                                     <th>Agent</th>
+                                    <th>Assembly</th>
                                     <th style="width: 300px;" class="text-center">Action</th>
                                 </tr>
                             </thead>
@@ -71,18 +72,21 @@
                                                     ,{{ $candidate->contact_number_alt_1 ?? '-' }}
                                                     @endif
                                                 </span><br>
-                                                <span><strong>Assembly:</strong> {{ $candidate->assembly->assembly_name_en ?? 'N/A' }}
-                                                    ({{ $candidate->assembly->assembly_code ?? '-' }})
-                                                </span><br>
                                                 <span><strong>District:</strong> {{ $candidate->assembly->district->name_en ?? 'N/A' }}</span>
                                             </div>
                                         </td>
+                                        
                                         <td>
                                             @if ($candidate->agent)
                                                 <span> {{ $candidate->agent->name ?? 'N/A' }} ({{ $candidate->agent->contact_number ?? '—' }})</span><br>
                                             @else
                                                 <span> N/A</span><br>
                                             @endif
+                                        </td>
+                                        <td>
+                                             <span> {{ $candidate->assembly->assembly_name_en ?? 'N/A' }}
+                                                    ({{ $candidate->assembly->assembly_code ?? '-' }})
+                                                </span>
                                         </td>
                                         <td class="text-center">
                                             <button class="btn btn-sm btn-outline-primary"

@@ -40,7 +40,7 @@
                 <ol class="breadcrumb mb-0 small">
                     <li class="breadcrumb-item">
                         <a href="#" class="text-decoration-none text-muted">
-                            <i class="bi bi-grid-fill me-1"></i> Admin
+                            <i class="bi bi-grid-fill me-1"></i> Candidate
                         </a>
                     </li>
                     <li class="breadcrumb-item active text-primary" aria-current="page">
@@ -48,6 +48,11 @@
                     </li>
                 </ol>
             </nav>
+        </div>
+        <div>
+            <a href="{{route('admin.candidates.contacts')}}" class="btn btn-sm btn-danger">
+                <i class="bi bi-arrow-left-circle me-1"></i> Back
+            </a>
         </div>
     </div>
 
@@ -57,10 +62,10 @@
                 <table class="table mb-0 align-middle">
                     <thead class="table-light">
                         <tr>
-                            <th width="25%">Document Name</th>
-                            <th width="25%">Upload History</th>
+                            <th width="18%">Document Name</th>
+                            <th width="25%" class="text-center">Upload History</th>
+                            <th width="17%">Upload Now</th>
                             <th width="20%">Remarks</th>
-                            <th width="10%">Upload Now</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -68,10 +73,9 @@
                             <tr>
                                 <td>
                                     <strong>{{ $label }}</strong>
-                                    <br>
-                                    <small class="text-muted file-format-size">PDF, DOCX, All image format</small>
+                                    {{-- <br>
+                                    <small class="text-muted file-format-size">PDF, DOCX, All image format</small> --}}
                                 </td>
-                                
                                 
                                 <td>
                                     {{-- Show existing documents with details --}}
@@ -156,7 +160,6 @@
                                     @endif
                                 </td>
                                 
-                                <td>
                                     {{-- Show existing remarks for all documents --}}
                                     {{-- @if(isset($documents[$key]) && count($documents[$key]) > 0)
                                         <ul class="list-unstyled small mb-2">
@@ -178,16 +181,7 @@
                                     @endif --}}
                                     
                                     {{-- Textarea for new remarks --}}
-                                    <textarea 
-                                        wire:model="remarks.{{ $key }}" 
-                                        class="form-control form-control-sm" 
-                                        placeholder="Enter remarks for new upload"
-                                        rows="2"
-                                    ></textarea>
-                                    @error("remarks.$key") 
-                                        <small class="text-danger">{{ $message }}</small> 
-                                    @enderror
-                                </td>
+                                  
                                 
                                 <td class="text-center">
                                     
@@ -248,6 +242,17 @@
                                             </button>
                                         </div>
                                     @endif
+                                </td>
+                                <td>
+                                      <textarea 
+                                        wire:model="remarks.{{ $key }}" 
+                                        class="form-control form-control-sm" 
+                                        placeholder="Enter remarks for new upload"
+                                        rows="2"
+                                    ></textarea>
+                                    @error("remarks.$key") 
+                                        <small class="text-danger">{{ $message }}</small> 
+                                    @enderror
                                 </td>
                             </tr>
                         @endforeach
