@@ -20,13 +20,16 @@
                 </nav>
             </div>
             <div>
+                <button class="btn btn-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#uploadcandidateModal">
+                    <i class="bi bi-upload me-1"></i>Upload Candidate
+                </button>
                 <button class="btn btn-primary btn-sm" wire:click="newCandidate" data-bs-toggle="modal" data-bs-target="#candidateModal">
                     <i class="bi bi-plus-circle me-1"></i> Add Candidate
                 </button>
             </div>
         </div>
 
-        <!-- 🟦 Main Content -->
+        <!--  Main Content -->
         <div class="col-lg-12">
             <div class="card shadow-sm border-0 p-3">
                 <div class="card-header bg-white d-flex justify-content-between align-items-center">
@@ -62,7 +65,7 @@
                                     <tr wire:key="candidate-{{ $candidate->id }}">
                                         <td>{{ $candidates->firstItem() + $loop->index }}</td>
                                         <td>
-                                            <div class="fw-semibold text-primary">{{ $candidate->name }}</div>
+                                            <div class="fw-semibold text-primary">{{ ucwords($candidate->name) }}</div>
                                             <div class="text-muted small">
                                                 @if($candidate->email)
                                                 <span><strong>Email:</strong> {{ $candidate->email ?? '-' }}</span><br>
@@ -78,7 +81,7 @@
                                         
                                         <td>
                                             @if ($candidate->agent)
-                                                <span> {{ $candidate->agent->name ?? 'N/A' }} ({{ $candidate->agent->contact_number ?? '—' }})</span><br>
+                                                <span> {{ ucwords($candidate->agent->name) ?? 'N/A' }} ({{ $candidate->agent->contact_number ?? '—' }})</span><br>
                                             @else
                                                 <span> N/A</span><br>
                                             @endif
@@ -122,7 +125,58 @@
         </div>
     </div>
 
-    <!-- 🟢 Candidate Modal -->
+    {{-- upload candidate modal --}}
+    <div wire:ignore.self class="modal fade" id="uploadcandidateModal" tabindex="-1" aria-labelledby="uploadcandidateModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg rounded-3">
+
+                <!-- Modal Header -->
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="uploadcandidateModalLabel">Upload Candidate</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close" wire:click="resetForm"></button>
+                </div>
+
+                <!-- Modal Body -->
+                <div class="modal-body">
+                    <div class="row g-3">
+
+                        <!-- Download Sample CSV -->
+                        <div class="col-12">
+                            <a href="{{ asset('upload_candidate_sample.csv') }}" download class="btn btn-outline-primary">
+                                <i class="bi bi-download me-1"></i>Download Sample CSV
+                            </a>
+                        </div>
+
+                        <!-- Upload Field -->
+                        <div class="col-12">
+                            <label for="candidateFile" class="form-label fw-semibold mt-3">Upload Candidate CSV</label>
+                            <input type="file" class="form-control" id="candidateFile" wire:model="candidateFile" accept=".csv">
+                            @error('candidateFile')
+                                <div class="text-danger mt-1">{{ $message }}</div>
+                            @enderror
+                            @if($csvError)
+                                <small class="text-danger d-block mt-1">{{ $csvError }}</small>
+                            @endif
+                            <div wire:loading wire:target="candidateFile" class="text-muted mt-2">Uploading...</div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Modal Footer -->
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" wire:click="resetForm">Close</button>
+                    <button type="button" class="btn btn-primary" wire:click="saveCandidate">
+                        <i class="bi bi-upload me-1"></i>Upload
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
+    <!--  Candidate Modal -->
     <div wire:ignore.self class="modal fade" id="candidateModal" tabindex="-1" aria-labelledby="candidateModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content border-0 shadow-lg rounded-3">
@@ -185,7 +239,6 @@
                             @error('agent_id') <small class="text-danger">{{ $message }}</small> @enderror
                         </div>
 
-                        {{-- 🔹 Assemblies --}}
                         <div class="mb-3 col-md-12">
                             <label class="form-label">Assemblies <span class="text-danger">*</span></label>
                             <div wire:ignore>
@@ -218,10 +271,10 @@
         </div>
     </div>
 
-    @push('scripts')
-        <script>
+    @push('scripts')   
+        {{-- <script>
             window.addEventListener('toastr:success', event => toastr.success(event.detail.message));
-        </script>
+        </script> --}}
         <script>
             window.addEventListener('ResetForm', event => {
                 document.querySelectorAll('input, textarea, select').forEach(el => el.value = '');
@@ -270,5 +323,38 @@
                 initChosen();
             });
         </script>
+         <script>
+            // document.addEventListener('livewire:load', () => {
+                window.addEventListener('close-upload-modal', () => {
+                    const modalEl = document.getElementById('uploadcandidateModal');
+                    if (!modalEl) return;
+
+                    // Ensure a Bootstrap modal instance exists
+                    let modal = bootstrap.Modal.getInstance(modalEl);
+                    if (!modal) {
+                        modal = new bootstrap.Modal(modalEl);
+                    }
+
+                    // Properly hide modal (Bootstrap will clean up the backdrop)
+                    modal.hide();
+
+                    // Fallback cleanup (rare cases)
+                    setTimeout(() => {
+                        document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+                        document.body.classList.remove('modal-open');
+                        document.body.style = '';
+                    }, 500);
+                });
+            window.addEventListener('toastr:success', event => toastr.success(event.detail.message));
+
+            // });
+            </script>
+        {{-- <script>
+            window.addEventListener('close-upload-modal', () => {
+                const modal = bootstrap.Modal.getInstance(document.getElementById('uploadcandidateModal'));
+                alert('hi');
+                 modal.hide();
+            });
+        </script> --}}
     @endpush
 </div>

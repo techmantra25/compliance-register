@@ -7,10 +7,15 @@ use App\Models\Assembly;
 use App\Models\Agent;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Livewire\WithFileUploads;
+use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Storage;
 
 class CandidateContactList extends Component
 {
-    use WithPagination;
+    use WithPagination, WithFileUploads;
 
     public $search = '';
     public $name, $designation, $email, $contact_number, $contact_number_alt_1, $contact_number_alt_2, $assembly_id,$agent_id, $type = 'Candidate';
@@ -18,7 +23,13 @@ class CandidateContactList extends Component
     public $editMode = false;
     public $editId;
 
+    public $candidateFile, $csvError = null;
+    protected $rules = [
+        'candidateFile' => 'required|file|mimes:csv,txt', 
+    ];
+
     protected $paginationTheme = 'bootstrap';
+    
     public function mount()
     {
         // Fetch assemblies that don't yet have a candidate
@@ -143,6 +154,125 @@ class CandidateContactList extends Component
         $this->dispatch('ResetForm');
         $this->resetPage();
     }
+
+    public function saveCandidate()
+    {
+        $this->validate([
+            'candidateFile' => 'required|file|mimes:csv,txt|max:10240',
+        ]);
+
+        $this->csvError = null;
+
+        try {
+            $path = $this->candidateFile->store('temp', 'public');
+            $file = Storage::disk('public')->path($path);
+
+            $rows = array_map('str_getcsv', file($file));
+            $header = array_map('trim', array_shift($rows));
+
+            $expectedHeaders = [
+                'assembly_code', 'agent_name', 'agent_email',
+                'candidate_name', 'candidate_email', 'candidate_mobile', 'candidate_alternative_mobile'
+            ];
+
+            if ($header !== $expectedHeaders) {
+                throw new \Exception("Invalid CSV header format. Please use the provided sample CSV.");
+            }
+
+            DB::beginTransaction();
+
+            foreach ($rows as $index => $row) {
+                $data = array_combine($header, array_map('trim', $row));
+
+                if (empty($data['assembly_code'])) {
+                    throw new \Exception("Row " . ($index + 2) . ": Assembly code is required.");
+                }
+
+                if (empty($data['candidate_name']) || empty($data['candidate_mobile'])) {
+                    throw new \Exception("Row " . ($index + 2) . ": Candidate name and mobile are required.");
+                }
+
+                $assembly = DB::table('assemblies')
+                    ->where('assembly_code', $data['assembly_code'])
+                    ->first();
+
+                if (!$assembly) {
+                    throw new \Exception("Row " . ($index + 2) . ": Invalid assembly code.");
+                }
+
+                $assembly_id = $assembly->id;
+                $agent_id = null;
+
+                if (!empty($data['agent_email'])) {
+                    if (empty($data['agent_name'])) {
+                        throw new \Exception("Row " . ($index + 2) . ": Agent name required when agent email is provided.");
+                    }
+
+                    $agent = DB::table('agents')
+                        ->where('email', $data['agent_email'])
+                        ->first();
+
+                    if ($agent) {
+                        $agent_id = $agent->id;
+                    } else {
+                        $agent_id = DB::table('agents')->insertGetId([
+                            'name' => $data['agent_name'],
+                            'email' => $data['agent_email'],
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ]);
+                    }
+                }
+
+                DB::table('candidates')->updateOrInsert(
+                    [
+                        'assembly_id' => $assembly_id,
+                    ],
+                    [
+                        'name' => $data['candidate_name'],
+                        'email' => $data['candidate_email'],
+                        'contact_number' => $data['candidate_mobile'],
+                        'contact_number_alt_1' => $data['candidate_alternative_mobile'] ?? null,
+                        'type' => 'Candidate',
+                        'agent_id' => $agent_id,
+                        'updated_at' => now(),
+                        'created_at' => now(), 
+                    ]
+                );
+
+            }
+
+            DB::commit();
+
+            unlink($file);
+            $this->reset(['candidateFile']);
+            
+            $this->dispatch('close-upload-modal');
+            $this->dispatch('toastr:success', message: 'CSV uploaded successfully.');
+
+            // session()->flash('success', 'CSV uploaded successfully.');
+
+        }  catch (\Exception $e) {
+            DB::rollBack();
+
+            $errorMessage = $e->getMessage();
+
+            if (str_contains($errorMessage, 'Invalid CSV header')) {
+                $this->csvError = 'Your CSV file format is incorrect. Please use the sample format.';
+            } elseif (str_contains($errorMessage, 'Invalid assembly code')) {
+                $this->csvError = 'One or more Assembly Codes are invalid. Please verify and re-upload.';
+            } elseif (str_contains($errorMessage, 'required')) {
+                $this->csvError = 'Please make sure all mandatory fields are filled in.';
+            } elseif (str_contains(strtolower($errorMessage), 'duplicate') || str_contains(strtolower($errorMessage), 'unique')) {
+                $this->csvError = 'Some emails already exist in the system. Please ensure all agent or candidate emails are unique.';
+            } else {
+                $this->csvError = 'Something went wrong while processing your CSV. Please try again.';
+            }
+        }
+
+    }
+
+
 
     public function render()
     {
