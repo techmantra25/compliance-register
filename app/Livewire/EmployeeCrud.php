@@ -4,25 +4,28 @@ namespace App\Livewire;
 
 use Livewire\Component;
 use App\Models\Admin;
+use App\Models\Zone;
+use App\Models\District;
 use Illuminate\Support\Facades\Hash;
 
 class EmployeeCrud extends Component
 {
-    public $name, $email, $mobile, $role, $password, $admin_id;
+    public $name, $email, $mobile, $role, $password, $admin_id,$zone_id;
     public $isEdit = false;
     public $search = '';
+    public $zones;
 
     protected $rules = [
         'name' => 'required|string|max:255',
         'email' => 'required|email|unique:admins,email',
         'mobile' => 'nullable|string|max:20',
         'role' => 'required|string',
+        'zone_id'   => 'required|exists:zones,id',
         'password' => 'required|min:6',
     ];
-
     public function resetInputFields()
     {
-        $this->reset(['name', 'email', 'mobile', 'role', 'password']);
+        $this->reset(['name', 'email', 'mobile', 'role', 'password','zone_id']);
         $this->admin_id = null;
         $this->isEdit = false;
          $this->dispatch('ResetForm');
@@ -65,6 +68,7 @@ class EmployeeCrud extends Component
         $this->email = $admin->email;
         $this->mobile = $admin->mobile;
         $this->role = $admin->role;
+        $this->zone_id = $admin->zone_id;
         $this->password = '';
         $this->isEdit = true;
     }
@@ -82,6 +86,7 @@ class EmployeeCrud extends Component
             'name' => $this->name,
             'email' => $this->email,
             'mobile' => $this->mobile,
+            'zone_id' => $this->zone_id,
             'role' => $this->role,
         ];
         if ($this->password) {
@@ -105,6 +110,11 @@ class EmployeeCrud extends Component
 
     public function render()
     {
+         $this->zones = Zone::all()->map(function ($zone) {
+            $districtIds = explode(',', $zone->districts);
+            $zone->district_list = District::whereIn('id', $districtIds)->pluck('name_en')->toArray();
+            return $zone;
+        });
         $admins = Admin::query()
             ->when($this->search, function($query) {
                 $query->where('name', 'like', '%'.$this->search.'%')

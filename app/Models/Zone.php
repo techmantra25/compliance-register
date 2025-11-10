@@ -1,0 +1,19 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class Zone extends Model
+{
+    protected $table = 'zones';
+
+    protected $fillable = [
+        'name','districts','reasons'
+    ];
+
+    public function districts()
+    {
+        return $this->belongsToMany(District::class, 'districts'); // or your pivot name
+    }
+}

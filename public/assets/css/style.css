@@ -223,3 +223,15 @@ body {
     content: "›";
     color: #6c757d;
 }
+ .bg-lavel-danger{
+        background: #ffe2e3;
+    color: #ff5156;
+    }
+    .bg-lavel-success{
+    background-color: #e4f7d6 !important;
+    color: #56ca00 !important;
+    }
+    .bg-lavel-warning{
+    background-color: #fff3d6;
+    color: #ffb400;
+    }

@@ -6,11 +6,13 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\App;
 use App\Livewire\{
     AdminDashboard,
+    ZoneList,
     EmployeeCrud,
     AssemblyList,
     CandidateContactList,
     CandidateDocumentCollection,
     DiscrepancyReportCrud,
+    CandidateJourney,
     AgentCrud,
     AdminLogin
 };
@@ -67,6 +69,7 @@ Route::prefix('/admin')->middleware('auth:admin')->group(function () {
     Route::get('/agents', AgentCrud::class)->name('admin.agents');
     
     Route::prefix('candidates')->group(function () {
+        Route::get('/journey', CandidateJourney::class)->name('admin.candidates.journey');
         Route::get('/nominations', CandidateContactList::class)->name('admin.candidates.contacts');
         Route::get('/social-media', DiscrepancyReportCrud::class)->name('admin.candidates.discrepancies.report');
         // Route::get('/Candidate Discrepancy Reports', [CandidateController::class, 'nominations'])->name('admin.candidates.nominations');

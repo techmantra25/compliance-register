@@ -96,9 +96,13 @@
                                                 title="Edit Candidate">
                                                 <i class="bi bi-pencil"></i>
                                             </button>
-                                          <a href="{{ route('admin.candidates.documents', ['candidate'=>$candidate->id]) }}"
-                                            class="btn btn-sm btn-outline-primary">
-                                            Document Collections
+                                            <a href="{{ route('admin.candidates.documents', ['candidate'=>$candidate->id]) }}"
+                                                class="btn btn-sm btn-outline-primary">
+                                                Document Collections
+                                            </a>
+                                            <a href="{{ route('admin.candidates.journey', ['candidate'=>$candidate->id]) }}"
+                                                class="btn btn-sm btn-outline-primary">
+                                                View
                                             </a>
                                         </td>
                                     </tr>

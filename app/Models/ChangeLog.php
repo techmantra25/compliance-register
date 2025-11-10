@@ -10,10 +10,7 @@ class ChangeLog extends Model
     use HasFactory;
 
     protected $fillable = [
-        'title',
-        'old_data',
-        'new_data',
-        'change_by',
+       'module_name', 'module_id', 'action', 'description', 'link', 'old_data', 'new_data', 'document_name', 'changed_by', 'ip_address', 'user_agent'
     ];
 
     protected $casts = [

@@ -14,6 +14,7 @@ class Admin extends Authenticatable
         'email',
         'mobile',
         'password',
+        'zone_id',
         'role',
     ];
 
@@ -21,4 +22,8 @@ class Admin extends Authenticatable
         'password',
         'remember_token',
     ];
+
+    public function zones(){
+        return $this->belongsTo(Zone::class, 'zone_id');
+    }
 }
