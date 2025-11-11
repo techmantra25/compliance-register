@@ -21,4 +21,8 @@ class CandidateDocument extends Model
     {
         return $this->belongsTo(Admin::class, 'uploaded_by', 'id');
     }
+    public function comments()
+    {
+        return $this->hasMany(CandidateDocumentComment::class, 'candidate_document_id');
+    }
 }

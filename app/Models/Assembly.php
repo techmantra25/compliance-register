@@ -21,8 +21,4 @@ class Assembly extends Model
     {
         return $this->hasMany(Candidate::class, 'assembly_id');
     }
-    public function agents()
-    {
-        return $this->belongsToMany(Agent::class, 'agent_assemblies');
-    }
 }

@@ -80,10 +80,38 @@
                                         </td>
                                         
                                         <td>
-                                            @if ($candidate->agent)
-                                                <span> {{ ucwords($candidate->agent->name) ?? 'N/A' }} ({{ $candidate->agent->contact_number ?? '—' }})</span><br>
+                                            @if ($candidate->agents->isNotEmpty())
+                                                @foreach ($candidate->agents as $agent)
+                                                    <div class="d-flex mb-1">
+                                                        <i class="bi bi-person-badge text-primary me-1"></i>
+                                                        <div>
+                                                            <strong>{{ ucwords($agent->name) }}</strong>
+                                                            <span class="text-muted small">
+                                                                ({{ $agent->contact_number }}
+                                                                @if($agent->contact_number_alt_1) / {{ $agent->contact_number_alt_1 }} @endif)
+                                                            </span>
+                                                            @if($agent->email)
+                                                                <div class="small text-muted">{{ $agent->email }}</div>
+                                                            @endif
+                                                        </div>
+                                                    </div>
+                                                @endforeach
+
+                                                {{-- Add another agent --}}
+                                                <button class="btn btn-sm btn-outline-primary mt-2 assign-agent-btn"
+                                                    wire:click="openAgentModal({{ $candidate->id }})"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#assignAgentModal">
+                                                    <i class="bi bi-plus-circle"></i> Assign Agent
+                                                </button>
                                             @else
-                                                <span> N/A</span><br>
+                                                <span class="text-muted">N/A</span><br>
+                                                <button class="btn btn-sm btn-outline-primary mt-2 assign-agent-btn"
+                                                    wire:click="openAgentModal({{ $candidate->id }})"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#assignAgentModal">
+                                                    <i class="bi bi-plus-circle"></i> Assign Agent
+                                                </button>
                                             @endif
                                         </td>
                                         <td>
@@ -92,21 +120,31 @@
                                                 </span>
                                         </td>
                                         <td class="text-center">
-                                            <button class="btn btn-sm btn-outline-primary"
-                                                wire:click="edit({{ $candidate->id }})"
-                                                data-bs-toggle="modal"
-                                                data-bs-target="#candidateModal"
-                                                title="Edit Candidate">
-                                                <i class="bi bi-pencil"></i>
-                                            </button>
-                                            <a href="{{ route('admin.candidates.documents', ['candidate'=>$candidate->id]) }}"
-                                                class="btn btn-sm btn-outline-primary">
-                                                Document Collections
-                                            </a>
-                                            <a href="{{ route('admin.candidates.journey', ['candidate'=>$candidate->id]) }}"
-                                                class="btn btn-sm btn-outline-primary">
-                                                View
-                                            </a>
+                                            @if($authUser->role=='legal associate')
+                                                <a href="#"
+                                                    class="btn btn-sm btn-outline-success"
+                                                    title="Verify Documents">
+                                                    <i class="bi bi-check2-square"></i> Verify Documents
+                                                </a>
+                                                
+                                            @else
+                                                <button class="btn btn-sm btn-outline-primary"
+                                                    wire:click="edit({{ $candidate->id }})"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#candidateModal"
+                                                    title="Edit Candidate">
+                                                    <i class="bi bi-pencil"></i>
+                                                </button>
+                                                <a href="{{ route('admin.candidates.documents', ['candidate'=>$candidate->id]) }}"
+                                                    class="btn btn-sm btn-outline-primary">
+                                                    Document Collections
+                                                </a>
+                                                
+                                                <a href="{{ route('admin.candidates.journey', ['candidate'=>$candidate->id]) }}"
+                                                    class="btn btn-sm btn-outline-primary">
+                                                    View
+                                                </a>
+                                            @endif
                                         </td>
                                     </tr>
                                 @empty
@@ -190,95 +228,154 @@
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close" wire:click="resetForm"></button>
                 </div>
-
-             <form wire:submit.prevent="{{ $editMode ? 'update' : 'save' }}" wire:key="agent-form-{{ $editId ?? 'new' }}">
-                <div class="modal-body">
-                    <div class="row">
-                        {{-- 🔹 Agent Name --}}
-                        <div class="mb-3 col-md-6">
-                            <label class="form-label">Name <span class="text-danger">*</span></label>
-                            <input type="text" wire:model="name" class="form-control">
-                            @error('name') <small class="text-danger">{{ $message }}</small> @enderror
-                        </div>
-
-                        {{-- 🔹 Designation --}}
-                        <div class="mb-3 col-md-6">
-                            <label class="form-label">Designation</label>
-                            <input type="text" wire:model="designation" class="form-control">
-                            @error('designation') <small class="text-danger">{{ $message }}</small> @enderror
-                        </div>
-
-                        {{-- 🔹 Email --}}
-                        <div class="mb-3 col-md-6">
-                            <label class="form-label">Email</label>
-                            <input type="email" wire:model="email" class="form-control">
-                            @error('email') <small class="text-danger">{{ $message }}</small> @enderror
-                        </div>
-
-                        {{-- 🔹 Contact Number --}}
-                        <div class="mb-3 col-md-6">
-                            <label class="form-label">Contact Number <span class="text-danger">*</span></label>
-                            <input type="text" wire:model="contact_number" class="form-control">
-                            @error('contact_number') <small class="text-danger">{{ $message }}</small> @enderror
-                        </div>
-
-                        {{-- 🔹 Alt Contact Number --}}
-                        <div class="mb-3 col-md-6">
-                            <label class="form-label">Alt Contact Number</label>
-                            <input type="text" wire:model="contact_number_alt_1" class="form-control">
-                            @error('contact_number_alt_1') <small class="text-danger">{{ $message }}</small> @enderror
-                        </div>
-
-                        {{-- 🔹 Agent --}}
-                        <div class="mb-3 col-md-6">
-                            <label class="form-label">Agent <span class="text-danger">*</span></label>
-                            <div wire:ignore>
-                                <select wire:model="agent_id" class="form-select chosen-select">
-                                    <option value="">Select one</option>
-                                    @foreach ($agents as $agent)
-                                        <option value="{{ $agent->id }}">{{ $agent->name }}</option>
-                                    @endforeach
-                                </select>
+                <form wire:submit.prevent="{{ $editMode ? 'update' : 'save' }}" wire:key="agent-form-{{ $editId ?? 'new' }}">
+                    <div class="modal-body">
+                        <div class="row">
+                            {{-- 🔹 Agent Name --}}
+                            <div class="mb-3 col-md-6">
+                                <label class="form-label">Name <span class="text-danger">*</span></label>
+                                <input type="text" wire:model="name" class="form-control">
+                                @error('name') <small class="text-danger">{{ $message }}</small> @enderror
                             </div>
-                            @error('agent_id') <small class="text-danger">{{ $message }}</small> @enderror
-                        </div>
 
-                        <div class="mb-3 col-md-12">
-                            <label class="form-label">Assemblies <span class="text-danger">*</span></label>
-                            <div wire:ignore>
-                                <select wire:model="assembly_id" class="form-select chosen-select">
-                                    <option value="">Select one</option>
-                                    @foreach ($assemblies as $assembly)
-                                        <option value="{{ $assembly->id }}">
-                                            {{ $assembly->assembly_name_en }} ({{ $assembly->assembly_code }})
-                                        </option>
-                                    @endforeach
-                                </select>
+                            {{-- 🔹 Designation --}}
+                            {{-- <div class="mb-3 col-md-6">
+                                <label class="form-label">Designation</label>
+                                <input type="text" wire:model="designation" class="form-control">
+                                @error('designation') <small class="text-danger">{{ $message }}</small> @enderror
+                            </div> --}}
+
+                            {{-- 🔹 Email --}}
+                            <div class="mb-3 col-md-6">
+                                <label class="form-label">Email</label>
+                                <input type="email" wire:model="email" class="form-control">
+                                @error('email') <small class="text-danger">{{ $message }}</small> @enderror
                             </div>
-                            @error('assembly_id') <small class="text-danger">{{ $message }}</small> @enderror
+
+                            {{-- 🔹 Contact Number --}}
+                            <div class="mb-3 col-md-6">
+                                <label class="form-label">Contact Number <span class="text-danger">*</span></label>
+                                <input type="text" wire:model="contact_number" class="form-control">
+                                @error('contact_number') <small class="text-danger">{{ $message }}</small> @enderror
+                            </div>
+
+                            {{-- 🔹 Alt Contact Number --}}
+                            <div class="mb-3 col-md-6">
+                                <label class="form-label">Alt Contact Number</label>
+                                <input type="text" wire:model="contact_number_alt_1" class="form-control">
+                                @error('contact_number_alt_1') <small class="text-danger">{{ $message }}</small> @enderror
+                            </div>
+
+                            {{-- 🔹 Agent --}}
+                            <div class="mb-3 col-md-12">
+                                <label class="form-label">Assemblies <span class="text-danger">*</span></label>
+                                <div wire:ignore>
+                                    <select wire:model="assembly_id" class="form-select chosen-select">
+                                        <option value="">Select one</option>
+                                        @foreach ($assemblies as $assembly)
+                                            <option value="{{ $assembly->id }}">
+                                                {{ $assembly->assembly_name_en }} ({{ $assembly->assembly_code }})
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                @error('assembly_id') <small class="text-danger">{{ $message }}</small> @enderror
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal" wire:click="resetForm">
-                        <i class="bi bi-x"></i> Cancel
-                    </button>
-                    <button type="submit" class="btn btn-primary btn-sm">
-                        {{ $editMode ? 'Update' : 'Save' }}
-                    </button>
-                </div>
-            </form>
-
-
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal" wire:click="resetForm">
+                            <i class="bi bi-x"></i> Cancel
+                        </button>
+                        <button type="submit" class="btn btn-primary btn-sm">
+                            {{ $editMode ? 'Update' : 'Save' }}
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
 
+    <div wire:ignore.self class="modal fade" id="assignAgentModal" tabindex="-1" aria-labelledby="assignAgentModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl"> <!-- extra-large modal -->
+            <div class="modal-content rounded-3 shadow">
+                <div class="modal-header bg-light">
+                    <h5 class="modal-title" id="assignAgentModalLabel">
+                        <i class="bi bi-person-plus text-primary me-2"></i> Assign Agents
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+
+                    @foreach ($agentsList as $index => $agent)
+                        <div class="row align-items-end mb-3" wire:key="agent-row-{{ $index }}">
+                            <div class="col-md-3">
+                                <label class="form-label fw-semibold">Name <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" wire:model.defer="agentsList.{{ $index }}.name" placeholder="Agent Name">
+                                @error('agentsList.' . $index . '.name') 
+                                    <small class="text-danger">{{ $message }}</small> 
+                                @enderror
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label fw-semibold">Contact Number <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" wire:model.defer="agentsList.{{ $index }}.contact_number" placeholder="Primary Contact">
+                                @error('agentsList.' . $index . '.contact_number') 
+                                    <small class="text-danger">{{ $message }}</small> 
+                                @enderror
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label fw-semibold">Alternate Contact</label>
+                                <input type="text" class="form-control" wire:model.defer="agentsList.{{ $index }}.contact_number_alt_1" placeholder="Alt Contact">
+                                @error('agentsList.' . $index . '.contact_number_alt_1') 
+                                    <small class="text-danger">{{ $message }}</small> 
+                                @enderror
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label fw-semibold">Email</label>
+                                <input type="email" class="form-control" wire:model.defer="agentsList.{{ $index }}.email" placeholder="Email">
+                                @error('agentsList.' . $index . '.email') 
+                                    <small class="text-danger">{{ $message }}</small> 
+                                @enderror
+                            </div>
+                            <div class="col-md-12 text-end mt-2">
+                                @if($index > 0)
+                                    <button type="button" class="btn btn-sm btn-danger" wire:click="removeAgentRow({{ $index }})">
+                                        <i class="bi bi-trash"></i> Remove
+                                    </button>
+                                @endif
+                            </div>
+                            <hr class="my-2">
+                        </div>
+                    @endforeach
+
+                    <div class="text-end">
+                        <button type="button" class="btn btn-sm btn-outline-success mt-2" wire:click="addAgentRow">
+                            <i class="bi bi-plus-circle me-1"></i> Add More Agent
+                        </button>
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button wire:click="saveAgents" class="btn btn-primary">
+                        <i class="bi bi-save me-1"></i> Save All
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
     @push('scripts')   
-        {{-- <script>
+        <script>
             window.addEventListener('toastr:success', event => toastr.success(event.detail.message));
-        </script> --}}
+            window.addEventListener('toastr:error', event => toastr.error(event.detail.message));
+        </script>
         <script>
             window.addEventListener('ResetForm', event => {
                 document.querySelectorAll('input, textarea, select').forEach(el => el.value = '');

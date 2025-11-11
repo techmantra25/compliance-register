@@ -16,5 +16,10 @@ class Agent extends Model
     {
         return $this->belongsToMany(Assembly::class, 'agent_assemblies');
     }
+
+     public function candidates()
+    {
+        return $this->belongsToMany(Candidate::class, 'candidate_agents', 'agent_id', 'candidate_id');
+    }
     
 }

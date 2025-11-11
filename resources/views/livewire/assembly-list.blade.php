@@ -132,7 +132,7 @@
                 }
             });
         </script>
-       <link rel="stylesheet" href="{{ asset('assets/css/component-chosen.css') }}">
+        <link rel="stylesheet" href="{{ asset('assets/css/component-chosen.css') }}">
         <script src="{{ asset('assets/js/chosen.jquery.js') }}"></script>
         <script>
             function initChosen() {

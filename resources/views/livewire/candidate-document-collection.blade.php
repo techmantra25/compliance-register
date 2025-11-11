@@ -107,16 +107,19 @@
                                         @endif
 
                                         {{-- File Name + Icon --}}
-                                        <td>
+                                    <td onclick="window.location='{{ route('admin.candidates.documents.comments', $doc['id']) }}'"
+                                        style="cursor: pointer;"
+                                        title="Click to view document comments">
                                             <div class="d-flex align-items-center justify-content-between">
-                                                <div>
+
+                                                <div class="d-flex align-items-center">
                                                     @switch(strtolower($extension))
                                                         @case('pdf')
-                                                            <i class="bi bi-file-earmark-pdf text-danger me-2"></i>
+                                                            <i class="bi bi-file-earmark-pdf text-danger me-2 fs-5"></i>
                                                             @break
                                                         @case('doc')
                                                         @case('docx')
-                                                            <i class="bi bi-file-earmark-word text-primary me-2"></i>
+                                                            <i class="bi bi-file-earmark-word text-primary me-2 fs-5"></i>
                                                             @break
                                                         @case('jpg')
                                                         @case('jpeg')
@@ -124,30 +127,29 @@
                                                         @case('gif')
                                                         @case('bmp')
                                                         @case('webp')
-                                                            <i class="bi bi-file-earmark-image text-success me-2"></i>
+                                                            <i class="bi bi-file-earmark-image text-success me-2 fs-5"></i>
                                                             @break
                                                         @default
-                                                            <i class="bi bi-file-earmark-text text-secondary me-2"></i>
+                                                            <i class="bi bi-file-earmark-text text-secondary me-2 fs-5"></i>
                                                     @endswitch
 
-                                                    <a href="{{ asset('storage/' . $doc['path']) }}"
-                                                    target="_blank"
-                                                    class="text-decoration-none text-dark fw-medium"
-                                                    title="{{ $fileName }}">
-                                                        {{ Str::limit($fileName, 13) }}
+                                                    <strong class="text-dark fw-medium">V{{ $index + 1 }}</strong>
+                                                </div>
+
+                                                <div class="mx-2">
+                                                    <a href="javascript:void(0)"
+                                                    class="text-decoration-none position-relative text-secondary"
+                                                    title="View Comments">
+                                                        <i class="bi bi-chat-dots fs-5"></i>
+                                                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                                           {{$doc['comments_count']}}
+                                                        </span>
                                                     </a>
                                                 </div>
 
-                                                @if($doc['status'] == 'Pending')
-                                                    <button type="button" 
-                                                            wire:click="deleteDocument({{ $doc['id'] }})" 
-                                                            class="delete-btn-padding btn btn-sm btn-outline-danger ms-2"
-                                                            title="Delete file">
-                                                        <i class="bi bi-trash"></i>
-                                                    </button>
-                                                @endif
                                             </div>
                                         </td>
+
 
                                         {{-- Uploaded By --}}
                                         <td>

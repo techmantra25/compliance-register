@@ -78,7 +78,7 @@ class CandidateDocumentCollection extends Component
      */
     protected function loadDocuments()
     {
-        $documentsData = CandidateDocument::with('uploadedBy')
+        $documentsData = CandidateDocument::with('uploadedBy','comments')
             ->where('candidate_id', $this->candidateId)
             ->orderBy('created_at', 'desc')
             ->get()
@@ -92,6 +92,7 @@ class CandidateDocumentCollection extends Component
                         'created_at' => $document->created_at->format('d/m/Y h:i A'), 
                         'uploaded_by_name' => $document->uploadedBy->name ?? 'System',
                         'uploaded_by_id' => $document->uploaded_by,
+                        'comments_count' => $document->comments->count(),
                         'status' => $document->status,
                     ];
                 })->toArray();
@@ -182,7 +183,7 @@ class CandidateDocumentCollection extends Component
             CandidateDocument::create([
                 'candidate_id' => $this->candidateId,
                 'type' => $this->type,
-                'path' => $path,
+                'path' => 'storage/'.$path,
                 'remarks' => $this->remarks ?? null,
                 'uploaded_by' => Auth::id(),
             ]);

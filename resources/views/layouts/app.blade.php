@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Admin | Invoice System</title>
+    <title>Admin | Compliance Register</title>
      {{-- ✅ Favicon --}}
     <link rel="icon" type="image/png" href="{{ asset('assets/img/logo.png') }}">
     @vite(['resources/js/app.js'])

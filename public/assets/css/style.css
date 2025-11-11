@@ -1,6 +1,6 @@
 :root {
     --primary-color: #3A1212;
-    --sidebar-width: 250px;
+    --sidebar-width: 180px;
 }
 /* =========================================
    PRIMARY THEME STYLES
@@ -234,4 +234,14 @@ body {
     .bg-lavel-warning{
     background-color: #fff3d6;
     color: #ffb400;
+    }
+
+    .chart-body{
+        height: 436px;
+        overflow-y: auto;
+    }
+    .assign-agent-btn{
+        font-size: 10px;
+        font-weight: 800;
+        padding: 3px;
     }
