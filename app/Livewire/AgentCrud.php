@@ -13,19 +13,24 @@ class AgentCrud extends Component
 
     protected $paginationTheme = 'bootstrap';
 
-    public $name, $designation, $email, $contact_number, $contact_number_alt_1;
+    // Common fields
+    public $agent_type, $name, $email, $comments;
+    
+    // Category-specific fields
+    public $designation, $area, $mobile_no, $phone_no, $whatsapp_no;
+    public $assemblies_id;
+    
+    // Other properties
     public $editId = null, $editMode = false, $search = '';
-     public $assembly_ids = []; // for multi-select chosen
+    public $assemblies;
 
-    // protected $rules = [
-    //     'name' => 'required|string|max:255',
-    //     'designation' => 'nullable|string|max:255',
-    //     'email' => 'required|email|unique:agents,email,max:255',
-    //     'contact_number' => 'required|string|max:20',
-    //     'contact_number_alt_1' => 'nullable|string|max:20',
-    // ];
-
-  
+    public function mount()
+    {
+        $this->assemblies = Assembly::select('id', 'assembly_code', 'assembly_name_en')
+            ->where('status', 1)
+            ->orderBy('assembly_code')
+            ->get();
+    }
 
     public function filterAgents($searchTerm)
     {
@@ -34,9 +39,12 @@ class AgentCrud extends Component
 
     public function resetForm()
     {
-        $this->reset(['name', 'designation', 'email', 'contact_number', 'contact_number_alt_1', 'editId', 'editMode','search']);
+        $this->reset([
+            'agent_type', 'name', 'designation', 'email', 'area',
+            'mobile_no', 'phone_no', 'whatsapp_no', 'assemblies_id',
+            'comments', 'editId', 'editMode', 'search'
+        ]);
         $this->resetValidation();
-        $this->dispatch('ResetForm');
     }
 
     public function newAgent()
@@ -45,67 +53,149 @@ class AgentCrud extends Component
         $this->editMode = false;
     }
 
-    public function save()
+    public function saveAgent()
     {
-        // $this->validate();
+        // Validate based on category type
+        $rules = $this->getValidationRules();
+        $this->validate($rules);
 
-        $this->validate([
-            'name' => 'required|string',
-            'designation' => 'nullable|string|max:255',
-            'email' => 'required|email|unique:agents,email',
-            'contact_number' => 'required',
-            'contact_number_alt_1' => 'nullable|string|max:20',
-        ]);
+        try {
+            // Prepare data based on category
+            $data = $this->prepareAgentData();
 
-        Agent::create([
+            if ($this->editMode) {
+                // Update existing agent
+                $agent = Agent::findOrFail($this->editId);
+                $agent->update($data);
+                $message = 'Agent updated successfully!';
+            } else {
+                // Create new agent
+                Agent::create($data);
+                $message = 'Agent added successfully!';
+            }
+
+            $this->dispatch('toastr:success', message: $message);
+            $this->dispatch('close-modal');
+            $this->resetForm();
+            
+        } catch (\Exception $e) {
+            $this->dispatch('toastr:error', message: 'Error: ' . $e->getMessage());
+        }
+    }
+
+    private function getValidationRules()
+    {
+        $commonRules = [
+            'agent_type' => 'required|in:bureaucrat,political,other',
+            'name' => 'required|string|max:255',
+            'mobile_no' => 'required|string|max:10',
+        ];
+
+        if ($this->agent_type === 'bureaucrat') {
+            return array_merge($commonRules, [
+                'designation' => 'required|string|max:255',
+                'area' => 'required|string|max:255',
+                'phone_no' => 'nullable|string|max:10',
+                'email' => 'nullable|email|max:255',
+                'comments' => 'nullable|string',
+            ]);
+        } elseif ($this->agent_type === 'political') {
+            return array_merge($commonRules, [
+                'assemblies_id' => 'nullable|exists:assemblies,id',
+                'whatsapp_no' => 'nullable|string|max:10',
+                'email' => 'nullable|email|max:255',
+                'designation' => 'nullable|string|max:255',
+                'comments' => 'nullable|string',
+            ]);
+        } elseif ($this->agent_type === 'other') {
+            return array_merge($commonRules, [
+                'whatsapp_no' => 'nullable|string|max:10',
+                'email' => 'nullable|email|max:255',
+                'designation' => 'nullable|string|max:255',
+                'area' => 'nullable|string|max:255',
+                'comments' => 'nullable|string',
+            ]);
+        } else {
+            return $commonRules;
+        }
+    }
+
+    private function prepareAgentData()
+    {
+        $data = [
+            'type' => $this->agent_type,
             'name' => $this->name,
-            'designation' => $this->designation,
             'email' => $this->email,
-            'contact_number' => $this->contact_number,
-            'contact_number_alt_1' => $this->contact_number_alt_1,
-        ]);
+            'comments' => $this->comments,
+        ];
 
-        // $this->dispatch('toastr:success', message: 'Agent added successfully.');
-        // $this->resetForm();
-        session()->flash('success', 'Agent added successfully!');
-        return redirect()->route('admin.agents');
+        switch ($this->agent_type) {
+            case 'bureaucrat':
+                $data['designation'] = $this->designation;
+                $data['contact_number'] = $this->mobile_no;
+                $data['phone_number'] = $this->phone_no;
+                $data['area'] = $this->area; // Store area in alt_1 or create new column
+                break;
+
+            case 'political':
+                $data['assemblies_id'] = $this->assemblies_id;
+                $data['contact_number'] = $this->mobile_no;
+                $data['whatsapp_number'] = $this->whatsapp_no;
+                $data['designation'] = $this->designation;
+                break;
+
+            case 'other':
+                $data['contact_number'] = $this->mobile_no;
+                $data['whatsapp_number'] = $this->whatsapp_no;
+                $data['designation'] = $this->designation;
+                $data['area'] = $this->area; // Store area in alt_1 or create new column
+                break;
+        }
+
+        return $data;
     }
 
     public function edit($id)
-    {
-        $this->editMode = true;
-        $this->editId = $id;
+{
+    $this->editMode = true;
+    $this->editId = $id;
 
-        $agent = Agent::findOrFail($id);
-        $this->fill($agent->toArray());
+    $agent = Agent::findOrFail($id);
+    
+    $this->agent_type = $agent->type;
+    $this->name = $agent->name;
+    $this->email = $agent->email;
+    $this->comments = $agent->comments;
+    $this->assemblies_id = $agent->assemblies_id;
+    
+    switch ($agent->type) {
+        case 'bureaucrat':
+            $this->designation = $agent->designation;
+            $this->mobile_no = $agent->contact_number;
+            $this->phone_no = $agent->phone_number;
+            $this->area = $agent->area;
+            break;
+
+        case 'political':
+            $this->designation = $agent->designation;
+            $this->mobile_no = $agent->contact_number;
+            $this->whatsapp_no = $agent->whatsapp_number;
+            break;
+
+        case 'other':
+            $this->designation = $agent->designation;
+            $this->mobile_no = $agent->contact_number;
+            $this->whatsapp_no = $agent->whatsapp_number;
+            $this->area = $agent->area;
+            break;
     }
 
-    public function update()
-    {
-        $this->validate([
-            'name' => 'required|string',
-            'email' => 'required|email|unique:agents,email,' . $this->editId,
-            'contact_number' => 'required',
-            'designation' => 'nullable|string|max:255',
-            'contact_number_alt_1' => 'nullable|string|max:20',
-        ]);
+    //  Dispatch event to JS so modal fields show correctly
+    $this->dispatch('agent-edit-loaded', type: $this->agent_type);
+}
 
-        $agent = Agent::findOrFail($this->editId);
-        $agent->update([
-            'name' => $this->name,
-            'designation' => $this->designation,
-            'email' => $this->email,
-            'contact_number' => $this->contact_number,
-            'contact_number_alt_1' => $this->contact_number_alt_1,
-        ]);
 
-        // $this->dispatch('toastr:success', message: 'Agent updated successfully.');
-        // $this->resetForm();
-        session()->flash('success', 'Agent updated successfully!');
-        return redirect()->route('admin.agents');
-    }
-
-      public function render()
+    public function render()
     {
         $agents = Agent::where('name', 'like', "%{$this->search}%")
             ->orWhere('email', 'like', "%{$this->search}%")

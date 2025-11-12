@@ -28,7 +28,7 @@
                     <div class="d-flex justify-content-end align-items-center">
                         <!-- District filter -->
                         <div class="mx-2" style="width: 300px;" wire:ignore>
-                            <select wire:model="district_id" class="form-select form-select-sm w-auto chosen-select">
+                            <select wire:model="district_id" class="form-select form-select-sm w-auto chosen-select"  data-placeholder="Select Assembly">
                                 <option value="">{{ __('admin/assemblies.filter_district') }}</option>
                                 @foreach($districts as $district)
                                     <option value="{{ $district->id }}">{{ app()->getLocale() === 'bn' ? $district->name_bn : $district->name_en }}</option>
@@ -154,7 +154,7 @@
 
             Livewire.hook('morph.updated', ({ el, component }) => {
                 initChosen();
-                // ✅ After re-init, sync the Livewire value back to Chosen
+                //  After re-init, sync the Livewire value back to Chosen
                 $('.chosen-select').each(function () {
                     const el = $(this);
                     const model = el.attr('wire:model');

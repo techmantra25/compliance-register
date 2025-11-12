@@ -9,7 +9,17 @@ class Agent extends Model
     protected $table ='agents';
 
     protected $fillable = [
-        'name', 'designation', 'email', 'contact_number', 'contact_number_alt_1'
+        'name',
+        'assemblies_id', 
+        'designation', 
+        'email', 
+        'contact_number', 
+        'contact_number_alt_1', 
+        'comments', 
+        'phone_number',
+        'whatsapp_number',
+        'type',
+        'area'
     ];
 
     public function assemblies()
