@@ -58,7 +58,8 @@
                                     <th>Agent</th>
                                     <th>Assembly</th>
                                     <th>Documents Count</th>
-                                    <th style="width: 300px;" class="text-center">Action</th>
+                                    <th>Final Status</th>
+                                    <th style="max-width: 250px;" class="text-center">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -114,13 +115,17 @@
                                                 <span class="{{ $uploaded == $required_document ? 'text-success' : 'text-danger' }}">{{ $uploaded }}</span> / <span>{{ $required_document }}</span>
                                             </span>
                                         </td>
+                                        <td>
+                                            {{ getFinalDocStatus($candidate->document_collection_status, 'icon') }}
+                                            {{ getFinalDocStatus($candidate->document_collection_status, 'label') }}
+                                        </td>
 
                                         <td class="text-center">
                                             @if($authUser->role=='legal associate')
-                                                <a href="#"
-                                                    class="btn btn-sm btn-outline-success"
+                                                <a href="{{route('admin.candidates.documents.vetting', $candidate->id)}}"
+                                                    class="btn btn-sm btn-outline-primary"
                                                     title="Verify Documents">
-                                                    <i class="bi bi-check2-square"></i> Verify Documents
+                                                    <i class="bi bi-check2-square"></i> Verify Now
                                                 </a>
                                                 
                                             @else
@@ -142,11 +147,16 @@
                                                     title="View Candidate Document Collections">
                                                         <i class="bi bi-folder2"></i>
                                                     </a>
+                                                {{-- <a href="{{ route('admin.candidates.documents', ['candidate' => $candidate->id]) }}"
+                                                    class="btn btn-sm btn-outline-primary"
+                                                    title="View Candidate Document Collections">
+                                                        <i class="bi bi-folder2"></i>
+                                                    </a> --}}
                                                 
-                                                <a href="{{ route('admin.candidates.journey', ['candidate'=>$candidate->id]) }}"
+                                                {{-- <a href="{{ route('admin.candidates.journey', ['candidate'=>$candidate->id]) }}"
                                                     class="btn btn-sm btn-outline-primary">
                                                     View
-                                                </a>
+                                                </a> --}}
                                             @endif
                                         </td>
                                     </tr>

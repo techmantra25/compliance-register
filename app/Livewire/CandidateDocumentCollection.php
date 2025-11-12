@@ -91,57 +91,6 @@ class CandidateDocumentCollection extends Component
         $this->documents = $documentsData;
     }
 
-    // public function updatedNewFiles($files, $type)
-    // {
-    //     // Validate uploaded files
-    //     $this->validate([
-    //         "newFiles.$type" => 'file|max:2048', // 2MB max
-    //     ]);
-    // }
-
-    // public function saveDocument($type)
-    // {
-    //     dd($type);
-    //     $this->validate([
-    //         "newFiles.$type" => 'required|file|max:2048',
-    //         "remarks.$type" => 'nullable|string|max:500',
-    //     ]);
-
-    //     try {
-    //         $file = $this->newFiles[$type];
-            
-    //         // Generate a unique filename with timestamp
-    //         $timestamp = now()->format('Ymd_His');
-    //         $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-    //         $extension = $file->getClientOriginalExtension();
-    //         $filename = "{$originalName}_{$timestamp}.{$extension}";
-
-    //         // Store file in public/candidate_docs/{id}/
-    //         $path = $file->storeAs("candidate_docs/{$this->candidateId}", $filename, 'public');
-
-    //         // Save record in DB
-    //         CandidateDocument::create([
-    //             'candidate_id' => $this->candidateId,
-    //             'type' => $type,
-    //             'path' => $path,
-    //             'remarks' => $this->remarks[$type] ?? null,
-    //             'uploaded_by' => Auth::id(),
-    //         ]);
-
-    //         // Reset file and remarks for this type
-    //         unset($this->newFiles[$type]);
-    //         unset($this->remarks[$type]);
-
-    //         // Reload documents
-    //         $this->loadDocuments();
-    //         $this->dispatch(['ResetFormData']);
-    //         $this->dispatch('toastr:success', message: 'Document uploaded successfully!');
-
-    //     } catch (\Exception $e) {
-    //         // dd($e->getMessage());
-    //         $this->dispatch('toastr:error', message: 'Error uploading document: ' . $e->getMessage());
-    //     }
-    // }
     public function resetForm(){
         $this->reset(['type','newFile','remarks']);
     }

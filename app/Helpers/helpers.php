@@ -20,3 +20,54 @@ if (!function_exists('getCandidateDocument')) {
         return CandidateDocumentType::where('key', $key)->value('name');
     }
 }
+if (!function_exists('getFinalDocStatus')) {
+    /**
+     * Get Final Status list or a single status label/icon
+     *
+     * @param string|null $key
+     * @param string|null $type  ('label' or 'icon')
+     * @return mixed
+     */
+    function getFinalDocStatus($key = null, $type = null)
+    {
+        $statuses = [
+            'verified_pending_submission' => [
+                'label' => 'Verified Correct but yet to be submitted',
+                'icon'  => '✅',
+            ],
+            'incomplete_additional_required' => [
+                'label' => 'Incomplete / Additional Documents Required',
+                'icon'  => '⚠️',
+            ],
+            'verified_submitted_with_copy' => [
+                'label' => 'Verified and Submitted with Received Copy',
+                'icon'  => '📄',
+            ],
+            'not_received_form' => [
+                'label' => 'Have Not Received Form',
+                'icon'  => '⛔',
+            ],
+        ];
+
+        // Return all if no key
+        if (is_null($key)) {
+            return $statuses;
+        }
+
+        // Return specific key
+        if (isset($statuses[$key])) {
+            return match ($type) {
+                'label' => $statuses[$key]['label'],
+                'icon'  => $statuses[$key]['icon'],
+                default => $statuses[$key],
+            };
+        }
+
+        // Default fallback
+        return [
+            'label' => 'Unknown',
+            'icon'  => '❓',
+        ];
+    }
+}
+
