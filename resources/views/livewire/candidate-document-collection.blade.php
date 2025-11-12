@@ -45,6 +45,7 @@
               <table class="table table-sm table-borderless w-auto mb-0">
                     <tbody>
                         <tr>
+                           
                             <th class="text-nowrap pe-3">Candidate Name</th>
                             <td>: {{ $candidateName ?? 'N/A' }}</td>
                         </tr>
@@ -53,8 +54,24 @@
                             <td>: {{ $assemblyName ?? 'N/A' }}</td>
                         </tr>
                         <tr>
-                            <th class="text-nowrap pe-3">Agent Name & Number</th>
-                            <td>: {{ $agentName ?? 'N/A' }} || {{ $agentNumber ?? 'N/A' }}</td>
+                            <th class="text-nowrap pe-3 align-top">Agent Details</th>
+                            <td>
+                                @if($candidateData->agents && $candidateData->agents->count() > 0)
+                                    <ul class="mb-0 ps-3">
+                                        @foreach($candidateData->agents as $agent)
+                                            <li>
+                                                <strong>{{ ucwords($agent->name) }}</strong>
+                                                — {{ $agent->contact_number ?? 'N/A' }}
+                                                @if(!empty($agent->contact_number_alt_1))
+                                                    , {{ $agent->contact_number_alt_1 }}
+                                                @endif
+                                            </li>
+                                        @endforeach
+                                    </ul>
+                                @else
+                                    : N/A
+                                @endif
+                            </td>
                         </tr>
                         <tr>
                             <th class="text-nowrap pe-3">Phase</th>
@@ -100,7 +117,7 @@
                                         $rowspan = count($documents[$key]);
                                     @endphp
 
-                                    <tr class="text-center">
+                                    <tr class="">
                                         {{-- Document Name (only once per document type) --}}
                                         @if($index === 0)
                                             <td rowspan="{{ $rowspan }}"><strong>{{ $label }}</strong></td>

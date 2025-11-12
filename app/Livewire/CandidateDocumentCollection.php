@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Livewire\WithFileUploads;
 use App\Models\Candidate;
 use App\Models\ChangeLog;
+use App\Models\CandidateDocumentType;
 use App\Models\CandidateDocument;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Collection;
@@ -19,6 +20,7 @@ class CandidateDocumentCollection extends Component
     public $candidateName,$assemblyName,$agentName,$agentNumber,$agentId,$phase =1;
     public $documents = [];
     // public $newFiles = [];
+    public $candidateData;
     public $newFile;
     public $type;
     public $remarks;
@@ -37,6 +39,7 @@ class CandidateDocumentCollection extends Component
         }
 
         // Store only serializable data
+        $this->candidateData = $candidate;
         $this->candidateId = $candidate->id;
         $this->candidateName = $candidate->name;
         $this->assemblyName =optional( $candidate->assembly)->assembly_name_en.'('.optional($candidate->assembly)->assembly_number.')';
@@ -56,21 +59,7 @@ class CandidateDocumentCollection extends Component
      */
     protected function getDocumentTypes()
     {
-        return [
-            'nomination_paper' => 'Nomination Paper (Form-2B)',
-            'affidavit' => 'Affidavit (Form-26)',
-            'security_deposit' => 'Security Deposit Receipt',
-            'electoral_roll' => 'Certified Copy of Electoral Roll Entry',
-            'party_authorization' => 'Party Authorization Letter (Form-A & Form-B)',
-            'caste_certificate' => 'Caste Certificate',
-            'oath_form' => 'Oath or Affirmation Form',
-            'photo' => 'Passport-Size Photographs',
-            'photo_declaration' => 'Photograph Declaration',
-            'criminal_record_declaration' => 'Criminal Record Declaration',
-            'education_proof' => 'Proof of Educational Qualifications',
-            'occupation_proof' => 'Proof of Occupation',
-        ];
-
+        return CandidateDocumentType::pluck('name', 'key')->toArray();
     }
 
     /**

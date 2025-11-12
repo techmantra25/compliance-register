@@ -12,6 +12,10 @@ class Candidate extends Model
         'name', 'designation', 'email', 'contact_number', 'contact_number_alt_1', 'contact_number_alt_2', 'type', 'assembly_id'
    ];
 
+   public function documents()
+    {
+        return $this->hasMany(CandidateDocument::class, 'candidate_id');
+    }
    public function assembly()
     {
         return $this->belongsTo(Assembly::class, 'assembly_id');

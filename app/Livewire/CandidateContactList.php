@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 use App\Models\CandidateAgent;
+use App\Models\CandidateDocumentType;
 
 class CandidateContactList extends Component
 {
@@ -23,7 +24,7 @@ class CandidateContactList extends Component
     public $name, $designation, $email, $contact_number, $contact_number_alt_1, $contact_number_alt_2, $assembly_id, $type = 'Candidate';
     public $assemblies;
     public $editMode = false;
-    public $editId,$candidateId;
+    public $editId,$candidateId,$required_document;
     public $authUser;
     public $agentsList = [];
 
@@ -40,6 +41,7 @@ class CandidateContactList extends Component
         $this->authUser = Auth::guard('admin')->user();
         $this->assemblies = Assembly::orderBy('assembly_name_en')
             ->get();
+        $this->required_document = CandidateDocumentType::count();
     }
 
     public function openAgentModal($candidateId)
@@ -395,7 +397,7 @@ class CandidateContactList extends Component
                 'assembly.district',
                 'agents' => function ($q) {
                     $q->select('agents.id', 'name', 'email', 'contact_number', 'contact_number_alt_1'); // only required fields
-                },
+                },'documents'
             ])
             ->orderByDesc('id')
             ->paginate(20);

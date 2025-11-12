@@ -57,6 +57,7 @@
                                     <th>Candidate Details</th>
                                     <th>Agent</th>
                                     <th>Assembly</th>
+                                    <th>Documents Count</th>
                                     <th style="width: 300px;" class="text-center">Action</th>
                                 </tr>
                             </thead>
@@ -87,8 +88,7 @@
                                                         <div>
                                                             <strong>{{ ucwords($agent->name) }}</strong>
                                                             <span class="text-muted small">
-                                                                ({{ $agent->contact_number }}
-                                                                @if($agent->contact_number_alt_1) / {{ $agent->contact_number_alt_1 }} @endif)
+                                                                ({{ $agent->contact_number }}@if($agent->contact_number_alt_1) / {{ $agent->contact_number_alt_1}}@endif)
                                                             </span>
                                                             @if($agent->email)
                                                                 <div class="small text-muted">{{ $agent->email }}</div>
@@ -96,22 +96,8 @@
                                                         </div>
                                                     </div>
                                                 @endforeach
-
-                                                {{-- Add another agent --}}
-                                                <button class="btn btn-sm btn-outline-primary mt-2 assign-agent-btn"
-                                                    wire:click="openAgentModal({{ $candidate->id }})"
-                                                    data-bs-toggle="modal"
-                                                    data-bs-target="#assignAgentModal">
-                                                    <i class="bi bi-plus-circle"></i> Assign Agent
-                                                </button>
                                             @else
-                                                <span class="text-muted">N/A</span><br>
-                                                <button class="btn btn-sm btn-outline-primary mt-2 assign-agent-btn"
-                                                    wire:click="openAgentModal({{ $candidate->id }})"
-                                                    data-bs-toggle="modal"
-                                                    data-bs-target="#assignAgentModal">
-                                                    <i class="bi bi-plus-circle"></i> Assign Agent
-                                                </button>
+                                                N/A
                                             @endif
                                         </td>
                                         <td>
@@ -119,6 +105,16 @@
                                                     ({{ $candidate->assembly->assembly_code ?? '-' }})
                                                 </span>
                                         </td>
+                                      <td>
+                                            @php
+                                                $uploaded = $candidate->documents->groupBy('type')->count();
+                                            @endphp
+
+                                            <span>
+                                                <span class="{{ $uploaded == $required_document ? 'text-success' : 'text-danger' }}">{{ $uploaded }}</span> / <span>{{ $required_document }}</span>
+                                            </span>
+                                        </td>
+
                                         <td class="text-center">
                                             @if($authUser->role=='legal associate')
                                                 <a href="#"
@@ -128,6 +124,12 @@
                                                 </a>
                                                 
                                             @else
+                                                <button class="btn btn-sm btn-outline-{{count($candidate->agents)>0?"primary":"danger"}}"
+                                                    wire:click="openAgentModal({{ $candidate->id }})"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#assignAgentModal" title="Assign Agent">
+                                                    <i class="bi bi-people"></i> 
+                                                </button>
                                                 <button class="btn btn-sm btn-outline-primary"
                                                     wire:click="edit({{ $candidate->id }})"
                                                     data-bs-toggle="modal"
@@ -135,10 +137,11 @@
                                                     title="Edit Candidate">
                                                     <i class="bi bi-pencil"></i>
                                                 </button>
-                                                <a href="{{ route('admin.candidates.documents', ['candidate'=>$candidate->id]) }}"
-                                                    class="btn btn-sm btn-outline-primary">
-                                                    Document Collections
-                                                </a>
+                                                <a href="{{ route('admin.candidates.documents', ['candidate' => $candidate->id]) }}"
+                                                    class="btn btn-sm btn-outline-primary"
+                                                    title="View Candidate Document Collections">
+                                                        <i class="bi bi-folder2"></i>
+                                                    </a>
                                                 
                                                 <a href="{{ route('admin.candidates.journey', ['candidate'=>$candidate->id]) }}"
                                                     class="btn btn-sm btn-outline-primary">
