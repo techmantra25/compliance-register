@@ -35,6 +35,14 @@ if (!function_exists('getFinalDocStatus')) {
                 'label' => 'Verified Correct but yet to be submitted',
                 'icon'  => '✅',
             ],
+            'ready_for_vetting' => [
+                'label' => 'Ready for Vetting',
+                'icon'  => '✅',
+            ],
+            'vetting_in_progress' => [
+                'label' => 'Vetting in Progress',
+                'icon'  => '🔍',
+            ],
             'incomplete_additional_required' => [
                 'label' => 'Incomplete / Additional Documents Required',
                 'icon'  => '⚠️',

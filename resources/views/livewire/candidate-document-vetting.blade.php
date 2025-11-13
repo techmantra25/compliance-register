@@ -191,18 +191,26 @@
                                                 </span>
                                             </td>
                                              @if($index === 0)
-                                                <td rowspan="{{ $rowspan }}">
-                                                    
+                                                <td rowspan="{{ $rowspan }}" class="text-center">
+                                                      {{ $doc['created_at'] }}
                                                 </td>
-                                                <td rowspan="{{ $rowspan }}">
-                                                    <select class="form-select form-select-sm"
-                                                        data-prev="{{ $doc['status'] }}"
-                                                        wire:change="updateStatus($event.target.value, '{{$key}}')">
-                                                        <option value="">-- Select Status --</option>
-                                                        <option value="Approved" {{ $doc['status'] == 'Approved' ? 'selected' : '' }}>Approved</option>
-                                                        <option value="Rejected" {{ $doc['status'] == 'Rejected' ? 'selected' : '' }}>Rejected</option>
-                                                        <option value="Pending" {{ $doc['status'] == 'Pending' ? 'selected' : '' }}>Pending</option>
-                                                    </select>
+
+                                                <td rowspan="{{ $rowspan }}" class="text-center">
+                                                    @if($candidateData->document_collection_status=="verified_submitted_with_copy")
+                                                        <span class="cursor-pointer badge bg-lavel-success">
+                                                            {{ $doc['status'] ?? 'Uploaded' }}
+                                                        </span>
+                                                    @else
+                                                        <select class="form-select form-select-sm"
+                                                            data-prev="{{ $doc['status'] }}"
+                                                            wire:change="updateStatus($event.target.value, '{{$key}}')">
+                                                            <option value="">-- Select Status --</option>
+                                                            <option value="Approved" {{ $doc['status'] == 'Approved' ? 'selected' : '' }}>Approved</option>
+                                                            <option value="Rejected" {{ $doc['status'] == 'Rejected' ? 'selected' : '' }}>Rejected</option>
+                                                            <option value="Pending" {{ $doc['status'] == 'Pending' ? 'selected' : '' }}>Pending</option>
+                                                        </select>
+                                                    @endif
+                                                    
                                                 </td>
                                             @endif
                                     </tr>

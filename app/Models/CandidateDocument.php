@@ -14,12 +14,21 @@ class CandidateDocument extends Model
         'path',
         'remarks',
         'uploaded_by',
+        'vetted_by',
+        'vetted_on',
         'status',
     ];
 
+    protected $casts = [
+        'vetted_on' => 'datetime',
+    ];
     public function uploadedBy()
     {
         return $this->belongsTo(Admin::class, 'uploaded_by', 'id');
+    }
+    public function vettedBy()
+    {
+        return $this->belongsTo(Admin::class, 'vetted_by', 'id');
     }
     public function comments()
     {

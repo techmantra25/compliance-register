@@ -75,7 +75,16 @@
                         </tr>
                         <tr>
                             <th class="text-nowrap pe-3">Phase</th>
-                            <td>: {{ $phase ?? '1' }}</td>
+                            <td>: {{ $phase ?? 'N/A' }}</td>
+                        </tr>
+                        <tr>
+                            <th class="text-nowrap pe-3">Last Date of Submission of Nomination Form</th>
+                            <td>: {{ $nomination_date??"N/A" }}</td>
+                        </tr>
+                        <tr>
+                            <th class="text-nowrap pe-3">Final Status</th>
+                            <td>: {{ getFinalDocStatus($candidateData->document_collection_status, 'icon') }}
+                                {{ getFinalDocStatus($candidateData->document_collection_status, 'label') }}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -98,11 +107,11 @@
                    <thead class="table-light">
                         <tr class="text-center">
                             <th width="18%">Document Name</th>
-                            <th width="14%">Upload History</th>
-                            <th width="10%">Uploaded by</th>
-                            <th width="16%">Date & Time</th>
+                            <th width="10%">Upload History</th>
+                            <th width="14%">Date & Time</th>
                             <th width="8%">Status</th>
                             <th width="20%">Remarks</th>
+                            <th width="16%">Action</th>
                             <th width="10%">Upload Now</th>
                         </tr>
                     </thead>
@@ -154,6 +163,7 @@
                                                 </div>
 
                                                 <div class="mx-2">
+                                                    @if($doc['comments_count']>0)
                                                     <a href="javascript:void(0)"
                                                     class="text-decoration-none position-relative text-secondary"
                                                     title="View Comments">
@@ -162,18 +172,11 @@
                                                            {{$doc['comments_count']}}
                                                         </span>
                                                     </a>
+                                                    @endif
                                                 </div>
 
                                             </div>
                                         </td>
-
-
-                                        {{-- Uploaded By --}}
-                                        <td>
-                                            <i class="bi bi-person me-1"></i>
-                                            {{ $doc['uploaded_by_name'] ?? 'N/A' }}
-                                        </td>
-
                                         {{-- Uploaded At --}}
                                         <td>
                                             <i class="bi bi-clock me-1"></i>
@@ -181,7 +184,7 @@
                                         </td>
 
                                         {{-- Status --}}
-                                        <td>
+                                        <td class="text-center">
                                             <span class="cursor-pointer badge
                                                 @if($doc['status'] == 'Approved') bg-lavel-success
                                                 @elseif($doc['status'] == 'Rejected') bg-lavel-danger
@@ -197,6 +200,29 @@
                                                 {{ $doc['remarks'] ?: '-' }}
                                             </span>
                                         </td>
+                                          {{-- Uploaded By --}}
+                                        <td class="align-middle" style="font-size:12px;">
+                                            <div class="d-flex flex-column text-start">
+                                                <div>
+                                                    <i class="bi bi-person me-1 text-primary"></i>
+                                                    <strong>Uploaded By:</strong> {{ $doc['uploaded_by_name'] ?? 'N/A' }}
+                                                </div>
+                                                @if(!empty($doc['vetted_on']))
+                                                    <div>
+                                                        <i class="bi bi-calendar-check me-1 text-success"></i>
+                                                        <strong>Vetted On:</strong> 
+                                                        {{ $doc['vetted_on'] }}
+                                                    </div>
+                                                @endif
+                                                @if(!empty($doc['vetted_by_name']))
+                                                    <div>
+                                                        <i class="bi bi-person-badge me-1 text-info"></i>
+                                                        <strong>Vetted By:</strong> {{ $doc['vetted_by_name'] }}
+                                                    </div>
+                                                @endif
+                                            </div>
+                                        </td>
+
 
                                         {{-- Upload Button or Status --}}
                                         @if($index === 0)

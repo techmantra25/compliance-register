@@ -47,8 +47,48 @@ class CandidateDocumentVetting extends Component
         
         // Load existing uploaded documents as arrays
         $this->loadDocuments();
+        
     }
     
+    public function FinalStatusUpdate(){
+        $required_documents = $this->getDocumentTypes();
+        $documentsData = CandidateDocument::with('uploadedBy')
+            ->where('candidate_id', $this->candidateId)
+            ->orderBy('id', 'desc')
+            ->get()
+            ->groupBy('type')
+            ->map(function ($group) {
+                $latest = $group->sortByDesc('id')->first(); // get latest document
+                return $latest->status; // only return the status
+            })
+            ->toArray();
+        
+        if(count($required_documents) == count($documentsData)){
+
+            if($this->candidateData->document_collection_status=="verified_submitted_with_copy"){
+                return true;
+            }
+            $approvedCount = count(array_filter($documentsData, fn($status)=> $status === "Approved"));
+            $pendingCount = count(array_filter($documentsData, fn($status)=> $status === "Pending"));
+
+            if(count($required_documents) == $approvedCount){
+                $this->candidateData->document_collection_status = "verified_pending_submission";
+                $this->candidateData->save();
+            }elseif(count($required_documents) == $pendingCount){
+                $this->candidateData->document_collection_status = "ready_for_vetting";
+                $this->candidateData->save();
+            }elseif(count($required_documents) !== $pendingCount){
+                $this->candidateData->document_collection_status = "vetting_in_progress";
+                $this->candidateData->save();
+            }
+
+        }else{
+            if(count($documentsData)>0){
+                $this->candidateData->document_collection_status = "incomplete_additional_required";
+                $this->candidateData->save();
+            }
+        }
+    }
     /**
      * Helper function — all document names
      */
@@ -96,6 +136,8 @@ class CandidateDocumentVetting extends Component
     public function UpdateDocStatus($status, $document){
         $CandidateDocument = CandidateDocument::where('type', $document)->orderByDesc('id')->first();
         $CandidateDocument->status = $status;
+        $CandidateDocument->vetted_by = Auth::guard('admin')->id();
+        $CandidateDocument->vetted_on = now();
         $CandidateDocument->save();
         $this->loadDocuments();
         $this->dispatch('toastr:success', message: 'Status updated successfully.');
@@ -104,6 +146,7 @@ class CandidateDocumentVetting extends Component
     public function reloadData(){}
     public function render()
     {
+        $this->FinalStatusUpdate();
         return view('livewire.candidate-document-vetting')->layout('layouts.admin');
     }
 }
