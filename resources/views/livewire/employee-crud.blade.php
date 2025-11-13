@@ -41,6 +41,7 @@
                                     <th>Email</th>
                                     <th>Mobile</th>
                                     <th>Role</th>
+                                    <th>Suspend Status</th>
                                     <th width="120">Actions</th>
                                 </tr>
                             </thead>
@@ -48,13 +49,23 @@
                                 @forelse ($admins as $admin)
                                 <tr wire:key="admin-{{ $admin->id }}">
                                     <td>{{ $loop->iteration }}</td>
-                                    <td>{{ $admin->name }}</td>
+                                    <td>{{ ucwords($admin->name) }}</td>
                                     <td>{{ $admin->email }}</td>
                                     <td>{{ $admin->mobile ?? '-' }}</td>
                                     <td>
                                         <span class="badge {{ $admin->role === 'admin' ? 'bg-primary-subtle text-primary' : 'bg-danger-subtle text-danger' }}">
                                             {{ ucfirst($admin->role) }}
                                         </span>
+                                    </td>
+                                    <td>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox"
+                                                wire:change="toggleStatus({{ $admin->id }})"
+                                                {{ $admin->suspended_status == 1 ? 'checked' : '' }}>
+                                            <label class="form-check-label">
+                                                {{ $admin->suspended_status == 1 ? 'Active' : 'Suspended' }}
+                                            </label>
+                                        </div>
                                     </td>
                                     <td>
                                         <button class="btn btn-sm btn-outline-primary" wire:click="edit({{ $admin->id }})">
@@ -133,6 +144,7 @@
                                 <option value="">Select Role</option>
                                 <option value="admin">Admin</option>
                                 <option value="employee">Employee</option>
+                                <option value="legal associate">Legal Associate</option>
                             </select>
                             @error('role') <small class="text-danger">{{ $message }}</small> @enderror
                         </div>

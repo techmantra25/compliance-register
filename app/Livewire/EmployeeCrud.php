@@ -6,6 +6,8 @@ use Livewire\Component;
 use App\Models\Admin;
 use App\Models\Zone;
 use App\Models\District;
+use App\Models\ChangeLog;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Hash;
 
 class EmployeeCrud extends Component
@@ -28,7 +30,7 @@ class EmployeeCrud extends Component
         $this->reset(['name', 'email', 'mobile', 'role', 'password','zone_id']);
         $this->admin_id = null;
         $this->isEdit = false;
-         $this->dispatch('ResetForm');
+        $this->dispatch('ResetForm');
     }
 
     public function save()
@@ -44,12 +46,22 @@ class EmployeeCrud extends Component
     {
         $this->validate();
 
-        Admin::create([
+       $employee = Admin::create([
             'name' => $this->name,
             'email' => $this->email,
             'mobile' => $this->mobile,
             'role' => $this->role,
             'password' => Hash::make($this->password),
+            'suspended_status' => 1,
+        ]);
+
+        ChangeLog::create([
+            'module_name'  => 'create_employee',
+            'action'       => 'create',
+            'old_data'     => $employee->toArray(),
+            'new_data'     => $employee->toArray(),
+            'changed_by'   => auth('admin')->id(), 
+            'ip_address'   => Request::ip(),
         ]);
 
         $this->dispatch('toastr:success', message: 'Employee added successfully!');
@@ -82,6 +94,7 @@ class EmployeeCrud extends Component
         $this->validate($rules);
 
         $admin = Admin::findOrFail($this->admin_id);
+        $oldData = $admin->toArray();
         $data = [
             'name' => $this->name,
             'email' => $this->email,
@@ -95,6 +108,15 @@ class EmployeeCrud extends Component
 
         $admin->update($data);
 
+        ChangeLog::create([
+            'module_name'  => 'update_employee',
+            'action'       => 'update',
+            'old_data'     => $oldData,
+            'new_data'     => $admin->toArray(),
+            'changed_by'   => auth('admin')->id(),
+            'ip_address'   => Request::ip(),
+        ]);
+
         $this->dispatch('toastr:success', message: 'Employee updated successfully!');
         $this->resetInputFields();
     }
@@ -102,15 +124,45 @@ class EmployeeCrud extends Component
     {
         $this->dispatch('showConfirm', ['itemId' => $id]);
     }
+
+    public function toggleStatus($id)
+    {
+        $admin = Admin::find($id);
+
+        if ($admin) {
+            $admin->suspended_status = $admin->suspended_status == 1 ? 0 : 1;
+            $admin->save();
+
+            $message = $admin->suspended_status 
+                ? "{$admin->name} is now Active." 
+                : "{$admin->name} has been Suspended.";
+
+            $this->dispatch('toastr:success', message: $message);
+        }
+    }
+
     public function delete($id)
     {
-        Admin::findOrFail($id)->delete();
+        $admin = Admin::findOrFail($id);
+        $oldData = $admin->toArray();
+        $admin->delete();
+
+        ChangeLog::create([
+            'module_name' => 'delete_employee',
+            'action' => 'delete',
+            'old_data' => $oldData,
+            'new_data' => $oldData,
+            'changed_by' => auth('admin')->id(),
+            'ip_address' => Request::ip(),
+            
+        ]);
+        
         $this->dispatch('toastr:success', message: 'Employee deleted successfully!');
     }
 
     public function render()
     {
-         $this->zones = Zone::all()->map(function ($zone) {
+        $this->zones = Zone::all()->map(function ($zone) {
             $districtIds = explode(',', $zone->districts);
             $zone->district_list = District::whereIn('id', $districtIds)->pluck('name_en')->toArray();
             return $zone;
