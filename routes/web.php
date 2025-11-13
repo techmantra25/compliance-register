@@ -6,14 +6,19 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\App;
 use App\Livewire\{
     AdminDashboard,
+    ZoneCrud,
+    PhaseCrud,
     EmployeeCrud,
     AssemblyList,
     CandidateContactList,
     CandidateDocumentCollection,
+    CandidateDocumentVetting,
     DiscrepancyReportCrud,
+    CandidateJourney,
     AgentCrud,
     AdminLogin
 };
+use App\Livewire\Candidate\DocumentComments;
 use App\Http\Controllers\CandidateController;
 
 /*
@@ -62,19 +67,25 @@ Route::get('/login', AdminLogin::class)
 */
 Route::prefix('/admin')->middleware('auth:admin')->group(function () {
     Route::get('/dashboard', AdminDashboard::class)->name('admin.dashboard');
+
+    Route::prefix('master')->group(function () {
+        Route::get('/zones', ZoneCrud::class)->name('admin.master.zones');
+        Route::get('/phases', PhaseCrud::class)->name('admin.master.phases');
+    });
     Route::get('/employees', EmployeeCrud::class)->name('admin.employees');
     Route::get('/assemblies', AssemblyList::class)->name('admin.assemblies');
     Route::get('/agents', AgentCrud::class)->name('admin.agents');
     
     Route::prefix('candidates')->group(function () {
+        Route::get('/journey', CandidateJourney::class)->name('admin.candidates.journey');
         Route::get('/nominations', CandidateContactList::class)->name('admin.candidates.contacts');
         Route::get('/social-media', DiscrepancyReportCrud::class)->name('admin.candidates.discrepancies.report');
         // Route::get('/Candidate Discrepancy Reports', [CandidateController::class, 'nominations'])->name('admin.candidates.nominations');
         // Route::get('/documents', [CandidateController::class, 'documents'])->name('admin.candidates.documents');
         // Route::get('/vetting', [CandidateController::class, 'vetting'])->name('admin.candidates.vetting');
-
-        Route::get('/documents', CandidateDocumentCollection::class)
-            ->name('admin.candidates.documents');
+        Route::get('/documents', CandidateDocumentCollection::class)->name('admin.candidates.documents');
+        Route::get('/documents/comments/{document}', DocumentComments::class)->name('admin.candidates.documents.comments');
+        Route::get('/documents/vetting/{document}', CandidateDocumentVetting::class)->name('admin.candidates.documents.vetting');
     });
 });
 

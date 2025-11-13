@@ -12,16 +12,21 @@ use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
+use App\Models\CandidateAgent;
+use App\Models\CandidateDocumentType;
 
 class CandidateContactList extends Component
 {
     use WithPagination, WithFileUploads;
 
     public $search = '';
-    public $name, $designation, $email, $contact_number, $contact_number_alt_1, $contact_number_alt_2, $assembly_id,$agent_id, $type = 'Candidate';
-    public $assemblies,$agents;
+    public $name, $designation, $email, $contact_number, $contact_number_alt_1, $contact_number_alt_2, $assembly_id, $type = 'Candidate';
+    public $assemblies;
     public $editMode = false;
-    public $editId;
+    public $editId,$candidateId,$required_document;
+    public $authUser;
+    public $agentsList = [];
 
     public $candidateFile, $csvError = null;
     protected $rules = [
@@ -32,13 +37,96 @@ class CandidateContactList extends Component
     
     public function mount()
     {
-        // Fetch assemblies that don't yet have a candidate
-        $this->agents = Agent::orderBy('name')
-            ->get();
+
+        $this->authUser = Auth::guard('admin')->user();
         $this->assemblies = Assembly::orderBy('assembly_name_en')
             ->get();
+        $this->required_document = CandidateDocumentType::count();
     }
 
+    public function openAgentModal($candidateId)
+    {
+        $this->candidateId = $candidateId;
+
+        // Load existing agents if updating
+        $this->agentsList = CandidateAgent::where('candidate_id', $candidateId)
+            ->with('agent')
+            ->get()
+            ->map(function($item){
+                return [
+                    'id' => $item->agent_id,
+                    'name' => $item->agent->name,
+                    'contact_number' => $item->agent->contact_number,
+                    'contact_number_alt_1' => $item->agent->contact_number_alt_1,
+                    'email' => $item->agent->email
+                ];
+            })
+            ->toArray();
+    }
+
+    public function addAgentRow()
+    {
+        $this->agentsList[] = ['name' => '', 'contact_number' => '', 'contact_number_alt_1' => '', 'email' => ''];
+    }
+
+    public function removeAgentRow($index)
+    {
+        unset($this->agentsList[$index]);
+        $this->agentsList = array_values($this->agentsList);
+    }
+
+    public function saveAgents()
+    {
+        $this->validate(
+            [
+                'agentsList.*.name' => 'required|string|max:255',
+                'agentsList.*.contact_number' => 'required|digits:10',
+                'agentsList.*.contact_number_alt_1' => 'nullable|digits:10',
+                'agentsList.*.email' => 'nullable|email|max:255',
+            ],
+            [
+                'agentsList.*.name.required' => 'This field is required',
+                'agentsList.*.contact_number.required' => 'This field is required',
+                'agentsList.*.contact_number.digits' => 'Must be a 10-digit numeric number',
+                'agentsList.*.contact_number_alt_1.digits' => 'Must be a 10-digit numeric number',
+                'agentsList.*.email.email' => 'Invalid email format',
+            ]
+        );
+
+         DB::beginTransaction();
+
+        try {
+            foreach ($this->agentsList as $agentData) {
+                // create or update agent
+                $agent = Agent::updateOrCreate(
+                    ['id' => $agentData['id'] ?? null],
+                    [
+                        'name' => $agentData['name'],
+                        'contact_number' => $agentData['contact_number'],
+                        'contact_number_alt_1' => $agentData['contact_number_alt_1'] ?? null,
+                        'email' => $agentData['email'] ?? null,
+                    ]
+                );
+
+                // attach to candidate
+                CandidateAgent::updateOrCreate(
+                    [
+                        'candidate_id' => $this->candidateId,
+                        'agent_id' => $agent->id
+                    ]
+                );
+            }
+            DB::commit();
+
+            session()->flash('success', 'Agents saved successfully!');
+            return redirect()->route('admin.candidates.contacts');;
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            // dd($e->getMessage());
+            $this->dispatch('toastr:error', message: 'Something went wrong: ' . $e->getMessage());
+        }
+    }
     public function updatingSearch()
     {
         $this->resetPage();
@@ -61,7 +149,6 @@ class CandidateContactList extends Component
         $this->email = $candidate->email;
         $this->contact_number = $candidate->contact_number;
         $this->contact_number_alt_1 = $candidate->contact_number_alt_1;
-        $this->agent_id = $candidate->agent_id;
         $this->assembly_id = $candidate->assembly_id;
 
         //  Get assemblies already assigned to other candidates (excluding this one)
@@ -103,8 +190,8 @@ class CandidateContactList extends Component
         $this->validate([
             'name' => 'required|string',
             'email' => 'nullable|email|unique:candidates,email,' . $this->editId,
-            'contact_number' => 'required',
-            'agent_id' => 'required|exists:agents,id',
+            'contact_number' => 'required|digits:10',
+            'contact_number_alt_1' =>'nullable|digits:10',
             'assembly_id' => 'required|exists:assemblies,id',
         ]);
 
@@ -115,7 +202,6 @@ class CandidateContactList extends Component
             'email' => $this->email,
             'contact_number' => $this->contact_number,
             'contact_number_alt_1' => $this->contact_number_alt_1,
-            'agent_id' => $this->agent_id,
             'assembly_id' => $this->assembly_id,
         ]);
 
@@ -127,8 +213,8 @@ class CandidateContactList extends Component
         $this->validate([
             'name' => 'required|string',
             'email' => 'nullable|email|unique:candidates,email',
-            'contact_number' => 'required',
-            'agent_id' => 'required|exists:agents,id',
+            'contact_number' =>'required|digits:10',
+            'contact_number_alt_1' =>'nullable|digits:10',
             'assembly_id' => 'required|exists:assemblies,id',
         ]);
 
@@ -139,7 +225,6 @@ class CandidateContactList extends Component
             'contact_number' => $this->contact_number,
             'contact_number_alt_1' => $this->contact_number_alt_1,
             'assembly_id' => $this->assembly_id,
-            'agent_id' => $this->agent_id,
             'type' => "Candidate",
         ]);
 
@@ -201,7 +286,6 @@ class CandidateContactList extends Component
                 }
 
                 $assembly_id = $assembly->id;
-                $agent_id = null;
 
                 if (!empty($data['agent_email'])) {
                     if (empty($data['agent_name'])) {
@@ -382,42 +466,54 @@ class CandidateContactList extends Component
 
 
 
-    public function render()
+   public function render()
     {
-        $candidates = Candidate::where('type', 'Candidate')
-        ->when($this->search, function ($q) {
-            $q->where(function ($sub) {
-                $sub->where('name', 'like', "%{$this->search}%")
-                    ->orWhere('email', 'like', "%{$this->search}%")
-                    ->orWhere('contact_number', 'like', "%{$this->search}%")
-                    // 🔹 Search inside related Assembly table
-                    ->orWhereHas('assembly', function ($assembly) {
-                        $assembly->where('assembly_number', 'like', "%{$this->search}%")
+        $candidates = Candidate::query()
+            ->where('type', 'Candidate')
+            ->when($this->search, function ($q) {
+                $q->where(function ($sub) {
+                    $sub->where('name', 'like', "%{$this->search}%")
+                        ->orWhere('email', 'like', "%{$this->search}%")
+                        ->orWhere('contact_number', 'like', "%{$this->search}%")
+
+                        // 🔹 Search inside related Assembly table
+                        ->orWhereHas('assembly', function ($assembly) {
+                            $assembly->where('assembly_number', 'like', "%{$this->search}%")
                                 ->orWhere('assembly_name_en', 'like', "%{$this->search}%")
                                 ->orWhere('assembly_name_bn', 'like', "%{$this->search}%")
                                 ->orWhere('assembly_code', 'like', "%{$this->search}%")
+                                
                                 // 🔹 Nested relation: District inside Assembly
                                 ->orWhereHas('district', function ($district) {
                                     $district->where('name_en', 'like', "%{$this->search}%")
-                                            ->orWhere('name_bn', 'like', "%{$this->search}%")
-                                            ->orWhere('code', 'like', "%{$this->search}%");
+                                        ->orWhere('name_bn', 'like', "%{$this->search}%")
+                                        ->orWhere('code', 'like', "%{$this->search}%");
                                 });
-                    })->orWhereHas('agent', function ($agent){
-                        $agent->where('name', 'like', "%{$this->search}%")
-                            ->orWhere('designation', 'like', "%{$this->search}%")
-                            ->orWhere('email', 'like', "%{$this->search}%")
-                            ->orWhere('contact_number', 'like', "%{$this->search}%")
-                            ->orWhere('contact_number_alt_1', 'like', "%{$this->search}%");
-                    });
-            });
-        })
-        ->with(['assembly.district'])
-        ->paginate(20);
+                        })
+
+                        // 🔹 Search inside related Agents (Many-to-Many)
+                        ->orWhereHas('agents', function ($agent) {
+                            $agent->where('name', 'like', "%{$this->search}%")
+                                ->orWhere('designation', 'like', "%{$this->search}%")
+                                ->orWhere('email', 'like', "%{$this->search}%")
+                                ->orWhere('contact_number', 'like', "%{$this->search}%")
+                                ->orWhere('contact_number_alt_1', 'like', "%{$this->search}%");
+                        });
+                });
+            })
+            ->with([
+                'assembly.district',
+                'agents' => function ($q) {
+                    $q->select('agents.id', 'name', 'email', 'contact_number', 'contact_number_alt_1'); // only required fields
+                },'documents'
+            ])
+            ->orderByDesc('id')
+            ->paginate(20);
 
         return view('livewire.candidate-contact-list', [
             'candidates' => $candidates,
             'assemblies' => $this->assemblies,
-            'agents' => $this->agents,
         ])->layout('layouts.admin');
     }
+
 }

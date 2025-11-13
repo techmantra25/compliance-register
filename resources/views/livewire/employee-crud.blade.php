@@ -19,6 +19,9 @@
                     </ol>
                 </nav>
             </div>
+            <div>
+                <button class="btn btn-primary btn-sm"  data-bs-toggle="modal" data-bs-target="#zoneModal"> <i class="bi bi-map me-2"></i>Zones</button>
+            </div>
         </div>
         <div class="col-lg-8">
             <div class="card shadow-sm border-0 p-3">
@@ -115,6 +118,16 @@
                         </div>
 
                         <div class="mb-3">
+                            <label class="form-label">Zones</label>
+                            <select wire:model.defer="zone_id" class="form-select">
+                                <option value="">Select zone</option>
+                                @foreach ($zones as $zone_item)
+                                    <option value="{{$zone_item->id}}">{{$zone_item->name}}</option>
+                                @endforeach
+                            </select>
+                            @error('zone_id') <small class="text-danger">{{ $message }}</small> @enderror
+                        </div>
+                        <div class="mb-3">
                             <label class="form-label">Role</label>
                             <select wire:model.defer="role" class="form-select">
                                 <option value="">Select Role</option>
@@ -141,6 +154,45 @@
                         </div>
                     </form>
                 </div>
+            </div>
+        </div>
+    </div>
+    <div wire:ignore class="modal fade" id="zoneModal" tabindex="-1" aria-labelledby="zoneModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg rounded-3">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="zoneModalLabel">
+                       Zone Wise District
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    @if($zones->count())
+                        <div class="table-responsive">
+                            <table class="table table-bordered align-middle">
+                                <thead class="table-primary">
+                                    <tr>
+                                        <th>Zone Name</th>
+                                        <th>Districts</th>
+                                        <th>Reasons</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($zones as $key=>$zone)
+                                        <tr>
+                                            <td>{{ $zone->name }}</td>
+                                            <td>{{ implode(',', $zone->district_list) }}</td>
+                                            <td>{{ $zone->reasons }}</td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @else
+                        <p class="text-muted">No zone data available.</p>
+                    @endif
+                </div>
+
             </div>
         </div>
     </div>

@@ -1,0 +1,151 @@
+<div>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="fw-bold mb-1 text-dark">
+                <i class="bi bi-chat-dots me-2 text-primary"></i> Document Comments
+            </h4>
+            <ol class="breadcrumb small mb-0">
+                <li class="breadcrumb-item">
+                    <a href="{{ route('admin.dashboard') }}" class="text-muted text-decoration-none">
+                        <i class="bi bi-grid-fill me-1"></i> Admin
+                    </a>
+                </li>
+                <li class="breadcrumb-item">
+                    @if($authUser->role =="legal associate")
+                        <a href="{{ route('admin.candidates.documents.vetting', $document->candidate_id) }}" class="text-muted text-decoration-none">
+                            Candidate Documents
+                        </a>
+                    @else
+                        <a href="{{ route('admin.candidates.documents', ['candidate'=>$document->candidate_id]) }}" class="text-muted text-decoration-none">
+                            Candidate Documents
+                        </a>
+                    @endif
+                </li>
+                <li class="breadcrumb-item active text-primary">
+                    Comments — <span class="fw-semibold">{{ $document->file_name ?? 'Document #'.$documentId }}</span>
+                </li>
+            </ol>
+        </div>
+        <div class="align-self-start">
+            @if($authUser->role =="legal associate")
+                <a href="{{ route('admin.candidates.documents.vetting', $document->candidate_id) }}" class="btn btn-sm btn-danger shadow-sm">
+                    <i class="bi bi-arrow-left-circle me-1"></i> Back
+                </a>
+            @else
+                <a href="{{ route('admin.candidates.documents', ['candidate'=>$document->candidate_id]) }}" class="btn btn-sm btn-danger shadow-sm">
+                    <i class="bi bi-arrow-left-circle me-1"></i> Back
+                </a>
+            @endif
+        </div>
+    </div>
+
+
+    <div class="row">
+        <div class="col-md-8">
+            @php
+                $extension = strtolower(pathinfo($document->path, PATHINFO_EXTENSION));
+                $fileUrl = asset($document->path);
+            @endphp
+
+            <div class="card shadow-sm border-0">
+                <div class="card-body text-center">
+
+                    {{-- 🖼️ If image --}}
+                    @if(in_array($extension, ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp']))
+                        <img src="{{ $fileUrl }}" 
+                            alt="Document Image"
+                            class="img-fluid rounded shadow-sm border"
+                            style="max-height: 600px; object-fit: contain;">
+
+                    {{-- 📄 If PDF --}}
+                    @elseif($extension === 'pdf')
+                        <iframe src="{{ $fileUrl }}" 
+                                style="width:100%; height:600px; border:none;" 
+                                frameborder="0"></iframe>
+
+                    {{-- 📊 If CSV or TXT --}}
+                    @elseif(in_array($extension, ['csv', 'txt']))
+                        <div class="bg-light p-3 rounded border text-start">
+                            <strong>Preview:</strong>
+                            <pre class="small text-muted" style="max-height: 500px; overflow-y: auto;">
+                                {{ Str::limit(file_get_contents(storage_path('app/public/' . $document->path)), 3000, '...') }}
+                            </pre>
+                        </div>
+
+                    @elseif(in_array($extension, ['xlsx', 'xls']))
+                        <div class="text-center p-4 bg-light border rounded">
+                            <i class="bi bi-file-earmark-excel text-success fs-1 mb-2"></i>
+                            <h6>Excel File</h6>
+                            <p class="small text-muted mb-2">You can download and open this file in Microsoft Excel or Google Sheets.</p>
+                            <a href="{{ $fileUrl }}" class="btn btn-success btn-sm" target="_blank">
+                                <i class="bi bi-download"></i> Download Excel
+                            </a>
+                        </div>
+
+                    {{-- 📁 Default fallback --}}
+                    @else
+                        <p class="text-muted">
+                            <i class="bi bi-file-earmark-text fs-3 text-secondary"></i><br>
+                            <a href="{{ $fileUrl }}" target="_blank">Open file</a>
+                        </p>
+                    @endif
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header">
+                    <h6 class="mb-3">All Comments ({{ count($comments) }})</h6>
+                </div>
+                <div class="card-body chart-body">
+                    @forelse($comments as $comment)
+                        <div class="border-bottom py-2">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <strong>{{ $comment->admin->name ?? 'Unknown Admin' }}</strong>
+                                <small class="text-muted">{{ $comment->created_at->diffForHumans() }}</small>
+                            </div>
+                            <div class="mt-1 text-secondary">{{ $comment->comment }}</div>
+                        </div>
+                    @empty
+                        <div class="text-center text-muted py-3">No comments yet.</div>
+                    @endforelse
+                </div>
+            </div>
+            @if($authUser->role =="legal associate")
+                <div class="card shadow-sm mb-4">
+                    <div class="card-body">
+                        <h6 class="mb-3">Add a Comment</h6>
+                        <div class="d-flex">
+                            <textarea wire:model.defer="newComment"
+                                class="form-control me-2"
+                                rows="2"
+                                placeholder="Type your comment here..."></textarea>
+                        </div>
+                        @error('newComment')
+                            <div class="text-danger mt-1 small">{{ $message }}</div>
+                        @enderror
+                        <div class="mt-2">
+                            <button wire:click="addComment" class="btn btn-primary px-4 w-100">
+                                <i class="bi bi-send"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            @endif
+        </div>
+    </div>
+
+    @push('scripts')
+    <script>
+        window.addEventListener('toastr:error', e => toastr.error(e.detail.message));
+        window.addEventListener('toastr:success', e => toastr.success(e.detail.message));
+        window.addEventListener('ResetForm', event => {
+          // Clear all input fields
+            document.querySelectorAll('input').forEach(input => input.value = '');
+            
+            // Clear all textarea fields
+            document.querySelectorAll('textarea').forEach(textarea => textarea.value = '');
+        });
+    </script>
+    @endpush
+</div>

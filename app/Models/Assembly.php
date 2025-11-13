@@ -12,7 +12,7 @@ class Assembly extends Model
         'district_id', 'assembly_number', 'assembly_name_en', 'assembly_name_bn', 'assembly_code', 'status'
    ];
 
-   public function district()
+    public function district()
     {
         return $this->belongsTo(District::class, 'district_id');
     }
@@ -21,8 +21,8 @@ class Assembly extends Model
     {
         return $this->hasMany(Candidate::class, 'assembly_id');
     }
-    public function agents()
+    public function assemblyPhase()
     {
-        return $this->belongsToMany(Agent::class, 'agent_assemblies');
+        return $this->hasOne(PhaseWiseAssembly::class, 'assembly_id');
     }
 }

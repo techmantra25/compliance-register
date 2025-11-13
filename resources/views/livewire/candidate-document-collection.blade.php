@@ -29,237 +29,271 @@
     .badge {
         font-size: 0.65rem;
     }
+    body.modal-open {
+    overflow: hidden;
+    padding-right: 17px;
+    }
     </style>
 
-    <div class="d-flex flex-wrap justify-content-between align-items-center">
-        <div>
-            <h4 class="fw-bold mb-1 text-dark">
-                 Document Collections
-            </h4>
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb mb-0 small">
-                    <li class="breadcrumb-item">
-                        <a href="#" class="text-decoration-none text-muted">
-                            <i class="bi bi-grid-fill me-1"></i> Candidate
-                        </a>
-                    </li>
-                    <li class="breadcrumb-item active text-primary" aria-current="page">
-                        {{ $candidateName }}
-                    </li>
-                </ol>
-            </nav>
+  <div class="d-flex flex-wrap justify-content-between align-items-start mb-3">
+        {{-- Left Section: Title + Candidate Info --}}
+        <div class="mb-2">
+            <h4 class="fw-bold mb-2 text-dark">Document Collections</h4>
+
+            {{-- Candidate Info Table --}}
+          <div class="card shadow-sm border-0 p-3">
+              <table class="table table-sm table-borderless w-auto mb-0">
+                    <tbody>
+                        <tr>
+                           
+                            <th class="text-nowrap pe-3">Candidate Name</th>
+                            <td>: {{ $candidateName ?? 'N/A' }}</td>
+                        </tr>
+                        <tr>
+                            <th class="text-nowrap pe-3">Assembly Name & No</th>
+                            <td>: {{ $assemblyName ?? 'N/A' }}</td>
+                        </tr>
+                        <tr>
+                            <th class="text-nowrap pe-3 align-top">Agent Details</th>
+                            <td>
+                                @if($candidateData->agents && $candidateData->agents->count() > 0)
+                                    <ul class="mb-0 ps-3">
+                                        @foreach($candidateData->agents as $agent)
+                                            <li>
+                                                <strong>{{ ucwords($agent->name) }}</strong>
+                                                — {{ $agent->contact_number ?? 'N/A' }}
+                                                @if(!empty($agent->contact_number_alt_1))
+                                                    , {{ $agent->contact_number_alt_1 }}
+                                                @endif
+                                            </li>
+                                        @endforeach
+                                    </ul>
+                                @else
+                                    : N/A
+                                @endif
+                            </td>
+                        </tr>
+                        <tr>
+                            <th class="text-nowrap pe-3">Phase</th>
+                            <td>: {{ $phase ?? '1' }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+          </div>
         </div>
-        <div>
-            <a href="{{route('admin.candidates.contacts')}}" class="btn btn-sm btn-danger">
+
+        {{-- Right Section: Back Button --}}
+        <div class="align-self-start">
+            <a href="{{ route('admin.candidates.contacts') }}" class="btn btn-sm btn-danger shadow-sm">
                 <i class="bi bi-arrow-left-circle me-1"></i> Back
             </a>
         </div>
     </div>
 
+
     <div class="card shadow-sm border-0 p-3 mt-4">
         <div class="card-body">
             <div class="table-responsive">
-                <table class="table mb-0 align-middle">
-                    <thead class="table-light">
-                        <tr>
+                <table class="table mb-0 align-middle table-bordered">
+                   <thead class="table-light">
+                        <tr class="text-center">
                             <th width="18%">Document Name</th>
-                            <th width="25%" class="text-center">Upload History</th>
-                            <th width="17%">Upload Now</th>
+                            <th width="14%">Upload History</th>
+                            <th width="10%">Uploaded by</th>
+                            <th width="16%">Date & Time</th>
+                            <th width="8%">Status</th>
                             <th width="20%">Remarks</th>
+                            <th width="10%">Upload Now</th>
                         </tr>
                     </thead>
+
                     <tbody>
                         @foreach ($availableDocuments as $key => $label)
-                            <tr>
-                                <td>
-                                    <strong>{{ $label }}</strong>
-                                    {{-- <br>
-                                    <small class="text-muted file-format-size">PDF, DOCX, All image format</small> --}}
-                                </td>
-                                
-                                <td>
-                                    {{-- Show existing documents with details --}}
-                                    @if(isset($documents[$key]) && count($documents[$key]) > 0)
-                                        <div class="upload-history">
-                                            @foreach($documents[$key] as $doc)
-                                                @php
-                                                    $extension = pathinfo($doc['path'], PATHINFO_EXTENSION);
-                                                    $fileName = pathinfo($doc['path'], PATHINFO_FILENAME);
-                                                @endphp
-                                                
-                                                <div class="upload-item border-bottom pb-2 mb-2">
-                                                    <div class="d-flex justify-content-between align-items-start mb-1">
-                                                        <div class="d-flex align-items-center">
-                                                            <!-- File icon based on type -->
-                                                            @if(in_array(strtolower($extension), ['pdf']))
-                                                                <i class="bi bi-file-earmark-pdf text-danger me-2"></i>
-                                                            @elseif(in_array(strtolower($extension), ['doc', 'docx']))
-                                                                <i class="bi bi-file-earmark-word text-primary me-2"></i>
-                                                            @elseif(in_array(strtolower($extension), ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp']))
-                                                                <i class="bi bi-file-earmark-image text-success me-2"></i>
-                                                            @else
-                                                                <i class="bi bi-file-earmark-text text-secondary me-2"></i>
-                                                            @endif
-                                                            
-                                                            <!-- File name and link -->
-                                                            <a href="{{ asset('storage/' . $doc['path']) }}" 
-                                                            target="_blank" 
-                                                            class="text-decoration-none text-dark fw-medium"
-                                                            title="{{ $fileName }}">
-                                                                {{ Str::limit($fileName, 20) }}
-                                                            </a>
-                                                        </div>
-                                                        
-                                                        <!-- Delete button -->
-                                                        @if($doc['status'] == 'Pending')
-                                                            <button type="button" 
-                                                                    wire:click="deleteDocument({{ $doc['id'] }})" 
-                                                                    class="btn btn-sm btn-outline-danger delete-btn-padding"
-                                                                    onclick="return confirm('Are you sure you want to delete this document?')"
-                                                                    title="Delete file">
-                                                                <i class="bi bi-trash"></i>
-                                                            </button>
-                                                        @endif
-                                                    </div>
-                                                    
-                                                    <!-- Upload details -->
-                                                    <div class="upload-details small text-muted">
-                                                        <div class="d-flex justify-content-between">
-                                                            <span>
-                                                                <i class="bi bi-person me-1"></i>
-                                                                {{ $doc['uploaded_by_name'] }}
-                                                            </span>
-                                                            <span>
-                                                                <i class="bi bi-clock me-1"></i>
-                                                                {{ $doc['created_at'] }}
-                                                            </span>
-                                                        </div>
-                                                        <div class="mt-1 text-end">
-                                                            <span class="badge 
-                                                                @if($doc['status'] == 'Approved') bg-success
-                                                                @elseif($doc['status'] == 'Rejected') bg-danger
-                                                                @elseif($doc['status'] == 'Pending') bg-warning
-                                                                @else bg-secondary @endif">
-                                                                {{ $doc['status'] ?? 'uploaded' }}
-                                                            </span>
-                                                        </div>
-                                                       <div class="d-flex justify-content-between align-items-start">
-                                                            <span class="text-muted">
-                                                                {{ $doc['remarks'] ?: '' }}
-                                                            </span>
-                                                        </div>
-                                                    </div>
+                            @if(isset($documents[$key]) && count($documents[$key]) > 0)
+                                @foreach($documents[$key] as $index => $doc)
+                                    @php
+                                        $extension = pathinfo($doc['path'], PATHINFO_EXTENSION);
+                                        $fileName  = pathinfo($doc['path'], PATHINFO_FILENAME);
+                                        $rowspan = count($documents[$key]);
+                                    @endphp
+
+                                    <tr class="">
+                                        {{-- Document Name (only once per document type) --}}
+                                        @if($index === 0)
+                                            <td rowspan="{{ $rowspan }}"><strong>{{ $label }}</strong></td>
+                                        @endif
+
+                                        {{-- File Name + Icon --}}
+                                    <td onclick="window.location='{{ route('admin.candidates.documents.comments', $doc['id']) }}'"
+                                        style="cursor: pointer;"
+                                        title="Click to view document comments">
+                                            <div class="d-flex align-items-center justify-content-between">
+
+                                                <div class="d-flex align-items-center">
+                                                    @switch(strtolower($extension))
+                                                        @case('pdf')
+                                                            <i class="bi bi-file-earmark-pdf text-danger me-2 fs-5"></i>
+                                                            @break
+                                                        @case('doc')
+                                                        @case('docx')
+                                                            <i class="bi bi-file-earmark-word text-primary me-2 fs-5"></i>
+                                                            @break
+                                                        @case('jpg')
+                                                        @case('jpeg')
+                                                        @case('png')
+                                                        @case('gif')
+                                                        @case('bmp')
+                                                        @case('webp')
+                                                            <i class="bi bi-file-earmark-image text-success me-2 fs-5"></i>
+                                                            @break
+                                                        @default
+                                                            <i class="bi bi-file-earmark-text text-secondary me-2 fs-5"></i>
+                                                    @endswitch
+
+                                                    <strong class="text-dark fw-medium">V{{ $index + 1 }}</strong>
                                                 </div>
-                                            @endforeach
-                                        </div>
-                                    @else
-                                        <div class="text-muted small text-center py-3">
-                                            <i class="bi bi-inbox"></i><br>
-                                            No documents uploaded yet
-                                        </div>
-                                    @endif
-                                </td>
-                                
-                                    {{-- Show existing remarks for all documents --}}
-                                    {{-- @if(isset($documents[$key]) && count($documents[$key]) > 0)
-                                        <ul class="list-unstyled small mb-2">
-                                            @foreach($documents[$key] as $doc)
-                                                <li class="border-bottom pb-1 mb-1">
-                                                    <div class="d-flex justify-content-between align-items-start">
-                                                        <span class="text-muted">
-                                                            {{ $doc['remarks'] ?: 'No remarks' }}
+
+                                                <div class="mx-2">
+                                                    <a href="javascript:void(0)"
+                                                    class="text-decoration-none position-relative text-secondary"
+                                                    title="View Comments">
+                                                        <i class="bi bi-chat-dots fs-5"></i>
+                                                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                                           {{$doc['comments_count']}}
                                                         </span>
-                                                        <small class="text-muted">
-                                                            {{ \Carbon\Carbon::createFromFormat('d/m/Y h:i A', $doc['created_at'])->format('M j') }}
-                                                        </small>
-                                                    </div>
-                                                </li>
-                                            @endforeach
-                                        </ul>
-                                    @else
-                                        <div class="small text-muted mb-2">No remarks yet</div>
-                                    @endif --}}
-                                    
-                                    {{-- Textarea for new remarks --}}
-                                  
-                                
-                                <td class="text-center">
-                                    
-                                    @if(isset($documents[$key]) && count($documents[$key]) > 0)
-                                        @php
-                                            $lastDocument = $documents[$key][0];
-                                        @endphp
-                                        @if($lastDocument['status'] =="Rejected")
-                                            <input type="file" 
-                                                wire:model="newFiles.{{ $key }}" 
-                                                class="form-control form-control-sm"
-                                                accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.gif">
-                                            
-                                            <!-- Loader overlay for this specific file input -->
-                                            <div class="loader-overlay" wire:loading wire:target="newFiles.{{ $key }}">
-                                                <div class="loader-small"></div>
-                                                <span class="text-danger" style="font-size: 10px;">Uploading...</span>
-                                            </div>
-                                            
-                                            @error("newFiles.$key") 
-                                                <small class="text-danger">{{ $message }}</small> 
-                                            @enderror
-                                        @endif
-                                        @if($lastDocument['status'] =="Approved")
-                                            <span class="badge bg-success">Verified</span>
-                                        @endif
+                                                    </a>
+                                                </div>
 
-                                    @else
-                                        <input type="file" 
-                                                wire:model="newFiles.{{ $key }}" 
-                                                class="form-control form-control-sm"
-                                                accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.gif">
-                                            
-                                            <!-- Loader overlay for this specific file input -->
-                                            <div class="loader-overlay" wire:loading wire:target="newFiles.{{ $key }}">
-                                                <div class="loader-small"></div>
-                                                <span class="text-danger" style="font-size: 10px;">Uploading...</span>
                                             </div>
-                                            
-                                            @error("newFiles.$key") 
-                                                <small class="text-danger">{{ $message }}</small> 
-                                            @enderror
-                                    @endif
+                                        </td>
 
-                                    <!-- Show save button only when a file is selected -->
-                                    @if(isset($newFiles[$key]) && $newFiles[$key])
-                                        <div class="mt-2">
-                                            <button type="button" 
-                                                wire:click="saveDocument('{{ $key }}')"
-                                                wire:loading.attr="disabled"
-                                                class="btn btn-primary btn-sm">
-                                                <span wire:loading.remove wire:target="saveDocument('{{ $key }}')">
-                                                    <i class="bi bi-upload"></i> Save
-                                                </span>
-                                                <span wire:loading wire:target="saveDocument('{{ $key }}')">
-                                                    <i class="bi bi-arrow-clockwise spinner"></i> Saving...
-                                                </span>
-                                            </button>
-                                        </div>
-                                    @endif
-                                </td>
-                                <td>
-                                      <textarea 
-                                        wire:model="remarks.{{ $key }}" 
-                                        class="form-control form-control-sm" 
-                                        placeholder="Enter remarks for new upload"
-                                        rows="2"
-                                    ></textarea>
-                                    @error("remarks.$key") 
-                                        <small class="text-danger">{{ $message }}</small> 
-                                    @enderror
-                                </td>
-                            </tr>
+
+                                        {{-- Uploaded By --}}
+                                        <td>
+                                            <i class="bi bi-person me-1"></i>
+                                            {{ $doc['uploaded_by_name'] ?? 'N/A' }}
+                                        </td>
+
+                                        {{-- Uploaded At --}}
+                                        <td>
+                                            <i class="bi bi-clock me-1"></i>
+                                            {{ $doc['created_at'] ?? '' }}
+                                        </td>
+
+                                        {{-- Status --}}
+                                        <td>
+                                            <span class="cursor-pointer badge
+                                                @if($doc['status'] == 'Approved') bg-lavel-success
+                                                @elseif($doc['status'] == 'Rejected') bg-lavel-danger
+                                                @elseif($doc['status'] == 'Pending') bg-lavel-warning
+                                                @else bg-secondary @endif">
+                                                {{ $doc['status'] ?? 'Uploaded' }}
+                                            </span>
+                                        </td>
+
+                                        {{-- Remarks --}}
+                                        <td>
+                                            <span class="text-muted">
+                                                {{ $doc['remarks'] ?: '-' }}
+                                            </span>
+                                        </td>
+
+                                        {{-- Upload Button or Status --}}
+                                        @if($index === 0)
+                                            <td class="text-center" rowspan="{{ $rowspan }}">
+                                                @php
+                                                    $lastDocument = $documents[$key][0];
+                                                @endphp
+
+                                                @if($lastDocument['status'] == 'Rejected')
+                                                    <button class="btn btn-primary btn-sm" 
+                                                            wire:click="SetDocType('{{ $key }}')" 
+                                                            data-bs-toggle="modal" 
+                                                            data-bs-target="#DocumentModal">
+                                                        <i class="bi bi-upload me-1"></i> Upload
+                                                    </button>
+                                                @elseif($lastDocument['status'] == 'Approved')
+                                                    <span class="badge bg-success">Verified</span>
+                                                @endif
+                                            </td>
+                                        @endif
+                                    </tr>
+                                @endforeach
+                            @else
+                                {{-- No Documents Yet --}}
+                                <tr>
+                                    <td><strong>{{ $label }}</strong></td>
+                                    <td colspan="5" class="text-center text-muted">
+                                        <i class="bi bi-inbox"></i> No documents uploaded yet
+                                    </td>
+                                    <td class="text-center">
+                                        <button class="btn btn-primary btn-sm" 
+                                                wire:click="SetDocType('{{ $key }}')" 
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#DocumentModal">
+                                            <i class="bi bi-upload me-1"></i> Upload
+                                        </button>
+                                    </td>
+                                </tr>
+                            @endif
                         @endforeach
                     </tbody>
+
                 </table>
             </div>
         </div>
+         <div wire:ignore.self class="modal fade" id="DocumentModal" tabindex="-1" aria-labelledby="DocumentModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content border-0 shadow-lg rounded-3">
+                        <div class="modal-header bg-primary text-white">
+                            <h5 class="modal-title" id="DocumentModalLabel">
+                                Upload Document
+                            </h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close" wire:click="resetForm"></button>
+                        </div>
+
+                        <form wire:submit.prevent="save" wire:key="document-form-new" enctype="multipart/form-data">
+                            <div class="modal-body">
+                                {{-- File Upload --}}
+                                <div class="mb-3">
+                                    <label class="form-label">File <span class="text-danger">*</span></label>
+                                    <input type="file" wire:model="newFile" class="form-control">
+                                    @error('newFile')
+                                        <small class="text-danger">{{ $message }}</small>
+                                    @enderror
+
+                                    {{-- Preview or Upload Progress --}}
+                                    <div wire:loading wire:target="newFile" class="text-danger small mt-1">
+                                        <i class="bi bi-cloud-upload me-1"></i> Uploading...
+                                    </div>
+                                </div>
+
+                                {{-- Remarks --}}
+                                <div class="mb-3">
+                                    <label class="form-label">Remarks</label>
+                                    <textarea wire:model="remarks" class="form-control form-control-sm" placeholder="Enter remarks for new upload" rows="2"></textarea>
+                                    @error('remarks')
+                                        <small class="text-danger">{{ $message }}</small>
+                                    @enderror
+                                </div>
+                            </div>
+
+                            <div class="modal-footer">
+                                <button type="button"
+                                        class="btn btn-secondary btn-sm"
+                                        data-bs-dismiss="modal"
+                                        wire:click="resetForm">
+                                    <i class="bi bi-x"></i> Cancel
+                                </button>
+                                <button type="submit" class="btn btn-primary btn-sm">
+                                    <i class="bi bi-upload me-1"></i> Submit
+                                </button>
+                            </div>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
     </div>
     <div class="loader-container" wire:loading wire:target="saveDocument">
         <div class="loader"></div>
@@ -267,10 +301,58 @@
 
     <!-- Success/Error Messages -->
     @push('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        window.addEventListener('showConfirm', function (event) {
+            let itemId = event.detail[0].itemId;
+            Swal.fire({
+                title: "Delete Document?",
+                text: "Are you sure you want to delete this document?",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Yes, Delete it!"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    @this.call('delete', itemId);
+                }
+            });
+        });
+        </script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
         <script>
-             window.addEventListener('ResetFormData', event => {
-                document.querySelectorAll('input, textarea, select').forEach(el => el.value = '');
-             });
+            //  window.addEventListener('ResetFormData', () => {
+            //     const modalEl = document.getElementById('DocumentModal');
+
+            //     // 1️⃣ Clear all form fields in modal
+            //     modalEl.querySelectorAll('input, textarea, select').forEach(el => el.value = '');
+
+            //     // 2️⃣ Close modal (try Bootstrap API first)
+            //     if (typeof bootstrap !== 'undefined' && modalEl) {
+            //         let modalInstance = bootstrap.Modal.getInstance(modalEl);
+            //         if (!modalInstance) {
+            //             modalInstance = new bootstrap.Modal(modalEl);
+            //         }
+            //         modalInstance.hide();
+            //     }
+
+            //     // 3️⃣ Fallback: ensure modal & backdrop are fully removed
+            //     setTimeout(() => {
+            //         modalEl.classList.remove('show');
+            //         modalEl.style.display = 'none';
+            //         modalEl.removeAttribute('aria-modal');
+            //         modalEl.setAttribute('aria-hidden', 'true');
+
+            //         // Remove all modal backdrops
+            //         document.querySelectorAll('.modal-backdrop').forEach(backdrop => backdrop.remove());
+
+            //         // ✅ Re-enable page scrolling
+            //         document.body.classList.remove('modal-open');
+            //         document.body.style.removeProperty('overflow');
+            //         document.body.style.removeProperty('padding-right');
+            //     }, 300); // small delay to let Bootstrap finish animation
+            // });
             document.addEventListener('livewire:init', () => {
                 Livewire.on('toastr:success', (event) => {
                     toastr.success(event.message);

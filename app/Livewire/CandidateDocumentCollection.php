@@ -6,6 +6,8 @@ use Livewire\Component;
 use Illuminate\Http\Request;
 use Livewire\WithFileUploads;
 use App\Models\Candidate;
+use App\Models\ChangeLog;
+use App\Models\CandidateDocumentType;
 use App\Models\CandidateDocument;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Collection;
@@ -15,10 +17,14 @@ class CandidateDocumentCollection extends Component
     use WithFileUploads;
 
     public $candidateId;
-    public $candidateName;
+    public $candidateName,$assemblyName,$agentName,$agentNumber,$agentId,$phase =1;
     public $documents = [];
-    public $newFiles = [];
-    public $remarks = [];
+    // public $newFiles = [];
+    public $candidateData;
+    public $newFile;
+    public $type;
+    public $remarks;
+    // public $remarks = [];
     public $availableDocuments = [];
 
     public function mount(Request $request)
@@ -33,8 +39,13 @@ class CandidateDocumentCollection extends Component
         }
 
         // Store only serializable data
+        $this->candidateData = $candidate;
         $this->candidateId = $candidate->id;
         $this->candidateName = $candidate->name;
+        $this->assemblyName =optional( $candidate->assembly)->assembly_name_en.'('.optional($candidate->assembly)->assembly_number.')';
+        $this->agentName =optional($candidate->agent)->name;
+        $this->agentId =optional($candidate->agent)->id;
+        $this->agentNumber =optional( $candidate->agent)->contact_number;
         
         // Fetch available document types
         $this->availableDocuments = $this->getDocumentTypes();
@@ -48,21 +59,7 @@ class CandidateDocumentCollection extends Component
      */
     protected function getDocumentTypes()
     {
-        return [
-            'nomination_paper' => 'Nomination Paper (Form-2B)',
-            'affidavit' => 'Affidavit (Form-26)',
-            'security_deposit' => 'Security Deposit Receipt',
-            'electoral_roll' => 'Certified Copy of Electoral Roll Entry',
-            'party_authorization' => 'Party Authorization Letter (Form-A & Form-B)',
-            'caste_certificate' => 'Caste Certificate',
-            'oath_form' => 'Oath or Affirmation Form',
-            'photo' => 'Passport-Size Photographs',
-            'photo_declaration' => 'Photograph Declaration',
-            'criminal_record_declaration' => 'Criminal Record Declaration',
-            'education_proof' => 'Proof of Educational Qualifications',
-            'occupation_proof' => 'Proof of Occupation',
-        ];
-
+        return CandidateDocumentType::pluck('name', 'key')->toArray();
     }
 
     /**
@@ -70,7 +67,7 @@ class CandidateDocumentCollection extends Component
      */
     protected function loadDocuments()
     {
-        $documentsData = CandidateDocument::with('uploadedBy')
+        $documentsData = CandidateDocument::with('uploadedBy','comments')
             ->where('candidate_id', $this->candidateId)
             ->orderBy('created_at', 'desc')
             ->get()
@@ -84,6 +81,7 @@ class CandidateDocumentCollection extends Component
                         'created_at' => $document->created_at->format('d/m/Y h:i A'), 
                         'uploaded_by_name' => $document->uploadedBy->name ?? 'System',
                         'uploaded_by_id' => $document->uploaded_by,
+                        'comments_count' => $document->comments->count(),
                         'status' => $document->status,
                     ];
                 })->toArray();
@@ -93,23 +91,22 @@ class CandidateDocumentCollection extends Component
         $this->documents = $documentsData;
     }
 
-    public function updatedNewFiles($files, $type)
-    {
-        // Validate uploaded files
-        $this->validate([
-            "newFiles.$type" => 'file|max:2048', // 2MB max
-        ]);
+    public function resetForm(){
+        $this->reset(['type','newFile','remarks']);
     }
-
-    public function saveDocument($type)
+    public function SetDocType($value){
+        $this->type = $value;
+    }
+    public function save()
     {
         $this->validate([
-            "newFiles.$type" => 'required|file|max:2048',
-            "remarks.$type" => 'nullable|string|max:500',
+            "type" => 'required|string',
+            'newFile' => 'required|file|mimes:pdf,doc,docx,xls,xlsx,csv,jpg,jpeg,png,gif,bmp,webp|max:5120',
+            "remarks" => 'nullable|string|max:500',
         ]);
 
         try {
-            $file = $this->newFiles[$type];
+            $file = $this->newFile;
             
             // Generate a unique filename with timestamp
             $timestamp = now()->format('Ymd_His');
@@ -123,20 +120,33 @@ class CandidateDocumentCollection extends Component
             // Save record in DB
             CandidateDocument::create([
                 'candidate_id' => $this->candidateId,
-                'type' => $type,
-                'path' => $path,
-                'remarks' => $this->remarks[$type] ?? null,
+                'type' => $this->type,
+                'path' => 'storage/'.$path,
+                'remarks' => $this->remarks ?? null,
                 'uploaded_by' => Auth::id(),
+            ]);
+            
+            ChangeLog::create([
+                'module_name'   => 'Document',
+                'module_id'     => $this->candidateId,
+                'action'        => 'Upload',
+                'link'   => asset("candidate_docs/{$this->candidateId}/{$filename}"),
+                'document_name' => $this->availableDocuments[$this->type],
+                'changed_by'    => Auth::id(),
+                'user_agent'    => $this->agentId,
             ]);
 
             // Reset file and remarks for this type
-            unset($this->newFiles[$type]);
-            unset($this->remarks[$type]);
+            unset($this->newFile);
+            unset($this->remarks);
+
 
             // Reload documents
             $this->loadDocuments();
             $this->dispatch(['ResetFormData']);
+
             $this->dispatch('toastr:success', message: 'Document uploaded successfully!');
+            return redirect()->route('admin.candidates.documents', ['candidate'=>$this->candidateId]);
 
         } catch (\Exception $e) {
             // dd($e->getMessage());
@@ -149,6 +159,10 @@ class CandidateDocumentCollection extends Component
      * Delete a document
      */
     public function deleteDocument($documentId)
+    {
+        $this->dispatch('showConfirm', ['itemId' => $documentId]);
+    }
+    public function delete($documentId)
     {
         try {
             $document = CandidateDocument::where('candidate_id', $this->candidateId)

@@ -9,14 +9,20 @@ class Candidate extends Model
    protected $table = "candidates";
     
    protected $fillable = [
-        'name', 'designation', 'email', 'contact_number', 'contact_number_alt_1', 'contact_number_alt_2', 'type','agent_id', 'assembly_id'
+        'name', 'designation', 'email', 'contact_number', 'contact_number_alt_1', 'contact_number_alt_2', 'type', 'assembly_id'
    ];
 
+   public function documents()
+    {
+        return $this->hasMany(CandidateDocument::class, 'candidate_id');
+    }
    public function assembly()
     {
         return $this->belongsTo(Assembly::class, 'assembly_id');
     }
-    public function agent(){
-        return $this->belongsTo(Agent::class, 'agent_id');
+
+    public function agents()
+    {
+        return $this->belongsToMany(Agent::class, 'candidate_agents', 'candidate_id', 'agent_id');
     }
 }

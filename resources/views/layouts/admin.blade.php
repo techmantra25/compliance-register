@@ -38,6 +38,38 @@
                     <i class="bi bi-house me-2"></i> {{ __('admin/sidebar.dashboard') }}
                 </a>
             </li>
+            <li class="nav-item mb-2">
+                <a class="nav-link d-flex justify-content-between align-items-center {{ request()->is('admin/master*') ? 'active' : 'collapsed' }}"
+                    data-bs-toggle="collapse"
+                    href="#masterMenu"
+                    role="button"
+                    aria-expanded="{{ request()->is('admin/master*') ? 'true' : 'false' }}"
+                    aria-controls="masterMenu">
+                    <span><i class="bi bi-gear me-2"></i> Master</span>
+                    <i class="bi bi-chevron-down small"></i>
+                </a>
+
+                <div class="collapse {{ request()->is('admin/master*') ? 'show' : '' }}" id="masterMenu">
+                    <ul class="nav flex-column ms-4 border-start ps-2 mt-1">
+
+                        <li class="nav-item mb-1">
+                            <a href="{{ route('admin.master.zones') }}"
+                                class="nav-link small {{ request()->routeIs('admin.master.zones') ? 'active' : '' }}">
+                                <i class="bi bi-geo-alt me-1"></i> Zones
+                            </a>
+                        </li>
+
+                        <li class="nav-item mb-1">
+                            <a href="{{ route('admin.master.phases') }}"
+                                class="nav-link small {{ request()->routeIs('admin.master.phases') ? 'active' : '' }}">
+                                <i class="bi bi-calendar2-event me-1"></i> Phases
+                            </a>
+                        </li>
+
+                    </ul>
+                </div>
+            </li>
+
 
             <li class="nav-item mb-2">
                 <a href="{{ route('admin.employees') }}"
@@ -49,7 +81,7 @@
            <li class="nav-item mb-2">
                 <a href="{{ route('admin.agents') }}"
                 class="nav-link {{ request()->routeIs('admin.agents') ? 'active' : '' }}">
-                    <i class="bi bi-person-badge"></i> {{ __('admin/sidebar.agents') }}
+                    <i class="bi bi-person-badge me-2"></i> {{ __('admin/sidebar.agents') }}
                 </a>
             </li>
            <li class="nav-item mb-2">
@@ -66,7 +98,7 @@
                 role="button"
                 aria-expanded="{{ request()->is('admin/candidates*') ? 'true' : 'false' }}"
                 aria-controls="candidateMenu">
-                    <span><i class="bi bi-person-badge me-2"></i> {{ __('admin/sidebar.candidates') }}</span>
+                    <span><i class="bi bi-person-badge me-2"></i> Nominations</span>
                     <i class="bi bi-chevron-down small"></i>
                 </a>
 
@@ -75,16 +107,9 @@
                         <li class="nav-item mb-1">
                             <a href="{{ route('admin.candidates.contacts') }}"
                             class="nav-link small {{ request()->routeIs('admin.candidates.contacts') ? 'active' : '' }}">
-                                <i class="bi bi-telephone me-1"></i> {{ __('admin/sidebar.nomination_list') }}
+                                <i class="bi bi-people me-2"></i> Candidates
                             </a>
                         </li>
-                        {{-- <li class="nav-item mb-1">
-                            <a href="{{ route('admin.candidates.discrepancies.report') }}"
-                            class="nav-link small {{ request()->routeIs('admin.candidates.discrepancies.report') ? 'active' : '' }}">
-                                <i class="bi bi-file-earmark-text me-1"></i> Social Media
-                                <!--<i class="bi bi-file-earmark-text me-1"></i> {{ __('admin/sidebar.discrepancy_list') }}-->
-                            </a>
-                        </li> --}}
                     </ul>
                 </div>
             </li>
@@ -141,7 +166,11 @@
     @livewireScripts
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+        crossorigin="anonymous"></script>
+
+
 
     <script>
         toastr.options = {
