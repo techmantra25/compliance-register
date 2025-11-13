@@ -35,73 +35,87 @@
     }
     </style>
 
-  <div class="d-flex flex-wrap justify-content-between align-items-start mb-3">
-        {{-- Left Section: Title + Candidate Info --}}
-        <div class="mb-2">
-            <h4 class="fw-bold mb-2 text-dark">Document Collections</h4>
+    <div class="d-flex flex-wrap justify-content-between align-items-start mb-3">
 
-            {{-- Candidate Info Table --}}
-          <div class="card shadow-sm border-0 p-3">
-              <table class="table table-sm table-borderless w-auto mb-0">
-                    <tbody>
-                        <tr>
-                           
-                            <th class="text-nowrap pe-3">Candidate Name</th>
-                            <td>: {{ $candidateName ?? 'N/A' }}</td>
-                        </tr>
-                        <tr>
-                            <th class="text-nowrap pe-3">Assembly Name & No</th>
-                            <td>: {{ $assemblyName ?? 'N/A' }}</td>
-                        </tr>
-                        <tr>
-                            <th class="text-nowrap pe-3 align-top">Agent Details</th>
-                            <td>
-                                @if($candidateData->agents && $candidateData->agents->count() > 0)
-                                    <ul class="mb-0 ps-3">
-                                        @foreach($candidateData->agents as $agent)
-                                            <li>
-                                                <strong>{{ ucwords($agent->name) }}</strong>
-                                                — {{ $agent->contact_number ?? 'N/A' }}
-                                                @if(!empty($agent->contact_number_alt_1))
-                                                    , {{ $agent->contact_number_alt_1 }}
-                                                @endif
-                                            </li>
-                                        @endforeach
-                                    </ul>
-                                @else
-                                    : N/A
-                                @endif
-                            </td>
-                        </tr>
-                        <tr>
-                            <th class="text-nowrap pe-3">Phase</th>
-                            <td>: {{ $phase ?? 'N/A' }}</td>
-                        </tr>
-                        <tr>
-                            <th class="text-nowrap pe-3">Last Date of Submission of Nomination Form</th>
-                            <td>: {{ $nomination_date??"N/A" }}</td>
-                        </tr>
-                        <tr>
-                            <th class="text-nowrap pe-3">Final Status</th>
-                            <td>: {{ getFinalDocStatus($candidateData->document_collection_status, 'icon') }}
-                                {{ getFinalDocStatus($candidateData->document_collection_status, 'label') }}</td>
-                        </tr>
-                    </tbody>
-                </table>
-          </div>
-        </div>
+    {{-- Left Section: Title + Candidate Info --}}
+    <div class="mb-2">
+        <h4 class="fw-bold mb-2 text-dark">Document Collections</h4>
 
-        {{-- Right Section: Back Button --}}
-        <div class="align-self-start">
-            <a href="{{ route('admin.candidates.contacts') }}" class="btn btn-sm btn-danger shadow-sm">
-                <i class="bi bi-arrow-left-circle me-1"></i> Back
-            </a>
+        {{-- Candidate Info Table --}}
+        <div class="card shadow-sm border-0 p-3">
+            <table class="table table-sm table-borderless w-auto mb-0">
+                <tbody>
+                    <tr>
+                        <th class="text-nowrap pe-3">Candidate Name</th>
+                        <td>: {{ $candidateName ?? 'N/A' }}</td>
+                    </tr>
+                    <tr>
+                        <th class="text-nowrap pe-3">Assembly Name & No</th>
+                        <td>: {{ $assemblyName ?? 'N/A' }}</td>
+                    </tr>
+                    <tr>
+                        <th class="text-nowrap pe-3 align-top">Agent Details</th>
+                        <td>
+                            @if($candidateData->agents && $candidateData->agents->count() > 0)
+                            <ul class="mb-0 ps-3">
+                                @foreach($candidateData->agents as $agent)
+                                <li>
+                                    <strong>{{ ucwords($agent->name) }}</strong>
+                                    — {{ $agent->contact_number ?? 'N/A' }}
+                                    @if(!empty($agent->contact_number_alt_1))
+                                    , {{ $agent->contact_number_alt_1 }}
+                                    @endif
+                                </li>
+                                @endforeach
+                            </ul>
+                            @else
+                            : N/A
+                            @endif
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="text-nowrap pe-3">Phase</th>
+                        <td>: {{ $phase ?? 'N/A' }}</td>
+                    </tr>
+                    <tr>
+                        <th class="text-nowrap pe-3">Last Date of Submission of Nomination Form</th>
+                        <td>: {{ $nomination_date ?? 'N/A' }}</td>
+                    </tr>
+                    <tr>
+                        <th class="text-nowrap pe-3">Final Status</th>
+                        <td>
+                            : {{ getFinalDocStatus($candidateData->document_collection_status, 'icon') }}
+                            {{ getFinalDocStatus($candidateData->document_collection_status, 'label') }}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+             <form wire:submit.prevent="uploadAcknowledgmentCopy" class="d-flex align-items-center gap-2">
+                <div class="input-group input-group-sm">
+                    <input type="file" wire:model="acknowledgment_file" class="form-control form-control-sm" accept=".pdf,.jpg,.png,.jpeg">
+                    <button type="submit" class="btn btn-success btn-sm shadow-sm">
+                        <i class="bi bi-upload me-1"></i> Upload
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
+
+    {{-- Right Section: Upload Acknowledgment Copy + Back Button --}}
+    <div class="d-flex flex-column align-items-end gap-2">
+        {{-- Back Button --}}
+        <a href="{{ route('admin.candidates.contacts') }}" class="btn btn-sm btn-danger shadow-sm">
+            <i class="bi bi-arrow-left-circle me-1"></i> Back
+        </a>
+    </div>
+</div>
+
 
 
     <div class="card shadow-sm border-0 p-3 mt-4">
         <div class="card-body">
+            {{-- File Upload --}}
+            
             <div class="table-responsive">
                 <table class="table mb-0 align-middle table-bordered">
                    <thead class="table-light">
