@@ -274,6 +274,11 @@ class AgentCrud extends Component
         $this->dispatch('toastr:success', message: 'Agent deleted successfully!');
     }
 
+    public function importCSV()
+    {
+        
+    }
+
     public function render()
     {
         $agents = Agent::with('assembliesDetails')->where('name', 'like', "%{$this->search}%")

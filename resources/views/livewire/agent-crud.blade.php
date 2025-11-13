@@ -20,6 +20,9 @@
                 </nav>
             </div>
             <div>
+                <button class="btn btn-primary btn-sm" wire:click="importCSV" data-bs-toggle="modal" data-bs-target="#importModal">
+                    <i class="bi bi-plus-circle me-1"></i> Bulk Upload
+                </button>
                 <button class="btn btn-primary btn-sm" wire:click="newAgent" data-bs-toggle="modal"
                     data-bs-target="#agentModal">
                     <i class="bi bi-plus-circle me-1"></i> Add New Contacts
@@ -95,41 +98,49 @@
                                             </h6>
                                             <div class="row">
                                                 @if($agent->type === 'bureaucrat')
-                                                    <div class="col-md-6">
-                                                        <p><strong>Designation:</strong> {{ $agent->designation ?? '-' }}</p>
-                                                        <p><strong>Area:</strong> {{ $agent->area ?? '-' }}</p>
-                                                        <p><strong>Phone No:</strong> {{ $agent->phone_number ?? '-' }}</p>
-                                                    </div>
-                                                    <div class="col-md-6">
-                                                        <p><strong>Email:</strong> {{ $agent->email ?? '-' }}</p>
-                                                        <p><strong>Comments:</strong> {{ $agent->comments ?? '-' }}</p>
-                                                    </div>
+                                                <div class="col-md-6">
+                                                    <p><strong>Designation:</strong> {{ $agent->designation ?? '-' }}
+                                                    </p>
+                                                    <p><strong>Area:</strong> {{ $agent->area ?? '-' }}</p>
+                                                    <p><strong>Phone No:</strong> {{ $agent->phone_number ?? '-' }}</p>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <p><strong>Email:</strong> {{ $agent->email ?? '-' }}</p>
+                                                    <p><strong>Comments:</strong> {{ $agent->comments ?? '-' }}</p>
+                                                </div>
                                                 @elseif($agent->type === 'political')
-                                                    <div class="col-md-6">
-                                                         <p><strong>Assembly:</strong> {{ $agent->assembliesDetails?->assembly_name_en ?? '-' }}
-                                                                                     ({{ $agent->assembliesDetails?->assembly_code ?? '-' }})
-                                                         </p>
-                                                        <p><strong>Name:</strong> {{ $agent->name ?? '-' }}</p>
-                                                        <p><strong>Mobile No:</strong> {{ $agent->contact_number ?? '-' }}</p>
-                                                        <p><strong>Whatsapp No:</strong> {{ $agent->whatsapp_number ?? '-' }}</p>
-                                                    </div>
-                                                    <div class="col-md-6">
-                                                        <p><strong>Email:</strong> {{ $agent->email ?? '-' }}</p>
-                                                        <p><strong>Designation:</strong> {{ $agent->designation ?? '-' }}</p>
-                                                        <p><strong>Comments:</strong> {{ $agent->comments ?? '-' }}</p>
-                                                    </div>
+                                                <div class="col-md-6">
+                                                    <p><strong>Assembly:</strong> {{
+                                                        $agent->assembliesDetails?->assembly_name_en ?? '-' }}
+                                                        ({{ $agent->assembliesDetails?->assembly_code ?? '-' }})
+                                                    </p>
+                                                    <p><strong>Name:</strong> {{ $agent->name ?? '-' }}</p>
+                                                    <p><strong>Mobile No:</strong> {{ $agent->contact_number ?? '-' }}
+                                                    </p>
+                                                    <p><strong>Whatsapp No:</strong> {{ $agent->whatsapp_number ?? '-'
+                                                        }}</p>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <p><strong>Email:</strong> {{ $agent->email ?? '-' }}</p>
+                                                    <p><strong>Designation:</strong> {{ $agent->designation ?? '-' }}
+                                                    </p>
+                                                    <p><strong>Comments:</strong> {{ $agent->comments ?? '-' }}</p>
+                                                </div>
                                                 @elseif($agent->type === 'other')
-                                                    <div class="col-md-6">
-                                                        <p><strong>Name:</strong> {{ $agent->name ?? '-' }}</p>
-                                                        <p><strong>Mobile No:</strong> {{ $agent->contact_number ?? '-' }}</p>
-                                                        <p><strong>Whatsapp No:</strong> {{ $agent->whatsapp_number ?? '-' }}</p>
-                                                        <p><strong>Designation:</strong> {{ $agent->designation ?? '-' }}</p>
-                                                    </div>
-                                                    <div class="col-md-6">
-                                                        <p><strong>Area:</strong> {{ $agent->area ?? '-' }}</p>
-                                                        <p><strong>Email:</strong> {{ $agent->email ?? '-' }}</p>
-                                                        <p><strong>Comments:</strong> {{ $agent->comments ?? '-' }}</p>
-                                                    </div>
+                                                <div class="col-md-6">
+                                                    <p><strong>Name:</strong> {{ $agent->name ?? '-' }}</p>
+                                                    <p><strong>Mobile No:</strong> {{ $agent->contact_number ?? '-' }}
+                                                    </p>
+                                                    <p><strong>Whatsapp No:</strong> {{ $agent->whatsapp_number ?? '-'
+                                                        }}</p>
+                                                    <p><strong>Designation:</strong> {{ $agent->designation ?? '-' }}
+                                                    </p>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <p><strong>Area:</strong> {{ $agent->area ?? '-' }}</p>
+                                                    <p><strong>Email:</strong> {{ $agent->email ?? '-' }}</p>
+                                                    <p><strong>Comments:</strong> {{ $agent->comments ?? '-' }}</p>
+                                                </div>
                                                 @endif
                                             </div>
                                         </div>
@@ -423,6 +434,52 @@
             </div>
         </div>
     </div>
+
+    <!--  Bulk Import Modal -->
+    <div wire:ignore.self class="modal fade" id="importModal" tabindex="-1" aria-labelledby="importModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="importModalLabel">Bulk Import Contacts</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="import_category" class="form-label">Select Category *</label>
+                        <select id="import_category" wire:model="importCategory" class="form-select"
+                            wire:change="updateSampleCSV">
+                            <option value="">-- Select Category --</option>
+                            <option value="bureaucrat">Bureaucrat</option>
+                            <option value="political">Political</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+
+                    {{-- @if($sampleCSV) --}}
+                    <div class="mb-3">
+                        <a href="" class="btn btn-sm btn-success" download>
+                            <i class="bi bi-download"></i> Download Sample CSV
+                        </a>
+                    </div>
+                    {{-- @endif --}}
+
+                    <div class="mb-3">
+                        <label for="csv_file" class="form-label">Upload CSV File *</label>
+                        <input type="file" id="csv_file" wire:model="csvFile" class="form-control">
+                        @error('csvFile') <small class="text-danger">{{ $message }}</small> @enderror
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary btn-sm" wire:click="importCSV">Import</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
 
 
