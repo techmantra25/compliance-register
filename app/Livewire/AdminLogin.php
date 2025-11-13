@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Admin;
 
 class AdminLogin extends Component
 {
@@ -18,6 +19,13 @@ class AdminLogin extends Component
     public function login()
     {
         $this->validate();
+
+        $admin = Admin::where('email', $this->email)->first();
+
+        if ($admin && $admin->suspended_status == 0 && $admin->id !== 1) {
+            $this->addError('email', 'Your account has been suspended. Please contact admin.');
+            return;
+        }
 
         $credentials = ['email' => $this->email, 'password' => $this->password];
         if (Auth::guard('admin')->attempt($credentials, $this->remember)) {

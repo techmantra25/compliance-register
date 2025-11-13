@@ -35,74 +35,97 @@
     }
     </style>
 
-  <div class="d-flex flex-wrap justify-content-between align-items-start mb-3">
-        {{-- Left Section: Title + Candidate Info --}}
-        <div class="mb-2">
-            <h4 class="fw-bold mb-2 text-dark">Document Collections</h4>
+    <div class="d-flex flex-wrap justify-content-between align-items-start mb-3">
 
-            {{-- Candidate Info Table --}}
-          <div class="card shadow-sm border-0 p-3">
-              <table class="table table-sm table-borderless w-auto mb-0">
-                    <tbody>
-                        <tr>
-                           
-                            <th class="text-nowrap pe-3">Candidate Name</th>
-                            <td>: {{ $candidateName ?? 'N/A' }}</td>
-                        </tr>
-                        <tr>
-                            <th class="text-nowrap pe-3">Assembly Name & No</th>
-                            <td>: {{ $assemblyName ?? 'N/A' }}</td>
-                        </tr>
-                        <tr>
-                            <th class="text-nowrap pe-3 align-top">Agent Details</th>
-                            <td>
-                                @if($candidateData->agents && $candidateData->agents->count() > 0)
-                                    <ul class="mb-0 ps-3">
-                                        @foreach($candidateData->agents as $agent)
-                                            <li>
-                                                <strong>{{ ucwords($agent->name) }}</strong>
-                                                — {{ $agent->contact_number ?? 'N/A' }}
-                                                @if(!empty($agent->contact_number_alt_1))
-                                                    , {{ $agent->contact_number_alt_1 }}
-                                                @endif
-                                            </li>
-                                        @endforeach
-                                    </ul>
-                                @else
-                                    : N/A
-                                @endif
-                            </td>
-                        </tr>
-                        <tr>
-                            <th class="text-nowrap pe-3">Phase</th>
-                            <td>: {{ $phase ?? '1' }}</td>
-                        </tr>
-                    </tbody>
-                </table>
-          </div>
-        </div>
+    {{-- Left Section: Title + Candidate Info --}}
+    <div class="mb-2">
+        <h4 class="fw-bold mb-2 text-dark">Document Collections</h4>
 
-        {{-- Right Section: Back Button --}}
-        <div class="align-self-start">
-            <a href="{{ route('admin.candidates.contacts') }}" class="btn btn-sm btn-danger shadow-sm">
-                <i class="bi bi-arrow-left-circle me-1"></i> Back
-            </a>
+        {{-- Candidate Info Table --}}
+        <div class="card shadow-sm border-0 p-3">
+            <table class="table table-sm table-borderless w-auto mb-0">
+                <tbody>
+                    <tr>
+                        <th class="text-nowrap pe-3">Candidate Name</th>
+                        <td>: {{ $candidateName ?? 'N/A' }}</td>
+                    </tr>
+                    <tr>
+                        <th class="text-nowrap pe-3">Assembly Name & No</th>
+                        <td>: {{ $assemblyName ?? 'N/A' }}</td>
+                    </tr>
+                    <tr>
+                        <th class="text-nowrap pe-3 align-top">Agent Details</th>
+                        <td>
+                            @if($candidateData->agents && $candidateData->agents->count() > 0)
+                            <ul class="mb-0 ps-3">
+                                @foreach($candidateData->agents as $agent)
+                                <li>
+                                    <strong>{{ ucwords($agent->name) }}</strong>
+                                    — {{ $agent->contact_number ?? 'N/A' }}
+                                    @if(!empty($agent->contact_number_alt_1))
+                                    , {{ $agent->contact_number_alt_1 }}
+                                    @endif
+                                </li>
+                                @endforeach
+                            </ul>
+                            @else
+                            : N/A
+                            @endif
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="text-nowrap pe-3">Phase</th>
+                        <td>: {{ $phase ?? 'N/A' }}</td>
+                    </tr>
+                    <tr>
+                        <th class="text-nowrap pe-3">Last Date of Submission of Nomination Form</th>
+                        <td>: {{ $nomination_date ?? 'N/A' }}</td>
+                    </tr>
+                    <tr>
+                        <th class="text-nowrap pe-3">Final Status</th>
+                        <td>
+                            : {{ getFinalDocStatus($candidateData->document_collection_status, 'icon') }}
+                            {{ getFinalDocStatus($candidateData->document_collection_status, 'label') }}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+             <form wire:submit.prevent="uploadAcknowledgmentCopy" class="d-flex align-items-center gap-2">
+                <div class="input-group input-group-sm">
+                    <input type="file" wire:model="acknowledgment_file" class="form-control form-control-sm" accept=".pdf,.jpg,.png,.jpeg">
+                    <button type="submit" class="btn btn-success btn-sm shadow-sm">
+                        <i class="bi bi-upload me-1"></i> Upload
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
+
+    {{-- Right Section: Upload Acknowledgment Copy + Back Button --}}
+    <div class="d-flex flex-column align-items-end gap-2">
+        {{-- Back Button --}}
+        <a href="{{ route('admin.candidates.contacts') }}" class="btn btn-sm btn-danger shadow-sm">
+            <i class="bi bi-arrow-left-circle me-1"></i> Back
+        </a>
+    </div>
+</div>
+
 
 
     <div class="card shadow-sm border-0 p-3 mt-4">
         <div class="card-body">
+            {{-- File Upload --}}
+            
             <div class="table-responsive">
                 <table class="table mb-0 align-middle table-bordered">
                    <thead class="table-light">
                         <tr class="text-center">
                             <th width="18%">Document Name</th>
-                            <th width="14%">Upload History</th>
-                            <th width="10%">Uploaded by</th>
-                            <th width="16%">Date & Time</th>
+                            <th width="10%">Upload History</th>
+                            <th width="14%">Date & Time</th>
                             <th width="8%">Status</th>
                             <th width="20%">Remarks</th>
+                            <th width="16%">Action</th>
                             <th width="10%">Upload Now</th>
                         </tr>
                     </thead>
@@ -154,6 +177,7 @@
                                                 </div>
 
                                                 <div class="mx-2">
+                                                    @if($doc['comments_count']>0)
                                                     <a href="javascript:void(0)"
                                                     class="text-decoration-none position-relative text-secondary"
                                                     title="View Comments">
@@ -162,18 +186,11 @@
                                                            {{$doc['comments_count']}}
                                                         </span>
                                                     </a>
+                                                    @endif
                                                 </div>
 
                                             </div>
                                         </td>
-
-
-                                        {{-- Uploaded By --}}
-                                        <td>
-                                            <i class="bi bi-person me-1"></i>
-                                            {{ $doc['uploaded_by_name'] ?? 'N/A' }}
-                                        </td>
-
                                         {{-- Uploaded At --}}
                                         <td>
                                             <i class="bi bi-clock me-1"></i>
@@ -181,7 +198,7 @@
                                         </td>
 
                                         {{-- Status --}}
-                                        <td>
+                                        <td class="text-center">
                                             <span class="cursor-pointer badge
                                                 @if($doc['status'] == 'Approved') bg-lavel-success
                                                 @elseif($doc['status'] == 'Rejected') bg-lavel-danger
@@ -197,6 +214,29 @@
                                                 {{ $doc['remarks'] ?: '-' }}
                                             </span>
                                         </td>
+                                          {{-- Uploaded By --}}
+                                        <td class="align-middle" style="font-size:12px;">
+                                            <div class="d-flex flex-column text-start">
+                                                <div>
+                                                    <i class="bi bi-person me-1 text-primary"></i>
+                                                    <strong>Uploaded By:</strong> {{ $doc['uploaded_by_name'] ?? 'N/A' }}
+                                                </div>
+                                                @if(!empty($doc['vetted_on']))
+                                                    <div>
+                                                        <i class="bi bi-calendar-check me-1 text-success"></i>
+                                                        <strong>Vetted On:</strong> 
+                                                        {{ $doc['vetted_on'] }}
+                                                    </div>
+                                                @endif
+                                                @if(!empty($doc['vetted_by_name']))
+                                                    <div>
+                                                        <i class="bi bi-person-badge me-1 text-info"></i>
+                                                        <strong>Vetted By:</strong> {{ $doc['vetted_by_name'] }}
+                                                    </div>
+                                                @endif
+                                            </div>
+                                        </td>
+
 
                                         {{-- Upload Button or Status --}}
                                         @if($index === 0)

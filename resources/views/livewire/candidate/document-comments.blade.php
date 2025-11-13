@@ -11,9 +11,15 @@
                     </a>
                 </li>
                 <li class="breadcrumb-item">
-                    <a href="{{ route('admin.candidates.documents', ['candidate'=>$document->candidate_id]) }}" class="text-muted text-decoration-none">
-                        Candidate Documents
-                    </a>
+                    @if($authUser->role =="legal associate")
+                        <a href="{{ route('admin.candidates.documents.vetting', $document->candidate_id) }}" class="text-muted text-decoration-none">
+                            Candidate Documents
+                        </a>
+                    @else
+                        <a href="{{ route('admin.candidates.documents', ['candidate'=>$document->candidate_id]) }}" class="text-muted text-decoration-none">
+                            Candidate Documents
+                        </a>
+                    @endif
                 </li>
                 <li class="breadcrumb-item active text-primary">
                     Comments — <span class="fw-semibold">{{ $document->file_name ?? 'Document #'.$documentId }}</span>
@@ -21,9 +27,15 @@
             </ol>
         </div>
         <div class="align-self-start">
-            <a href="{{ route('admin.candidates.documents', ['candidate'=>$document->candidate_id]) }}" class="btn btn-sm btn-danger shadow-sm">
-                <i class="bi bi-arrow-left-circle me-1"></i> Back
-            </a>
+            @if($authUser->role =="legal associate")
+                <a href="{{ route('admin.candidates.documents.vetting', $document->candidate_id) }}" class="btn btn-sm btn-danger shadow-sm">
+                    <i class="bi bi-arrow-left-circle me-1"></i> Back
+                </a>
+            @else
+                <a href="{{ route('admin.candidates.documents', ['candidate'=>$document->candidate_id]) }}" class="btn btn-sm btn-danger shadow-sm">
+                    <i class="bi bi-arrow-left-circle me-1"></i> Back
+                </a>
+            @endif
         </div>
     </div>
 
