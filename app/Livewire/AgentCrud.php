@@ -6,10 +6,13 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use App\Models\Agent;
 use App\Models\Assembly;
+use Livewire\WithFileUploads;
+use Illuminate\Support\Facades\DB;
 
 class AgentCrud extends Component
 {
     use WithPagination;
+    use WithFileUploads;
 
     protected $paginationTheme = 'bootstrap';
 
@@ -25,6 +28,9 @@ class AgentCrud extends Component
     public $editId = null, $editMode = false, $search = '';
     public $assemblies;
     public $expandedAgentId = null;
+    public $importCategory;
+    public $sampleCSV;
+    public $csvFile;
 
     public function mount()
     {
@@ -274,9 +280,125 @@ class AgentCrud extends Component
         $this->dispatch('toastr:success', message: 'Agent deleted successfully!');
     }
 
+    public function updateSampleCSV()
+    {
+        switch ($this->importCategory) {
+            case 'bureaucrat':
+                $this->sampleCSV = asset('assets/sample-csv/bureaucrat-sample.csv');
+                break;
+            case 'political':
+                $this->sampleCSV = asset('assets/sample-csv/political-sample.csv');
+                break;
+            case 'other':
+                $this->sampleCSV = asset('assets/sample-csv/other-sample.csv');
+                break;
+            default:
+                $this->sampleCSV = null;
+        }
+    }
+
+    public function import()
+    {
+        $this->dispatch('open-modal', 'importModal');
+        $this->reset(['importCategory', 'sampleCSV', 'csvFile']);
+
+    }
+
     public function importCSV()
     {
-        
+        $this->validate([
+            'importCategory' => 'required|in:bureaucrat,political,other',
+            'csvFile' => 'required|file|mimes:csv,txt',
+        ]);
+
+        DB::beginTransaction(); // Start transaction
+
+        try {
+            $path = $this->csvFile->getRealPath();
+            $file = fopen($path, 'r');
+
+            $headers = fgetcsv($file); // first row headers
+            $rowNumber = 1;
+
+            while ($row = fgetcsv($file)) {
+                $rowNumber++;
+                $data = $this->mapCSVRowToAgent($row, $headers);
+
+                // 🔹 Validation based on category
+                if ($this->importCategory === 'bureaucrat') {
+                    $requiredFields = ['name', 'area', 'designation', 'contact_number'];
+                } elseif ($this->importCategory === 'political' || $this->importCategory === 'other') {
+                    $requiredFields = ['name', 'contact_number'];
+                }
+
+                foreach ($requiredFields as $field) {
+                    if (empty($data[$field])) {
+                        throw new \Exception("Row {$rowNumber}: {$field} is required for {$this->importCategory}.");
+                    }
+                }
+
+                Agent::create($data);
+            }
+
+            fclose($file);
+
+            DB::commit(); // Commit transaction if everything is OK
+            $this->dispatch('toastr:success', message: 'CSV imported successfully!');
+            $this->dispatch('close-modal');
+
+        } catch (\Exception $e) {
+            DB::rollBack(); // Rollback if any error occurs
+            $this->dispatch('toastr:error', message: 'Import failed: ' . $e->getMessage());
+        }
+    }
+    private function mapCSVRowToAgent($row, $headers)
+    {
+        $data = ['type' => $this->importCategory];
+
+        foreach ($headers as $index => $header) {
+            $value = $row[$index] ?? null;
+
+            switch ($this->importCategory) {
+                case 'bureaucrat':
+                    // Sample headers: Name,Designation,Area,Mobile No,Phone No,Email,Comments
+                    if ($header == 'Name') $data['name'] = $value;
+                    elseif ($header == 'Designation') $data['designation'] = $value;
+                    elseif ($header == 'Area') $data['area'] = $value;
+                    elseif ($header == 'Mobile No') $data['contact_number'] = $value;
+                    elseif ($header == 'Phone No') $data['phone_number'] = $value;
+                    elseif ($header == 'Email') $data['email'] = $value;
+                    elseif ($header == 'Comments') $data['comments'] = $value;
+                    break;
+
+                case 'political':
+                    // Sample headers: Name,Assembly ID,Mobile No,Whatsapp No,Designation,Email,Comments
+                    if ($header == 'Name') $data['name'] = $value;
+                   // 🔹 Lookup assembly ID by name
+                    elseif ($header == 'Assembly Name') {
+                        $assembly = Assembly::where('assembly_name_en', $value)->first();
+                        $data['assemblies_id'] = $assembly ? $assembly->id : null;
+                    }
+                    elseif ($header == 'Mobile No') $data['contact_number'] = $value;
+                    elseif ($header == 'Whatsapp No') $data['whatsapp_number'] = $value;
+                    elseif ($header == 'Designation') $data['designation'] = $value;
+                    elseif ($header == 'Email') $data['email'] = $value;
+                    elseif ($header == 'Comments') $data['comments'] = $value;
+                    break;
+
+                case 'other':
+                    // Sample headers: Name,Mobile No,Whatsapp No,Designation,Area,Email,Comments
+                    if ($header == 'Name') $data['name'] = $value;
+                    elseif ($header == 'Mobile No') $data['contact_number'] = $value;
+                    elseif ($header == 'Whatsapp No') $data['whatsapp_number'] = $value;
+                    elseif ($header == 'Designation') $data['designation'] = $value;
+                    elseif ($header == 'Area') $data['area'] = $value;
+                    elseif ($header == 'Email') $data['email'] = $value;
+                    elseif ($header == 'Comments') $data['comments'] = $value;
+                    break;
+            }
+        }
+
+        return $data;
     }
 
     public function render()

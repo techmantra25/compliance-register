@@ -20,7 +20,7 @@
                 </nav>
             </div>
             <div>
-                <button class="btn btn-primary btn-sm" wire:click="importCSV" data-bs-toggle="modal" data-bs-target="#importModal">
+                <button class="btn btn-primary btn-sm" wire:click="import" data-bs-toggle="modal" data-bs-target="#importModal">
                     <i class="bi bi-plus-circle me-1"></i> Bulk Upload
                 </button>
                 <button class="btn btn-primary btn-sm" wire:click="newAgent" data-bs-toggle="modal"
@@ -455,15 +455,16 @@
                             <option value="political">Political</option>
                             <option value="other">Other</option>
                         </select>
+                         @error('importCategory') <small class="text-danger">{{ $message }}</small> @enderror
                     </div>
 
-                    {{-- @if($sampleCSV) --}}
+                    @if($sampleCSV)
                     <div class="mb-3">
-                        <a href="" class="btn btn-sm btn-success" download>
+                        <a href="{{$sampleCSV}}" class="btn btn-sm btn-success" download>
                             <i class="bi bi-download"></i> Download Sample CSV
                         </a>
                     </div>
-                    {{-- @endif --}}
+                    @endif
 
                     <div class="mb-3">
                         <label for="csv_file" class="form-label">Upload CSV File *</label>
@@ -474,7 +475,7 @@
 
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary btn-sm" wire:click="importCSV">Import</button>
+                    <button type="submit" class="btn btn-primary btn-sm" wire:click="importCSV">Import</button>
                 </div>
             </div>
         </div>
@@ -575,6 +576,9 @@
             window.addEventListener('close-modal', event => {
                 $('#agentModal').modal('hide');
             });
+             window.addEventListener('close-modal', event => {
+                $('#importModal').modal('hide');
+            });
 
             window.addEventListener('agent-edit-loaded', event => {
                 const type = event.detail.type;
@@ -621,7 +625,11 @@
             });
         });
     </script>
-
+    <script>
+        window.addEventListener('open-modal', event => {
+                $('#importModal').modal('show');
+            });
+    </script>
 
 
 
