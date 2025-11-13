@@ -93,7 +93,7 @@ class CandidateContactList extends Component
             ]
         );
 
-         DB::beginTransaction();
+        DB::beginTransaction();
 
         try {
             foreach ($this->agentsList as $agentData) {
@@ -466,7 +466,7 @@ class CandidateContactList extends Component
 
 
 
-   public function render()
+    public function render()
     {
         $candidates = Candidate::query()
             ->where('type', 'Candidate')
@@ -476,14 +476,14 @@ class CandidateContactList extends Component
                         ->orWhere('email', 'like', "%{$this->search}%")
                         ->orWhere('contact_number', 'like', "%{$this->search}%")
 
-                        // 🔹 Search inside related Assembly table
+                        //  Search inside related Assembly table
                         ->orWhereHas('assembly', function ($assembly) {
                             $assembly->where('assembly_number', 'like', "%{$this->search}%")
                                 ->orWhere('assembly_name_en', 'like', "%{$this->search}%")
                                 ->orWhere('assembly_name_bn', 'like', "%{$this->search}%")
                                 ->orWhere('assembly_code', 'like', "%{$this->search}%")
                                 
-                                // 🔹 Nested relation: District inside Assembly
+                                //  Nested relation: District inside Assembly
                                 ->orWhereHas('district', function ($district) {
                                     $district->where('name_en', 'like', "%{$this->search}%")
                                         ->orWhere('name_bn', 'like', "%{$this->search}%")
@@ -491,7 +491,7 @@ class CandidateContactList extends Component
                                 });
                         })
 
-                        // 🔹 Search inside related Agents (Many-to-Many)
+                        //  Search inside related Agents (Many-to-Many)
                         ->orWhereHas('agents', function ($agent) {
                             $agent->where('name', 'like', "%{$this->search}%")
                                 ->orWhere('designation', 'like', "%{$this->search}%")
