@@ -19,10 +19,12 @@ class AgentCrud extends Component
     // Category-specific fields
     public $designation, $area, $mobile_no, $phone_no, $whatsapp_no;
     public $assemblies_id;
-    
+    public $sameAsMobile;
+
     // Other properties
     public $editId = null, $editMode = false, $search = '';
     public $assemblies;
+    public $expandedAgentId = null;
 
     public function mount()
     {
@@ -31,6 +33,17 @@ class AgentCrud extends Component
             ->orderBy('assembly_code')
             ->get();
     }
+
+    
+    public function view($id){
+         if ($this->expandedAgentId === $id) {
+           $this->expandedAgentId = null;
+        } else {
+            $this->expandedAgentId = $id;
+        }
+    }
+ 
+
 
     public function filterAgents($searchTerm)
     {
@@ -88,28 +101,28 @@ class AgentCrud extends Component
         $commonRules = [
             'agent_type' => 'required|in:bureaucrat,political,other',
             'name' => 'required|string|max:255',
-            'mobile_no' => 'required|string|max:10',
+            'mobile_no' => 'required|digits:10',
         ];
 
         if ($this->agent_type === 'bureaucrat') {
             return array_merge($commonRules, [
                 'designation' => 'required|string|max:255',
                 'area' => 'required|string|max:255',
-                'phone_no' => 'nullable|string|max:10',
+                'phone_no' => 'nullable|digits:10',
                 'email' => 'nullable|email|max:255',
                 'comments' => 'nullable|string',
             ]);
         } elseif ($this->agent_type === 'political') {
             return array_merge($commonRules, [
                 'assemblies_id' => 'nullable|exists:assemblies,id',
-                'whatsapp_no' => 'nullable|string|max:10',
+                'whatsapp_no' => 'nullable|digits:10',
                 'email' => 'nullable|email|max:255',
                 'designation' => 'nullable|string|max:255',
                 'comments' => 'nullable|string',
             ]);
         } elseif ($this->agent_type === 'other') {
             return array_merge($commonRules, [
-                'whatsapp_no' => 'nullable|string|max:10',
+                'whatsapp_no' => 'nullable|digits:10',
                 'email' => 'nullable|email|max:255',
                 'designation' => 'nullable|string|max:255',
                 'area' => 'nullable|string|max:255',
@@ -140,13 +153,13 @@ class AgentCrud extends Component
             case 'political':
                 $data['assemblies_id'] = $this->assemblies_id;
                 $data['contact_number'] = $this->mobile_no;
-                $data['whatsapp_number'] = $this->whatsapp_no;
+                $data['whatsapp_number'] = $this->sameAsMobile ? $this->mobile_no : $this->whatsapp_no;
                 $data['designation'] = $this->designation;
                 break;
 
             case 'other':
                 $data['contact_number'] = $this->mobile_no;
-                $data['whatsapp_number'] = $this->whatsapp_no;
+                $data['whatsapp_number'] = $this->sameAsMobile ? $this->mobile_no : $this->whatsapp_no;
                 $data['designation'] = $this->designation;
                 $data['area'] = $this->area; // Store area in alt_1 or create new column
                 break;
@@ -155,49 +168,115 @@ class AgentCrud extends Component
         return $data;
     }
 
-    public function edit($id)
-{
-    $this->editMode = true;
-    $this->editId = $id;
+    public function updateCategory($value)
+    {
+        // When category changes, clear category-specific fields
+        if ($value === 'bureaucrat') {
+            $this->reset([
+                'designation',
+                'area',
+                'mobile_no',
+                'phone_no',
+                'whatsapp_no',
+            ]);
+        } elseif ($value === 'political') {
+            $this->reset([
+                'designation',
+                'area',
+                'mobile_no',
+                'phone_no',
+                'whatsapp_no',
+            ]);
+        } else {
+            // For any other category
+            $this->reset([
+                'designation',
+                'area',
+                'mobile_no',
+                'phone_no',
+                'whatsapp_no',
+            ]);
+        }
 
-    $agent = Agent::findOrFail($id);
-    
-    $this->agent_type = $agent->type;
-    $this->name = $agent->name;
-    $this->email = $agent->email;
-    $this->comments = $agent->comments;
-    $this->assemblies_id = $agent->assemblies_id;
-    
-    switch ($agent->type) {
-        case 'bureaucrat':
+        // Update the category
+        $this->agent_type = $value;
+
+        // Tell frontend to toggle visible fields (e.g. show/hide sections)
+        $this->dispatch('toggleCategoryFields', type: $value);
+        $this->dispatch('ResetFormData');
+    }
+
+   public function updateAgent()
+{
+    $rules = $this->getValidationRules();
+    $this->validate($rules);
+
+    try {
+        $agent = Agent::findOrFail($this->editId);
+
+        $data = $this->prepareAgentData();
+
+        $agent->update($data);
+
+        $this->dispatch('toastr:success', message: 'Contact updated successfully!');
+        $this->dispatch('close-modal');
+
+        $this->resetForm();
+
+    } catch (\Exception $e) {
+        $this->dispatch('toastr:error', message: 'Update failed: ' . $e->getMessage());
+    }
+}
+
+
+
+    public function edit($id)
+    {
+        $this->editMode = true;
+        $this->editId = $id;
+
+        $agent = Agent::findOrFail($id);
+
+        $this->agent_type = $agent->type;
+        $this->name = $agent->name;
+        $this->email = $agent->email;
+        $this->comments = $agent->comments;
+        $this->assemblies_id = $agent->assemblies_id;
+        
+        if ($agent->type === 'bureaucrat') {
             $this->designation = $agent->designation;
             $this->mobile_no = $agent->contact_number;
             $this->phone_no = $agent->phone_number;
             $this->area = $agent->area;
-            break;
-
-        case 'political':
+        } elseif ($agent->type === 'political') {
             $this->designation = $agent->designation;
             $this->mobile_no = $agent->contact_number;
             $this->whatsapp_no = $agent->whatsapp_number;
-            break;
-
-        case 'other':
+        } elseif ($agent->type === 'other') {
             $this->designation = $agent->designation;
             $this->mobile_no = $agent->contact_number;
             $this->whatsapp_no = $agent->whatsapp_number;
             $this->area = $agent->area;
-            break;
+        }
+        
+         $this->dispatch('agent-edit-loaded', ['type' => $this->agent_type]);
+    
     }
 
-    //  Dispatch event to JS so modal fields show correctly
-    $this->dispatch('agent-edit-loaded', type: $this->agent_type);
-}
 
+    public function confirmDelete($id){
+        $this->dispatch('showConfirm', ['itemId' => $id]);
+    }
+
+     public function delete($id)
+    {
+        Agent::findOrFail($id)->delete();
+        $this->dispatch('toastr:success', message: 'Agent deleted successfully!');
+    }
 
     public function render()
     {
-        $agents = Agent::where('name', 'like', "%{$this->search}%")
+        $agents = Agent::with('assembliesDetails')->where('name', 'like', "%{$this->search}%")
             ->orWhere('email', 'like', "%{$this->search}%")
             ->orWhere('contact_number', 'like', "%{$this->search}%")
             ->orderBy('id', 'desc')

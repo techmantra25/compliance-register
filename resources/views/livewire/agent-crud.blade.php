@@ -62,19 +62,81 @@
                                     <td>{{ $agents->firstItem() + $loop->index }}</td>
                                     <td>{{ $agent->name }}</td>
                                     <td>
-                                       <p> Mobile No: {{$agent->contact_number}}</p> 
-                                       <p> Whatsapp No: {{$agent->whatsapp_number}}</p>
+                                        <p> Mobile No: {{$agent->contact_number}}</p>
+                                        <p> Whatsapp No: {{$agent->whatsapp_number}}</p>
                                     </td>
                                     <td>{{ $agent->email ?? '-' }}</td>
                                     <td>{{ $agent->area ?? '-' }}</td>
                                     <td>
                                         <button class="btn btn-sm btn-outline-primary"
+                                            wire:click="view({{ $agent->id }})">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-primary"
                                             wire:click="edit({{ $agent->id }})" data-bs-toggle="modal"
                                             data-bs-target="#agentModal">
                                             <i class="bi bi-pencil"></i>
                                         </button>
+                                        <button class="btn btn-sm btn-outline-primary"
+                                            wire:click="confirmDelete({{ $agent->id }})">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+
+                                    </td>
+
+                                </tr>
+                                {{-- Collapsible details row --}}
+                                @if($expandedAgentId === $agent->id)
+                                <tr class="bg-light">
+                                    <td colspan="6">
+                                        <div class="p-3">
+                                            <h6 class="fw-bold mb-2 text-primary">
+                                                <i class="bi bi-info-circle me-1"></i> Contact Details
+                                            </h6>
+                                            <div class="row">
+                                                @if($agent->type === 'bureaucrat')
+                                                    <div class="col-md-6">
+                                                        <p><strong>Designation:</strong> {{ $agent->designation ?? '-' }}</p>
+                                                        <p><strong>Area:</strong> {{ $agent->area ?? '-' }}</p>
+                                                        <p><strong>Phone No:</strong> {{ $agent->phone_number ?? '-' }}</p>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <p><strong>Email:</strong> {{ $agent->email ?? '-' }}</p>
+                                                        <p><strong>Comments:</strong> {{ $agent->comments ?? '-' }}</p>
+                                                    </div>
+                                                @elseif($agent->type === 'political')
+                                                    <div class="col-md-6">
+                                                         <p><strong>Assembly:</strong> {{ $agent->assembliesDetails?->assembly_name_en ?? '-' }}
+                                                                                     ({{ $agent->assembliesDetails?->assembly_code ?? '-' }})
+                                                         </p>
+                                                        <p><strong>Name:</strong> {{ $agent->name ?? '-' }}</p>
+                                                        <p><strong>Mobile No:</strong> {{ $agent->contact_number ?? '-' }}</p>
+                                                        <p><strong>Whatsapp No:</strong> {{ $agent->whatsapp_number ?? '-' }}</p>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <p><strong>Email:</strong> {{ $agent->email ?? '-' }}</p>
+                                                        <p><strong>Designation:</strong> {{ $agent->designation ?? '-' }}</p>
+                                                        <p><strong>Comments:</strong> {{ $agent->comments ?? '-' }}</p>
+                                                    </div>
+                                                @elseif($agent->type === 'other')
+                                                    <div class="col-md-6">
+                                                        <p><strong>Name:</strong> {{ $agent->name ?? '-' }}</p>
+                                                        <p><strong>Mobile No:</strong> {{ $agent->contact_number ?? '-' }}</p>
+                                                        <p><strong>Whatsapp No:</strong> {{ $agent->whatsapp_number ?? '-' }}</p>
+                                                        <p><strong>Designation:</strong> {{ $agent->designation ?? '-' }}</p>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <p><strong>Area:</strong> {{ $agent->area ?? '-' }}</p>
+                                                        <p><strong>Email:</strong> {{ $agent->email ?? '-' }}</p>
+                                                        <p><strong>Comments:</strong> {{ $agent->comments ?? '-' }}</p>
+                                                    </div>
+                                                @endif
+                                            </div>
+                                        </div>
                                     </td>
                                 </tr>
+                                @endif
+
                                 @empty
                                 <tr>
                                     <td colspan="7" class="text-center text-muted py-3">
@@ -166,181 +228,198 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="agentModalLabel"> {{ $editMode ? 'Update Contact' : 'Add New Contact' }}</h5>
+                    <h5 class="modal-title" id="agentModalLabel"> {{ $editMode ? 'Update Contact' : 'Add New Contact' }}
+                    </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
 
-                <div class="modal-body">
-                     <form wire:submit.prevent="{{ $editMode ? 'updateAgent' : 'saveAgent' }}">
-                    <div class="mb-3">
-                        <label for="agent_type" class="form-label">Select Category *</label>
-                        <select wire:model="agent_type" id="agent_type" class="form-select">
-                            <option value="">-- Select Category --</option>
-                            <option value="bureaucrat">Bureaucrat</option>
-                            <option value="political">Political</option>
-                            <option value="other">Other</option>
-                        </select>
-                        @error('agent_type') <small class="text-danger">{{ $message }}</small> @enderror
-                    </div>
+                <form wire:submit.prevent="{{ $editMode ? 'updateAgent' : 'saveAgent' }}"
+                    wire:key="agent-form-{{ $editId ?? 'new' }}">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="agent_type" class="form-label">Select Category *</label>
+                            <select wire:model="agent_type" id="agent_type" class="form-select"
+                                wire:change="updateCategory($event.target.value)">
+                                <option value="">-- Select Category --</option>
+                                <option value="bureaucrat">Bureaucrat</option>
+                                <option value="political">Political</option>
+                                <option value="other">Other</option>
+                            </select>
+                            @error('agent_type') <small class="text-danger">{{ $message }}</small> @enderror
+                        </div>
 
-                    <!-- Bureaucrat Form -->
-                    <div id="bureaucrat_fields" class="d-none">
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label>Name *</label>
-                                <input type="text" class="form-control" wire:model="name" placeholder="Enter Name">
-                                @error('name') <small class="text-danger">{{ $message }}</small> @enderror
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="designation">Designation *</label>
-                                <select id="designation" wire:model="designation" class="form-select">
-                                    <option value="">-- Select Designation --</option>
-                                    <option value="mla">MLA</option>
-                                    <option value="mp">MP</option>
-                                    <option value="collector">Collector</option>
-                                    <option value="commissioner">Commissioner</option>
-                                    <option value="chairman">Chairman</option>
-                                </select>
-                                @error('designation') <small class="text-danger">{{ $message }}</small> @enderror
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label>Area/District *</label>
-                                <input type="text" class="form-control" wire:model="area"
-                                    placeholder="Enter Area/District">
-                                @error('area') <small class="text-danger">{{ $message }}</small> @enderror
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label>Mobile No *</label>
-                                <input type="number" class="form-control" wire:model="mobile_no"
-                                    placeholder="Enter Mobile Number">
-                                @error('mobile_no') <small class="text-danger">{{ $message }}</small> @enderror
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label>Phone No</label>
-                                <input type="number" class="form-control" wire:model="phone_no"
-                                    placeholder="Enter Phone Number">
-                                @error('phone_no') <small class="text-danger">{{ $message }}</small> @enderror
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label>Email Id</label>
-                                <input type="email" class="form-control" wire:model="email" placeholder="Enter Email">
-                                @error('email') <small class="text-danger">{{ $message }}</small> @enderror
-                            </div>
-                            <div class="col-md-12 mb-3">
-                                <label>Comments</label>
-                                <textarea class="form-control" wire:model="comments"
-                                    placeholder="Enter Comments"></textarea>
-                                @error('comments') <small class="text-danger">{{ $message }}</small> @enderror
+                        <!-- Bureaucrat Form -->
+                        <div id="bureaucrat_fields" class="d-none">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label>Name *</label>
+                                    <input type="text" class="form-control" wire:model="name" placeholder="Enter Name"
+                                        data-category-field>
+                                    @error('name') <small class="text-danger">{{ $message }}</small> @enderror
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="designation">Designation *</label>
+                                    <select id="designation" wire:model="designation" class="form-select"
+                                        data-category-field>
+                                        <option value="">-- Select Designation --</option>
+                                        <option value="mla">MLA</option>
+                                        <option value="mp">MP</option>
+                                        <option value="collector">Collector</option>
+                                        <option value="commissioner">Commissioner</option>
+                                        <option value="chairman">Chairman</option>
+                                    </select>
+                                    @error('designation') <small class="text-danger">{{ $message }}</small> @enderror
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label>Area/District *</label>
+                                    <input type="text" class="form-control" wire:model="area"
+                                        placeholder="Enter Area/District" data-category-field>
+                                    @error('area') <small class="text-danger">{{ $message }}</small> @enderror
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label>Mobile No *</label>
+                                    <input type="number" class="form-control" wire:model="mobile_no"
+                                        placeholder="Enter Mobile Number" data-category-field>
+                                    @error('mobile_no') <small class="text-danger">{{ $message }}</small> @enderror
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label>Phone No</label>
+                                    <input type="number" class="form-control" wire:model="phone_no"
+                                        placeholder="Enter Phone Number" data-category-field>
+                                    @error('phone_no') <small class="text-danger">{{ $message }}</small> @enderror
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label>Email Id</label>
+                                    <input type="email" class="form-control" wire:model="email"
+                                        placeholder="Enter Email" data-category-field>
+                                    @error('email') <small class="text-danger">{{ $message }}</small> @enderror
+                                </div>
+                                <div class="col-md-12 mb-3">
+                                    <label>Comments</label>
+                                    <textarea class="form-control" wire:model="comments" placeholder="Enter Comments"
+                                        data-category-field></textarea>
+                                    @error('comments') <small class="text-danger">{{ $message }}</small> @enderror
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- Political Form -->
-                    <div id="political_fields" class="d-none">
-                        <div class="row">
-                            <div class="col-md-6 mb-3" wire:ignore>
-                                <label for="assemblies_id" class="form-label">Assembly</label>
-                                <select wire:model="assemblies_id" id="assemblies_id" class="form-select chosen-select">
-                                    <option value="">-- Select Assembly No --</option>
-                                    @foreach ($assemblies as $assembly)
-                                    <option value="{{ $assembly->id }}">
-                                        {{$assembly->assembly_name_en}}({{ $assembly->assembly_code }})
-                                    </option>
-                                    @endforeach
-                                </select>
-                                @error('assemblies_id') <small class="text-danger">{{ $message }}</small> @enderror
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label>Name *</label>
-                                <input type="text" class="form-control" wire:model="name" placeholder="Enter Name">
-                                @error('name') <small class="text-danger">{{ $message }}</small> @enderror
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label>Mobile No *</label>
-                                <input type="number" class="form-control" wire:model="mobile_no"
-                                    placeholder="Enter Mobile No">
-                                @error('mobile_no') <small class="text-danger">{{ $message }}</small> @enderror
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label>Whatsapp No</label>
-                                <input type="number" class="form-control" wire:model="whatsapp_no"
-                                    placeholder="Enter Whatsapp No">
+                        <!-- Political Form -->
+                        <div id="political_fields" class="d-none">
+                            <div class="row">
+                                <div class="col-md-6 mb-3" wire:ignore>
+                                    <label for="assemblies_id" class="form-label">Assembly</label>
+                                    <select wire:model="assemblies_id" id="assemblies_id"
+                                        class="form-select chosen-select" data-category-field>
+                                        <option value="">-- Select Assembly No --</option>
+                                        @foreach ($assemblies as $assembly)
+                                        <option value="{{ $assembly->id }}">
+                                            {{$assembly->assembly_name_en}}({{ $assembly->assembly_code }})
+                                        </option>
+                                        @endforeach
+                                    </select>
+                                    @error('assemblies_id') <small class="text-danger">{{ $message }}</small> @enderror
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label>Name *</label>
+                                    <input type="text" class="form-control" wire:model="name" placeholder="Enter Name"
+                                        data-category-field>
+                                    @error('name') <small class="text-danger">{{ $message }}</small> @enderror
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label>Mobile No *</label>
+                                    <input type="number" id="mobile_no" class="form-control" wire:model="mobile_no"
+                                        placeholder="Enter Mobile No" data-category-field>
+                                    @error('mobile_no') <small class="text-danger">{{ $message }}</small> @enderror
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label>Whatsapp No</label>
+                                    <input type="number" id="whatsapp_no" class="form-control" wire:model="whatsapp_no"
+                                        placeholder="Enter Whatsapp No" @if($sameAsMobile) readonly @endif
+                                        data-category-field>
+                                    <div class="mt-1">
+                                        <input type="checkbox" wire:model="sameAsMobile" id="sameAsMobile"
+                                            style="cursor: pointer;" data-category-field>
+                                        <label class="ms-1">Same as Mobile</label>
+                                    </div>
+                                </div>
                                 @error('whatsapp_no') <small class="text-danger">{{ $message }}</small> @enderror
+                                <div class="col-md-6 mb-3">
+                                    <label>Email Id</label>
+                                    <input type="email" class="form-control" wire:model="email"
+                                        placeholder="Enter Email" data-category-field>
+                                    @error('email') <small class="text-danger">{{ $message }}</small> @enderror
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label>Designation</label>
+                                    <input type="text" class="form-control" wire:model="designation"
+                                        placeholder="Enter Designation" data-category-field>
+                                    @error('designation') <small class="text-danger">{{ $message }}</small> @enderror
+                                </div>
+                                <div class="col-md-12 mb-3">
+                                    <label>Comments</label>
+                                    <textarea class="form-control" wire:model="comments" placeholder="Enter Comments"
+                                        data-category-field></textarea>
+                                    @error('comments') <small class="text-danger">{{ $message }}</small> @enderror
+                                </div>
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <label>Email Id</label>
-                                <input type="email" class="form-control" wire:model="email" placeholder="Enter Email">
-                                @error('email') <small class="text-danger">{{ $message }}</small> @enderror
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label>Designation</label>
-                                <input type="text" class="form-control" wire:model="designation"
-                                    placeholder="Enter Designation">
-                                @error('designation') <small class="text-danger">{{ $message }}</small> @enderror
-                            </div>
-                            <div class="col-md-12 mb-3">
-                                <label>Comments</label>
-                                <textarea class="form-control" wire:model="comments"
-                                    placeholder="Enter Comments"></textarea>
-                                @error('comments') <small class="text-danger">{{ $message }}</small> @enderror
+                        </div>
+
+                        <!-- Other Form -->
+                        <div id="other_fields" class="d-none">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label>Name *</label>
+                                    <input type="text" class="form-control" wire:model="name" placeholder="Enter Name"
+                                        data-category-field>
+                                    @error('name') <small class="text-danger">{{ $message }}</small> @enderror
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label>Mobile No *</label>
+                                    <input type="number" class="form-control" wire:model="mobile_no"
+                                        placeholder="Enter Mobile No" data-category-field>
+                                    @error('mobile_no') <small class="text-danger">{{ $message }}</small> @enderror
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label>Whatsapp No</label>
+                                    <input type="number" class="form-control" wire:model="whatsapp_no"
+                                        placeholder="Enter Whatsapp No" data-category-field>
+                                    @error('whatsapp_no') <small class="text-danger">{{ $message }}</small> @enderror
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label>Email Id</label>
+                                    <input type="email" class="form-control" wire:model="email"
+                                        placeholder="Enter Email" data-category-field>
+                                    @error('email') <small class="text-danger">{{ $message }}</small> @enderror
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label>Designation</label>
+                                    <input type="text" class="form-control" wire:model="designation"
+                                        placeholder="Enter Designation" data-category-field>
+                                    @error('designation') <small class="text-danger">{{ $message }}</small> @enderror
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label>Area/District</label>
+                                    <input type="text" class="form-control" wire:model="area"
+                                        placeholder="Enter Area/District" data-category-field>
+                                    @error('area') <small class="text-danger">{{ $message }}</small> @enderror
+                                </div>
+                                <div class="col-md-12 mb-3">
+                                    <label>Comments</label>
+                                    <textarea class="form-control" wire:model="comments" placeholder="Enter Comments"
+                                        data-category-field></textarea>
+                                    @error('comments') <small class="text-danger">{{ $message }}</small> @enderror
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Other Form -->
-                    <div id="other_fields" class="d-none">
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label>Name *</label>
-                                <input type="text" class="form-control" wire:model="name" placeholder="Enter Name">
-                                @error('name') <small class="text-danger">{{ $message }}</small> @enderror
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label>Mobile No *</label>
-                                <input type="number" class="form-control" wire:model="mobile_no"
-                                    placeholder="Enter Mobile No">
-                                @error('mobile_no') <small class="text-danger">{{ $message }}</small> @enderror
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label>Whatsapp No</label>
-                                <input type="number" class="form-control" wire:model="whatsapp_no"
-                                    placeholder="Enter Whatsapp No">
-                                @error('whatsapp_no') <small class="text-danger">{{ $message }}</small> @enderror
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label>Email Id</label>
-                                <input type="email" class="form-control" wire:model="email" placeholder="Enter Email">
-                                @error('email') <small class="text-danger">{{ $message }}</small> @enderror
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label>Designation</label>
-                                <input type="text" class="form-control" wire:model="designation"
-                                    placeholder="Enter Designation">
-                                @error('designation') <small class="text-danger">{{ $message }}</small> @enderror
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label>Area/District</label>
-                                <input type="text" class="form-control" wire:model="area"
-                                    placeholder="Enter Area/District">
-                                @error('area') <small class="text-danger">{{ $message }}</small> @enderror
-                            </div>
-                            <div class="col-md-12 mb-3">
-                                <label>Comments</label>
-                                <textarea class="form-control" wire:model="comments"
-                                    placeholder="Enter Comments"></textarea>
-                                @error('comments') <small class="text-danger">{{ $message }}</small> @enderror
-                            </div>
-                        </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">
+                            {{ $editMode ? 'Update' : 'Save' }}
+                        </button>
                     </div>
                 </form>
-                </div>
-
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                     <button type="button" class="btn btn-primary" wire:click="{{ $editMode ? 'updateAgent' : 'saveAgent' }}">
-                    {{ $editMode ? 'Update' : 'Save' }}
-                </button>
-                </div>
             </div>
         </div>
     </div>
@@ -350,95 +429,144 @@
     @push('scripts')
     <link rel="stylesheet" href="{{ asset('assets/css/component-chosen.css') }}">
     <script src="{{ asset('assets/js/chosen.jquery.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        $(document).on('change', '#sameAsMobile', function() {
+            if ($(this).is(':checked')) {
+                let mobile = $('#mobile_no').val();
+                $('#whatsapp_no').val(mobile).prop('readonly', true);
+            } else {
+                $('#whatsapp_no').val('').prop('readonly', false);
+            }
+        });
+    </script>
     <script>
         // Initialize Chosen dropdowns
-function initChosen() {
-    $('.chosen-select').chosen({
-        width: '100%',
-        no_results_text: "No result found"
-    }).off('change').on('change', function (e) {
-        let model = $(this).attr('wire:model');
-        if (model) {
-            @this.set(model, $(this).val());
-        }
-    });
-}
+            function initChosen() {
+                $('.chosen-select').chosen({
+                    width: '100%',
+                    no_results_text: "No result found"
+                }).off('change').on('change', function (e) {
+                    let model = $(this).attr('wire:model');
+                    if (model) {
+                        @this.set(model, $(this).val());
+                    }
+                });
+            }
 
-// Function to show/hide fields based on category
-function toggleCategoryFields() {
-    const selected = $('#agent_type').val();
-    $('#bureaucrat_fields, #political_fields, #other_fields').addClass('d-none');
+            // Function to show/hide fields based on category
+            function toggleCategoryFields() {
+                const selected = $('#agent_type').val();
+                $('#bureaucrat_fields, #political_fields, #other_fields').addClass('d-none');
 
-    if (selected === 'bureaucrat') $('#bureaucrat_fields').removeClass('d-none');
-    else if (selected === 'political') $('#political_fields').removeClass('d-none');
-    else if (selected === 'other') $('#other_fields').removeClass('d-none');
-}
+                if (selected === 'bureaucrat') $('#bureaucrat_fields').removeClass('d-none');
+                else if (selected === 'political') $('#political_fields').removeClass('d-none');
+                else if (selected === 'other') $('#other_fields').removeClass('d-none');
+            }
 
-// Initialize Chosen when page loads
-$(document).ready(function () {
-    initChosen();
-    
-    // Show/Hide Fields based on selected Category
-    $('#agent_type').on('change', function () {
-        toggleCategoryFields();
-    });
-});
+            // Initialize Chosen when page loads
+            $(document).ready(function () {
+                initChosen();
+                
+                // Show/Hide Fields based on selected Category
+                $('#agent_type').on('change', function () {
+                    toggleCategoryFields();
+                });
+            });
 
-// Reinitialize Chosen when modal is shown
-$('#agentModal').on('shown.bs.modal', function () {
-    setTimeout(() => {
-        $('.chosen-select').chosen('destroy');
-        $('.chosen-select').chosen({ width: '100%' });
-        $('.chosen-select').trigger('chosen:updated');
-        
-        // Restore the visible fields after Chosen reinitializes
-        toggleCategoryFields();
-    }, 200);
-});
+            // Reinitialize Chosen when modal is shown
+            $('#agentModal').on('shown.bs.modal', function () {
+                setTimeout(() => {
+                    $('.chosen-select').chosen('destroy');
+                    $('.chosen-select').chosen({ width: '100%' });
+                    $('.chosen-select').trigger('chosen:updated');
+                    
+                    // Restore the visible fields after Chosen reinitializes
+                    toggleCategoryFields();
+                }, 200);
+            });
 
-// Handle Livewire updates (morph/re-render)
-Livewire.hook('morph.updated', ({ el, component }) => {
-    // Update Chosen with Livewire values
-    $('.chosen-select').each(function () {
-        const el = $(this);
-        const model = el.attr('wire:model');
-        const liveValue = @this.get(model);
+            // Handle Livewire updates (morph/re-render)
+            Livewire.hook('morph.updated', ({ el, component }) => {
+                // Update Chosen with Livewire values
+                $('.chosen-select').each(function () {
+                    const el = $(this);
+                    const model = el.attr('wire:model');
+                    const liveValue = @this.get(model);
 
-        if (liveValue !== undefined && liveValue !== null) {
-            el.val(liveValue).trigger('chosen:updated');
-        }
-    });
-    
-    // Preserve the visible category fields after Livewire updates
-    toggleCategoryFields();
-});
+                    if (liveValue !== undefined && liveValue !== null) {
+                        el.val(liveValue).trigger('chosen:updated');
+                    }
+                });
+                
+                // Preserve the visible category fields after Livewire updates
+                toggleCategoryFields();
+            });
 
-// Livewire hook for when content updates (alternative/backup)
-document.addEventListener('livewire:update', function () {
-    setTimeout(() => {
-        toggleCategoryFields();
-    }, 100);
-});
+            // Livewire hook for when content updates (alternative/backup)
+            document.addEventListener('livewire:update', function () {
+                setTimeout(() => {
+                    toggleCategoryFields();
+                }, 100);
+            });
 
-// Toastr message listener
-window.addEventListener('toastr:success', event => toastr.success(event.detail.message));
-window.addEventListener('toastr:error', event => toastr.error(event.detail.message));
+            // Toastr message listener
+            window.addEventListener('toastr:success', event => toastr.success(event.detail.message));
+            window.addEventListener('toastr:error', event => toastr.error(event.detail.message));
 
-window.addEventListener('close-modal', event => {
-    $('#agentModal').modal('hide');
-});
+            window.addEventListener('close-modal', event => {
+                $('#agentModal').modal('hide');
+            });
 
-window.addEventListener('agent-edit-loaded', event => {
-    const type = event.detail.type;
+            window.addEventListener('agent-edit-loaded', event => {
+                const type = event.detail.type;
+                // Directly set the value of the select
+                $('#agent_type').val(type);
 
-    $('#agent_type').val(type).trigger('chosen:updated');
-    
-    toggleCategoryFields();
+            });
 
-    setTimeout(() => toggleCategoryFields(), 200);
-});
+            // When category is changed, reset dependent fields
+            document.addEventListener('livewire:init', () => {
+                Livewire.on('ResetForm', () => {
+                    // Reset dropdown to default and hide all forms
+                    $('#agent_type').val('').trigger('change');
+                    $('#bureaucrat_fields, #political_fields, #other_fields').addClass('d-none');
+                });
+            });
 
     </script>
+    <script>
+        document.addEventListener('livewire:init', () => {
+            Livewire.on('ResetFormData', () => {
+                // Clear all category-specific visible inputs (if needed)
+                document.querySelectorAll('[data-category-field]').forEach(el => {
+                    el.value = '';
+                });
+            });
+        });
+    </script>
+    <script>
+        window.addEventListener('showConfirm', function (event) {
+            let itemId = event.detail[0].itemId;
+            Swal.fire({
+                title: "Delete Agent?",
+                text: "Are you sure you want to delete this agent?",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Yes, Delete it!"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    @this.call('delete', itemId);
+                }
+            });
+        });
+    </script>
+
+
+
 
     @endpush
 
