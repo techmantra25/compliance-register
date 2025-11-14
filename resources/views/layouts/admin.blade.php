@@ -74,14 +74,14 @@
             <li class="nav-item mb-2">
                 <a href="{{ route('admin.employees') }}"
                    class="nav-link {{ request()->routeIs('admin.employees') ? 'active' : '' }}">
-                    <i class="bi bi-people me-2"></i> {{ __('admin/sidebar.employees') }}
+                    <i class="bi bi-people me-2"></i> Employees
                 </a>
             </li>
 
            <li class="nav-item mb-2">
                 <a href="{{ route('admin.agents') }}"
                 class="nav-link {{ request()->routeIs('admin.agents') ? 'active' : '' }}">
-                    <i class="bi bi-person-badge me-2"></i> {{ __('admin/sidebar.agents') }}
+                    <i class="bi bi-person-badge me-2"></i> Contacts
                 </a>
             </li>
            <li class="nav-item mb-2">

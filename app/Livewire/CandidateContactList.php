@@ -55,10 +55,10 @@ class CandidateContactList extends Component
             ->map(function($item){
                 return [
                     'id' => $item->agent_id,
-                    'name' => $item->agent->name,
-                    'contact_number' => $item->agent->contact_number,
-                    'contact_number_alt_1' => $item->agent->contact_number_alt_1,
-                    'email' => $item->agent->email
+                    'name' => $item->agent ? $item->agent->name : null,
+                    'contact_number' => $item->agent ? $item->agent->contact_number : null,
+                    'contact_number_alt_1' => $item->agent ? $item->agent->contact_number_alt_1 : null,
+                    'email' => $item->agent ? $item->agent->email : null
                 ];
             })
             ->toArray();
@@ -96,15 +96,20 @@ class CandidateContactList extends Component
         DB::beginTransaction();
 
         try {
+
+            $candidate = Candidate::find($this->candidateId);
+
             foreach ($this->agentsList as $agentData) {
                 // create or update agent
                 $agent = Agent::updateOrCreate(
                     ['id' => $agentData['id'] ?? null],
                     [
+                        'assemblies_id' => $candidate->assembly_id,
                         'name' => $agentData['name'],
                         'contact_number' => $agentData['contact_number'],
                         'contact_number_alt_1' => $agentData['contact_number_alt_1'] ?? null,
                         'email' => $agentData['email'] ?? null,
+                        'comments' => "Added as agent of {$candidate->name}",
                     ]
                 );
 
@@ -236,7 +241,7 @@ class CandidateContactList extends Component
     {
         $this->reset(['name', 'designation', 'email', 'contact_number', 'contact_number_alt_1', 'assembly_id', 'editMode', 'editId']);
         $this->search = '';
-        $this->dispatch('ResetForm');
+        $this->dispatch('ResetFormData');
         $this->resetPage();
     }
 
@@ -254,7 +259,7 @@ class CandidateContactList extends Component
 
             $rows = array_map('str_getcsv', file($file));
             $header = array_map('trim', array_shift($rows));
-
+            
             $expectedHeaders = [
                 'assembly_code', 'agent_name', 'agent_email',
                 'candidate_name', 'candidate_email', 'candidate_mobile', 'candidate_alternative_mobile'
@@ -275,6 +280,17 @@ class CandidateContactList extends Component
 
                 if (empty($data['candidate_name']) || empty($data['candidate_mobile'])) {
                     throw new \Exception("Row " . ($index + 2) . ": Candidate name and mobile are required.");
+                }
+
+                 // Candidate Mobile must be 10 digits
+                if (!preg_match('/^[0-9]{10}$/', $data['candidate_mobile'])) {
+                    throw new \Exception("Row " . ($index + 2) . ": Candidate mobile must be exactly 10 digits.");
+                }
+
+                // Candidate Email validation
+                if (!empty($data['candidate_email']) && 
+                    !filter_var($data['candidate_email'], FILTER_VALIDATE_EMAIL)) {
+                    throw new \Exception("Row " . ($index + 2) . ": Candidate email is invalid.");
                 }
 
                 $assembly = DB::table('assemblies')
@@ -318,7 +334,6 @@ class CandidateContactList extends Component
                         'contact_number' => $data['candidate_mobile'],
                         'contact_number_alt_1' => $data['candidate_alternative_mobile'] ?? null,
                         'type' => 'Candidate',
-                        'agent_id' => $agent_id,
                         'updated_at' => now(),
                         'created_at' => now(), 
                     ]
@@ -337,7 +352,7 @@ class CandidateContactList extends Component
             // session()->flash('success', 'CSV uploaded successfully.');
 
         }  catch (\Exception $e) {
-            //dd($e->getMessage());
+            // dd($e->getMessage());
             DB::rollBack();
 
             $errorMessage = $e->getMessage();
@@ -346,6 +361,15 @@ class CandidateContactList extends Component
                 $this->csvError = 'Your CSV file format is incorrect. Please use the sample format.';
             } elseif (str_contains($errorMessage, 'Invalid assembly code')) {
                 $this->csvError = 'One or more Assembly Codes are invalid. Please verify and re-upload.';
+            }elseif (str_contains($errorMessage, 'Candidate mobile must be')) {
+                $this->csvError = 'Candidate mobile number must be exactly 10 digits. Please correct your CSV and upload again.';
+
+            } elseif (str_contains($errorMessage, 'Candidate email is invalid')) {
+                $this->csvError = 'One or more candidate emails are invalid. Please enter valid email addresses.';
+
+            } elseif (str_contains($errorMessage, 'Agent email is invalid')) {
+                $this->csvError = 'One or more agent emails are invalid. Please provide valid email addresses.';
+
             } elseif (str_contains($errorMessage, 'required')) {
                 $this->csvError = 'Please make sure all mandatory fields are filled in.';
             } elseif (str_contains(strtolower($errorMessage), 'duplicate') || str_contains(strtolower($errorMessage), 'unique')) {
@@ -357,112 +381,7 @@ class CandidateContactList extends Component
 
     }
 
-    // public function saveCandidate()
-    // {
-    //     $this->validate([
-    //         'candidateFile' => 'required|file|mimes:csv,txt|max:10240',
-    //     ]);
-
-    //     $this->csvError = null;
-
-    //     try {
-    //         $path = $this->candidateFile->store('temp', 'public');
-    //         $file = Storage::disk('public')->path($path);
-
-    //         $rows = array_map('str_getcsv', file($file));
-    //         $header = array_map('trim', array_shift($rows));
-
-    //         $expectedHeaders = [
-    //             'assembly_code', 'agent_name', 'agent_email',
-    //             'candidate_name', 'candidate_email', 'candidate_mobile', 'candidate_alternative_mobile'
-    //         ];
-
-    //         if ($header !== $expectedHeaders) {
-    //             throw new \Exception("Invalid CSV header format. Please use the provided sample CSV.");
-    //         }
-
-    //         DB::beginTransaction();
-
-    //         foreach ($rows as $index => $row) {
-    //             $data = array_combine($header, array_map('trim', $row));
-
-    //             if (empty($data['assembly_code'])) {
-    //                 throw new \Exception("Row " . ($index + 2) . ": Assembly code is required.");
-    //             }
-
-    //             if (empty($data['candidate_name']) || empty($data['candidate_mobile'])) {
-    //                 throw new \Exception("Row " . ($index + 2) . ": Candidate name and mobile are required.");
-    //             }
-
-    //             $assembly = Assembly::where('assembly_code', $data['assembly_code'])->first();
-
-    //             if (!$assembly) {
-    //                 throw new \Exception("Row " . ($index + 2) . ": Invalid assembly code.");
-    //             }
-
-    //             $assembly_id = $assembly->id;
-    //             $agent_id = null;
-
-    //             if (!empty($data['agent_email'])) {
-    //                 if (empty($data['agent_name'])) {
-    //                     throw new \Exception("Row " . ($index + 2) . ": Agent name required when agent email is provided.");
-    //                 }
-
-    //                 $agent = Agent::where('email', $data['agent_email'])->first();
-
-    //                 if ($agent) {
-    //                     $agent_id = $agent->id;
-    //                 } else {
-    //                     $agent = Agent::create([
-    //                         'name' => $data['agent_name'],
-    //                         'email' => $data['agent_email'],
-    //                     ]);
-    //                     $agent_id = $agent->id;
-    //                 }
-    //             }
-
-    //             Candidate::updateOrCreate(
-    //                 [
-    //                     'assembly_id' => $assembly_id
-    //                 ],
-    //                 [
-    //                     'name' => $data['candidate_name'],
-    //                     'email' => $data['candidate_email'],
-    //                     'contact_number' => $data['candidate_mobile'],
-    //                     'contact_number_alt_1' => $data['candidate_alternative_mobile'] ?? null,
-    //                     'type' => 'Candidate',
-    //                     'agent_id' => $agent_id,
-    //                 ]
-    //             );
-
-    //         }
-
-    //         DB::commit();
-
-    //         unlink($file);
-    //         $this->reset(['candidateFile']);
-
-    //         $this->dispatch('close-upload-modal');
-    //         $this->dispatch('toastr:success', message: 'CSV uploaded successfully.');
-
-    //     } catch (\Exception $e) {
-    //         DB::rollBack();
-
-    //         $errorMessage = $e->getMessage();
-
-    //         if (str_contains($errorMessage, 'Invalid CSV header')) {
-    //             $this->csvError = 'Your CSV file format is incorrect. Please use the sample format.';
-    //         } elseif (str_contains($errorMessage, 'Invalid assembly code')) {
-    //             $this->csvError = 'One or more Assembly Codes are invalid. Please verify and re-upload.';
-    //         } elseif (str_contains($errorMessage, 'required')) {
-    //             $this->csvError = 'Please make sure all mandatory fields are filled in.';
-    //         } elseif (str_contains(strtolower($errorMessage), 'duplicate') || str_contains(strtolower($errorMessage), 'unique')) {
-    //             $this->csvError = 'Some emails already exist in the system. Please ensure all agent or candidate emails are unique.';
-    //         } else {
-    //             $this->csvError = 'Something went wrong while processing your CSV. Please try again.';
-    //         }
-    //     }
-    // }
+   
 
 
 

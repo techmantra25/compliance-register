@@ -37,10 +37,10 @@
                     <h5 class="fw-bold mb-0"> Contacts</h5>
 
                     <div class="d-flex align-items-center">
-                        <input type="text" wire:model="search" wire:keyup="filterAgents($event.target.value)"
+                        <input type="text" wire:model="search" wire:keyup="filterAgents($event.target.value)" data-category-field
                             class="form-control form-control-sm w-auto me-2" placeholder="Search here...">
 
-                        <button class="btn btn-sm btn-danger" wire:click="resetForm">
+                        <button type="button" class="btn btn-sm btn-danger" wire:click="resetForm">
                             <i class="bi bi-arrow-clockwise"></i> Reset
                         </button>
                     </div>
@@ -53,7 +53,7 @@
                                 <tr>
                                     <th>Sl.No</th>
                                     <th> Name</th>
-                                    <th>Mobile No/Whatsapp No</th>
+                                    <th>Mobile No / Whatsapp No</th>
                                     <th>Email</th>
                                     <th>Area/District</th>
                                     <th>Action</th>
@@ -323,7 +323,11 @@
                                         class="form-select chosen-select" data-category-field>
                                         <option value="">-- Select Assembly No --</option>
                                         @foreach ($assemblies as $assembly)
-                                        <option value="{{ $assembly->id }}">
+                                        <option value="{{ $assembly->id }}" 
+                                            data-code="{{ $assembly->assembly_code }}"
+                                           data-name="{{ $assembly->assembly_name_en }}"
+                                           data-number="{{ $assembly->assembly_number }}"
+                                           > 
                                             {{$assembly->assembly_name_en}}({{ $assembly->assembly_code }})
                                         </option>
                                         @endforeach
@@ -504,7 +508,9 @@
             function initChosen() {
                 $('.chosen-select').chosen({
                     width: '100%',
-                    no_results_text: "No result found"
+                    no_results_text: "No result found",
+                    search_contains: true,  
+                    allow_single_deselect: true
                 }).off('change').on('change', function (e) {
                     let model = $(this).attr('wire:model');
                     if (model) {
@@ -514,14 +520,31 @@
             }
 
             // Function to show/hide fields based on category
-            function toggleCategoryFields() {
-                const selected = $('#agent_type').val();
-                $('#bureaucrat_fields, #political_fields, #other_fields').addClass('d-none');
+            // function toggleCategoryFields() {
+            //     const selected = $('#agent_type').val();
+            //     $('#bureaucrat_fields, #political_fields, #other_fields').addClass('d-none');
 
-                if (selected === 'bureaucrat') $('#bureaucrat_fields').removeClass('d-none');
-                else if (selected === 'political') $('#political_fields').removeClass('d-none');
-                else if (selected === 'other') $('#other_fields').removeClass('d-none');
-            }
+            //     if (selected === 'bureaucrat') $('#bureaucrat_fields').removeClass('d-none');
+            //     else if (selected === 'political') $('#political_fields').removeClass('d-none');
+            //     else if (selected === 'other') $('#other_fields').removeClass('d-none');
+            // }
+              function toggleCategoryFields() {
+        const selected = $('#agent_type').val();
+        $('#bureaucrat_fields, #political_fields, #other_fields').addClass('d-none');
+
+        if (selected === 'bureaucrat') $('#bureaucrat_fields').removeClass('d-none');
+        else if (selected === 'political') {
+            $('#political_fields').removeClass('d-none');
+            // 🔹 Update Chosen after showing political fields
+            setTimeout(() => {
+                const assemblyId = @this.get('assemblies_id');
+                if (assemblyId) {
+                    $('#assemblies_id').val(assemblyId).trigger('chosen:updated');
+                }
+            }, 100);
+        }
+        else if (selected === 'other') $('#other_fields').removeClass('d-none');
+    }
 
             // Initialize Chosen when page loads
             $(document).ready(function () {
@@ -537,8 +560,11 @@
             $('#agentModal').on('shown.bs.modal', function () {
                 setTimeout(() => {
                     $('.chosen-select').chosen('destroy');
-                    $('.chosen-select').chosen({ width: '100%' });
-                    $('.chosen-select').trigger('chosen:updated');
+                   initChosen();
+                    // const assemblyId = @this.get('assemblies_id');
+                    // if (assemblyId) {
+                    //     $('#assemblies_id').val(assemblyId).trigger('chosen:updated');
+                    // }
                     
                     // Restore the visible fields after Chosen reinitializes
                     toggleCategoryFields();
@@ -552,7 +578,7 @@
                     const el = $(this);
                     const model = el.attr('wire:model');
                     const liveValue = @this.get(model);
-
+                    
                     if (liveValue !== undefined && liveValue !== null) {
                         el.val(liveValue).trigger('chosen:updated');
                     }
@@ -584,7 +610,15 @@
                 const type = event.detail.type;
                 // Directly set the value of the select
                 $('#agent_type').val(type);
-
+                toggleCategoryFields();
+    
+                // 🔹 IMPORTANT: Update the chosen dropdown with the Livewire value
+                setTimeout(() => {
+                    const assemblyId = @this.get('assemblies_id');
+                    if (assemblyId) {
+                        $('#assemblies_id').val(assemblyId).trigger('chosen:updated');
+                    }
+                }, 300); 
             });
 
             // When category is changed, reset dependent fields
@@ -629,6 +663,18 @@
         window.addEventListener('open-modal', event => {
                 $('#importModal').modal('show');
             });
+    </script>
+    <script>
+        document.addEventListener('livewire:init', () => {
+            Livewire.on('refreshChosen', () => {
+                $('.chosen-select').chosen('destroy');   // destroy old instance
+                $('.chosen-select').chosen({
+                    width: '100%',
+                    no_results_text: "No result found"
+                });
+            });
+        });
+
     </script>
 
 

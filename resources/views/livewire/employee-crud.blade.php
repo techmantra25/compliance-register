@@ -57,6 +57,9 @@
                                             {{ ucfirst($admin->role) }}
                                         </span>
                                     </td>
+                                    @if ($admin->role !== 'admin')
+                                        
+                                    
                                     <td>
                                         <div class="form-check form-switch">
                                             <input class="form-check-input" type="checkbox"
@@ -77,6 +80,10 @@
                                             </button>
                                         @endif
                                     </td>
+                                  @else
+                                        <td>-</td>
+                                        <td>-</td>
+                                    @endif
                                 </tr>
                                 @empty
                                 <tr>

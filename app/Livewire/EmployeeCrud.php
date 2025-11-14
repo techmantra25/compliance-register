@@ -44,6 +44,7 @@ class EmployeeCrud extends Component
 
     protected function storeEmployee()
     {
+        // dd($this->all());
         $this->validate();
 
        $employee = Admin::create([
@@ -51,6 +52,7 @@ class EmployeeCrud extends Component
             'email' => $this->email,
             'mobile' => $this->mobile,
             'role' => $this->role,
+            'zone_id' => $this->zone_id,
             'password' => Hash::make($this->password),
             'suspended_status' => 1,
         ]);
@@ -166,7 +168,10 @@ class EmployeeCrud extends Component
             $districtIds = explode(',', $zone->districts);
             $zone->district_list = District::whereIn('id', $districtIds)->pluck('name_en')->toArray();
             return $zone;
-        });
+        })
+        ->sortBy('name')            
+        ->values();
+
         $admins = Admin::query()
             ->when($this->search, function($query) {
                 $query->where('name', 'like', '%'.$this->search.'%')

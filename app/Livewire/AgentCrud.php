@@ -31,13 +31,18 @@ class AgentCrud extends Component
     public $importCategory;
     public $sampleCSV;
     public $csvFile;
-
+    
     public function mount()
     {
         $this->assemblies = Assembly::select('id', 'assembly_code', 'assembly_name_en')
             ->where('status', 1)
             ->orderBy('assembly_code')
             ->get();
+    }
+
+    public function updatingSearch()
+    {
+        $this->resetPage();
     }
 
     
@@ -63,17 +68,19 @@ class AgentCrud extends Component
             'mobile_no', 'phone_no', 'whatsapp_no', 'assemblies_id',
             'comments', 'editId', 'editMode', 'search'
         ]);
-        $this->resetValidation();
+        $this->dispatch('ResetFormData');
     }
 
     public function newAgent()
     {
         $this->resetForm();
         $this->editMode = false;
+         $this->dispatch('refreshChosen');
     }
 
     public function saveAgent()
     {
+        // dd($this->all());
         // Validate based on category type
         $rules = $this->getValidationRules();
         $this->validate($rules);
@@ -214,6 +221,7 @@ class AgentCrud extends Component
 
    public function updateAgent()
 {
+    // dd($this->all());
     $rules = $this->getValidationRules();
     $this->validate($rules);
 
@@ -221,7 +229,6 @@ class AgentCrud extends Component
         $agent = Agent::findOrFail($this->editId);
 
         $data = $this->prepareAgentData();
-
         $agent->update($data);
 
         $this->dispatch('toastr:success', message: 'Contact updated successfully!');
@@ -238,6 +245,7 @@ class AgentCrud extends Component
 
     public function edit($id)
     {
+        $this->resetForm();
         $this->editMode = true;
         $this->editId = $id;
 
@@ -247,7 +255,7 @@ class AgentCrud extends Component
         $this->name = $agent->name;
         $this->email = $agent->email;
         $this->comments = $agent->comments;
-        $this->assemblies_id = $agent->assemblies_id;
+        
         
         if ($agent->type === 'bureaucrat') {
             $this->designation = $agent->designation;
@@ -258,6 +266,7 @@ class AgentCrud extends Component
             $this->designation = $agent->designation;
             $this->mobile_no = $agent->contact_number;
             $this->whatsapp_no = $agent->whatsapp_number;
+            $this->assemblies_id = $agent->assemblies_id;
         } elseif ($agent->type === 'other') {
             $this->designation = $agent->designation;
             $this->mobile_no = $agent->contact_number;
@@ -266,7 +275,8 @@ class AgentCrud extends Component
         }
         
          $this->dispatch('agent-edit-loaded', ['type' => $this->agent_type]);
-    
+            $this->dispatch('refreshChosen');
+
     }
 
 
@@ -403,11 +413,39 @@ class AgentCrud extends Component
 
     public function render()
     {
-        $agents = Agent::with('assembliesDetails')->where('name', 'like', "%{$this->search}%")
-            ->orWhere('email', 'like', "%{$this->search}%")
-            ->orWhere('contact_number', 'like', "%{$this->search}%")
+        // $agents = Agent::with('assembliesDetails')->where('name', 'like', "%{$this->search}%")
+        //     ->orWhere('email', 'like', "%{$this->search}%")
+        //     ->orWhere('contact_number', 'like', "%{$this->search}%")
+        //     ->orderBy('id', 'desc')
+        //     ->paginate(10);
+        
+        $agents = Agent::with('assembliesDetails')
+            ->when($this->search, function ($query) {
+                $search = "%{$this->search}%";
+
+                $query->where(function ($q) use ($search) {
+
+                    $q->where('name', 'like', $search)
+                        ->orWhere('email', 'like', $search)
+                        ->orWhere('designation', 'like', $search)
+                        ->orWhere('contact_number', 'like', $search)
+                        ->orWhere('phone_number', 'like', $search)
+                        ->orWhere('contact_number_alt_1', 'like', $search)
+                        ->orWhere('area', 'like', $search)
+                        ->orWhere('type', 'like', $search)
+                        ->orWhere('whatsapp_number', 'like', $search)
+
+                        //  Important: this is inside the same group
+                        ->orWhereHas('assembliesDetails', function ($a) use ($search) {
+                            $a->where('assembly_name_en', 'like', $search)
+                                ->orWhere('assembly_code', 'like', $search)
+                                ->orWhere('assembly_number', 'like', $search);
+                        });
+                });
+            })
             ->orderBy('id', 'desc')
             ->paginate(10);
+
 
         return view('livewire.agent-crud', compact('agents'))
             ->layout('layouts.admin');
