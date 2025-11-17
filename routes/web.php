@@ -99,6 +99,10 @@ Route::prefix('/admin')->middleware('auth:admin')->group(function () {
 | Logout
 |--------------------------------------------------------------------------
 */
+Route::post('/store-device-id', function (\Illuminate\Http\Request $request) {
+    session(['device_id' => $request->device_id]);
+    return response()->json(['status' => 'ok']);
+});
 Route::post('/logout', function () {
     Auth::guard('admin')->logout();
     request()->session()->invalidate();

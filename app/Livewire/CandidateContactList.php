@@ -37,7 +37,6 @@ class CandidateContactList extends Component
     
     public function mount()
     {
-
         $this->authUser = Auth::guard('admin')->user();
         $this->assemblies = Assembly::orderBy('assembly_name_en')
             ->get();
@@ -93,13 +92,17 @@ class CandidateContactList extends Component
             ]
         );
 
+
         DB::beginTransaction();
 
         try {
 
             $candidate = Candidate::find($this->candidateId);
 
+            $agentsPayload = []; // collect agents data for logging
+
             foreach ($this->agentsList as $agentData) {
+
                 // create or update agent
                 $agent = Agent::updateOrCreate(
                     ['id' => $agentData['id'] ?? null],
@@ -113,14 +116,34 @@ class CandidateContactList extends Component
                     ]
                 );
 
-                // attach to candidate
+                // Attach agent to candidate
                 CandidateAgent::updateOrCreate(
                     [
                         'candidate_id' => $this->candidateId,
                         'agent_id' => $agent->id
                     ]
                 );
+
+                // Collect only required fields for log
+                $agentsPayload[] = [
+                    'assembly' => optional($candidate->assembly)->assembly_name_en,
+                    'name' => $agentData['name'],
+                    'contact_number' => $agentData['contact_number'],
+                    'contact_number_alt_1' => $agentData['contact_number_alt_1'] ?? null,
+                    'email' => $agentData['email'] ?? null,
+                ];
             }
+
+            $logData = [
+                'module_name'   => 'Candidate',
+                'module_id'     => $candidate->id,
+                'action'        => 'Assign Agents',
+                'description'   => "Agents assigned to candidate {$candidate->name}",
+                'old_data'      => null, // you can fetch old agents if needed
+                'new_data'      => json_encode($agentsPayload),
+            ];
+
+            logChange($logData);
             DB::commit();
 
             session()->flash('success', 'Agents saved successfully!');
@@ -200,41 +223,114 @@ class CandidateContactList extends Component
             'assembly_id' => 'required|exists:assemblies,id',
         ]);
 
-        $candidate = Candidate::findOrFail($this->editId);
-        $candidate->update([
-            'name' => $this->name,
-            'designation' => $this->designation,
-            'email' => $this->email,
-            'contact_number' => $this->contact_number,
-            'contact_number_alt_1' => $this->contact_number_alt_1,
-            'assembly_id' => $this->assembly_id,
-        ]);
+        // Check if another candidate already has this assembly
+        $exists = Candidate::where('assembly_id', $this->assembly_id)
+                    ->where('id', '!=', $this->editId)
+                    ->exists();
 
-        session()->flash('success', 'Candidate updated successfully!');
-        return redirect()->route('admin.candidates.contacts');
+        if ($exists) {
+            $this->addError('assembly_id', 'Candidate already exists for this assembly.');
+            return;
+        }
+        $candidate = Candidate::findOrFail($this->editId);
+
+        // Store old record BEFORE update
+        $oldData = $candidate->replicate()->toArray();
+        DB::beginTransaction();
+
+        try {
+            // Perform update
+            $candidate->update([
+                'name' => $this->name,
+                'designation' => $this->designation,
+                'email' => $this->email,
+                'contact_number' => $this->contact_number,
+                'contact_number_alt_1' => $this->contact_number_alt_1,
+                'assembly_id' => $this->assembly_id,
+            ]);
+
+            // Store new record AFTER update
+            $newData = $candidate->fresh()->toArray();
+
+            // Prepare log data
+            $logData = [
+                'module_name'   => 'Candidate',
+                'module_id'     => $candidate->id,
+                'action'        => 'Update',
+                'description'   => 'Candidate updated successfully.',
+                'old_data'      => json_encode($oldData),
+                'new_data'      => json_encode($newData),
+            ];
+
+            // Save log
+            logChange($logData);
+
+            DB::commit();
+            session()->flash('success', 'Candidate updated successfully!');
+            return redirect()->route('admin.candidates.contacts');
+            } catch (\Exception $e) {
+        DB::rollBack();
+            session()->flash('error', 'Error: ' . $e->getMessage());
+            return;
+        }
     }
     public function save()
     {
+        // Validation
         $this->validate([
             'name' => 'required|string',
             'email' => 'nullable|email|unique:candidates,email',
-            'contact_number' =>'required|digits:10',
-            'contact_number_alt_1' =>'nullable|digits:10',
+            'contact_number' => 'required|digits:10',
+            'contact_number_alt_1' => 'nullable|digits:10',
             'assembly_id' => 'required|exists:assemblies,id',
         ]);
 
-        Candidate::insert([
-            'name' => $this->name,
-            'designation' => $this->designation,
-            'email' => $this->email,
-            'contact_number' => $this->contact_number,
-            'contact_number_alt_1' => $this->contact_number_alt_1,
-            'assembly_id' => $this->assembly_id,
-            'type' => "Candidate",
-        ]);
+        // Check if candidate already exists for that assembly
+        $existingCandidate = Candidate::where('assembly_id', $this->assembly_id)->first();
 
-        session()->flash('success', 'Candidate updated successfully!');
-        return redirect()->route('admin.candidates.contacts');
+        if ($existingCandidate) {
+            // Return validation-style error
+            $this->addError('assembly_id', 'Candidate already exists for this assembly.');
+            return; // Stop execution
+        }
+
+        DB::beginTransaction();
+
+        try {
+            // Create Candidate (use create(), NOT insert())
+            $candidate = Candidate::create([
+                'name' => $this->name,
+                'designation' => $this->designation,
+                'email' => $this->email,
+                'contact_number' => $this->contact_number,
+                'contact_number_alt_1' => $this->contact_number_alt_1,
+                'assembly_id' => $this->assembly_id,
+                'type' => "Candidate",
+            ]);
+
+            // Prepare log data
+            $logData = [
+                'module_name'   => 'Candidate',
+                'module_id'     => $candidate->id,
+                'action'        => 'Insert',
+                'description'   => 'New candidate record created successfully.',
+                'old_data'      => null,
+                'new_data'      => json_encode($candidate),
+            ];
+
+            logChange($logData);
+
+            DB::commit();
+
+            session()->flash('success', 'Candidate created successfully!');
+            return redirect()->route('admin.candidates.contacts');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            session()->flash('error', 'Error: ' . $e->getMessage());
+            return;
+        }
     }
 
     public function resetForm()

@@ -6,7 +6,9 @@ use Livewire\Component;
 use Illuminate\Http\Request;
 use Livewire\WithFileUploads;
 use App\Models\Candidate;
+use Illuminate\Support\Facades\DB;
 use App\Models\ChangeLog;
+use App\Models\CandidateAcknoledgmentCopy;
 use App\Models\CandidateDocumentType;
 use App\Models\CandidateDocument;
 use Illuminate\Support\Facades\Auth;
@@ -23,7 +25,7 @@ class CandidateDocumentCollection extends Component
     public $candidateData;
     public $newFile;
     public $type;
-    public $remarks;
+    public $remarks, $acknowledgment_file, $final_submission_confirmation;
     // public $remarks = [];
     public $availableDocuments = [];
 
@@ -105,7 +107,7 @@ class CandidateDocumentCollection extends Component
     {
         $this->validate([
             "type" => 'required|string',
-            'newFile' => 'required|file|mimes:pdf,doc,docx,xls,xlsx,csv,jpg,jpeg,png,gif,bmp,webp|max:5120',
+            'newFile' => 'required|file|mimes:pdf,doc,docx,jpg,jpeg,png,gif,bmp,webp|max:5120',
             "remarks" => 'nullable|string|max:500',
         ]);
 
@@ -121,6 +123,10 @@ class CandidateDocumentCollection extends Component
             // Store file in public/candidate_docs/{id}/
             $path = $file->storeAs("candidate_docs/{$this->candidateId}", $filename, 'public');
 
+            // First check same type
+            $existingDoc = CandidateDocument::where('candidate_id', $this->candidateId)
+            ->where('type', $this->type)
+            ->first();
             // Save record in DB
             CandidateDocument::create([
                 'candidate_id' => $this->candidateId,
@@ -129,16 +135,26 @@ class CandidateDocumentCollection extends Component
                 'remarks' => $this->remarks ?? null,
                 'uploaded_by' => Auth::guard('admin')->id(),
             ]);
-            
-            ChangeLog::create([
+
+            // Detect Upload or Re-Upload
+            $actionText = $existingDoc ? 'Re-Uploaded' : 'Uploaded';
+        
+            $logData = [
                 'module_name'   => 'Document',
                 'module_id'     => $this->candidateId,
-                'action'        => 'Upload',
-                'link'   => asset("candidate_docs/{$this->candidateId}/{$filename}"),
+                'action'        => $actionText,
+                'description'   => "{$this->availableDocuments[$this->type]} {$actionText} successfully.",
+                'old_data'      => null,
+                'new_data'      => json_encode([
+                    'type' => $this->type,
+                    'path' => 'storage/'.$path,
+                    'remarks' => $this->remarks,
+                ]),
                 'document_name' => $this->availableDocuments[$this->type],
-                'changed_by'    => Auth::guard('admin')->id(),
-                'user_agent'    => $this->agentId,
-            ]);
+                'link'          => asset("candidate_docs/{$this->candidateId}/{$filename}"),
+            ];
+            logChange($logData);
+
 
             // Reset file and remarks for this type
             unset($this->newFile);
@@ -192,6 +208,49 @@ class CandidateDocumentCollection extends Component
         }
     }
 
+    public function uploadAcknowledgmentCopy(){
+        $this->validate([
+            'acknowledgment_file' => 'required|file|mimes:pdf,doc,docx,jpg,jpeg,png,gif,bmp,webp|max:5120',
+            'final_submission_confirmation' => 'required|date',
+        ]);
+        DB::beginTransaction();
+
+        try {
+        // Get file instance
+        $file = $this->acknowledgment_file;
+
+        // Create unique filename
+        $timestamp = now()->format('Ymd_His');
+        $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+        $extension = $file->getClientOriginalExtension();
+        $filename = "{$originalName}_{$timestamp}.{$extension}";
+
+        // Store file in public/candidate_docs/{id}/
+        $path = $file->storeAs("candidate_docs/{$this->candidateId}", $filename, 'public');
+
+        // Save record in DB
+        CandidateAcknoledgmentCopy::create([
+            'candidate_id' => $this->candidateId,
+            'path' => 'storage/'.$path,
+        ]);
+
+       $candidateUpdate = Candidate::findOrFail($this->candidateId);
+       $candidateUpdate->acknowledgment_file = 'storage/'.$path;
+       $candidateUpdate->acknowledgment_by = Auth::guard('admin')->id();
+       $candidateUpdate->final_submission_confirmation = $this->final_submission_confirmation;
+       $candidateUpdate->document_collection_status = "verified_submitted_with_copy";
+       $candidateUpdate->acknowledgment_at = now();
+       $candidateUpdate->save();
+
+        DB::commit();
+        session()->flash('success', 'Document uploaded successfully!');
+        return redirect()->route('admin.candidates.documents', ['candidate'=>$this->candidateId]);
+
+       } catch (\Exception $e) {
+            // dd($e->getMessage());
+            $this->dispatch('toastr:error', message: 'Error uploading document: ' . $e->getMessage());
+        }
+    }
     public function FinalStatusUpdate(){
         $required_documents = $this->getDocumentTypes();
         $documentsData = CandidateDocument::with('uploadedBy')

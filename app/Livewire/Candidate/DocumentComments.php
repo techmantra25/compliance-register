@@ -24,6 +24,50 @@ class DocumentComments extends Component
         $this->authUser = Auth::guard('admin')->user();
     }
 
+    public function updateStatus($value, $document){
+        $this->dispatch('showConfirm', ['value' => $value, 'document'=>$document, 'selectElement'=>null]);
+    }
+
+    public function UpdateDocStatus($status, $document){
+        $CandidateDocument = CandidateDocument::where('type', $document)->orderByDesc('id')->first();
+        $CandidateDocument->status = $status;
+        $CandidateDocument->vetted_by = Auth::guard('admin')->id();
+        $CandidateDocument->vetted_on = $status=="Approved"?now():null;
+        $CandidateDocument->save();
+        $this->document = CandidateDocument::findOrFail($CandidateDocument->id);
+        $this->loadComments();
+
+        $oldData = [
+            'status'     => $CandidateDocument->getOriginal('status'),
+            'vetted_by'  => optional($CandidateDocument->vettedBy)->name.'(Ligal Associate)',
+            'vetted_on'  => $CandidateDocument->getOriginal('vetted_on'),
+        ];
+        $newData = [
+            'status'     => $CandidateDocument->status,
+            'vetted_by'  => optional($CandidateDocument->vettedBy)->name.'(Ligal Associate)',
+            'vetted_on'  => $CandidateDocument->vetted_on,
+        ];
+
+        $docName = getCandidateDocument($CandidateDocument->type);
+        $logData = [
+            'module_name'   => 'Document',
+            'module_id'     => $CandidateDocument->candidate_id,
+            'action'        => 'Verification Update',
+            'description'   => "Document '{$docName}' status updated to {$status}",
+
+            'old_data'      => json_encode($oldData),
+            'new_data'      => json_encode($newData),
+
+            'document_name' => $docName,
+            'changed_by'    => Auth::guard('admin')->id(),
+            'link'          => asset($CandidateDocument->path),
+        ];
+
+        logChange($logData);
+        
+        $this->dispatch('toastr:success', message: 'Status updated successfully.');
+    }
+
     public function loadComments()
     {
         $this->comments = CandidateDocumentComment::with('admin')

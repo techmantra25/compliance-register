@@ -114,7 +114,7 @@
                                         <span>
                                             <span
                                                 class="{{ $uploaded == $required_document ? 'text-success' : 'text-danger' }}">{{
-                                                $uploaded }}</span> / <span>{{ $required_document }}</span>
+                                                $uploaded }}</span>/<span>{{ $required_document }}</span>
                                         </span>
                                     </td>
                                     <td>
@@ -124,40 +124,29 @@
 
                                     <td class="text-center">
                                         @if($authUser->role=='legal associate')
-                                        <a href="{{route('admin.candidates.documents.vetting', $candidate->id)}}"
-                                            class="btn btn-sm btn-outline-primary" title="Verify Documents">
-                                            <i class="bi bi-check2-square"></i> Verify Now
-                                        </a>
-
+                                            @if($uploaded == $required_document)
+                                                <a href="{{route('admin.candidates.documents.vetting', $candidate->id)}}"
+                                                    class="btn btn-sm btn-outline-primary" title="Verify Documents">
+                                                    <i class="bi bi-check2-square"></i> Verify Now
+                                                </a>
+                                            @endif
                                         @else
-                                        <button class="btn btn-sm btn-outline-{{count($candidate->agents)>0?"
-                                            primary":"danger"}}" wire:click="openAgentModal({{ $candidate->id }})"
-                                            data-bs-toggle="modal" data-bs-target="#assignAgentModal"
-                                            title="Assign Agent">
-                                            <i class="bi bi-people"></i>
-                                        </button>
-                                        <button class="btn btn-sm btn-outline-primary"
-                                            wire:click="edit({{ $candidate->id }})" data-bs-toggle="modal"
-                                            data-bs-target="#candidateModal" title="Edit Candidate">
-                                            <i class="bi bi-pencil"></i>
-                                        </button>
-                                        <a href="{{ route('admin.candidates.documents', ['candidate' => $candidate->id]) }}"
-                                            class="btn btn-sm btn-outline-primary"
-                                            title="View Candidate Document Collections">
-                                            <i class="bi bi-folder2"></i>
-                                        </a>
-                                        {{-- <a
-                                            href="{{ route('admin.candidates.documents', ['candidate' => $candidate->id]) }}"
-                                            class="btn btn-sm btn-outline-primary"
-                                            title="View Candidate Document Collections">
-                                            <i class="bi bi-folder2"></i>
-                                        </a> --}}
-
-                                        {{-- <a
-                                            href="{{ route('admin.candidates.journey', ['candidate'=>$candidate->id]) }}"
-                                            class="btn btn-sm btn-outline-primary">
-                                            View
-                                        </a> --}}
+                                            <button class="btn btn-sm btn-outline-{{count($candidate->agents)>0?"primary":"danger"}}" wire:click="openAgentModal({{ $candidate->id }})"
+                                                data-bs-toggle="modal" data-bs-target="#assignAgentModal"
+                                                title="Assign Agent">
+                                                <i class="bi bi-people"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-primary"
+                                                wire:click="edit({{ $candidate->id }})" data-bs-toggle="modal"
+                                                data-bs-target="#candidateModal" title="Edit Candidate">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                            <a href="{{ route('admin.candidates.documents', ['candidate' => $candidate->id]) }}"
+                                                class="btn btn-sm btn-outline-primary"
+                                                title="View Candidate Document Collections">
+                                               <i class="bi bi-file-earmark-arrow-up"></i>
+                                            </a>
+                                            
                                         @endif
                                     </td>
                                 </tr>
@@ -400,9 +389,6 @@
             </div>
         </div>
     </div>
-
-
-
 
     @push('scripts')
     <script>
