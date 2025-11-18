@@ -3,7 +3,9 @@
 namespace App\Livewire;
 
 use App\Models\Candidate;
+use App\Models\District;
 use App\Models\Assembly;
+use App\Models\Phase;
 use App\Models\Agent;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -22,11 +24,12 @@ class CandidateContactList extends Component
 
     public $search = '';
     public $name, $designation, $email, $contact_number, $contact_number_alt_1, $contact_number_alt_2, $assembly_id, $type = 'Candidate';
-    public $assemblies;
+    public $assemblies,$districts,$phases;
     public $editMode = false;
     public $editId,$candidateId,$required_document;
     public $authUser;
     public $agentsList = [];
+    public $filter_by_assembly, $filter_by_district, $filter_by_phase;
 
     public $candidateFile, $csvError = null;
     protected $rules = [
@@ -38,7 +41,11 @@ class CandidateContactList extends Component
     public function mount()
     {
         $this->authUser = Auth::guard('admin')->user();
-        $this->assemblies = Assembly::orderBy('assembly_name_en')
+        $this->assemblies = Assembly::orderBy('assembly_name_en', 'ASC')
+            ->get();
+        $this->districts = District::orderBy('name_en', 'ASC')
+            ->get();
+        $this->phases = Phase::orderBy('name', 'ASC')
             ->get();
         $this->required_document = CandidateDocumentType::count();
     }
@@ -357,8 +364,7 @@ class CandidateContactList extends Component
             $header = array_map('trim', array_shift($rows));
             
             $expectedHeaders = [
-                'assembly_code', 'agent_name', 'agent_email',
-                'candidate_name', 'candidate_email', 'candidate_mobile', 'candidate_alternative_mobile'
+                'assembly_code', 'candidate_name', 'candidate_email', 'candidate_mobile', 'candidate_alternative_mobile'
             ];
 
             if ($header !== $expectedHeaders) {
@@ -369,7 +375,6 @@ class CandidateContactList extends Component
 
             foreach ($rows as $index => $row) {
                 $data = array_combine($header, array_map('trim', $row));
-
                 if (empty($data['assembly_code'])) {
                     throw new \Exception("Row " . ($index + 2) . ": Assembly code is required.");
                 }
@@ -391,6 +396,7 @@ class CandidateContactList extends Component
 
                 $assembly = DB::table('assemblies')
                     ->where('assembly_code', $data['assembly_code'])
+                    ->orWhere('assembly_number', $data['assembly_code'])
                     ->first();
 
                 if (!$assembly) {
@@ -399,41 +405,47 @@ class CandidateContactList extends Component
 
                 $assembly_id = $assembly->id;
 
-                if (!empty($data['agent_email'])) {
-                    if (empty($data['agent_name'])) {
-                        throw new \Exception("Row " . ($index + 2) . ": Agent name required when agent email is provided.");
-                    }
+                // Check existing candidate by assembly
+                $existingCandidate = DB::table('candidates')
+                    ->where('assembly_id', $assembly_id)
+                    ->first();
 
-                    $agent = DB::table('agents')
-                        ->where('email', $data['agent_email'])
-                        ->first();
+                $oldData = $existingCandidate ? (array) $existingCandidate : null;
 
-                    if ($agent) {
-                        $agent_id = $agent->id;
-                    } else {
-                        $agent_id = DB::table('agents')->insertGetId([
-                            'name' => $data['agent_name'],
-                            'email' => $data['agent_email'],
-                            'created_at' => now(),
-                            'updated_at' => now(),
-                        ]);
-                    }
-                }
-
+                // Insert or Update
                 DB::table('candidates')->updateOrInsert(
+                    ['assembly_id' => $assembly_id],
                     [
-                        'assembly_id' => $assembly_id,
-                    ],
-                    [
-                        'name' => $data['candidate_name'],
-                        'email' => $data['candidate_email'],
-                        'contact_number' => $data['candidate_mobile'],
-                        'contact_number_alt_1' => $data['candidate_alternative_mobile'] ?? null,
-                        'type' => 'Candidate',
-                        'updated_at' => now(),
-                        'created_at' => now(), 
+                        'name'                  => $data['candidate_name'],
+                        'email'                 => $data['candidate_email'],
+                        'contact_number'        => $data['candidate_mobile'],
+                        'contact_number_alt_1'  => $data['candidate_alternative_mobile'] ?? null,
+                        'type'                  => 'Candidate',
                     ]
                 );
+
+                // Fetch updated data
+                $newData = DB::table('candidates')
+                    ->where('assembly_id', $assembly_id)
+                    ->first();
+
+                // Determine action type
+                $action = $existingCandidate ? 'Update' : 'Insert';
+
+                // Prepare log data
+                $logData = [
+                    'module_name'   => 'Candidate',
+                    'module_id'     => $newData->id,
+                    'action'        => $action,
+                    'description'   => $action === 'Update'
+                                        ? 'Candidate updated successfully.'
+                                        : 'New candidate created successfully.',
+                    'old_data'      => $oldData ? json_encode($oldData) : null,
+                    'new_data'      => json_encode($newData),
+                ];
+
+                // Save log
+                logChange($logData);
 
             }
 
@@ -445,14 +457,13 @@ class CandidateContactList extends Component
             $this->dispatch('close-upload-modal');
             $this->dispatch('toastr:success', message: 'CSV uploaded successfully.');
 
-            // session()->flash('success', 'CSV uploaded successfully.');
 
         }  catch (\Exception $e) {
-            // dd($e->getMessage());
+            dd($e->getMessage());
             DB::rollBack();
 
-            $errorMessage = $e->getMessage();
-
+            $this->csvError = $e->getMessage();
+            $errorMessage = '';
             if (str_contains($errorMessage, 'Invalid CSV header')) {
                 $this->csvError = 'Your CSV file format is incorrect. Please use the sample format.';
             } elseif (str_contains($errorMessage, 'Invalid assembly code')) {
@@ -462,10 +473,6 @@ class CandidateContactList extends Component
 
             } elseif (str_contains($errorMessage, 'Candidate email is invalid')) {
                 $this->csvError = 'One or more candidate emails are invalid. Please enter valid email addresses.';
-
-            } elseif (str_contains($errorMessage, 'Agent email is invalid')) {
-                $this->csvError = 'One or more agent emails are invalid. Please provide valid email addresses.';
-
             } elseif (str_contains($errorMessage, 'required')) {
                 $this->csvError = 'Please make sure all mandatory fields are filled in.';
             } elseif (str_contains(strtolower($errorMessage), 'duplicate') || str_contains(strtolower($errorMessage), 'unique')) {

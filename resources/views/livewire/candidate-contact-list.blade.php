@@ -32,11 +32,41 @@
 
         <!--  Main Content -->
         <div class="col-lg-12">
-            <div class="card shadow-sm border-0 p-3">
+            <div class="card shadow-sm border-0 p-3 filter-card">
                 <div class="card-header bg-white d-flex justify-content-between align-items-center">
                     <h5 class="fw-bold mb-0">Candidate Contacts</h5>
 
                     <div class="d-flex align-items-center">
+                        <div  wire:ignore>
+                            <select wire:model="filter_by_assembly" class="form-select chosen-select">
+                                <option value="">Filer by Assembly</option>
+                                @foreach ($assemblies as $assembly)
+                                <option value="{{ $assembly->id }}">
+                                    {{ $assembly->assembly_name_en }} ({{ $assembly->assembly_code }})
+                                </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div  wire:ignore>
+                            <select wire:model="filter_by_district" class="form-select chosen-select">
+                                <option value="">Filer by District</option>
+                                @foreach ($districts as $district)
+                                <option value="{{ $district->id }}">
+                                    {{ $district->name_en }} ({{ $district->name_bn }})
+                                </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div  wire:ignore>
+                            <select wire:model="filter_by_phase" class="form-select chosen-select">
+                                <option value="">Filer by phase</option>
+                                @foreach ($phases as $phase)
+                                <option value="{{ $phase->id }}">
+                                    {{ ucwords($phase->name) }}
+                                </option>
+                                @endforeach
+                            </select>
+                        </div>
                         <input type="text" wire:model="search" wire:keyup="filterCandidates($event.target.value)"
                             class="form-control form-control-sm w-auto me-2" placeholder="Search here...">
 
@@ -189,7 +219,7 @@
 
                         <!-- Download Sample CSV -->
                         <div class="col-12">
-                            <a href="{{ asset('upload_candidate_sample.csv') }}" download
+                            <a href="{{ asset('assets/sample-csv/bulk-candidate.csv') }}" download
                                 class="btn btn-outline-primary">
                                 <i class="bi bi-download me-1"></i>Download Sample CSV
                             </a>
@@ -198,15 +228,20 @@
                         <!-- Upload Field -->
                         <div class="col-12">
                             <label for="candidateFile" class="form-label fw-semibold mt-3">Upload Candidate CSV</label>
-                            <input type="file" class="form-control" id="candidateFile" wire:model="candidateFile"
-                                accept=".csv">
+                            <input type="file" class="form-control" id="candidateFile" wire:model="candidateFile" accept=".csv">
+
                             @error('candidateFile')
-                            <div class="text-danger mt-1">{{ $message }}</div>
+                                <div class="text-danger mt-1">{{ $message }}</div>
                             @enderror
+
                             @if($csvError)
-                            <small class="text-danger d-block mt-1">{{ $csvError }}</small>
+                                <small class="text-danger d-block mt-1">{{ $csvError }}</small>
                             @endif
-                            <div wire:loading wire:target="candidateFile" class="text-muted mt-2">Uploading...</div>
+
+                            <!-- Uploading Loader -->
+                            <div wire:loading wire:target="candidateFile" class="text-muted mt-2">
+                                <span class="spinner-border spinner-border-sm me-1"></span> Uploading...
+                            </div>
                         </div>
 
                     </div>
@@ -216,10 +251,16 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
                         wire:click="resetForm">Close</button>
-                    <button type="button" class="btn btn-primary" wire:click="saveCandidate">
+
+                    <!-- Upload button should appear only when NOT uploading -->
+                    <button type="button" class="btn btn-primary"
+                        wire:click="saveCandidate"
+                        wire:loading.remove
+                        wire:target="candidateFile">
                         <i class="bi bi-upload me-1"></i>Upload
                     </button>
                 </div>
+
 
             </div>
         </div>
@@ -389,7 +430,9 @@
             </div>
         </div>
     </div>
-
+    <div class="loader-container" wire:loading wire:target="saveCandidate">
+        <div class="loader"></div>
+    </div>
     @push('scripts')
     <script>
         window.addEventListener('toastr:success', event => toastr.success(event.detail.message));

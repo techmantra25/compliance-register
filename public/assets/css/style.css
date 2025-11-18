@@ -274,3 +274,6 @@ body {
     .custom-upload-box.border-danger {
         box-shadow: 0 0 6px rgba(255, 0, 0, 0.4);
     }
+    .filter-card .chosen-container{
+        min-width: 205px !important;
+    }

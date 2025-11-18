@@ -29,11 +29,12 @@ class DocumentComments extends Component
     }
 
     public function UpdateDocStatus($status, $document){
-        $CandidateDocument = CandidateDocument::where('type', $document)->orderByDesc('id')->first();
+        $CandidateDocument = CandidateDocument::where('candidate_id', $this->document->candidate_id)->where('type', $document)->orderByDesc('id')->first();
         $CandidateDocument->status = $status;
         $CandidateDocument->vetted_by = Auth::guard('admin')->id();
         $CandidateDocument->vetted_on = $status=="Approved"?now():null;
         $CandidateDocument->save();
+
         $this->document = CandidateDocument::findOrFail($CandidateDocument->id);
         $this->loadComments();
 

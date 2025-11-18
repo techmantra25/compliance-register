@@ -188,24 +188,34 @@
                 <div class="modal-body">
                     @if($zones->count())
                         <div class="table-responsive">
-                            <table class="table table-bordered align-middle">
+                           <table class="table table-bordered align-middle">
                                 <thead class="table-primary">
                                     <tr>
                                         <th>Zone Name</th>
-                                        <th>Districts</th>
-                                        <th>Reasons</th>
+                                        <th width="50%">Districts</th>
+                                        {{-- <th>Reasons</th> --}}
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach($zones as $key=>$zone)
+                                    @foreach($zones as $zone)
                                         <tr>
                                             <td>{{ $zone->name }}</td>
-                                            <td>{{ implode(',', $zone->district_list) }}</td>
-                                            <td>{{ $zone->reasons }}</td>
+
+                                            <!-- District badge list -->
+                                            <td>
+                                                @foreach($zone->district_list as $district)
+                                                    <span class="badge bg-primary text-dark me-1 mb-1">
+                                                        {{ $district }}
+                                                    </span>
+                                                @endforeach
+                                            </td>
+
+                                            {{-- <td>{{ $zone->reasons }}</td> --}}
                                         </tr>
                                     @endforeach
                                 </tbody>
                             </table>
+
                         </div>
                     @else
                         <p class="text-muted">No zone data available.</p>
