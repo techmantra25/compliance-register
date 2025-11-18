@@ -31,14 +31,22 @@ class CandidateDocumentCollection extends Component
 
     public function mount(Request $request)
     {
+        
         // Get the candidate ID from the route
         $candidateId = $request->query('candidate');
         
         // Fetch the candidate or abort if not found
         $candidate = Candidate::find($candidateId);
+
         if (!$candidate) {
             abort(404, 'Candidate not found.');
         }
+       $userRole = trim(strtolower(Auth::guard('admin')->user()->role));
+
+        if ($userRole == 'legal_associate') {
+            abort(403, 'You are not authorized to access this candidate.');
+        }
+
         $this->nomination_date = $candidate?->assembly?->assemblyPhase?->phase?->last_date_of_nomination;
         $this->phase = $candidate?->assembly?->assemblyPhase?->phase?->name;
 

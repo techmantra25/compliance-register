@@ -153,7 +153,7 @@
                                     </td>
 
                                     <td class="text-center">
-                                        @if($authUser->role=='legal associate')
+                                        @if($authUser->role=='legal_associate')
                                             @if($uploaded == $required_document)
                                                 <a href="{{route('admin.candidates.documents.vetting', $candidate->id)}}"
                                                     class="btn btn-sm btn-outline-primary" title="Verify Documents">
@@ -175,6 +175,11 @@
                                                 class="btn btn-sm btn-outline-primary"
                                                 title="View Candidate Document Collections">
                                                <i class="bi bi-file-earmark-arrow-up"></i>
+                                            </a>
+                                            <a href="{{ route('admin.candidates.journey', $candidate->id) }}"
+                                                class="btn btn-sm btn-outline-primary"
+                                                title="Candidate Journey Timeline">
+                                            <i class="bi bi-person-lines-fill"></i> <!-- Using a more relevant icon -->
                                             </a>
                                             
                                         @endif

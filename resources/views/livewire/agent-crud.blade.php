@@ -167,72 +167,6 @@
         </div>
     </div>
 
-    <!-- 🟢 Agent Modal -->
-    {{-- <div wire:ignore.self class="modal fade" id="agentModal" tabindex="-1" aria-labelledby="agentModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 shadow-lg rounded-3">
-                <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title" id="agentModalLabel">
-                        {{ $editMode ? 'Update Agent' : 'Add Agent' }}
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"
-                        wire:click="resetForm"></button>
-                </div>
-
-                <form wire:submit.prevent="{{ $editMode ? 'update' : 'save' }}"
-                    wire:key="agent-form-{{ $editId ?? 'new' }}">
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label class="form-label">Select Category <span class="text-danger">*</span></label>
-                            <select wire:model="agent_type" class="form-control">
-                                <option value="">-- Select Type --</option>
-                                <option value="bureaucrat">Bureaucrat</option>
-                                <option value="political">Political</option>
-                                <option value="other">Other</option>
-                            </select>
-                            @error('name') <small class="text-danger">{{ $message }}</small> @enderror
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Designation</label>
-                            <input type="text" wire:model="designation" class="form-control">
-                            @error('designation') <small class="text-danger">{{ $message }}</small> @enderror
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Email <span class="text-danger">*</span></label>
-                            <input type="email" wire:model="email" class="form-control">
-                            @error('email') <small class="text-danger">{{ $message }}</small> @enderror
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Contact Number <span class="text-danger">*</span></label>
-                            <input type="text" wire:model="contact_number" class="form-control">
-                            @error('contact_number') <small class="text-danger">{{ $message }}</small> @enderror
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Alt Contact Number</label>
-                            <input type="text" wire:model="contact_number_alt_1" class="form-control">
-                            @error('contact_number_alt_1') <small class="text-danger">{{ $message }}</small> @enderror
-                        </div>
-                    </div>
-
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal"
-                            wire:click="resetForm">
-                            <i class="bi bi-x"></i> Cancel
-                        </button>
-                        <button type="submit" class="btn btn-primary btn-sm">
-                            {{ $editMode ? 'Update' : 'Save' }}
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div> --}}
-
     <!-- Modal -->
     <div wire:ignore.self class="modal fade" id="agentModal" tabindex="-1" aria-labelledby="agentModalLabel"
         aria-hidden="true">
@@ -273,11 +207,9 @@
                                     <select id="designation" wire:model="designation" class="form-select"
                                         data-category-field>
                                         <option value="">-- Select Designation --</option>
-                                        <option value="mla">MLA</option>
-                                        <option value="mp">MP</option>
-                                        <option value="collector">Collector</option>
-                                        <option value="commissioner">Commissioner</option>
-                                        <option value="chairman">Chairman</option>
+                                        @foreach ($designations as $designation_item)
+                                            <option value="{{$designation_item->name}}">{{$designation_item->name}}</option>
+                                        @endforeach
                                     </select>
                                     @error('designation') <small class="text-danger">{{ $message }}</small> @enderror
                                 </div>

@@ -65,6 +65,13 @@
                                 <i class="bi bi-calendar2-event me-1"></i> Phases
                             </a>
                         </li>
+                        <li class="nav-item mb-1">
+                           <a href="{{ route('admin.master.eventcategory') }}"
+                            class="nav-link small {{ request()->routeIs('admin.master.eventcategory') ? 'active' : '' }}">
+                                <i class="bi bi-calendar-event-fill me-1"></i> Event Categories
+                            </a>
+
+                        </li>
 
                     </ul>
                 </div>

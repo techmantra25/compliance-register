@@ -5,6 +5,7 @@ namespace App\Livewire;
 use Livewire\Component;
 use Livewire\WithPagination;
 use App\Models\Agent;
+use App\Models\ContactDesignation;
 use App\Models\Assembly;
 use Livewire\WithFileUploads;
 use Illuminate\Support\Facades\DB;
@@ -22,7 +23,7 @@ class AgentCrud extends Component
     // Category-specific fields
     public $designation, $area, $mobile_no, $phone_no, $whatsapp_no;
     public $assemblies_id;
-    public $sameAsMobile;
+    public $sameAsMobile, $designations;
 
     // Other properties
     public $editId = null, $editMode = false, $search = '';
@@ -38,6 +39,7 @@ class AgentCrud extends Component
             ->where('status', 1)
             ->orderBy('assembly_code')
             ->get();
+        $this->designations = ContactDesignation::where('status', 1)->orderBy('name')->get();
     }
 
     public function updatingSearch()

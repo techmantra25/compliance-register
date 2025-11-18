@@ -11,7 +11,7 @@
                     </a>
                 </li>
                 <li class="breadcrumb-item">
-                    @if($authUser->role =="legal associate")
+                    @if($authUser->role =="legal_associate")
                         <a href="{{ route('admin.candidates.documents.vetting', $document->candidate_id) }}" class="text-muted text-decoration-none">
                             Candidate Documents
                         </a>
@@ -27,7 +27,7 @@
             </ol>
         </div>
         <div class="align-self-start">
-            @if($authUser->role =="legal associate")
+            @if($authUser->role =="legal_associate")
                 <a href="{{ route('admin.candidates.documents.vetting', $document->candidate_id) }}" class="btn btn-sm btn-danger shadow-sm">
                     <i class="bi bi-arrow-left-circle me-1"></i> Back
                 </a>
@@ -111,7 +111,7 @@
                     @endforelse
                 </div>
             </div>
-            @if($authUser->role =="legal associate")
+            @if($authUser->role =="legal_associate")
                 <div class="card shadow-sm mb-4">
                     <div class="card-body">
 

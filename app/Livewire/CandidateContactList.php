@@ -532,6 +532,25 @@ class CandidateContactList extends Component
             ->orderByDesc('id')
             ->paginate(20);
 
+        if ($this->authUser->role === "legal_associate") {
+            // Step 1: Get collection
+            $collection = $candidates->getCollection();
+
+            // Step 2: Filter & reindex
+            $filtered = $collection->filter(function ($candidate) {
+                if (!$candidate) {
+                    return false;
+                }
+
+                $uploaded_documents = $candidate->documents->groupBy('type')->count();
+
+                return $uploaded_documents == $this->required_document;
+            })->values(); // <-- VERY IMPORTANT: reset index
+
+            // Step 3: Replace filtered list back into paginator
+            $candidates->setCollection($filtered);
+        }
+
         return view('livewire.candidate-contact-list', [
             'candidates' => $candidates,
             'assemblies' => $this->assemblies,

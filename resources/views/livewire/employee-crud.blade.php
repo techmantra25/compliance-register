@@ -151,7 +151,7 @@
                                 <option value="">Select Role</option>
                                 <option value="admin">Admin</option>
                                 <option value="employee">Employee</option>
-                                <option value="legal associate">Legal Associate</option>
+                                <option value="legal_associate">legal Associate</option>
                             </select>
                             @error('role') <small class="text-danger">{{ $message }}</small> @enderror
                         </div>

@@ -4,11 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class ContactDesignation extends Model
+class EventCategory extends Model
 {
-   protected $table = "contact_designations";
+   protected $table = "event_categories";
 
    protected $fillable = [
-        'name','status'
+        'name', 'status'
    ];
 }
