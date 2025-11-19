@@ -37,10 +37,10 @@
                     <h5 class="fw-bold mb-0"> Contacts</h5>
 
                     <div class="d-flex align-items-center">
-                        <input type="text" wire:model="search" wire:keyup="filterAgents($event.target.value)"
+                        <input type="text" wire:model="search" wire:keyup="filterAgents($event.target.value)" data-category-field
                             class="form-control form-control-sm w-auto me-2" placeholder="Search here...">
 
-                        <button class="btn btn-sm btn-danger" wire:click="resetForm">
+                        <button type="button" class="btn btn-sm btn-danger" wire:click="resetForm">
                             <i class="bi bi-arrow-clockwise"></i> Reset
                         </button>
                     </div>
@@ -53,7 +53,7 @@
                                 <tr>
                                     <th>Sl.No</th>
                                     <th> Name</th>
-                                    <th>Mobile No/Whatsapp No</th>
+                                    <th>Mobile No / Whatsapp No</th>
                                     <th>Email</th>
                                     <th>Area/District</th>
                                     <th>Action</th>
@@ -167,72 +167,6 @@
         </div>
     </div>
 
-    <!-- 🟢 Agent Modal -->
-    {{-- <div wire:ignore.self class="modal fade" id="agentModal" tabindex="-1" aria-labelledby="agentModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 shadow-lg rounded-3">
-                <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title" id="agentModalLabel">
-                        {{ $editMode ? 'Update Agent' : 'Add Agent' }}
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"
-                        wire:click="resetForm"></button>
-                </div>
-
-                <form wire:submit.prevent="{{ $editMode ? 'update' : 'save' }}"
-                    wire:key="agent-form-{{ $editId ?? 'new' }}">
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label class="form-label">Select Category <span class="text-danger">*</span></label>
-                            <select wire:model="agent_type" class="form-control">
-                                <option value="">-- Select Type --</option>
-                                <option value="bureaucrat">Bureaucrat</option>
-                                <option value="political">Political</option>
-                                <option value="other">Other</option>
-                            </select>
-                            @error('name') <small class="text-danger">{{ $message }}</small> @enderror
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Designation</label>
-                            <input type="text" wire:model="designation" class="form-control">
-                            @error('designation') <small class="text-danger">{{ $message }}</small> @enderror
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Email <span class="text-danger">*</span></label>
-                            <input type="email" wire:model="email" class="form-control">
-                            @error('email') <small class="text-danger">{{ $message }}</small> @enderror
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Contact Number <span class="text-danger">*</span></label>
-                            <input type="text" wire:model="contact_number" class="form-control">
-                            @error('contact_number') <small class="text-danger">{{ $message }}</small> @enderror
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Alt Contact Number</label>
-                            <input type="text" wire:model="contact_number_alt_1" class="form-control">
-                            @error('contact_number_alt_1') <small class="text-danger">{{ $message }}</small> @enderror
-                        </div>
-                    </div>
-
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal"
-                            wire:click="resetForm">
-                            <i class="bi bi-x"></i> Cancel
-                        </button>
-                        <button type="submit" class="btn btn-primary btn-sm">
-                            {{ $editMode ? 'Update' : 'Save' }}
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div> --}}
-
     <!-- Modal -->
     <div wire:ignore.self class="modal fade" id="agentModal" tabindex="-1" aria-labelledby="agentModalLabel"
         aria-hidden="true">
@@ -273,11 +207,9 @@
                                     <select id="designation" wire:model="designation" class="form-select"
                                         data-category-field>
                                         <option value="">-- Select Designation --</option>
-                                        <option value="mla">MLA</option>
-                                        <option value="mp">MP</option>
-                                        <option value="collector">Collector</option>
-                                        <option value="commissioner">Commissioner</option>
-                                        <option value="chairman">Chairman</option>
+                                        @foreach ($designations as $designation_item)
+                                            <option value="{{$designation_item->name}}">{{$designation_item->name}}</option>
+                                        @endforeach
                                     </select>
                                     @error('designation') <small class="text-danger">{{ $message }}</small> @enderror
                                 </div>
@@ -323,7 +255,11 @@
                                         class="form-select chosen-select" data-category-field>
                                         <option value="">-- Select Assembly No --</option>
                                         @foreach ($assemblies as $assembly)
-                                        <option value="{{ $assembly->id }}">
+                                        <option value="{{ $assembly->id }}" 
+                                            data-code="{{ $assembly->assembly_code }}"
+                                           data-name="{{ $assembly->assembly_name_en }}"
+                                           data-number="{{ $assembly->assembly_number }}"
+                                           > 
                                             {{$assembly->assembly_name_en}}({{ $assembly->assembly_code }})
                                         </option>
                                         @endforeach
@@ -504,7 +440,9 @@
             function initChosen() {
                 $('.chosen-select').chosen({
                     width: '100%',
-                    no_results_text: "No result found"
+                    no_results_text: "No result found",
+                    search_contains: true,  
+                    allow_single_deselect: true
                 }).off('change').on('change', function (e) {
                     let model = $(this).attr('wire:model');
                     if (model) {
@@ -514,14 +452,31 @@
             }
 
             // Function to show/hide fields based on category
-            function toggleCategoryFields() {
-                const selected = $('#agent_type').val();
-                $('#bureaucrat_fields, #political_fields, #other_fields').addClass('d-none');
+            // function toggleCategoryFields() {
+            //     const selected = $('#agent_type').val();
+            //     $('#bureaucrat_fields, #political_fields, #other_fields').addClass('d-none');
 
-                if (selected === 'bureaucrat') $('#bureaucrat_fields').removeClass('d-none');
-                else if (selected === 'political') $('#political_fields').removeClass('d-none');
-                else if (selected === 'other') $('#other_fields').removeClass('d-none');
-            }
+            //     if (selected === 'bureaucrat') $('#bureaucrat_fields').removeClass('d-none');
+            //     else if (selected === 'political') $('#political_fields').removeClass('d-none');
+            //     else if (selected === 'other') $('#other_fields').removeClass('d-none');
+            // }
+              function toggleCategoryFields() {
+        const selected = $('#agent_type').val();
+        $('#bureaucrat_fields, #political_fields, #other_fields').addClass('d-none');
+
+        if (selected === 'bureaucrat') $('#bureaucrat_fields').removeClass('d-none');
+        else if (selected === 'political') {
+            $('#political_fields').removeClass('d-none');
+            // 🔹 Update Chosen after showing political fields
+            setTimeout(() => {
+                const assemblyId = @this.get('assemblies_id');
+                if (assemblyId) {
+                    $('#assemblies_id').val(assemblyId).trigger('chosen:updated');
+                }
+            }, 100);
+        }
+        else if (selected === 'other') $('#other_fields').removeClass('d-none');
+    }
 
             // Initialize Chosen when page loads
             $(document).ready(function () {
@@ -537,8 +492,11 @@
             $('#agentModal').on('shown.bs.modal', function () {
                 setTimeout(() => {
                     $('.chosen-select').chosen('destroy');
-                    $('.chosen-select').chosen({ width: '100%' });
-                    $('.chosen-select').trigger('chosen:updated');
+                   initChosen();
+                    // const assemblyId = @this.get('assemblies_id');
+                    // if (assemblyId) {
+                    //     $('#assemblies_id').val(assemblyId).trigger('chosen:updated');
+                    // }
                     
                     // Restore the visible fields after Chosen reinitializes
                     toggleCategoryFields();
@@ -552,7 +510,7 @@
                     const el = $(this);
                     const model = el.attr('wire:model');
                     const liveValue = @this.get(model);
-
+                    
                     if (liveValue !== undefined && liveValue !== null) {
                         el.val(liveValue).trigger('chosen:updated');
                     }
@@ -584,7 +542,15 @@
                 const type = event.detail.type;
                 // Directly set the value of the select
                 $('#agent_type').val(type);
-
+                toggleCategoryFields();
+    
+                // 🔹 IMPORTANT: Update the chosen dropdown with the Livewire value
+                setTimeout(() => {
+                    const assemblyId = @this.get('assemblies_id');
+                    if (assemblyId) {
+                        $('#assemblies_id').val(assemblyId).trigger('chosen:updated');
+                    }
+                }, 300); 
             });
 
             // When category is changed, reset dependent fields
@@ -629,6 +595,18 @@
         window.addEventListener('open-modal', event => {
                 $('#importModal').modal('show');
             });
+    </script>
+    <script>
+        document.addEventListener('livewire:init', () => {
+            Livewire.on('refreshChosen', () => {
+                $('.chosen-select').chosen('destroy');   // destroy old instance
+                $('.chosen-select').chosen({
+                    width: '100%',
+                    no_results_text: "No result found"
+                });
+            });
+        });
+
     </script>
 
 

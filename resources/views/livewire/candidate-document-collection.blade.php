@@ -36,71 +36,11 @@
     </style>
 
     <div class="d-flex flex-wrap justify-content-between align-items-start mb-3">
-
     {{-- Left Section: Title + Candidate Info --}}
     <div class="mb-2">
         <h4 class="fw-bold mb-2 text-dark">Document Collections</h4>
-
-        {{-- Candidate Info Table --}}
-        <div class="card shadow-sm border-0 p-3">
-            <table class="table table-sm table-borderless w-auto mb-0">
-                <tbody>
-                    <tr>
-                        <th class="text-nowrap pe-3">Candidate Name</th>
-                        <td>: {{ $candidateName ?? 'N/A' }}</td>
-                    </tr>
-                    <tr>
-                        <th class="text-nowrap pe-3">Assembly Name & No</th>
-                        <td>: {{ $assemblyName ?? 'N/A' }}</td>
-                    </tr>
-                    <tr>
-                        <th class="text-nowrap pe-3 align-top">Agent Details</th>
-                        <td>
-                            @if($candidateData->agents && $candidateData->agents->count() > 0)
-                            <ul class="mb-0 ps-3">
-                                @foreach($candidateData->agents as $agent)
-                                <li>
-                                    <strong>{{ ucwords($agent->name) }}</strong>
-                                    — {{ $agent->contact_number ?? 'N/A' }}
-                                    @if(!empty($agent->contact_number_alt_1))
-                                    , {{ $agent->contact_number_alt_1 }}
-                                    @endif
-                                </li>
-                                @endforeach
-                            </ul>
-                            @else
-                            : N/A
-                            @endif
-                        </td>
-                    </tr>
-                    <tr>
-                        <th class="text-nowrap pe-3">Phase</th>
-                        <td>: {{ $phase ?? 'N/A' }}</td>
-                    </tr>
-                    <tr>
-                        <th class="text-nowrap pe-3">Last Date of Submission of Nomination Form</th>
-                        <td>: {{ $nomination_date ?? 'N/A' }}</td>
-                    </tr>
-                    <tr>
-                        <th class="text-nowrap pe-3">Final Status</th>
-                        <td>
-                            : {{ getFinalDocStatus($candidateData->document_collection_status, 'icon') }}
-                            {{ getFinalDocStatus($candidateData->document_collection_status, 'label') }}
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-             <form wire:submit.prevent="uploadAcknowledgmentCopy" class="d-flex align-items-center gap-2">
-                <div class="input-group input-group-sm">
-                    <input type="file" wire:model="acknowledgment_file" class="form-control form-control-sm" accept=".pdf,.jpg,.png,.jpeg">
-                    <button type="submit" class="btn btn-success btn-sm shadow-sm">
-                        <i class="bi bi-upload me-1"></i> Upload
-                    </button>
-                </div>
-            </form>
-        </div>
     </div>
-
+    
     {{-- Right Section: Upload Acknowledgment Copy + Back Button --}}
     <div class="d-flex flex-column align-items-end gap-2">
         {{-- Back Button --}}
@@ -109,7 +49,173 @@
         </a>
     </div>
 </div>
+<div class="d-flex flex-wrap justify-content-between align-items-start mb-3">
+        <div class="col-md-8">
+            <div class="card shadow-sm border-0 p-3 mb-3 mx-1">
+                <div class="card-body">
+                    <table class="table table-sm table-borderless w-auto mb-0">
+                        <tbody>
+                            <tr>
+                                <th class="text-nowrap pe-3">Candidate Name</th>
+                                <td>: {{ $candidateName ?? 'N/A' }}</td>
+                            </tr>
+                            <tr>
+                                <th class="text-nowrap pe-3">Assembly Name & No</th>
+                                <td>: {{ $assemblyName ?? 'N/A' }}</td>
+                            </tr>
+                            <tr>
+                                <th class="text-nowrap pe-3 align-top">Agent Details</th>
+                                <td>
+                                    @if($candidateData->agents && $candidateData->agents->count() > 0)
+                                    <ul class="mb-0 ps-3">
+                                        @foreach($candidateData->agents as $agent)
+                                        <li>
+                                            <strong>{{ ucwords($agent->name) }}</strong>
+                                            — {{ $agent->contact_number ?? 'N/A' }}
+                                            @if(!empty($agent->contact_number_alt_1))
+                                            , {{ $agent->contact_number_alt_1 }}
+                                            @endif
+                                        </li>
+                                        @endforeach
+                                    </ul>
+                                    @else
+                                    : N/A
+                                    @endif
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="text-nowrap pe-3">Phase</th>
+                                <td>: {{ $phase ?? 'N/A' }}</td>
+                            </tr>
+                            <tr>
+                                <th class="text-nowrap pe-3">Last Date of Submission of Nomination Form</th>
+                                <td>: {{ $nomination_date ?? 'N/A' }}</td>
+                            </tr>
+                            <tr>
+                                <th class="text-nowrap pe-3">Final Status</th>
+                                <td>
+                                    : {{ getFinalDocStatus($candidateData->document_collection_status, 'icon') }}
+                                    {{ getFinalDocStatus($candidateData->document_collection_status, 'label') }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Final Submission Confirmation (RO office)</th>
+                                <td> 
+                                    @if($candidateData->final_submission_confirmation)
+                                        {{ \Carbon\Carbon::parse($candidateData->final_submission_confirmation)->format('d M Y, h:i A') }}
+                                    @else
+                                        <span class="text-muted">—</span>
+                                    @endif
+                                </td>
+                            </tr>
+                           <tr>
+                                <th>Acknowledgment Copy Reference</th>
+                                <td>
+                                    @if($candidateData->acknowledgment_file)
+                                        <a href="{{ asset($candidateData->acknowledgment_file) }}" target="_blank" class="btn btn-sm btn-primary">
+                                            <i class="bi bi-file-earmark-text"></i> View File
+                                        </a>
+                                    @else
+                                        <span class="text-muted">Not Uploaded</span>
+                                    @endif
+                                </td>
+                            </tr>
 
+                            <tr>
+                                <th>Logged By</th>
+                                <td>
+                                    @if($candidateData->acknowledgment_by)
+                                        {{optional($candidateData->user)->name}}
+                                    @else
+                                        <span class="text-muted">—</span>
+                                    @endif
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <th>Date & Time</th>
+                                <td>
+                                    @if($candidateData->acknowledgment_at)
+                                        {{ \Carbon\Carbon::parse($candidateData->acknowledgment_at)->format('d M Y, h:i A') }}
+                                    @else
+                                        <span class="text-muted">—</span>
+                                    @endif
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        @if($candidateData->document_collection_status=="verified_pending_submission")
+            <div class="col-md-4">
+
+                <!-- Upload Card -->
+                <div class="card shadow-sm border-0 mb-3 upload-card">
+                    <div class="card-body">
+
+                        <h6 class="fw-bold mb-3">
+                            <i class="bi bi-file-earmark-arrow-up me-1 text-primary"></i>
+                            Upload Acknowledgment Copy
+                        </h6>
+
+                        <form wire:submit.prevent="uploadAcknowledgmentCopy">
+
+                            <!-- File Upload Area -->
+                            <div class="custom-upload-box mb-1 @error('acknowledgment_file') border border-danger @enderror">
+                                <input type="file" 
+                                    wire:model="acknowledgment_file" 
+                                    class="form-control file-input"
+                                    accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.gif,.bmp,.webp">
+
+                                <div class="upload-label">
+                                    <i class="bi bi-cloud-upload fs-3"></i>
+                                    <p class="mb-0 small">Click to choose a file or drag & drop</p>
+                                </div>
+                            </div>
+                            @error('acknowledgment_file')
+                                <div class="text-danger small mt-1">
+                                    <i class="bi bi-exclamation-circle"></i> {{ $message }}
+                                </div>
+                            @enderror
+
+                            <!-- Show "Uploading..." while Livewire is processing the file -->
+                            <div wire:loading wire:target="acknowledgment_file" class="text-center mb-2">
+                                <div class="spinner-border spinner-border-sm text-primary"></div>
+                                <span class="ms-2">Uploading...</span>
+                            </div>
+
+                            <!-- Upload Button (visible ONLY after upload is ready) -->
+                            <div wire:loading.remove wire:target="acknowledgment_file">
+                                @if($acknowledgment_file)
+                                <div class="mb-2">
+                                    <label class="form-label small">Final Submission Confirmation Date(RO office)</label>
+                                    <input type="datetime-local" 
+                                        wire:model="final_submission_confirmation"
+                                        class="form-control form-control-sm @error('final_submission_confirmation') is-invalid @enderror">
+                                    
+                                    @error('final_submission_confirmation')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                    <button 
+                                        type="button" 
+                                        class="btn btn-primary w-100"
+                                        onclick="confirmUpload()">
+                                        <i class="bi bi-upload me-1"></i> Upload File
+                                    </button>
+                                @endif
+                            </div>
+
+                        </form>
+
+
+                    </div>
+                </div>
+
+            </div>
+        @endif
+    </div>
 
 
     <div class="card shadow-sm border-0 p-3 mt-4">
@@ -252,8 +358,13 @@
                                                             data-bs-target="#DocumentModal">
                                                         <i class="bi bi-upload me-1"></i> Upload
                                                     </button>
+                                                   
                                                 @elseif($lastDocument['status'] == 'Approved')
                                                     <span class="badge bg-success">Verified</span>
+                                                @else
+                                                    <a href="{{ route('admin.candidates.documents.comments', $doc['id']) }}" class="btn btn-secondary btn-sm"> 
+                                                        View <i class="bi bi-eye-slash"></i>
+                                                    </a>
                                                 @endif
                                             </td>
                                         @endif
@@ -335,7 +446,7 @@
                 </div>
             </div>
     </div>
-    <div class="loader-container" wire:loading wire:target="saveDocument">
+    <div class="loader-container" wire:loading wire:target="saveDocument,uploadAcknowledgmentCopy">
         <div class="loader"></div>
     </div>
 
@@ -343,6 +454,21 @@
     @push('scripts')
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
+        function confirmUpload() {
+            Swal.fire({
+                title: "Upload Acknowledgment Copy?",
+                text: "Are you sure you want to upload this file?",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Yes, Upload"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    @this.call('uploadAcknowledgmentCopy');
+                }
+            });
+        }
         window.addEventListener('showConfirm', function (event) {
             let itemId = event.detail[0].itemId;
             Swal.fire({

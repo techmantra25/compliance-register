@@ -64,7 +64,6 @@ class CandidateDocumentVetting extends Component
             ->toArray();
         
         if(count($required_documents) == count($documentsData)){
-
             if($this->candidateData->document_collection_status=="verified_submitted_with_copy"){
                 return true;
             }
@@ -111,9 +110,11 @@ class CandidateDocumentVetting extends Component
             return $group->sortByDesc('id')->map(function ($document) {
                 return [
                     'id' => $document->id,
+                    'type' => $document->type,
                     'path' => $document->path,
                     'remarks' => $document->remarks,
                     'created_at' => $document->created_at->format('d/m/Y h:i A'),
+                    'vetted_on' => $document->vetted_on?$document->vetted_on->format('d/m/Y h:i A'):"N/A",
                     'uploaded_by_name' => $document->uploadedBy->name ?? 'System',
                     'uploaded_by_id' => $document->uploaded_by,
                     'status' => $document->status,
@@ -128,21 +129,7 @@ class CandidateDocumentVetting extends Component
     public function resetForm(){
         $this->reset(['remarks']);
     }
-
-    public function updateStatus($value, $document){
-        $this->dispatch('showConfirm', ['value' => $value, 'document'=>$document, 'selectElement'=>null]);
-    }
-
-    public function UpdateDocStatus($status, $document){
-        $CandidateDocument = CandidateDocument::where('type', $document)->orderByDesc('id')->first();
-        $CandidateDocument->status = $status;
-        $CandidateDocument->vetted_by = Auth::guard('admin')->id();
-        $CandidateDocument->vetted_on = now();
-        $CandidateDocument->save();
-        $this->loadDocuments();
-        $this->dispatch('toastr:success', message: 'Status updated successfully.');
-    }
-
+    
     public function reloadData(){}
     public function render()
     {

@@ -11,7 +11,7 @@
                     </a>
                 </li>
                 <li class="breadcrumb-item">
-                    @if($authUser->role =="legal associate")
+                    @if($authUser->role =="legal_associate")
                         <a href="{{ route('admin.candidates.documents.vetting', $document->candidate_id) }}" class="text-muted text-decoration-none">
                             Candidate Documents
                         </a>
@@ -27,7 +27,7 @@
             </ol>
         </div>
         <div class="align-self-start">
-            @if($authUser->role =="legal associate")
+            @if($authUser->role =="legal_associate")
                 <a href="{{ route('admin.candidates.documents.vetting', $document->candidate_id) }}" class="btn btn-sm btn-danger shadow-sm">
                     <i class="bi bi-arrow-left-circle me-1"></i> Back
                 </a>
@@ -111,27 +111,69 @@
                     @endforelse
                 </div>
             </div>
-            @if($authUser->role =="legal associate")
+            @if($authUser->role =="legal_associate")
                 <div class="card shadow-sm mb-4">
                     <div class="card-body">
-                        <h6 class="mb-3">Add a Comment</h6>
-                        <div class="d-flex">
-                            <textarea wire:model.defer="newComment"
-                                class="form-control me-2"
-                                rows="2"
-                                placeholder="Type your comment here..."></textarea>
-                        </div>
+
+                        {{-- Comment Section --}}
+                        <h6 class="mb-3 fw-bold">Add a Comment</h6>
+
+                        <textarea wire:model.defer="newComment"
+                            class="form-control mb-2"
+                            rows="2"
+                            placeholder="Type your comment here..."></textarea>
+
                         @error('newComment')
                             <div class="text-danger mt-1 small">{{ $message }}</div>
                         @enderror
-                        <div class="mt-2">
-                            <button wire:click="addComment" class="btn btn-primary px-4 w-100">
-                                <i class="bi bi-send"></i>
-                            </button>
-                        </div>
+
+                        <button wire:click="addComment" class="btn btn-primary w-100 mb-3">
+                            <i class="bi bi-send me-1"></i> Submit Comment
+                        </button>
+
+                        {{-- Status Section --}}
+                        <h6 class="fw-bold mb-2">Update Document Status</h6>
+                        {{-- Current Status Badge --}}
+                        <span class="badge 
+                            @if($document->status == 'Approved') bg-success 
+                            @elseif($document->status == 'Rejected') bg-danger
+                            @else bg-warning text-dark
+                            @endif
+                            mb-2">
+                            Current: {{ $document->status }}
+                        </span>
+                        {{-- Beautiful Button Option UI --}}
+                        {{-- @if($document->candidate->document_collection_status!=="verified_submitted_with_copy") --}}
+                            <div class="btn-group w-100" role="group">
+
+                                <button 
+                                    wire:click="updateStatus('Approved','{{$document->type}}')" 
+                                    class="btn btn-outline-success 
+                                    {{ $document->status=='Approved' ? 'active' : '' }}">
+                                    <i class="bi bi-check-circle"></i> Approved
+                                </button>
+
+                                <button 
+                                    wire:click="updateStatus('Rejected','{{$document->type}}')" 
+                                    class="btn btn-outline-danger 
+                                    {{ $document->status=='Rejected' ? 'active' : '' }}">
+                                    <i class="bi bi-x-circle"></i> Rejected
+                                </button>
+
+                                <button 
+                                    wire:click="updateStatus('Pending','{{$document->type}}')" 
+                                    class="btn btn-outline-warning 
+                                    {{ $document->status=='Pending' ? 'active' : '' }}">
+                                    <i class="bi bi-clock"></i> Pending
+                                </button>
+
+                            </div>
+                        {{-- @endif --}}
+
                     </div>
                 </div>
-            @endif
+                @endif
+
         </div>
     </div>
 
@@ -145,6 +187,26 @@
             
             // Clear all textarea fields
             document.querySelectorAll('textarea').forEach(textarea => textarea.value = '');
+        });
+    </script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        window.addEventListener('showConfirm', function (event) {
+            let value = event.detail[0].value;
+            let document = event.detail[0].document;
+            let selectElement = event.detail[0].selectElement;
+            Swal.fire({
+                text: `You are changing status to this document?`,
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Yes, update it!"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    @this.call('UpdateDocStatus', value, document);
+                } 
+            });
         });
     </script>
     @endpush

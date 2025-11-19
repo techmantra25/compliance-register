@@ -8,6 +8,7 @@ use App\Livewire\{
     AdminDashboard,
     ZoneCrud,
     PhaseCrud,
+    EventCategoryCrud,
     EmployeeCrud,
     AssemblyList,
     CandidateContactList,
@@ -71,13 +72,14 @@ Route::prefix('/admin')->middleware('auth:admin')->group(function () {
     Route::prefix('master')->group(function () {
         Route::get('/zones', ZoneCrud::class)->name('admin.master.zones');
         Route::get('/phases', PhaseCrud::class)->name('admin.master.phases');
+        Route::get('/event-categories', EventCategoryCrud::class)->name('admin.master.eventcategory');
     });
     Route::get('/employees', EmployeeCrud::class)->name('admin.employees');
     Route::get('/assemblies', AssemblyList::class)->name('admin.assemblies');
     Route::get('/agents', AgentCrud::class)->name('admin.agents');
     
     Route::prefix('candidates')->group(function () {
-        Route::get('/journey', CandidateJourney::class)->name('admin.candidates.journey');
+        Route::get('/journey/{id}', CandidateJourney::class)->name('admin.candidates.journey');
         Route::get('/nominations', CandidateContactList::class)->name('admin.candidates.contacts');
         Route::get('/social-media', DiscrepancyReportCrud::class)->name('admin.candidates.discrepancies.report');
         // Route::get('/Candidate Discrepancy Reports', [CandidateController::class, 'nominations'])->name('admin.candidates.nominations');
@@ -99,6 +101,10 @@ Route::prefix('/admin')->middleware('auth:admin')->group(function () {
 | Logout
 |--------------------------------------------------------------------------
 */
+Route::post('/store-device-id', function (\Illuminate\Http\Request $request) {
+    session(['device_id' => $request->device_id]);
+    return response()->json(['status' => 'ok']);
+});
 Route::post('/logout', function () {
     Auth::guard('admin')->logout();
     request()->session()->invalidate();

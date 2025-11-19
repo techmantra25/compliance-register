@@ -26,6 +26,10 @@ class CandidateDocument extends Model
     {
         return $this->belongsTo(Admin::class, 'uploaded_by', 'id');
     }
+    public function candidate()
+    {
+        return $this->belongsTo(Candidate::class, 'candidate_id', 'id');
+    }
     public function vettedBy()
     {
         return $this->belongsTo(Admin::class, 'vetted_by', 'id');

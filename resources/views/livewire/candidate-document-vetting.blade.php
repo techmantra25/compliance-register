@@ -79,12 +79,58 @@
                         </tr>
                         <tr>
                             <th class="text-nowrap pe-3">Last Date of Submission of Nomination Form</th>
-                            <td>: {{ $nomination_date??"N/A" }}</td>
+                            <td>: {{ $nomination_date ?? 'N/A' }}</td>
                         </tr>
                         <tr>
                             <th class="text-nowrap pe-3">Final Status</th>
-                            <td>: {{ getFinalDocStatus($candidateData->document_collection_status, 'icon') }}
-                                {{ getFinalDocStatus($candidateData->document_collection_status, 'label') }}</td>
+                            <td>
+                                : {{ getFinalDocStatus($candidateData->document_collection_status, 'icon') }}
+                                {{ getFinalDocStatus($candidateData->document_collection_status, 'label') }}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Final Submission Confirmation (RO office)</th>
+                            <td> 
+                                @if($candidateData->final_submission_confirmation)
+                                    {{ \Carbon\Carbon::parse($candidateData->final_submission_confirmation)->format('d M Y, h:i A') }}
+                                @else
+                                    <span class="text-muted">—</span>
+                                @endif
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Acknowledgment Copy Reference</th>
+                            <td>
+                                @if($candidateData->acknowledgment_file)
+                                    <a href="{{ asset($candidateData->acknowledgment_file) }}" target="_blank" class="btn btn-sm btn-primary">
+                                        <i class="bi bi-file-earmark-text"></i> View File
+                                    </a>
+                                @else
+                                    <span class="text-muted">Not Uploaded</span>
+                                @endif
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th>Logged By</th>
+                            <td>
+                                @if($candidateData->acknowledgment_by)
+                                    {{optional($candidateData->user)->name}}
+                                @else
+                                    <span class="text-muted">—</span>
+                                @endif
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th>Date & Time</th>
+                            <td>
+                                @if($candidateData->acknowledgment_at)
+                                    {{ \Carbon\Carbon::parse($candidateData->acknowledgment_at)->format('d M Y, h:i A') }}
+                                @else
+                                    <span class="text-muted">—</span>
+                                @endif
+                            </td>
                         </tr>
                     </tbody>
                 </table>
@@ -107,124 +153,125 @@
                    <thead class="table-light">
                         <tr class="text-center">
                             <th width="18%">Document Name</th>
-                            <th width="8%">Status</th>
-                            <th width="14%">Documents</th>
+                            <th width="8%">Documents</th>
                             <th width="20%">Remarks</th>
-                            <th width="20%">Initial (first) receipt for Vetting</th>
+                            <th width="15%">Initial (first) receipt for Vetting</th>
+                            <th width="12%">Vetted On</th>
+                            <th width="8%">Status</th>
                             <th width="10%">Document Status</th>
                         </tr>
                     </thead>
 
                     <tbody>
-                        @foreach ($availableDocuments as $key => $label)
-                            @if(isset($documents[$key]) && count($documents[$key]) > 0)
-                                @foreach($documents[$key] as $index => $doc)
-                                    @php
-                                        $extension = pathinfo($doc['path'], PATHINFO_EXTENSION);
-                                        $fileName  = pathinfo($doc['path'], PATHINFO_FILENAME);
-                                        $rowspan = count($documents[$key]);
-                                    @endphp
+                        @if(count($availableDocuments) == count($documents))
+                            @foreach ($availableDocuments as $key => $label)
+                                @if(isset($documents[$key]) && count($documents[$key]) > 0)
+                                    @foreach($documents[$key] as $index => $doc)
+                                        @php
+                                            $extension = pathinfo($doc['path'], PATHINFO_EXTENSION);
+                                            $fileName  = pathinfo($doc['path'], PATHINFO_FILENAME);
+                                            $rowspan = count($documents[$key]);
+                                        @endphp
 
-                                    <tr class="">
-                                        {{-- Document Name (only once per document type) --}}
-                                        @if($index === 0)
-                                            <td rowspan="{{ $rowspan }}"><strong>{{ $label }}</strong></td>
-                                        @endif
-
-                                         {{-- Status --}}
-                                        <td class="text-center">
-                                            <span class="cursor-pointer badge
-                                                @if($doc['status'] == 'Approved') bg-lavel-success
-                                                @elseif($doc['status'] == 'Rejected') bg-lavel-danger
-                                                @elseif($doc['status'] == 'Pending') bg-lavel-warning
-                                                @else bg-secondary @endif">
-                                                {{ $doc['status'] ?? 'Uploaded' }}
-                                            </span>
-                                        </td>
-                                        {{-- File Name + Icon --}}
-                                            <td style="cursor: pointer;" title="Click to view document comments"
-                                                onclick="window.location='{{ route('admin.candidates.documents.comments', $doc['id']) }}'">
-                                                
-                                                <div class="d-flex align-items-center justify-content-between">
-
-                                                    {{-- File Icon and Version --}}
-                                                    <div class="d-flex align-items-center">
-                                                        @switch(strtolower($extension))
-                                                            @case('pdf')
-                                                                <i class="bi bi-file-earmark-pdf text-danger me-2 fs-5"></i>
-                                                                @break
-                                                            @case('doc')
-                                                            @case('docx')
-                                                                <i class="bi bi-file-earmark-word text-primary me-2 fs-5"></i>
-                                                                @break
-                                                            @case('jpg')
-                                                            @case('jpeg')
-                                                            @case('png')
-                                                            @case('gif')
-                                                            @case('bmp')
-                                                            @case('webp')
-                                                                <i class="bi bi-file-earmark-image text-success me-2 fs-5"></i>
-                                                                @break
-                                                            @default
-                                                                <i class="bi bi-file-earmark-text text-secondary me-2 fs-5"></i>
-                                                        @endswitch
-
-                                                        <strong class="text-dark fw-medium">V{{ $index + 1 }}</strong>
-                                                    </div>
-
-                                                    {{-- View Button --}}
-                                                    <div class="mx-2">
-                                                        <a href="{{ route('admin.candidates.documents.comments', $doc['id']) }}"
-                                                        class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1"
-                                                        title="View Comments"
-                                                        onclick="event.stopPropagation();">
-                                                            <i class="bi bi-chat-dots"></i>
-                                                            <span>View</span>
-                                                        </a>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            {{-- Remarks --}}
-                                            <td>
-                                                <span class="text-muted">
-                                                    {{ $doc['remarks'] ?: '-' }}
-                                                </span>
-                                            </td>
-                                             @if($index === 0)
-                                                <td rowspan="{{ $rowspan }}" class="text-center">
-                                                      {{ $doc['created_at'] }}
-                                                </td>
-
-                                                <td rowspan="{{ $rowspan }}" class="text-center">
-                                                    @if($candidateData->document_collection_status=="verified_submitted_with_copy")
-                                                        <span class="cursor-pointer badge bg-lavel-success">
-                                                            {{ $doc['status'] ?? 'Uploaded' }}
-                                                        </span>
-                                                    @else
-                                                        <select class="form-select form-select-sm"
-                                                            data-prev="{{ $doc['status'] }}"
-                                                            wire:change="updateStatus($event.target.value, '{{$key}}')">
-                                                            <option value="">-- Select Status --</option>
-                                                            <option value="Approved" {{ $doc['status'] == 'Approved' ? 'selected' : '' }}>Approved</option>
-                                                            <option value="Rejected" {{ $doc['status'] == 'Rejected' ? 'selected' : '' }}>Rejected</option>
-                                                            <option value="Pending" {{ $doc['status'] == 'Pending' ? 'selected' : '' }}>Pending</option>
-                                                        </select>
-                                                    @endif
-                                                    
-                                                </td>
+                                        <tr class="">
+                                            {{-- Document Name (only once per document type) --}}
+                                            @if($index === 0)
+                                                <td rowspan="{{ $rowspan }}"><strong>{{ $label }}</strong></td>
                                             @endif
+                                            {{-- File Name + Icon --}}
+                                                <td style="cursor: pointer;" title="Click to view document comments"
+                                                    onclick="window.location='{{ route('admin.candidates.documents.comments', $doc['id']) }}'">
+                                                    
+                                                    <div class="d-flex align-items-center justify-content-between">
+
+                                                        {{-- File Icon and Version --}}
+                                                        <div class="d-flex align-items-center">
+                                                            @switch(strtolower($extension))
+                                                                @case('pdf')
+                                                                    <i class="bi bi-file-earmark-pdf text-danger me-2 fs-5"></i>
+                                                                    @break
+                                                                @case('doc')
+                                                                @case('docx')
+                                                                    <i class="bi bi-file-earmark-word text-primary me-2 fs-5"></i>
+                                                                    @break
+                                                                @case('jpg')
+                                                                @case('jpeg')
+                                                                @case('png')
+                                                                @case('gif')
+                                                                @case('bmp')
+                                                                @case('webp')
+                                                                    <i class="bi bi-file-earmark-image text-success me-2 fs-5"></i>
+                                                                    @break
+                                                                @default
+                                                                    <i class="bi bi-file-earmark-text text-secondary me-2 fs-5"></i>
+                                                            @endswitch
+
+                                                            <strong class="text-dark fw-medium">V{{ $index + 1 }}</strong>
+                                                        </div>
+
+                                                        {{-- View Button --}}
+                                                        
+                                                    </div>
+                                                </td>
+                                                {{-- Remarks --}}
+                                                <td>
+                                                    <span class="text-muted">
+                                                        {{ $doc['remarks'] ?: '-' }}
+                                                    </span>
+                                                </td>
+                                                @if($index === 0)
+                                                    <td rowspan="{{ $rowspan }}" class="text-center">
+                                                        @php
+                                                            $firstDocument = App\Models\CandidateDocument::where('type', $doc['type'])->where('candidate_id', $candidateId)->orderBy('id', 'Asc')->first();
+                                                        @endphp
+                                                        {{ $firstDocument?$firstDocument->created_at->format('d/m/Y h:i A'):"N/A" }}
+                                                    </td>
+                                                    <td rowspan="{{ $rowspan }}" class="text-center">
+                                                        {{ $doc['vetted_on'] }}
+                                                    </td>
+                                                @endif
+                                                {{-- Status --}}
+                                                <td class="text-center">
+                                                    <span class="cursor-pointer badge
+                                                        @if($doc['status'] == 'Approved') bg-lavel-success
+                                                        @elseif($doc['status'] == 'Rejected') bg-lavel-danger
+                                                        @elseif($doc['status'] == 'Pending') bg-lavel-warning
+                                                        @else bg-secondary @endif">
+                                                        {{ $doc['status'] ?? 'Uploaded' }}
+                                                    </span>
+                                                </td>
+                                                @if($index === 0)
+                                                    <td rowspan="{{ $rowspan }}" class="text-center">
+                                                        <div class="mx-2">
+                                                            <a href="{{ route('admin.candidates.documents.comments', $doc['id']) }}"
+                                                            class="btn btn-secondary btn-sm"
+                                                            title="View Comments"
+                                                            onclick="event.stopPropagation();">
+                                                                <i class="bi bi-chat-dots"></i>
+                                                                <span>View</span>
+                                                            </a>
+                                                        </div>
+                                                    </td>
+                                                @endif
+                                        </tr>
+                                    @endforeach
+                                @else
+                                    {{-- No Documents Yet --}}
+                                    <tr>
+                                        <td><strong>{{ $label }}</strong></td>
+                                        <td colspan="5" class="text-center text-muted">
+                                            <i class="bi bi-inbox"></i> No documents uploaded yet
+                                        </td>
                                     </tr>
-                                @endforeach
-                            @else
-                                {{-- No Documents Yet --}}
-                                <tr>
-                                    <td><strong>{{ $label }}</strong></td>
-                                    <td colspan="5" class="text-center text-muted">
-                                        <i class="bi bi-inbox"></i> No documents uploaded yet
-                                    </td>
-                                </tr>
-                            @endif
-                        @endforeach
+                                @endif
+                            @endforeach
+                        @else
+                            <tr>
+                                <td colspan="6" class="text-center text-danger">
+                                    Document not uploaded yet
+                                </td>
+                            </tr>     
+                        @endif
                     </tbody>
 
                 </table>

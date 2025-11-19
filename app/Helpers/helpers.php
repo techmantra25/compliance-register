@@ -1,6 +1,8 @@
 <?php
 
 use App\Models\CandidateDocumentType;
+use App\Models\ChangeLog;
+use Illuminate\Support\Facades\Auth;
 
 if (!function_exists('getCandidateDocument')) {
     /**
@@ -79,3 +81,27 @@ if (!function_exists('getFinalDocStatus')) {
     }
 }
 
+if (!function_exists('logChange')) {
+
+    function logChange(array $data)
+    {
+        try {
+            ChangeLog::create([
+                'module_name'   => $data['module_name']   ?? null,
+                'module_id'     => $data['module_id']     ?? null,
+                'action'        => $data['action']        ?? null,
+                'description'   => $data['description']   ?? null,
+                'old_data'      => $data['old_data']      ?? null,
+                'new_data'      => $data['new_data']      ?? null,
+                'document_name' => $data['document_name'] ?? null,
+                'link'          => $data['link'] ?? null,
+                'changed_by'    => Auth::guard('admin')->id() ?? null,
+                'ip_address'    => request()->ip(),
+                'user_agent'    => request()->header('User-Agent'),
+            ]);
+        } catch (\Exception $e) {
+            dd($e->getMessage());
+            \Log::error('ChangeLog Error: ' . $e->getMessage());
+        }
+    }
+}

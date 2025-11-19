@@ -45,17 +45,17 @@ class ZoneCrud extends Component
         // Find conflicts
         $conflicts = array_intersect($selectedDistricts, $existingDistricts);
 
-        if (!empty($conflicts)) {
-            // Get district names for nicer message
-            $conflictNames = District::whereIn('id', $conflicts)->pluck('name_en')->implode(', ');
-                $this->dispatch('toastr:error', message: "⚠️ These districts are already assigned to another zone: {$conflictNames}");
+        // if (!empty($conflicts)) {
+        //     // Get district names for nicer message
+        //     $conflictNames = District::whereIn('id', $conflicts)->pluck('name_en')->implode(', ');
+        //         $this->dispatch('toastr:error', message: "⚠️ These districts are already assigned to another zone: {$conflictNames}");
 
-            // Optional: remove them from selected
-            $this->districts = array_diff($selectedDistricts, $conflicts);
-        } else {
+        //     // Optional: remove them from selected
+        //     $this->districts = array_diff($selectedDistricts, $conflicts);
+        // } else {
             // Everything OK
             $this->districts = $selectedDistricts;
-        }
+        // }
     }
 
     public function resetInputFields()
