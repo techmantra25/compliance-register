@@ -212,27 +212,27 @@ class AgentCrud extends Component
         $this->dispatch('ResetFormData');
     }
 
-   public function updateAgent()
-{
-    $rules = $this->getValidationRules();
-    $this->validate($rules);
+    public function updateAgent()
+    {
+        $rules = $this->getValidationRules();
+        $this->validate($rules);
 
-    try {
-        $agent = Agent::findOrFail($this->editId);
+        try {
+            $agent = Agent::findOrFail($this->editId);
 
-        $data = $this->prepareAgentData();
+            $data = $this->prepareAgentData();
 
-        $agent->update($data);
+            $agent->update($data);
 
-        $this->dispatch('toastr:success', message: 'Contact updated successfully!');
-        $this->dispatch('close-modal');
+            $this->dispatch('toastr:success', message: 'Contact updated successfully!');
+            $this->dispatch('close-modal');
 
-        $this->resetForm();
+            $this->resetForm();
 
-    } catch (\Exception $e) {
-        $this->dispatch('toastr:error', message: 'Update failed: ' . $e->getMessage());
+        } catch (\Exception $e) {
+            $this->dispatch('toastr:error', message: 'Update failed: ' . $e->getMessage());
+        }
     }
-}
 
 
 
