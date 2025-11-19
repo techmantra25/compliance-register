@@ -460,23 +460,23 @@
             //     else if (selected === 'political') $('#political_fields').removeClass('d-none');
             //     else if (selected === 'other') $('#other_fields').removeClass('d-none');
             // }
-              function toggleCategoryFields() {
-        const selected = $('#agent_type').val();
-        $('#bureaucrat_fields, #political_fields, #other_fields').addClass('d-none');
+            function toggleCategoryFields() {
+                const selected = $('#agent_type').val();
+                $('#bureaucrat_fields, #political_fields, #other_fields').addClass('d-none');
 
-        if (selected === 'bureaucrat') $('#bureaucrat_fields').removeClass('d-none');
-        else if (selected === 'political') {
-            $('#political_fields').removeClass('d-none');
-            // 🔹 Update Chosen after showing political fields
-            setTimeout(() => {
-                const assemblyId = @this.get('assemblies_id');
-                if (assemblyId) {
-                    $('#assemblies_id').val(assemblyId).trigger('chosen:updated');
+                if (selected === 'bureaucrat') $('#bureaucrat_fields').removeClass('d-none');
+                else if (selected === 'political') {
+                    $('#political_fields').removeClass('d-none');
+                    // 🔹 Update Chosen after showing political fields
+                    setTimeout(() => {
+                        const assemblyId = @this.get('assemblies_id');
+                        if (assemblyId) {
+                            $('#assemblies_id').val(assemblyId).trigger('chosen:updated');
+                        }
+                    }, 100);
                 }
-            }, 100);
-        }
-        else if (selected === 'other') $('#other_fields').removeClass('d-none');
-    }
+                else if (selected === 'other') $('#other_fields').removeClass('d-none');
+            }
 
             // Initialize Chosen when page loads
             $(document).ready(function () {

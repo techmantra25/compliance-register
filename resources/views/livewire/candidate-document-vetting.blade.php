@@ -206,7 +206,7 @@
                                                                     <i class="bi bi-file-earmark-text text-secondary me-2 fs-5"></i>
                                                             @endswitch
 
-                                                            <strong class="text-dark fw-medium">V{{ $index + 1 }}</strong>
+                                                            <strong class="text-dark fw-medium">V{{ count($documents[$key]) - $index }}</strong>
                                                         </div>
 
                                                         {{-- View Button --}}

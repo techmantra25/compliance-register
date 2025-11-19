@@ -120,6 +120,34 @@
                     </ul>
                 </div>
             </li>
+            <!-- Candidates Dropdown -->
+            <li class="nav-item mb-2">
+                <a class="nav-link d-flex justify-content-between align-items-center 
+                    {{ request()->is('admin/campaign*') ? 'active' : 'collapsed' }}"
+                    data-bs-toggle="collapse"
+                    href="#campaignMenu"
+                    role="button"
+                    aria-expanded="{{ request()->is('admin/campaign*') ? 'true' : 'false' }}"
+                    aria-controls="campaignMenu">
+
+                    <span><i class="bi bi-megaphone-fill me-2"></i> Campaigns</span>
+                    <i class="bi bi-chevron-down small"></i>
+                </a>
+
+                <div class="collapse {{ request()->is('admin/campaign*') ? 'show' : '' }}" id="campaignMenu">
+                    <ul class="nav flex-column ms-4 border-start ps-2 mt-1">
+
+                        <li class="nav-item mb-1">
+                            <a href="{{ route('admin.campaigns') }}"
+                            class="nav-link small {{ request()->routeIs('admin.campaigns') ? 'active' : '' }}">
+                                <i class="bi bi-clipboard-data me-2"></i> List
+                            </a>
+                        </li>
+
+                    </ul>
+                </div>
+            </li>
+
         </ul>
     </nav>
 

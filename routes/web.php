@@ -17,7 +17,8 @@ use App\Livewire\{
     DiscrepancyReportCrud,
     CandidateJourney,
     AgentCrud,
-    AdminLogin
+    AdminLogin,
+    CampaignCrud
 };
 use App\Livewire\Candidate\DocumentComments;
 use App\Http\Controllers\CandidateController;
@@ -88,6 +89,11 @@ Route::prefix('/admin')->middleware('auth:admin')->group(function () {
         Route::get('/documents', CandidateDocumentCollection::class)->name('admin.candidates.documents');
         Route::get('/documents/comments/{document}', DocumentComments::class)->name('admin.candidates.documents.comments');
         Route::get('/documents/vetting/{document}', CandidateDocumentVetting::class)->name('admin.candidates.documents.vetting');
+    });
+
+
+    Route::prefix('campaign')->group(function (){
+        Route::get('/', CampaignCrud::class)->name('admin.campaigns');
     });
 });
 

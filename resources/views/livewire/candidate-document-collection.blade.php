@@ -279,7 +279,7 @@
                                                             <i class="bi bi-file-earmark-text text-secondary me-2 fs-5"></i>
                                                     @endswitch
 
-                                                    <strong class="text-dark fw-medium">V{{ $index + 1 }}</strong>
+                                                    <strong class="text-dark fw-medium">V{{ count($documents[$key]) - $index }}</strong>
                                                 </div>
 
                                                 <div class="mx-2">
@@ -327,19 +327,44 @@
                                                     <i class="bi bi-person me-1 text-primary"></i>
                                                     <strong>Uploaded By:</strong> {{ $doc['uploaded_by_name'] ?? 'N/A' }}
                                                 </div>
-                                                @if(!empty($doc['vetted_on']))
+                                                @if($doc['status'] === "Rejected")
+
+                                                    {{-- Rejected At --}}
                                                     <div>
-                                                        <i class="bi bi-calendar-check me-1 text-success"></i>
-                                                        <strong>Vetted On:</strong> 
-                                                        {{ $doc['vetted_on'] }}
+                                                        <i class="bi bi-calendar-x me-1 text-danger"></i>
+                                                        <strong>Rejected At:</strong> 
+                                                        {{ $doc['updated_at'] }}
                                                     </div>
+
+                                                    {{-- Rejected By --}}
+                                                    @if(!empty($doc['vetted_by_name']))
+                                                        <div>
+                                                            <i class="bi bi-person-x me-1 text-danger"></i>
+                                                            <strong>Rejected By:</strong> {{ $doc['vetted_by_name'] }}
+                                                        </div>
+                                                    @endif
+
+                                                @else
+
+                                                    {{-- Vetted On --}}
+                                                    @if(!empty($doc['vetted_on']))
+                                                        <div>
+                                                            <i class="bi bi-calendar-check me-1 text-success"></i>
+                                                            <strong>Vetted On:</strong> 
+                                                            {{ $doc['vetted_on'] }}
+                                                        </div>
+                                                    @endif
+
+                                                    {{-- Vetted By --}}
+                                                    @if(!empty($doc['vetted_by_name']))
+                                                        <div>
+                                                            <i class="bi bi-person-badge me-1 text-info"></i>
+                                                            <strong>Vetted By:</strong> {{ $doc['vetted_by_name'] }}
+                                                        </div>
+                                                    @endif
+
                                                 @endif
-                                                @if(!empty($doc['vetted_by_name']))
-                                                    <div>
-                                                        <i class="bi bi-person-badge me-1 text-info"></i>
-                                                        <strong>Vetted By:</strong> {{ $doc['vetted_by_name'] }}
-                                                    </div>
-                                                @endif
+
                                             </div>
                                         </td>
 

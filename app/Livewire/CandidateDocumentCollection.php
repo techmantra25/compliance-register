@@ -91,6 +91,7 @@ class CandidateDocumentCollection extends Component
                     'path' => $document->path,
                     'remarks' => $document->remarks,
                     'created_at' => $document->created_at->format('d/m/Y h:i A'), 
+                    'updated_at' => $document->updated_at->format('d/m/Y h:i A'), 
                     'uploaded_by_name' => $document->uploadedBy->name ?? 'System',
                     'vetted_by_name' => $document->vettedBy->name ?? 'N/A',
                     'vetted_on' => $document->vetted_on?$document->vetted_on->format('d/m/Y h:i A'):"N/A",

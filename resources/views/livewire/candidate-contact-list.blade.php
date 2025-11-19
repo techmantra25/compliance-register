@@ -37,7 +37,7 @@
                     <h5 class="fw-bold mb-0">Candidate Contacts</h5>
 
                     <div class="d-flex align-items-center">
-                        <div  wire:ignore>
+                        <div wire:ignore>
                             <select wire:model="filter_by_assembly" class="form-select chosen-select">
                                 <option value="">Filer by Assembly</option>
                                 @foreach ($assemblies as $assembly)
@@ -468,6 +468,7 @@
                     }
                 });
             }
+            
 
             function updateChosenValues() {
                 $('.chosen-select').each(function () {
