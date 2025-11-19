@@ -1,6 +1,6 @@
 <div>
     <div class="row g-4">
-        <!-- 🧭 Page Header -->
+        <!--  Page Header -->
         <div class="d-flex flex-wrap justify-content-between align-items-center">
             <div>
                 <h4 class="fw-bold mb-1 text-dark">
@@ -20,6 +20,9 @@
                 </nav>
             </div>
             <div>
+                <a wire:click='exportCsv' class="btn btn-primary btn-sm">
+                    <i class="bi bi-cloud-arrow-down me-1"></i>Export
+                </a>
                 <button class="btn btn-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#uploadcandidateModal">
                     <i class="bi bi-upload me-1"></i>Upload Candidate
                 </button>
@@ -62,13 +65,15 @@
                                 <option value="">Filer by phase</option>
                                 @foreach ($phases as $phase)
                                 <option value="{{ $phase->id }}">
-                                    {{ ucwords($phase->name) }}
+                                    {{ ucwords($phase->name) }} ({{$phase->last_date_of_nomination}})
                                 </option>
                                 @endforeach
                             </select>
                         </div>
                         <input type="text" wire:model="search" wire:keyup="filterCandidates($event.target.value)"
                             class="form-control form-control-sm w-auto me-2" placeholder="Search here...">
+                        {{-- <input type="text" wire:model="search" wire:model.debounce.300ms="search"
+                        class="form-control form-control-sm w-auto me-2" placeholder="Search here..."> --}}
 
                         <button class="btn btn-sm btn-danger" wire:click="resetForm">
                             <i class="bi bi-arrow-clockwise"></i> Reset
@@ -87,6 +92,7 @@
                                     <th>Assembly</th>
                                     <th>Documents Count</th>
                                     <th>Final Status</th>
+                                    <th>Last Date Of Nomination</th>
                                     <th style="max-width: 250px;" class="text-center">Action</th>
                                 </tr>
                             </thead>
@@ -147,10 +153,12 @@
                                                 $uploaded }}</span>/<span>{{ $required_document }}</span>
                                         </span>
                                     </td>
+                                    
                                     <td>
                                         {{ getFinalDocStatus($candidate->document_collection_status, 'icon') }}
                                         {{ getFinalDocStatus($candidate->document_collection_status, 'label') }}
                                     </td>
+                                    <td>{{ optional(optional(optional($candidate->assembly)->assemblyPhase)->phase)->last_date_of_nomination ?? 'N/A' }}</td>
 
                                     <td class="text-center">
                                         @if($authUser->role=='legal_associate')
@@ -510,6 +518,22 @@
         window.addEventListener('close-upload-modal', event => {
                 $('#uploadcandidateModal').modal('hide');
             });
+    </script>
+
+    <script>
+        document.addEventListener('livewire:load', function () {
+            Livewire.on('refreshChosen', () => {
+                $('.chosen-select').val('').trigger('chosen:updated');
+            });
+        });
+
+        window.addEventListener('refreshChosen', function () {
+            $('.chosen-select').val('').trigger('chosen:updated');
+        });
+
+        window.addEventListener('clearSearch', function () {
+            $('input[wire\\:model]').val(''); 
+        });
     </script>
    
     @endpush

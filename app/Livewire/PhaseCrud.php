@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\DB;
 
 class PhaseCrud extends Component
 {
-    public $phase_id, $name, $last_date_of_nomination, $date_of_election;
+    public $phase_id, $name, $last_date_of_nomination, $date_of_election, $last_date_of_mcc;
     public $assembly_ids = [];
     public $isEdit = false;
     public $search = '';
@@ -19,12 +19,13 @@ class PhaseCrud extends Component
         'name' => 'required|string|max:255',
         'last_date_of_nomination' => 'required|date',
         'date_of_election' => 'required|date|after_or_equal:last_date_of_nomination',
+        'last_date_of_mcc' => 'required|date',
         'assembly_ids' => 'required|array|min:1',
     ];
 
     public function resetInputFields()
     {
-        $this->reset(['name', 'last_date_of_nomination', 'date_of_election', 'assembly_ids','search']);
+        $this->reset(['name', 'last_date_of_nomination', 'date_of_election', 'last_date_of_mcc', 'assembly_ids','search']);
         $this->phase_id = null;
         $this->isEdit = false;
         $this->dispatch('ResetForm');
@@ -73,6 +74,7 @@ class PhaseCrud extends Component
                     'name' => $this->name,
                     'last_date_of_nomination' => $this->last_date_of_nomination,
                     'date_of_election' => $this->date_of_election,
+                    'last_date_of_mcc' => $this->last_date_of_mcc,
                 ]);
 
                 // delete old mappings
@@ -82,6 +84,7 @@ class PhaseCrud extends Component
                     'name' => $this->name,
                     'last_date_of_nomination' => $this->last_date_of_nomination,
                     'date_of_election' => $this->date_of_election,
+                    'last_date_of_mcc' => $this->last_date_of_mcc,
                 ]);
             }
 
@@ -115,6 +118,7 @@ class PhaseCrud extends Component
         $this->name = $phase->name;
         $this->last_date_of_nomination = $phase->last_date_of_nomination;
         $this->date_of_election = $phase->date_of_election;
+        $this->last_date_of_mcc = $phase->last_date_of_mcc;
         $this->assembly_ids = PhaseWiseAssembly::where('phase_id', $id)->pluck('assembly_id')->toArray();
         $this->isEdit = true;
     }

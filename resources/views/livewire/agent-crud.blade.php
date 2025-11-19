@@ -30,7 +30,7 @@
             </div>
         </div>
 
-        <!-- 🟦 Main Content -->
+        <!--  Main Content -->
         <div class="col-lg-12">
             <div class="card shadow-sm border-0 p-3">
                 <div class="card-header bg-white d-flex justify-content-between align-items-center">

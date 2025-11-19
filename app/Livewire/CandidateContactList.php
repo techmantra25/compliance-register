@@ -342,9 +342,15 @@ class CandidateContactList extends Component
 
     public function resetForm()
     {
-        $this->reset(['name', 'designation', 'email', 'contact_number', 'contact_number_alt_1', 'assembly_id', 'editMode', 'editId']);
+        $this->reset(['name', 'designation', 'email', 'contact_number', 'contact_number_alt_1', 
+        'assembly_id', 'editMode', 'editId',  'search',
+        'filter_by_assembly',
+        'filter_by_district',
+        'filter_by_phase',]);
         $this->search = '';
         $this->dispatch('ResetFormData');
+        $this->dispatch('refreshChosen');
+        $this->dispatch('clearSearch');
         $this->resetPage();
     }
 
@@ -484,36 +490,26 @@ class CandidateContactList extends Component
 
     }
 
-   
-
-
-
-    public function render()
+    private function getFilteredQuery()
     {
-        $candidates = Candidate::query()
+        return Candidate::query()
             ->where('type', 'Candidate')
-            ->when($this->search, function ($q) {
+            ->when($this->search, function ($q) { 
                 $q->where(function ($sub) {
                     $sub->where('name', 'like', "%{$this->search}%")
                         ->orWhere('email', 'like', "%{$this->search}%")
                         ->orWhere('contact_number', 'like', "%{$this->search}%")
-
-                        //  Search inside related Assembly table
                         ->orWhereHas('assembly', function ($assembly) {
                             $assembly->where('assembly_number', 'like', "%{$this->search}%")
                                 ->orWhere('assembly_name_en', 'like', "%{$this->search}%")
                                 ->orWhere('assembly_name_bn', 'like', "%{$this->search}%")
                                 ->orWhere('assembly_code', 'like', "%{$this->search}%")
-                                
-                                //  Nested relation: District inside Assembly
                                 ->orWhereHas('district', function ($district) {
                                     $district->where('name_en', 'like', "%{$this->search}%")
                                         ->orWhere('name_bn', 'like', "%{$this->search}%")
                                         ->orWhere('code', 'like', "%{$this->search}%");
                                 });
                         })
-
-                        //  Search inside related Agents (Many-to-Many)
                         ->orWhereHas('agents', function ($agent) {
                             $agent->where('name', 'like', "%{$this->search}%")
                                 ->orWhere('designation', 'like', "%{$this->search}%")
@@ -523,31 +519,29 @@ class CandidateContactList extends Component
                         });
                 });
             })
-            ->with([
-                'assembly.district',
-                'agents' => function ($q) {
-                    $q->select('agents.id', 'name', 'email', 'contact_number', 'contact_number_alt_1'); // only required fields
-                },'documents'
-            ])
-            ->orderByDesc('id')
-            ->paginate(20);
+            ->when($this->filter_by_assembly, fn($q) => $q->where('assembly_id', $this->filter_by_assembly))
+            ->when($this->filter_by_district, fn($q) => $q->whereHas('assembly.district', fn($d) => $d->where('id', $this->filter_by_district)))
+            ->when($this->filter_by_phase, fn($q) => $q->whereHas('assembly.assemblyPhase', fn($p) => $p->where('phase_id', $this->filter_by_phase)))
+            ->with(['assembly.district', 'assembly.assemblyPhase.phase', 'documents']);
+    }
+
+
+    public function render()
+    {
+        $candidates = $this->getFilteredQuery()
+        ->orderByDesc('id')
+        ->paginate(20);
 
         if ($this->authUser->role === "legal_associate") {
-            // Step 1: Get collection
             $collection = $candidates->getCollection();
 
-            // Step 2: Filter & reindex
             $filtered = $collection->filter(function ($candidate) {
-                if (!$candidate) {
-                    return false;
-                }
+                if (!$candidate) return false;
 
                 $uploaded_documents = $candidate->documents->groupBy('type')->count();
-
                 return $uploaded_documents == $this->required_document;
-            })->values(); // <-- VERY IMPORTANT: reset index
+            })->values();
 
-            // Step 3: Replace filtered list back into paginator
             $candidates->setCollection($filtered);
         }
 
@@ -556,5 +550,75 @@ class CandidateContactList extends Component
             'assemblies' => $this->assemblies,
         ])->layout('layouts.admin');
     }
+
+    public function exportCsv()
+    {
+        $data = $this->getFilteredQuery()->get();
+
+        return $this->downloadCsv($data, 'candidates_export.csv');
+    }
+
+    public function downloadCsv($data, $filename)
+    {
+        $headers = [
+            "Content-type"        => "text/csv",
+            "Content-Disposition" => "attachment; filename=$filename",
+            "Pragma"              => "no-cache",
+            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
+            "Expires"             => "0"
+        ];
+
+        $columns = [
+            'Candidate Name',
+            'Candidate Phone',
+            'Assembly Code',
+            'District',
+            'Phase',
+            'Last Date of Nomination',
+            'Election Date',
+            'Last Date of MCC',
+            'Document Pending',
+            'Final Status'
+        ];
+
+        $callback = function () use ($data, $columns) {
+
+            $file = fopen('php://output', 'w');
+
+            // Header row
+            fputcsv($file, $columns);
+
+            foreach ($data as $item) {
+
+                $assembly = $item->assembly;
+                $district = optional($assembly)->district;
+                $phase = optional(optional($assembly)->assemblyPhase)->phase;
+
+                // Count Pending Docs
+                $required = $this->required_document ?? 5; 
+                $uploaded = $item->documents->groupBy('type')->count();
+                $pending = max(0, $required - $uploaded);
+
+                fputcsv($file, [
+                    $item->name,
+                    $item->contact_number,
+                    $assembly ? $assembly->assembly_code . ' - ' . $assembly->assembly_name_en : '',
+                    $district->name_en ?? '',
+                    $phase->name ?? '',
+                    $phase->last_date_of_nomination ?? '',
+                    $phase->date_of_election ?? '',
+                    $phase->last_date_of_mcc ?? '',
+                    $pending,
+                    $item->document_collection_status ?? '',
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+
 
 }

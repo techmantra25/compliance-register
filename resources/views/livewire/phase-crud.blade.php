@@ -37,7 +37,7 @@
                                     <tr wire:key="phase-{{ $phase->id }}">
                                         <td>{{ $loop->iteration }}</td>
                                         <td>{{ ucwords($phase->name) }}</td>
-                                         <td>
+                                        <td>
                                             <div class="d-flex flex-column small">
                                                 <div>
                                                     <i class="bi bi-calendar-check text-success me-1"></i>
@@ -48,6 +48,11 @@
                                                     <i class="bi bi-calendar-event text-danger me-1"></i>
                                                     <strong>Election:</strong> 
                                                     {{ \Carbon\Carbon::parse($phase->date_of_election)->format('d M Y') }}
+                                                </div>
+                                                <div class="mt-1">
+                                                    <i class="bi bi-calendar-check text-danger me-1"></i>
+                                                    <strong>Last Date Of MCC:</strong> 
+                                                    {{ \Carbon\Carbon::parse($phase->last_date_of_mcc)->format('d M Y') }}
                                                 </div>
                                             </div>
                                         </td>
@@ -112,6 +117,12 @@
                             <label class="form-label">Date of Election</label>
                             <input type="date" wire:model.defer="date_of_election" class="form-control">
                             @error('date_of_election') <small class="text-danger">{{ $message }}</small> @enderror
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Last Date Of MCC</label>
+                            <input type="date" wire:model.defer="last_date_of_mcc" class="form-control">
+                            @error('last_date_of_mcc') <small class="text-danger">{{ $message }}</small> @enderror
                         </div>
 
                         <div class="mb-3" >
