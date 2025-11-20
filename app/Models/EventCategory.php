@@ -11,4 +11,10 @@ class EventCategory extends Model
    protected $fillable = [
         'name', 'status'
    ];
+
+   public function permissions()
+   {
+      return $this->hasMany(EventRequiredPermission::class, 'category_id', 'id');
+   }
+
 }

@@ -14,7 +14,7 @@
                 </ol>
             </div>
              <div>
-                <button class="btn btn-secondary btn-sm me-2" wire:click="importCampaigner">
+                <button class="btn btn-secondary btn-sm me-2" data-bs-toggle="modal" data-bs-target="#uploadcampaignerModal">
                     <i class="bi bi-upload me-1"></i> Import Campaigner
                 </button>
                 <button class="btn btn-primary btn-sm" wire:click="openCampaignModal" data-bs-toggle="modal"
@@ -43,38 +43,62 @@
                             <thead class="table-light">
                                 <tr>
                                     <th>#</th>
-                                    <th>Candidates</th>
+                                    <th>Campaigners</th>
                                     <th>Assembly</th>
                                     <th>Phase</th>
                                     <th>Event Type</th>
                                     <th>Place</th>
                                     <th>Date & Time</th>
+                                    <th>Permission Required</th>
                                     <th width="20%">Action</th>
                                 </tr>
                             </thead>
 
                             <tbody>
+                            {{-- @dd($campaigns) --}}
                                 @forelse($campaigns as $index => $camp)
                                     <tr wire:key="campaign-row-{{ $camp->id }}">
                                         <td>{{ $campaigns->firstItem() + $index }}</td>
 
-                                        <td>{{ $camp->candidate_name }}</td>
+                                        <td>{{ ucwords($camp->campaigner->name) }}<br>{{$camp->campaigner->mobile}}</td>
 
-                                        <td>{{ $camp->assembly->assembly_name_en ?? '-' }}</td>
+                                        <td>{{ ucwords($camp->assembly->assembly_name_en ?? '_')}}<br>{{($camp->assembly->assembly_code) ?? '-' }}</td>
 
-                                        <td>{{ $camp->phase ?? '-' }}</td>
+                                       <td>{{ $camp->assembly->assemblyPhase->phase->name ?? 'N/A' }}</td>
 
-                                        <td>{{ $camp->category->name ?? '-' }}</td>
+                                        <td>{{ ucwords($camp->category->name) ?? '-' }}</td>
 
-                                        <td>{{ $camp->address }}</td>
+                                        <td>{{ ucwords($camp->address) }}</td>
 
-                                        <td>{{ date('d M Y, h:i A', strtotime($camp->campaign_date)) }}</td>
+                                        <td>
+                                            {{-- Campaign Date --}}
+                                            <div class="mb-1">
+                                                <i class="bi bi-calendar-event me-1 text-primary"></i>
+                                                <strong>Campaign Date:</strong>
+                                                {{ date('d M Y, h:i A', strtotime($camp->campaign_date)) }}
+                                            </div>
+
+                                            {{-- Last Date of Permission --}}
+                                            <div>
+                                                <i class="bi bi-calendar-check me-1 text-danger"></i>
+                                                <strong>Last Date of Permission:</strong>
+                                                {{ date('d M Y, h:i A', strtotime($camp->last_date_of_permission)) }}
+                                            </div>
+                                        </td>
+
+                                        <td>{{$camp->category->permissions->count() ?? 0}}</td>
 
                                         <td>
                                             <button class="btn btn-sm btn-outline-primary"
                                                     wire:click="edit({{ $camp->id }})" data-bs-toggle="modal" data-bs-target="#campaignModal">
                                                 <i class="bi bi-pencil"></i>
                                             </button>
+
+                                            <a href="{{ route('admin.campaigns.permission', $camp->id) }}"
+                                                class="btn btn-sm btn-outline-primary"
+                                                title="View campaigner Document Collections">
+                                               <i class="bi bi-file-earmark-arrow-up"></i>Permission
+                                            </a>
 
                                             {{-- <button class="btn btn-sm btn-danger"
                                                     wire:click="delete({{ $camp->id }})">
@@ -202,6 +226,68 @@
                 </div>
             </div>
         </div>
+
+        <div wire:ignore.self class="modal fade" id="uploadcampaignerModal" tabindex="-1"
+            aria-labelledby="uploadcampaignerModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content border-0 shadow-lg rounded-3">
+
+                    <!-- Modal Header -->
+                    <div class="modal-header bg-primary text-white">
+                        <h5 class="modal-title" id="uploadcampaignerModalLabel">Upload Campaigner</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"
+                            wire:click="resetForm"></button>
+                    </div>
+
+                    <!-- Modal Body -->
+                    <div class="modal-body">
+                        <div class="row g-3">
+                            @if (session()->has('error'))
+                                <div class="alert alert-danger">
+                                    {!! session('error') !!}
+                                </div>
+                            @endif
+
+                            @if (session()->has('success'))
+                                <div class="alert alert-success">
+                                    {{ session('success') }}
+                                </div>
+                            @endif
+
+                            <div class="col-12">
+                                <a href="{{ asset('assets/sample-csv/bulk-campaigner.csv') }}" download
+                                    class="btn btn-outline-primary">
+                                    <i class="bi bi-download me-1"></i>Download Sample CSV
+                                </a>
+                            </div>
+
+                            <div class="col-12">
+                                <label for="campaignerFile" class="form-label fw-semibold mt-3">Upload Campaigner CSV</label>
+                                <input type="file" class="form-control" id="campaignerFile" wire:model="campaignerFile" accept=".csv">
+                                
+                                <div wire:loading wire:target="campaignerFile" class="text-muted mt-2">
+                                    <span class="spinner-border spinner-border-sm me-1"></span> Uploading...
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <!-- Modal Footer -->
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+                            wire:click="resetForm">Close</button>
+
+                        <button type="button" class="btn btn-primary"
+                            wire:click="saveCampaigner"
+                            wire:loading.remove
+                            wire:target="campaignerFile">
+                            <i class="bi bi-upload me-1"></i>Upload
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
     <div class="loader-container" wire:loading wire:target="save,openCampaignModal">
         <div class="loader"></div>
     </div>
@@ -261,9 +347,16 @@
             document.querySelectorAll('input, textarea, select').forEach(el => el.value = '');
         });
         document.addEventListener('modelHide', () => {
-            $('#campaignModal').modal('hide');
+            $('#campaignerModal').modal('hide');
         });
 
+    </script>
+    <script>
+        window.addEventListener('close-modal', event => {
+            let modalId = event.detail.modalId;
+            let modal = bootstrap.Modal.getInstance(document.getElementById(modalId));
+            modal.hide();
+        });
     </script>
     @endpush
 </div>

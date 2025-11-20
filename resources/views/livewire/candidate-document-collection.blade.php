@@ -49,7 +49,7 @@
         </a>
     </div>
 </div>
-<div class="d-flex flex-wrap justify-content-between align-items-start mb-3">
+    <div class="d-flex flex-wrap justify-content-between align-items-start mb-3">
         <div class="col-md-8">
             <div class="card shadow-sm border-0 p-3 mb-3 mx-1">
                 <div class="card-body">
