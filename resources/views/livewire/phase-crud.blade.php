@@ -24,10 +24,9 @@
                         <table class="table align-middle mb-0">
                             <thead class="table-light">
                                 <tr>
-                                    <th>#</th>
-                                    <th>Name</th>
+                                    {{-- <th>#</th> --}}
+                                    <th width="10%">Phase</th>
                                     <th>Dates</th>
-                                    <th>Total Assembly</th>
                                     <th>Assemblies</th>
                                     <th>Actions</th>
                                 </tr>
@@ -35,33 +34,26 @@
                             <tbody>
                                 @forelse($phases as $phase)
                                     <tr wire:key="phase-{{ $phase->id }}">
-                                        <td>{{ $loop->iteration }}</td>
+                                        {{-- <td>{{ $loop->iteration }}</td> --}}
                                         <td>{{ ucwords($phase->name) }}</td>
                                         <td>
                                             <div class="d-flex flex-column small">
                                                 <div>
                                                     <i class="bi bi-calendar-check text-success me-1"></i>
-                                                    <strong>Nomination:</strong> 
+                                                    <strong>Last Date of Nomination:</strong> 
                                                     {{ \Carbon\Carbon::parse($phase->last_date_of_nomination)->format('d M Y') }}
                                                 </div>
                                                 <div class="mt-1">
                                                     <i class="bi bi-calendar-event text-danger me-1"></i>
-                                                    <strong>Election:</strong> 
+                                                    <strong>Date of Election:</strong> 
                                                     {{ \Carbon\Carbon::parse($phase->date_of_election)->format('d M Y') }}
                                                 </div>
                                                 <div class="mt-1">
                                                     <i class="bi bi-calendar-check text-danger me-1"></i>
-                                                    <strong>Last Date Of MCC:</strong> 
+                                                    <strong>Silent Period Start:</strong> 
                                                     {{ \Carbon\Carbon::parse($phase->last_date_of_mcc)->format('d M Y') }}
                                                 </div>
                                             </div>
-                                        </td>
-
-                                        <td class="text-center">
-                                            <span class="badge bg-info text-dark px-2 py-2">
-                                                <i class="bi bi-person-badge me-1"></i> 
-                                                {{ count($phase->assemblies) }}
-                                            </span>
                                         </td>
                                         <td width="45%">
                                             @if(!empty($phase->assemblies))
@@ -75,6 +67,12 @@
                                             @else
                                                 <span class="text-muted">—</span>
                                             @endif
+                                            <div class="mt-2">
+                                                <span class="badge bg-info text-dark px-2 py-2" title="Number Of Assembly">
+                                                    <i class="bi bi-person-badge me-1"></i> 
+                                                    {{ count($phase->assemblies) }}
+                                                </span>
+                                            </div>
                                         </td>
                                         <td>
                                             <button wire:click="edit({{ $phase->id }})" class="btn btn-sm btn-outline-primary">
@@ -120,7 +118,7 @@
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Last Date Of MCC</label>
+                            <label class="form-label">Silent Period Start</label>
                             <input type="date" wire:model.defer="last_date_of_mcc" class="form-control">
                             @error('last_date_of_mcc') <small class="text-danger">{{ $message }}</small> @enderror
                         </div>
@@ -161,12 +159,14 @@
         function initChosen() {
             $('.chosen-select').chosen({
                 width: '100%',
-                no_results_text: "No result found"
-            }).off('change').on('change', function (e) {
+                no_results_text: "No result found",
+                search_contains: true
+            })
+            .off('change')
+            .on('change', function () {
                 let model = $(this).attr('wire:model');
                 if (model) {
                     @this.set(model, $(this).val());
-                    @this.call('assemblyUpdate', $(this).val());
                 }
             });
         }
