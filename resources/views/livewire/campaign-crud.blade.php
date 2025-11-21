@@ -176,7 +176,7 @@
                     @if($selected_status == 'cancelled')
                     <div class="modal-body">
                         <label class="form-label">Cancelled Remarks</label>
-                        <input type="text" wire:model="cancelled_remarks" class="form-control">
+                        <textarea wire:model="cancelled_remarks" class="form-control" rows="3"></textarea>
 
                         @error('cancelled_remarks')
                             <small class="text-danger">{{ $message }}</small>
