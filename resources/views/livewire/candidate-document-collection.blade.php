@@ -49,7 +49,7 @@
         </a>
     </div>
 </div>
-<div class="d-flex flex-wrap justify-content-between align-items-start mb-3">
+    <div class="d-flex flex-wrap justify-content-between align-items-start mb-3">
         <div class="col-md-8">
             <div class="card shadow-sm border-0 p-3 mb-3 mx-1">
                 <div class="card-body">
@@ -418,7 +418,7 @@
                 </table>
             </div>
         </div>
-         <div wire:ignore.self class="modal fade" id="DocumentModal" tabindex="-1" aria-labelledby="DocumentModalLabel" aria-hidden="true">
+        <div wire:ignore.self class="modal fade" id="DocumentModal" tabindex="-1" aria-labelledby="DocumentModalLabel" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered">
                     <div class="modal-content border-0 shadow-lg rounded-3">
                         <div class="modal-header bg-primary text-white">
@@ -469,7 +469,7 @@
 
                     </div>
                 </div>
-            </div>
+        </div>
     </div>
     <div class="loader-container" wire:loading wire:target="saveDocument,uploadAcknowledgmentCopy">
         <div class="loader"></div>

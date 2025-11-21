@@ -23,6 +23,6 @@ class Assembly extends Model
     }
     public function assemblyPhase()
     {
-        return $this->hasOne(PhaseWiseAssembly::class, 'assembly_id');
+        return $this->hasOne(PhaseWiseAssembly::class, 'assembly_id','id');
     }
 }

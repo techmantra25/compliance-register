@@ -7,19 +7,31 @@ use App\Models\Assembly;
 use App\Models\Campaign;
 use App\Models\EventCategory;
 use Livewire\WithPagination;
+use Livewire\WithFileUploads;
 use App\Models\Campaigner;
 use Illuminate\Support\Facades\DB;
 
 class CampaignCrud extends Component
 { 
-    use WithPagination;
+    use WithPagination, WithFileUploads;
     public $campaign_id, $campaigner_id, $assembly_id, $event_category_id, $address, $campaign_date, $remarks, $permission_status, $last_date_of_permission;
     public $isEdit = false;
     public $search = '';
 
+    public $selected_campaign_id;
+    public $rescheduled_at;
+    public $selected_status;
+    public $cancelled_remarks;
+
+
     protected $paginationTheme = "bootstrap";
 
     public $assembly, $eventCategory, $campaigners;
+
+    public $campaignerFile;
+    protected $campaignerRules = [
+        'campaignerFile' => 'required|mimes:csv,txt|max:10240',
+    ];
 
     protected $rules = [
         'campaigner_id'      => 'required|integer',
@@ -30,6 +42,7 @@ class CampaignCrud extends Component
         'last_date_of_permission'      => 'nullable|date',
         'remarks'            => 'nullable|string',
     ];
+    
     protected $messages = [
         'campaigner_id.required'       => 'Please select a campaigner.',
         'assembly_id.required'       => 'Please select an assembly.',
@@ -58,6 +71,7 @@ class CampaignCrud extends Component
         $this->isEdit = false;
         $this->dispatch('refreshChosen');
     }
+
 
     public function filter(){
         $this->search = $term;
@@ -144,11 +158,139 @@ class CampaignCrud extends Component
         }
     }
 
+    public function resetForm(){
+        $this->reset('campaignerFile');
+        $this->dispatch('close-modal', ['modalId' => 'uploadcampaignerModal']);
+        $this->dispatch('reset-file-input');
+    }
+
+    public function saveCampaigner()
+    {
+        try {
+            $this->validate($this->campaignerRules);
+            } catch (\Exception $e) {
+                session()->flash('error', "Validation failed: " . $e->getMessage());
+                return;
+            }
+
+        try {
+            $filePath = $this->campaignerFile->getRealPath();
+            $file = fopen($filePath, 'r');
+
+            if (!$file) {
+                session()->flash('error', "Unable to open CSV file.");
+                return;
+            }
+
+            $header = fgetcsv($file);
+            $errors = [];
+            $rowNumber = 1;
+
+            while (($row = fgetcsv($file)) !== false) {
+                $rowNumber++;
+
+                try {
+                    $name   = $row[0] ?? null;
+                    $mobile = $row[1] ?? null;
+                    $extra  = $row[2] ?? null;
+
+                    if (!preg_match('/^[0-9]{10}$/', $mobile)) {
+                        $errors[] = "Row $rowNumber: Mobile number '$mobile' must be exactly 10 digits.";
+                        continue;
+                    }
+
+                    // Check duplicate mobile
+                    if (Campaigner::where('mobile', $mobile)->exists()) {
+                        $errors[] = "Row $rowNumber: Mobile number '$mobile' already exists.";
+                        continue;
+                    }
+
+                    Campaigner::create([
+                        'name'          => $name,
+                        'mobile'        => $mobile,
+                        'extra_details' => $extra,
+                    ]);
+
+                } catch (\Exception $e) {
+                    $errors[] = "Row $rowNumber: Database error - " . $e->getMessage();
+                    continue;
+                }
+            }
+
+            fclose($file);
+
+        } catch (\Exception $e) {
+            session()->flash('error', "File processing failed: " . $e->getMessage());
+            return;
+        }
+
+        if (!empty($errors)) {
+            session()->flash('error', implode("<br>", $errors));
+            return;
+        }
+
+        $this->reset('campaignerFile');
+        session()->flash('success', 'Campaigners Imported Successfully!');
+
+        $this->dispatch('close-modal', ['modalId' => 'uploadcampaignerModal']);
+    }
+
+    public function statusChanged($id, $status)
+    {
+        $this->selected_campaign_id = $id;
+        $this->selected_status = $status;
+
+        $this->rescheduled_at = null;
+        $this->cancelled_remark = null;
+
+        if ($status == 'rescheduled' || $status == 'cancelled') {
+            $this->dispatch('open-reschedule-modal');
+        } else {
+            Campaign::where('id', $id)->update(['status' => $status]);
+        }
+    }
+
+    public function saveCampaignStatus()
+    {
+        $campaign = Campaign::find($this->selected_campaign_id);
+
+        if ($this->selected_status == 'rescheduled') {
+            $this->validate([
+                'rescheduled_at' => 'required|date',
+            ]);
+
+            $campaign->update([
+                'status' => 'rescheduled',
+                'rescheduled_at' => $this->rescheduled_at,
+                'cancelled_remarks' => null,
+            ]);
+        }
+
+        if ($this->selected_status == 'cancelled') {
+            $this->validate([
+                'cancelled_remarks' => 'required|string|max:255',
+            ]);
+
+            $campaign->update([
+                'status' => 'cancelled',
+                'cancelled_remarks' => $this->cancelled_remarks,
+                'rescheduled_at' => null,
+            ]);
+        }
+
+        $this->dispatch('close-reschedule-modal');
+        $this->dispatch('toastr:success', message: "Campaign rescheduled successfully!");
+    }
+
 
     public function render()
     {
-
-        $campaigns = Campaign::when($this->search, function ($query){
+        $campaigns = Campaign::with([
+                'assembly.assemblyPhase.phase',  
+                'campaigner',
+                'category'
+            ])
+        ->when($this->search, function ($query){
             $query->where('campaign_date', "like", "%{$this->search}%")
             ->orWhere('address', "like", "%{$this->search}%")
             ->orWhere('remarks', "like", "%{$this->search}%")
@@ -172,4 +314,6 @@ class CampaignCrud extends Component
             'campaigns' =>$campaigns,
         ])->layout('layouts.admin');
     }
+
+
 }

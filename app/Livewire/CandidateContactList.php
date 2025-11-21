@@ -32,6 +32,7 @@ class CandidateContactList extends Component
     public $filter_by_assembly, $filter_by_district, $filter_by_phase;
 
     public $candidateFile, $csvError = null;
+    
     protected $rules = [
         'candidateFile' => 'required|file|mimes:csv,txt', 
     ];
@@ -522,7 +523,7 @@ class CandidateContactList extends Component
             ->when($this->filter_by_assembly, fn($q) => $q->where('assembly_id', $this->filter_by_assembly))
             ->when($this->filter_by_district, fn($q) => $q->whereHas('assembly.district', fn($d) => $d->where('id', $this->filter_by_district)))
             ->when($this->filter_by_phase, fn($q) => $q->whereHas('assembly.assemblyPhase', fn($p) => $p->where('phase_id', $this->filter_by_phase)))
-            ->with(['assembly.district', 'assembly.assemblyPhase.phase', 'documents']);
+        ->with(['assembly.district', 'assembly.assemblyPhase.phase', 'documents']);
     }
 
 

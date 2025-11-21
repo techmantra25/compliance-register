@@ -18,7 +18,8 @@ use App\Livewire\{
     CandidateJourney,
     AgentCrud,
     AdminLogin,
-    CampaignCrud
+    CampaignCrud,
+    PermissionCampaignCrud
 };
 use App\Livewire\Candidate\DocumentComments;
 use App\Http\Controllers\CandidateController;
@@ -94,6 +95,7 @@ Route::prefix('/admin')->middleware('auth:admin')->group(function () {
 
     Route::prefix('campaign')->group(function (){
         Route::get('/', CampaignCrud::class)->name('admin.campaigns');
+        Route::get('/permission/{campaign_id}', PermissionCampaignCrud::class)->name('admin.campaigns.permission');
     });
 });
 
