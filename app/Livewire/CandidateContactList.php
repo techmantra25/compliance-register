@@ -107,7 +107,7 @@ class CandidateContactList extends Component
 
             $candidate = Candidate::find($this->candidateId);
 
-            $agentsPayload = []; // collect agents data for logging
+            $agentsPayload = []; 
 
             foreach ($this->agentsList as $agentData) {
 
@@ -121,6 +121,7 @@ class CandidateContactList extends Component
                         'contact_number_alt_1' => $agentData['contact_number_alt_1'] ?? null,
                         'email' => $agentData['email'] ?? null,
                         'comments' => "Added as agent of {$candidate->name}",
+                        'designation' => 'Election Agent',
                     ]
                 );
 
@@ -159,7 +160,7 @@ class CandidateContactList extends Component
 
         } catch (\Exception $e) {
             DB::rollBack();
-            // dd($e->getMessage());
+             dd($e->getMessage());
             $this->dispatch('toastr:error', message: 'Something went wrong: ' . $e->getMessage());
         }
     }

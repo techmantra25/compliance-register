@@ -114,7 +114,7 @@ class AgentCrud extends Component
     private function getValidationRules()
     {
         $commonRules = [
-            'agent_type' => 'required|in:bureaucrat,political,other',
+            'agent_type' => 'required|in:bureaucrat,political,CAMAC,other',
             'name' => 'required|string|max:255',
             'mobile_no' => 'required|digits:10',
         ];
@@ -130,6 +130,14 @@ class AgentCrud extends Component
         } elseif ($this->agent_type === 'political') {
             return array_merge($commonRules, [
                 'assemblies_id' => 'nullable|exists:assemblies,id',
+                'whatsapp_no' => 'nullable|digits:10',
+                'email' => 'nullable|email|max:255',
+                'designation' => 'nullable|string|max:255',
+                'comments' => 'nullable|string',
+            ]);
+        }
+        elseif ($this->agent_type === 'CAMAC') {
+            return array_merge($commonRules, [
                 'whatsapp_no' => 'nullable|digits:10',
                 'email' => 'nullable|email|max:255',
                 'designation' => 'nullable|string|max:255',
@@ -172,6 +180,12 @@ class AgentCrud extends Component
                 $data['designation'] = $this->designation;
                 break;
 
+            case 'CAMAC':
+                $data['contact_number'] = $this->mobile_no;
+                $data['whatsapp_number'] = $this->sameAsMobile ? $this->mobile_no : $this->whatsapp_no;
+                $data['designation'] = $this->designation;
+                break;
+
             case 'other':
                 $data['contact_number'] = $this->mobile_no;
                 $data['whatsapp_number'] = $this->sameAsMobile ? $this->mobile_no : $this->whatsapp_no;
@@ -202,7 +216,15 @@ class AgentCrud extends Component
                 'phone_no',
                 'whatsapp_no',
             ]);
-        } else {
+        }  elseif ($value === 'CAMAC') {
+            $this->reset([
+                'designation',
+                'area',
+                'mobile_no',
+                'phone_no',
+                'whatsapp_no',
+            ]);
+        }else {
             // For any other category
             $this->reset([
                 'designation',
@@ -212,6 +234,7 @@ class AgentCrud extends Component
                 'whatsapp_no',
             ]);
         }
+        
 
         // Update the category
         $this->agent_type = $value;
@@ -222,7 +245,7 @@ class AgentCrud extends Component
     }
 
    public function updateAgent()
-{
+    {
     // dd($this->all());
     $rules = $this->getValidationRules();
     $this->validate($rules);
@@ -269,7 +292,12 @@ class AgentCrud extends Component
             $this->mobile_no = $agent->contact_number;
             $this->whatsapp_no = $agent->whatsapp_number;
             $this->assemblies_id = $agent->assemblies_id;
-        } elseif ($agent->type === 'other') {
+        }elseif ($agent->type === 'CAMAC') {
+            $this->designation = $agent->designation;
+            $this->mobile_no = $agent->contact_number;
+            $this->whatsapp_no = $agent->whatsapp_number;
+        
+        }elseif ($agent->type === 'other') {
             $this->designation = $agent->designation;
             $this->mobile_no = $agent->contact_number;
             $this->whatsapp_no = $agent->whatsapp_number;
@@ -286,7 +314,7 @@ class AgentCrud extends Component
         $this->dispatch('showConfirm', ['itemId' => $id]);
     }
 
-     public function delete($id)
+    public function delete($id)
     {
         Agent::findOrFail($id)->delete();
         $this->dispatch('toastr:success', message: 'Agent deleted successfully!');
@@ -300,6 +328,9 @@ class AgentCrud extends Component
                 break;
             case 'political':
                 $this->sampleCSV = asset('assets/sample-csv/political-sample.csv');
+                break;
+            case 'CAMAC':
+                $this->sampleCSV = asset('assets/sample-csv/camac-sample.csv');
                 break;
             case 'other':
                 $this->sampleCSV = asset('assets/sample-csv/other-sample.csv');
@@ -319,27 +350,26 @@ class AgentCrud extends Component
     public function importCSV()
     {
         $this->validate([
-            'importCategory' => 'required|in:bureaucrat,political,other',
+            'importCategory' => 'required|in:bureaucrat,political,CAMAC,other',
             'csvFile' => 'required|file|mimes:csv,txt',
         ]);
 
-        DB::beginTransaction(); // Start transaction
+        DB::beginTransaction(); 
 
         try {
             $path = $this->csvFile->getRealPath();
             $file = fopen($path, 'r');
 
-            $headers = fgetcsv($file); // first row headers
+            $headers = fgetcsv($file); 
             $rowNumber = 1;
 
             while ($row = fgetcsv($file)) {
                 $rowNumber++;
                 $data = $this->mapCSVRowToAgent($row, $headers);
 
-                // 🔹 Validation based on category
                 if ($this->importCategory === 'bureaucrat') {
                     $requiredFields = ['name', 'area', 'designation', 'contact_number'];
-                } elseif ($this->importCategory === 'political' || $this->importCategory === 'other') {
+                } elseif ($this->importCategory === 'political' || $this->importCategory === 'other' || $this->importCategory === 'CAMAC') {
                     $requiredFields = ['name', 'contact_number'];
                 }
 
@@ -390,6 +420,15 @@ class AgentCrud extends Component
                         $assembly = Assembly::where('assembly_name_en', $value)->first();
                         $data['assemblies_id'] = $assembly ? $assembly->id : null;
                     }
+                    elseif ($header == 'Mobile No') $data['contact_number'] = $value;
+                    elseif ($header == 'Whatsapp No') $data['whatsapp_number'] = $value;
+                    elseif ($header == 'Designation') $data['designation'] = $value;
+                    elseif ($header == 'Email') $data['email'] = $value;
+                    elseif ($header == 'Comments') $data['comments'] = $value;
+                    break;
+
+                case 'CAMAC':
+                    if ($header == 'Name') $data['name'] = $value;
                     elseif ($header == 'Mobile No') $data['contact_number'] = $value;
                     elseif ($header == 'Whatsapp No') $data['whatsapp_number'] = $value;
                     elseif ($header == 'Designation') $data['designation'] = $value;

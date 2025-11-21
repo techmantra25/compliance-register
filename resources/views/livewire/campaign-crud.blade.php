@@ -13,7 +13,7 @@
                     <li class="breadcrumb-item active text-primary">Campaigns</li>
                 </ol>
             </div>
-             <div>
+            <div>
                 <button class="btn btn-secondary btn-sm me-2" data-bs-toggle="modal" data-bs-target="#uploadcampaignerModal">
                     <i class="bi bi-upload me-1"></i> Import Campaigner
                 </button>
@@ -220,7 +220,8 @@
                                         <select class="form-control chosen-select" wire:model="assembly_id">
                                             <option value="">Select Assembly</option>
                                             @foreach($assembly as $a)
-                                                <option value="{{ $a->id }}" data-code="{{ $a->assembly_code }}">
+                                                <option value="{{ $a->id }}" data-code="{{ $a->assembly_code }}"
+                                                    data-number="{{ $a->assembly_number }}">
                                                     {{ $a->assembly_name_en }}({{$a->assembly_code}})
                                                 </option>
                                             @endforeach
