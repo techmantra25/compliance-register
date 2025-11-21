@@ -53,6 +53,8 @@
                                 <tr>
                                     <th>Sl.No</th>
                                     <th> Name</th>
+                                    <th>Designation</th>
+                                    <th>Type</th>
                                     <th>Mobile No / Whatsapp No</th>
                                     <th>Email</th>
                                     <th>Area/District</th>
@@ -63,7 +65,9 @@
                                 @forelse ($agents as $agent)
                                 <tr wire:key="agent-{{ $agent->id }}">
                                     <td>{{ $agents->firstItem() + $loop->index }}</td>
-                                    <td>{{ $agent->name }}</td>
+                                    <td>{{ ucwords($agent->name) }}</td>
+                                    <td>{{ ucwords($agent->designation ?? 'N/A') }}</td>
+                                    <td>{{ ucwords($agent->type) }}</td>
                                     <td>
                                         <p> Mobile No: {{$agent->contact_number}}</p>
                                         <p> Whatsapp No: {{$agent->whatsapp_number}}</p>
@@ -114,6 +118,20 @@
                                                         $agent->assembliesDetails?->assembly_name_en ?? '-' }}
                                                         ({{ $agent->assembliesDetails?->assembly_code ?? '-' }})
                                                     </p>
+                                                    <p><strong>Name:</strong> {{ $agent->name ?? '-' }}</p>
+                                                    <p><strong>Mobile No:</strong> {{ $agent->contact_number ?? '-' }}
+                                                    </p>
+                                                    <p><strong>Whatsapp No:</strong> {{ $agent->whatsapp_number ?? '-'
+                                                        }}</p>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <p><strong>Email:</strong> {{ $agent->email ?? '-' }}</p>
+                                                    <p><strong>Designation:</strong> {{ $agent->designation ?? '-' }}
+                                                    </p>
+                                                    <p><strong>Comments:</strong> {{ $agent->comments ?? '-' }}</p>
+                                                </div>
+                                                @elseif($agent->type === 'CAMAC')
+                                                <div class="col-md-6">
                                                     <p><strong>Name:</strong> {{ $agent->name ?? '-' }}</p>
                                                     <p><strong>Mobile No:</strong> {{ $agent->contact_number ?? '-' }}
                                                     </p>
@@ -188,6 +206,7 @@
                                 <option value="">-- Select Category --</option>
                                 <option value="bureaucrat">Bureaucrat</option>
                                 <option value="political">Political</option>
+                                <option value="CAMAC">CAMAC</option>
                                 <option value="other">Other</option>
                             </select>
                             @error('agent_type') <small class="text-danger">{{ $message }}</small> @enderror
@@ -311,6 +330,54 @@
                             </div>
                         </div>
 
+                        <!-- CAMAC Form -->
+                        <div id="camac_fields" class="d-none">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label>Name *</label>
+                                    <input type="text" class="form-control" wire:model="name" placeholder="Enter Name"
+                                        data-category-field>
+                                    @error('name') <small class="text-danger">{{ $message }}</small> @enderror
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label>Mobile No *</label>
+                                    <input type="number" id="mobile_no" class="form-control" wire:model="mobile_no"
+                                        placeholder="Enter Mobile No" data-category-field>
+                                    @error('mobile_no') <small class="text-danger">{{ $message }}</small> @enderror
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label>Whatsapp No</label>
+                                    <input type="number" id="whatsapp_no" class="form-control" wire:model="whatsapp_no"
+                                        placeholder="Enter Whatsapp No" @if($sameAsMobile) readonly @endif
+                                        data-category-field>
+                                    <div class="mt-1">
+                                        <input type="checkbox" wire:model="sameAsMobile" id="sameAsMobile"
+                                            style="cursor: pointer;" data-category-field>
+                                        <label class="ms-1">Same as Mobile</label>
+                                    </div>
+                                </div>
+                                @error('whatsapp_no') <small class="text-danger">{{ $message }}</small> @enderror
+                                <div class="col-md-6 mb-3">
+                                    <label>Email Id</label>
+                                    <input type="email" class="form-control" wire:model="email"
+                                        placeholder="Enter Email" data-category-field>
+                                    @error('email') <small class="text-danger">{{ $message }}</small> @enderror
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label>Designation</label>
+                                    <input type="text" class="form-control" wire:model="designation"
+                                        placeholder="Enter Designation" data-category-field>
+                                    @error('designation') <small class="text-danger">{{ $message }}</small> @enderror
+                                </div>
+                                <div class="col-md-12 mb-3">
+                                    <label>Comments</label>
+                                    <textarea class="form-control" wire:model="comments" placeholder="Enter Comments"
+                                        data-category-field></textarea>
+                                    @error('comments') <small class="text-danger">{{ $message }}</small> @enderror
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Other Form -->
                         <div id="other_fields" class="d-none">
                             <div class="row">
@@ -389,6 +456,7 @@
                             <option value="">-- Select Category --</option>
                             <option value="bureaucrat">Bureaucrat</option>
                             <option value="political">Political</option>
+                            <option value="CAMAC">CAMAC</option>
                             <option value="other">Other</option>
                         </select>
                          @error('importCategory') <small class="text-danger">{{ $message }}</small> @enderror
@@ -462,12 +530,12 @@
             // }
             function toggleCategoryFields() {
                 const selected = $('#agent_type').val();
-                $('#bureaucrat_fields, #political_fields, #other_fields').addClass('d-none');
+                $('#bureaucrat_fields, #political_fields, #other_fields, #camac_fields').addClass('d-none');
 
                 if (selected === 'bureaucrat') $('#bureaucrat_fields').removeClass('d-none');
+                else if (selected === 'CAMAC') $('#camac_fields').removeClass('d-none');
                 else if (selected === 'political') {
                     $('#political_fields').removeClass('d-none');
-                    // 🔹 Update Chosen after showing political fields
                     setTimeout(() => {
                         const assemblyId = @this.get('assemblies_id');
                         if (assemblyId) {
@@ -556,7 +624,6 @@
             // When category is changed, reset dependent fields
             document.addEventListener('livewire:init', () => {
                 Livewire.on('ResetForm', () => {
-                    // Reset dropdown to default and hide all forms
                     $('#agent_type').val('').trigger('change');
                     $('#bureaucrat_fields, #political_fields, #other_fields').addClass('d-none');
                 });

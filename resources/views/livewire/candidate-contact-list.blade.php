@@ -44,7 +44,7 @@
                             <select wire:model="filter_by_assembly" class="form-select chosen-select">
                                 <option value="">Filer by Assembly</option>
                                 @foreach ($assemblies as $assembly)
-                                <option value="{{ $assembly->id }}">
+                                <option value="{{ $assembly->id }}" data-number="{{$assembly->assembly_number}}">
                                     {{ $assembly->assembly_name_en }} ({{ $assembly->assembly_code }})
                                 </option>
                                 @endforeach
@@ -336,10 +336,12 @@
                             <div class="mb-3 col-md-12">
                                 <label class="form-label">Assemblies <span class="text-danger">*</span></label>
                                 <div wire:ignore>
-                                    <select wire:model="assembly_id" class="form-select chosen-select">
+                                    <select wire:model="assembly_id" id="assembly_id" class="form-select chosen-select">
                                         <option value="">Select one</option>
                                         @foreach ($assemblies as $assembly)
-                                        <option value="{{ $assembly->id }}">
+                                        <option value="{{ $assembly->id }}"  data-code="{{ $assembly->assembly_code }}"
+                                           data-name="{{ $assembly->assembly_name_en }}"
+                                           data-number="{{ $assembly->assembly_number }}">
                                             {{ $assembly->assembly_name_en }} ({{ $assembly->assembly_code }})
                                         </option>
                                         @endforeach
