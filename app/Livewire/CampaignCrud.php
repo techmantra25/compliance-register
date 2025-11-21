@@ -17,11 +17,12 @@ class CampaignCrud extends Component
     public $campaign_id, $campaigner_id, $assembly_id, $event_category_id, $address, $campaign_date, $remarks, $permission_status, $last_date_of_permission;
     public $isEdit = false;
     public $search = '';
-    
 
-    // protected $rules = [
-    //     'campaignFile' => 'required|mimes:csv,txt|max:2048',
-    // ];
+    public $selected_campaign_id;
+    public $rescheduled_at;
+    public $selected_status;
+    public $cancelled_remarks;
+
 
     protected $paginationTheme = "bootstrap";
 
@@ -233,6 +234,54 @@ class CampaignCrud extends Component
 
         $this->dispatch('close-modal', ['modalId' => 'uploadcampaignerModal']);
     }
+
+    public function statusChanged($id, $status)
+    {
+        $this->selected_campaign_id = $id;
+        $this->selected_status = $status;
+
+        $this->rescheduled_at = null;
+        $this->cancelled_remark = null;
+
+        if ($status == 'rescheduled' || $status == 'cancelled') {
+            $this->dispatch('open-reschedule-modal');
+        } else {
+            Campaign::where('id', $id)->update(['status' => $status]);
+        }
+    }
+
+    public function saveCampaignStatus()
+    {
+        $campaign = Campaign::find($this->selected_campaign_id);
+
+        if ($this->selected_status == 'rescheduled') {
+            $this->validate([
+                'rescheduled_at' => 'required|date',
+            ]);
+
+            $campaign->update([
+                'status' => 'rescheduled',
+                'rescheduled_at' => $this->rescheduled_at,
+                'cancelled_remarks' => null,
+            ]);
+        }
+
+        if ($this->selected_status == 'cancelled') {
+            $this->validate([
+                'cancelled_remarks' => 'required|string|max:255',
+            ]);
+
+            $campaign->update([
+                'status' => 'cancelled',
+                'cancelled_remarks' => $this->cancelled_remarks,
+                'rescheduled_at' => null,
+            ]);
+        }
+
+        $this->dispatch('close-reschedule-modal');
+        $this->dispatch('toastr:success', message: "Campaign rescheduled successfully!");
+    }
+
 
     public function render()
     {

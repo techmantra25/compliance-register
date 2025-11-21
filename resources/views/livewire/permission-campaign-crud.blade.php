@@ -134,92 +134,102 @@
                         <th width="10%">Approval Document </th>
                     </tr>
                 </thead>
+                <tbody>
+                    @forelse($requiredPermissions as $index => $permission)
+                        <tr>
+                            <td class="text-center">{{ $index + 1 }}</td>
 
-            <tbody>
-                @forelse($requiredPermissions as $index => $permission)
-                    <tr>
-                        <td class="text-center">{{ $index + 1 }}</td>
+                            <td>{{ $permission->permission_required ?? 'N/A' }}</td>
 
-                        <td>{{ $permission->permission_required ?? 'N/A' }}</td>
+                            <td>{{ $permission->issuing_authority ?? 'N/A' }}</td>
 
-                        <td>{{ $permission->issuing_authority ?? 'N/A' }}</td>
+                            <td>
+                                <span class="badge bg-secondary">Pending</span>
+                            </td>
 
-                        <td>
-                            <span class="badge bg-secondary">Pending</span>
-                        </td>
+                            <td></td> 
+                            <td class="text-center">
+                                <button class="btn btn-sm btn-primary"
+                                    wire:click= "openModal({{$permission->id}}, {{$camp->id}})">
+                                    <i class="bi bi-upload me-1"></i>
+                                    Upload
+                                </button>
+                            </td>
 
-                        <td></td> 
-                        <td class="text-center">
-                            <button class="btn btn-sm btn-outline-primary">
-                                Upload
-                            </button>
-                        </td>
-
-                        <td class="text-center">
-                            <button class="btn btn-sm btn-outline-success">
-                                View
-                            </button>
-                        </td>
-                    </tr>
-                @empty
-                    <tr>
-                        <td colspan="7" class="text-center text-muted py-3">No permissions defined for this event.</td>
-                    </tr>
-                @endforelse
-            </tbody>
-
-
+                            <td class="text-center">
+                                <button class="btn btn-sm btn-secondary">
+                                <i class="bi bi-eye me-1"></i>
+                                    View
+                                </button>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="7" class="text-center text-muted py-3">No permissions defined for this event.</td>
+                        </tr>
+                    @endforelse
+                </tbody>
             </table>
         </div>
     </div>
-    {{-- <div wire:ignore.self class="modal fade" id="DocumentModal" tabindex="-1" aria-labelledby="DocumentModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content border-0 shadow-lg rounded-3">
-                    <div class="modal-header bg-primary text-white">
-                        <h5 class="modal-title" id="DocumentModalLabel">
-                            Upload Document
-                        </h5>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close" wire:click="resetForm"></button>
+    <div wire:ignore.self class="modal fade" id="DocumentModal" tabindex="-1" aria-labelledby="DocumentModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg rounded-3">
+
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="DocumentModalLabel">Upload Document</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" wire:click="resetForm"></button>
+                </div>
+
+                <form wire:submit.prevent="save" enctype="multipart/form-data">
+                    <div class="modal-body">
+
+                        <input type="hidden" wire:model="campaign_id">
+                        <input type="hidden" wire:model="event_required_permission_id">
+
+                        {{-- File Upload --}}
+                        <div class="mb-3">
+                            <label class="form-label">File <span class="text-danger">*</span></label>
+                            <input type="file" wire:model="file" class="form-control">
+
+                            @error('file')
+                                <small class="text-danger">{{ $message }}</small>
+                            @enderror
+
+                            <div wire:loading wire:target="file" class="text-danger small mt-1">
+                                <i class="bi bi-cloud-upload"></i> Uploading...
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Remarks</label>
+                            <textarea wire:model="remarks" class="form-control form-control-sm"
+                                    placeholder="Enter remarks..." rows="2"></textarea>
+
+                            @error('remarks')
+                                <small class="text-danger">{{ $message }}</small>
+                            @enderror
+                        </div>
+
                     </div>
 
-                    <form wire:submit.prevent="save" wire:key="document-form-new" enctype="multipart/form-data">
-                        <div class="modal-body">
-                            <div class="mb-3">
-                                <label class="form-label">File <span class="text-danger">*</span></label>
-                                <input type="file" wire:model="newFile" class="form-control">
-                                @error('newFile')
-                                    <small class="text-danger">{{ $message }}</small>
-                                @enderror
-                                <div wire:loading wire:target="newFile" class="text-danger small mt-1">
-                                    <i class="bi bi-cloud-upload me-1"></i> Uploading...
-                                </div>
-                            </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary btn-sm"
+                                data-bs-dismiss="modal" wire:click="resetForm">
+                            Cancel
+                        </button>
 
-                            <div class="mb-3">
-                                <label class="form-label">Remarks</label>
-                                <textarea wire:model="remarks" class="form-control form-control-sm" placeholder="Enter remarks for new upload" rows="2"></textarea>
-                                @error('remarks')
-                                    <small class="text-danger">{{ $message }}</small>
-                                @enderror
-                            </div>
-                        </div>
+                        <button type="submit" class="btn btn-primary btn-sm">
+                            <i class="bi bi-upload"></i> Submit
+                        </button>
+                    </div>
+                </form>
 
-                        <div class="modal-footer">
-                            <button type="button"
-                                    class="btn btn-secondary btn-sm"
-                                    data-bs-dismiss="modal"
-                                    wire:click="resetForm">
-                                <i class="bi bi-x"></i> Cancel
-                            </button>
-                            <button type="submit" class="btn btn-primary btn-sm">
-                                <i class="bi bi-upload me-1"></i> Submit
-                            </button>
-                        </div>
-                    </form>
-
-                </div>
             </div>
-    </div> --}}
+        </div>
+    </div>
+
+
 </div>
     {{-- <div class="loader-container" wire:loading wire:target="saveDocument,uploadAcknowledgmentCopy">
         <div class="loader"></div>
@@ -227,6 +237,24 @@
 
     @push('scripts')
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+        <script>
+            window.addEventListener('toastr:error', e => toastr.error(e.detail.message));
+            window.addEventListener('toastr:success', e => toastr.success(e.detail.message));
+        </script>
+        <script>
+            window.addEventListener('open-document-modal', () => {
+                const modalEl = document.getElementById('DocumentModal');
+                const modal = new bootstrap.Modal(modalEl);
+                modal.show();
+            });
+
+            window.addEventListener('close-document-modal', () => {
+                const modalEl = document.getElementById('DocumentModal');
+                const modal = bootstrap.Modal.getInstance(modalEl);
+                modal.hide();
+            });
+        </script>
     @endpush
 
     <style>

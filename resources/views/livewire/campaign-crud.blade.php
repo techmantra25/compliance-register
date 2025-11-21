@@ -50,6 +50,7 @@
                                     <th>Place</th>
                                     <th>Date & Time</th>
                                     <th>Permission Required</th>
+                                    <th>Status</th>
                                     <th width="20%">Action</th>
                                 </tr>
                             </thead>
@@ -89,6 +90,29 @@
                                         <td>{{$camp->category->permissions->count() ?? 0}}</td>
 
                                         <td>
+                                            <select class="form-select form-select-sm w-auto px-3"
+                                                wire:change="statusChanged({{ $camp->id }}, $event.target.value)">
+                                                <option value="pending" @selected($camp->status == 'pending')>Pending</option>
+                                                <option value="rescheduled" @selected($camp->status == 'rescheduled')>Rescheduled</option>
+                                                <option value="cancelled" @selected($camp->status == 'cancelled')>Cancelled</option>
+                                                <option value="completed" @selected($camp->status == 'completed')>Completed</option>
+                                            </select>
+                                            @if($camp->status == 'rescheduled' && $camp->rescheduled_at)
+                                                <small class="text-primary d-block mt-1">
+                                                    <i class="bi bi-clock-history"></i>
+                                                    Rescheduled Date: {{ date('d M Y, h:i A', strtotime($camp->rescheduled_at)) }}
+                                                </small>
+                                            @endif
+
+                                            @if($camp->status == 'cancelled' && $camp->cancelled_remarks)
+                                                <small class="text-danger d-block mt-1">
+                                                    <i class="bi bi-x-circle"></i>
+                                                    Cancelled Remarks: {{ ucwords($camp->cancelled_remarks) }}
+                                                </small>
+                                            @endif
+                                        </td>
+
+                                        <td>
                                             <button class="btn btn-sm btn-outline-primary"
                                                     wire:click="edit({{ $camp->id }})" data-bs-toggle="modal" data-bs-target="#campaignModal">
                                                 <i class="bi bi-pencil"></i>
@@ -124,6 +148,51 @@
                     {{ $campaigns->links('pagination.custom') }}
                 </div>
 
+            </div>
+        </div>
+
+        <div wire:ignore.self class="modal fade" id="RescheduleModal" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+
+                    <div class="modal-header bg-primary text-white">
+                        <h5 class="modal-title">
+                            {{$selected_status == 'rescheduled' ? 'Rescheduled Campaign' : 'Cancel Campaign'}}
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+
+                    @if($selected_status == 'rescheduled')
+                    <div class="modal-body">
+                        <label class="form-label">Rescheduled Date</label>
+                        <input type="datetime-local" wire:model="rescheduled_at" class="form-control">
+
+                        @error('rescheduled_at')
+                            <small class="text-danger">{{ $message }}</small>
+                        @enderror
+                    </div>
+                    @endif
+
+                    @if($selected_status == 'cancelled')
+                    <div class="modal-body">
+                        <label class="form-label">Cancelled Remarks</label>
+                        <input type="text" wire:model="cancelled_remarks" class="form-control">
+
+                        @error('cancelled_remarks')
+                            <small class="text-danger">{{ $message }}</small>
+                        @enderror
+                    </div>
+                    @endif
+
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+
+                        <button class="btn btn-primary" wire:click="saveCampaignStatus">
+                            Save
+                        </button>
+                    </div>
+
+                </div>
             </div>
         </div>
 
@@ -295,6 +364,7 @@
     </div>
     @push('scripts')
     <link rel="stylesheet" href="{{ asset('assets/css/component-chosen.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{{ asset('assets/js/chosen.jquery.js') }}"></script>
     <script>
         window.addEventListener('toastr:error', e => toastr.error(e.detail.message));
@@ -356,6 +426,21 @@
             let modalId = event.detail.modalId;
             let modal = bootstrap.Modal.getInstance(document.getElementById(modalId));
             modal.hide();
+        });
+    </script>
+    <script>
+        document.addEventListener('livewire:init', function () {
+
+            Livewire.on('open-reschedule-modal', () => {
+                let modal = new bootstrap.Modal(document.getElementById('RescheduleModal'));
+                modal.show();
+            });
+
+            Livewire.on('close-reschedule-modal', () => {
+                let modal = bootstrap.Modal.getInstance(document.getElementById('RescheduleModal'));
+                modal.hide();
+            });
+
         });
     </script>
     @endpush
