@@ -99,7 +99,7 @@
                     <div class="card-body">
                         <div class="mb-3">
                             <span class="
-                                badge px-3 fs-6
+                                badge px-3
                                 @if($document->status == 'Approved') bg-success
                                 @elseif($document->status == 'Rejected') bg-danger
                                 @else bg-warning text-dark

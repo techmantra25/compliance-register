@@ -573,14 +573,13 @@
 
             // Handle Livewire updates (morph/re-render)
             Livewire.hook('morph.updated', ({ el, component }) => {
-                // Update Chosen with Livewire values
+                initChosen();
+                // ✅ After re-init, sync the Livewire value back to Chosen
                 $('.chosen-select').each(function () {
                     const el = $(this);
                     const model = el.attr('wire:model');
-                    const liveValue = @this.get(model);
-                    
-                    if (liveValue !== undefined && liveValue !== null) {
-                        el.val(liveValue).trigger('chosen:updated');
+                    if (model && @this.get(model)) {
+                        el.val(@this.get(model)).trigger('chosen:updated');
                     }
                 });
                 
