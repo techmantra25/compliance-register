@@ -27,14 +27,48 @@
 
         <!-- Table -->
         <div class="col-lg-12">
-            <div class="card shadow-sm border-0 p-3">
+            <div class="card shadow-sm border-0 p-3 filter-card">
 
                 <div class="card-header bg-white d-flex justify-content-between align-items-center">
                     <h5 class="fw-bold mb-0">Campaigns</h5>
+                    <div class="d-flex align-items-center">
+                        <div wire:ignore>
+                            <select wire:model="filter_by_assembly" class="form-select chosen-select">
+                                <option value="">Filer by Assembly</option>
+                                @foreach ($assembly as $assemb)
+                                <option value="{{ $assemb->id }}">
+                                    {{ $assemb->assembly_name_en }} ({{ $assemb->assembly_code }})
+                                </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div  wire:ignore>
+                            <select wire:model="filter_by_district" class="form-select chosen-select">
+                                <option value="">Filer by District</option>
+                                @foreach ($districts as $district)
+                                <option value="{{ $district->id }}">
+                                    {{ $district->name_en }} ({{ $district->name_bn }})
+                                </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div  wire:ignore>
+                            <select wire:model="filter_by_zone" class="form-select chosen-select">
+                                <option value="">Filer by Zone</option>
+                                @foreach ($zones as $z)
+                                    <option value="{{ $z->id }}">{{ $z->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <input type="text" wire:model="search" wire:keyup="filterCampaign($event.target.value)"
+                            class="form-control form-control-sm w-auto me-2"
+                            placeholder="Search here...">
 
-                    <input type="text" wire:model="search"
-                        class="form-control form-control-sm w-auto"
-                        placeholder="Search...">
+
+                        <button class="btn btn-sm btn-danger" wire:click="resetFilters">
+                            <i class="bi bi-arrow-clockwise"></i> Reset
+                        </button>
+                    </div>
                 </div>
 
                 <div class="card-body p-2">
@@ -43,13 +77,11 @@
                             <thead class="table-light">
                                 <tr>
                                     <th>#</th>
-                                    <th>Campaigners</th>
+                                    <th>Campaigners Details</th>
                                     <th>Assembly</th>
-                                    <th>Phase</th>
-                                    <th>Event Type</th>
-                                    <th>Place</th>
-                                    <th>Date & Time</th>
-                                    <th>Permission Required</th>
+                                    <th width="20%">Event Type</th>
+                                    <th width="25%">Date & Time</th>
+                                    <th width="10%">Permission Required</th>
                                     <th>Status</th>
                                     <th width="20%">Action</th>
                                 </tr>
@@ -61,25 +93,20 @@
                                     <tr wire:key="campaign-row-{{ $camp->id }}">
                                         <td>{{ $campaigns->firstItem() + $index }}</td>
 
-                                        <td>{{ ucwords($camp->campaigner->name) }}<br>{{$camp->campaigner->mobile}}</td>
+                                        <td>{{ ucwords($camp->campaigner->name) }}<br>{{$camp->campaigner->mobile}} <br>{{$camp->address}}</td>
 
-                                        <td>{{ ucwords($camp->assembly->assembly_name_en ?? '_')}}<br>{{($camp->assembly->assembly_code) ?? '-' }}</td>
-
-                                       <td>{{ $camp->assembly->assemblyPhase->phase->name ?? 'N/A' }}</td>
+                                        <td>{{ ucwords($camp->assembly->assembly_name_en ?? '_')}}<br>{{($camp->assembly->assembly_code) ?? '-' }} <br>
+                                        ({{ ucwords($camp->assembly->assemblyPhase->phase->name ?? 'N/A') }})</td>
 
                                         <td>{{ ucwords($camp->category->name) ?? '-' }}</td>
 
-                                        <td>{{ ucwords($camp->address) }}</td>
-
                                         <td>
-                                            {{-- Campaign Date --}}
                                             <div class="mb-1">
                                                 <i class="bi bi-calendar-event me-1 text-primary"></i>
                                                 <strong>Campaign Date:</strong>
                                                 {{ date('d M Y, h:i A', strtotime($camp->campaign_date)) }}
                                             </div>
 
-                                            {{-- Last Date of Permission --}}
                                             <div>
                                                 <i class="bi bi-calendar-check me-1 text-danger"></i>
                                                 <strong>Last Date of Permission:</strong>
@@ -442,6 +469,11 @@
                 modal.hide();
             });
 
+        });
+    </script>
+    <script>
+        window.addEventListener('refreshChosen', () => {
+            $('.chosen-select').val('').trigger('chosen:updated');
         });
     </script>
     @endpush

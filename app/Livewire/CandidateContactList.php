@@ -467,7 +467,7 @@ class CandidateContactList extends Component
 
 
         }  catch (\Exception $e) {
-            dd($e->getMessage());
+            //dd($e->getMessage());
             DB::rollBack();
 
             $this->csvError = $e->getMessage();
@@ -518,7 +518,7 @@ class CandidateContactList extends Component
                                 ->orWhere('email', 'like', "%{$this->search}%")
                                 ->orWhere('contact_number', 'like', "%{$this->search}%")
                                 ->orWhere('contact_number_alt_1', 'like', "%{$this->search}%");
-                        });
+                    });
                 });
             })
             ->when($this->filter_by_assembly, fn($q) => $q->where('assembly_id', $this->filter_by_assembly))

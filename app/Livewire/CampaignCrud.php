@@ -9,6 +9,10 @@ use App\Models\EventCategory;
 use Livewire\WithPagination;
 use Livewire\WithFileUploads;
 use App\Models\Campaigner;
+use App\Models\ChangeLog;
+use App\Models\District;
+use App\Models\Phase;
+use App\Models\Zone;
 use Illuminate\Support\Facades\DB;
 
 class CampaignCrud extends Component
@@ -23,6 +27,15 @@ class CampaignCrud extends Component
     public $selected_status;
     public $cancelled_remarks;
 
+    public $filter_by_assembly = '';
+    public $filter_by_district = '';
+    public $filter_by_zone = '';
+    public $districts = [];
+    public $phases = [];
+    public $zones = [];
+
+
+    public $campaign;
 
     protected $paginationTheme = "bootstrap";
 
@@ -59,6 +72,8 @@ class CampaignCrud extends Component
         $this->campaigners = Campaigner::orderBy('name', 'ASC')->get();
         $this->assembly  = Assembly::where('status', 'active')->orderBy('assembly_name_en', 'ASC')->get();
         $this->eventCategory = EventCategory::where('status', 1)->orderBy('name', 'ASC')->get();
+        $this->districts = District::orderBy('name_en')->get();
+        $this->zones = Zone::orderBy('name')->get();
     }
 
     public function openCampaignModal(){
@@ -100,13 +115,16 @@ class CampaignCrud extends Component
         $this->isEdit ? $this->updateCampaign()  : $this->storeCampaign();
     }
 
+
     public function updateCampaign()
     {
         $this->validate();
 
         try {
+            $campaign = Campaign::findOrFail($this->campaign_id);
 
-            Campaign::where('id', $this->campaign_id)->update([
+            $old = $campaign->toArray();
+            $campaign->update([
                 'campaigner_id' => $this->campaigner_id,
                 'assembly_id' => $this->assembly_id,
                 'event_category_id' => $this->event_category_id,
@@ -116,13 +134,28 @@ class CampaignCrud extends Component
                 'remarks' => $this->remarks,
             ]);
 
+            $new = $campaign->fresh()->toArray();
+
+            ChangeLog::create([
+                'module_name' => 'campaign',
+                'action' => 'updated',
+                'description' => 'Campaign updated',
+                'old_data' => $old,
+                'new_data' => $new,
+
+                'changed_by'   => auth()->id(),
+                'ip_address'   => request()->ip(),
+                'user_agent'   => request()->header('User-Agent'),
+            ]);
+
+
             $this->dispatch('toastr:success', message: 'Campaign updated successfully!');
             $this->dispatch('refreshChosen');
             $this->dispatch('resetField');
             $this->dispatch('modelHide');
 
         } catch (\Exception $e) {
-
+            //dd($e->getMessage());
             $this->dispatch('toastr:error', message: 'Something went wrong while updating!');
             logger()->error('Campaign Update Error: ' . $e->getMessage());
         }
@@ -136,7 +169,7 @@ class CampaignCrud extends Component
 
         try {
 
-            Campaign::create([
+            $campaign = Campaign::create([
                 'campaigner_id' => $this->campaigner_id,
                 'assembly_id' => $this->assembly_id,
                 'event_category_id' => $this->event_category_id,
@@ -146,13 +179,24 @@ class CampaignCrud extends Component
                 'remarks' => $this->remarks,
             ]);
 
+            ChangeLog::create([
+                'module_name' => 'campaign',
+                'action' => 'inserted',
+                'description' => 'New Campaign created',
+                'old_data' => $campaign->toArray(),
+                'new_data' => $campaign->toArray(),
+
+                'changed_by'   => auth()->id(),
+                'ip_address'   => request()->ip(),
+                'user_agent'   => request()->header('User-Agent'),
+            ]);
+
             $this->dispatch('toastr:success', message: 'Campaign created successfully!');
             $this->dispatch('refreshChosen');
             $this->dispatch('resetField');
             $this->dispatch('modelHide');
 
         } catch (\Exception $e) {
-
             $this->dispatch('toastr:error', message: 'Something went wrong while creating!');
             logger()->error('Campaign Create Error: ' . $e->getMessage());
         }
@@ -246,17 +290,22 @@ class CampaignCrud extends Component
         if ($status == 'rescheduled' || $status == 'cancelled') {
             $this->dispatch('open-reschedule-modal');
         } else {
-            Campaign::where('id', $id)->update(['status' => $status]);
+           // Campaign::where('id', $id)->update(['status' => $status]);
+           $this->saveCampaignStatus();
         }
     }
+
 
     public function saveCampaignStatus()
     {
         $campaign = Campaign::find($this->selected_campaign_id);
-
+        $oldData = $campaign->only(['status', 'rescheduled_at', 'cancelled_remarks']);
         if ($this->selected_status == 'rescheduled') {
+
             $this->validate([
-                'rescheduled_at' => 'required|date',
+                'rescheduled_at' => 'required|date|after:today',
+            ],[
+                'rescheduled_at.after' => 'The rescheduled date must be a future date.',
             ]);
 
             $campaign->update([
@@ -265,8 +314,8 @@ class CampaignCrud extends Component
                 'cancelled_remarks' => null,
             ]);
         }
+        else if ($this->selected_status == 'cancelled') {
 
-        if ($this->selected_status == 'cancelled') {
             $this->validate([
                 'cancelled_remarks' => 'required|string|max:255',
             ]);
@@ -276,44 +325,112 @@ class CampaignCrud extends Component
                 'cancelled_remarks' => $this->cancelled_remarks,
                 'rescheduled_at' => null,
             ]);
+        }    
+        else {
+            $campaign->update([
+                'status' => $this->selected_status,
+                'rescheduled_at' => null,
+                'cancelled_remarks' => null,
+            ]);
         }
+        $campaign->refresh();
+
+        $newData = $campaign->only(['status', 'rescheduled_at', 'cancelled_remarks']);
+        ChangeLog::create([
+            'module_name'  => 'campaign',
+            'action'       => 'status changed',
+            'description'  => "Campaign status changed",
+
+            'old_data'     => $oldData,
+            'new_data'     => $newData,
+
+            'changed_by'   => auth()->id(),
+            'ip_address'   => request()->ip(),
+            'user_agent'   => request()->header('User-Agent'),
+        ]);
 
         $this->dispatch('close-reschedule-modal');
-        $this->dispatch('toastr:success', message: "Campaign rescheduled successfully!");
+        $this->dispatch('toastr:success', message: "Campaign status updated successfully!");
     }
 
+
+    public function resetFilters()
+    {
+        $this->filter_by_assembly = '';
+        $this->filter_by_district = '';
+        $this->filter_by_zone = '';
+        $this->search = '';
+
+        $this->dispatch('refreshChosen'); 
+    }
+
+    public function filterCampaign($searchTerm)
+    {
+        $this->search = $searchTerm;
+    }
 
     public function render()
     {
         $campaigns = Campaign::with([
-                'assembly.assemblyPhase.phase',  
+                'assembly.assemblyPhase.phase',
                 'campaigner',
                 'category'
             ])
-        ->when($this->search, function ($query){
-            $query->where('campaign_date', "like", "%{$this->search}%")
-            ->orWhere('address', "like", "%{$this->search}%")
-            ->orWhere('remarks', "like", "%{$this->search}%")
-            ->orWhereHas('assembly', function ($asmb){
-                $asmb->where('assembly_number', "like", "%{$this->search}%")
-                ->orWhere('assembly_name_en', "like", "%{$this->search}%")
-                ->orWhere('assembly_code', "like", "%{$this->search}%");
-            })->orWhereHas('category', function ($evnt_category){
-                $evnt_category->where('name', "like", "%{$this->search}%");
-            });
-        })
-        ->orderByRaw("
-            CASE 
-                WHEN campaign_date >= NOW() THEN 0
-                ELSE 1
-            END
-        ")
-        ->orderBy('campaign_date', 'ASC')
-        ->paginate(20);
+            ->when($this->search, function ($query) {
+                $query->where(function ($q) {
+                    $q->where('campaign_date', "like", "%{$this->search}%")
+                    ->orWhere('address', "like", "%{$this->search}%")
+                    ->orWhere('remarks', "like", "%{$this->search}%")
+                    ->orWhereHas('assembly', function ($asmb) {
+                        $asmb->where('assembly_number', "like", "%{$this->search}%")
+                            ->orWhere('assembly_name_en', "like", "%{$this->search}%")
+                            ->orWhere('assembly_code', "like", "%{$this->search}%");
+                    })
+                    ->orWhereHas('category', function ($cat) {
+                        $cat->where('name', "like", "%{$this->search}%");
+                    })
+                    ->orWhereHas('campaigner', function ($camp) {
+                        $camp->where('name', "like", "%{$this->search}%");
+                    });
+                });
+            })
+
+            ->when($this->filter_by_assembly, function ($q) {
+                $q->where('assembly_id', $this->filter_by_assembly);
+            })
+
+
+            ->when($this->filter_by_district, function ($q) {
+                $q->whereHas('assembly', function ($asm) {
+                    $asm->where('district_id', $this->filter_by_district);
+                });
+            })
+
+            ->when($this->filter_by_zone, function ($q) {
+                $zone = Zone::find($this->filter_by_zone);
+
+                if (!$zone) return;
+
+                $districtIds = explode(',', $zone->districts);
+
+                $q->whereHas('assembly', function ($asm) use ($districtIds) {
+                    $asm->whereIn('district_id', $districtIds);
+                });
+            })
+
+            ->orderByRaw("
+                CASE 
+                    WHEN campaign_date >= NOW() THEN 0
+                    ELSE 1
+                END
+            ")
+            ->orderBy('campaign_date', 'ASC')
+
+            ->paginate(20);
+
         return view('livewire.campaign-crud', [
-            'campaigns' =>$campaigns,
+            'campaigns' => $campaigns,
         ])->layout('layouts.admin');
     }
-
 
 }
