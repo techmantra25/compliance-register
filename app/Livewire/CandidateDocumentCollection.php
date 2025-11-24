@@ -28,6 +28,9 @@ class CandidateDocumentCollection extends Component
     public $remarks, $acknowledgment_file, $final_submission_confirmation;
     // public $remarks = [];
     public $availableDocuments = [];
+    public $skipOption = [];
+    public $attachedTo = [];
+    public $documents_approved_by;
 
     public function mount(Request $request)
     {
@@ -63,9 +66,41 @@ class CandidateDocumentCollection extends Component
         $this->availableDocuments = $this->getDocumentTypes();
         // Load existing uploaded documents as arrays
         $this->loadDocuments();
-        // $this->FinalStatusUpdate();
+        $this->documents_approved_by = $this->candidateData
+        ->documents
+        ->where('status', 'Approved')
+        ->load('vettedBy')
+        ->pluck('vettedBy.name')      // get name
+        ->filter()                    // remove null
+        ->unique()                    // unique names
+        ->values()                    // reset keys
+        ->implode(', ');              // convert to comma string
+
     }
 
+
+    public function toggleSkip($key, $value)
+    {
+        // If unchecked, Livewire clears the value
+        $item_value = $value??null;
+        $this->skipOption[$key] = $item_value;
+        // dd($item_value);
+        if ($item_value !== 'yes') {
+            // User unchecked — treat as NO
+            $this->skipOption[$key] = null;
+            $this->attachedTo[$key] = null; // clear parent attachment
+        }
+    }
+
+    public function updateAttachment($key)
+    {
+        // Save attachment logic here
+        // Example:
+        // Document::where('key', $key)->update([
+        //     'attached_to' => $this->attachedTo[$key] ?? null,
+        //     'is_skipped'  => 1
+        // ]);
+    }
     /**
      * Helper function — all document names
      */
@@ -116,7 +151,7 @@ class CandidateDocumentCollection extends Component
     {
         $this->validate([
             "type" => 'required|string',
-            'newFile' => 'required|file|mimes:pdf,doc,docx,jpg,jpeg,png,gif,bmp,webp|max:5120',
+            'newFile' => 'required|file|mimes:pdf,jpg,jpeg,png,gif,bmp,webp|max:5120',
             "remarks" => 'nullable|string|max:500',
         ]);
 

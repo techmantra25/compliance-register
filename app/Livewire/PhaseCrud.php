@@ -158,8 +158,8 @@ class PhaseCrud extends Component
                     });
             })
             ->with(['assemblies'])
-            ->orderBy('last_date_of_nomination', 'asc')
-            ->orderBy('date_of_election', 'asc')
+            // ->orderBy('last_date_of_nomination', 'asc')
+            // ->orderBy('date_of_election', 'asc')
             ->get();
 
         foreach ($phases as $phase) {

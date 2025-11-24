@@ -44,7 +44,7 @@
                             <select wire:model="filter_by_assembly" class="form-select chosen-select">
                                 <option value="">Filer by Assembly</option>
                                 @foreach ($assemblies as $assembly)
-                                <option value="{{ $assembly->id }}" data-number="{{$assembly->assembly_number}}">
+                                <option value="{{ $assembly->id }}">
                                     {{ $assembly->assembly_name_en }} ({{ $assembly->assembly_code }})
                                 </option>
                                 @endforeach
@@ -468,75 +468,74 @@
     <script src="{{ asset('assets/js/chosen.jquery.js') }}"></script>
     <script>
         function initChosen() {
-                $('.chosen-select').chosen({
-                    width: '100%',
-                    no_results_text: "No result found"
-                }).off('change').on('change', function (e) {
-                    let model = $(this).attr('wire:model');
-                    if (model) {
-                        @this.set(model, $(this).val());
-                    }
-                });
-            }
-            
-
-            function updateChosenValues() {
-                $('.chosen-select').each(function () {
-                    const el = $(this);
-                    const model = el.attr('wire:model');
-                    if (model) {
-                        const val = @this.get(model);
-                        if (val) {
-                            el.val(val).trigger('chosen:updated');
-                        }
-                    }
-                });
-            }
-
-            document.addEventListener("livewire:navigated", () => {
-                initChosen();
+            // Destroy previous Chosen instance to avoid duplicates
+            $('.chosen-select').chosen({
+                width: '100%',
+                no_results_text: "No result found",
+                search_contains: true
+            })
+            .off('change')
+            .on('change', function () {
+                let model = $(this).attr('wire:model');
+                if (model) {
+                    @this.set(model, $(this).val());
+                }
             });
-
-            Livewire.hook('morph.updated', () => {
-                setTimeout(() => {
-                    initChosen();
-                    updateChosenValues();
-                }, 400);
+        }
+        Livewire.hook('morph.updated', ({ el, component }) => {
+            initChosen();
+            // ✅ After re-init, sync the Livewire value back to Chosen
+            $('.chosen-select').each(function () {
+                const el = $(this);
+                const model = el.attr('wire:model');
+                if (model && @this.get(model)) {
+                    el.val(@this.get(model)).trigger('chosen:updated');
+                }
             });
+        });
 
-            // Update Chosen when modal is shown
-            $('#candidateModal').on('shown.bs.modal', function () {
-                setTimeout(() => {
-                    updateChosenValues();
-                }, 100);
-            });
-
-            $(document).ready(function () {
-                initChosen();
-            });
-    </script>
-   
-    <script>
-        window.addEventListener('close-upload-modal', event => {
-                $('#uploadcandidateModal').modal('hide');
-            });
-    </script>
-
-    <script>
+        // Initial load
         document.addEventListener('livewire:load', function () {
-            Livewire.on('refreshChosen', () => {
-                $('.chosen-select').val('').trigger('chosen:updated');
-            });
+            initChosen();
         });
 
-        window.addEventListener('refreshChosen', function () {
-            $('.chosen-select').val('').trigger('chosen:updated');
+        // Livewire re-renders DOM -> reinitialize Chosen
+        Livewire.hook('message.processed', (message, component) => {
+            initChosen();
         });
 
-        window.addEventListener('clearSearch', function () {
-            $('input[wire\\:model]').val(''); 
+        // Re-init when navigating across components
+        document.addEventListener("livewire:navigated", () => {
+            initChosen();
+        });
+
+        // When modal is opened (Chosen requires visible container)
+        $('#candidateModal').on('shown.bs.modal', function () {
+            setTimeout(() => initChosen(), 150);
         });
     </script>
+
+    <script>
+        // Close modal event
+        window.addEventListener('close-upload-modal', () => {
+            $('#uploadcandidateModal').modal('hide');
+        });
+
+        // Refresh chosen via Livewire event
+        Livewire.on('refreshChosen', () => {
+            $('.chosen-select').trigger('chosen:updated');
+        });
+
+        window.addEventListener('refreshChosen', () => {
+            $('.chosen-select').trigger('chosen:updated');
+        });
+
+        // Clear search fields
+        window.addEventListener('clearSearch', () => {
+            $('input[wire\\:model]').val('');
+        });
+    </script>
+
    
     @endpush
 </div>

@@ -40,12 +40,12 @@ class DocumentComments extends Component
 
         $oldData = [
             'status'     => $CandidateDocument->getOriginal('status'),
-            'vetted_by'  => optional($CandidateDocument->vettedBy)->name.'(Ligal Associate)',
+            'vetted_by'  => optional($CandidateDocument->vettedBy)->name.'(Legal Associate)',
             'vetted_on'  => $CandidateDocument->getOriginal('vetted_on'),
         ];
         $newData = [
             'status'     => $CandidateDocument->status,
-            'vetted_by'  => optional($CandidateDocument->vettedBy)->name.'(Ligal Associate)',
+            'vetted_by'  => optional($CandidateDocument->vettedBy)->name.'(Legal Associate)',
             'vetted_on'  => $CandidateDocument->vetted_on,
         ];
 

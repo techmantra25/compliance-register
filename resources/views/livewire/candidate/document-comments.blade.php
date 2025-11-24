@@ -93,16 +93,80 @@
             </div>
         </div>
         <div class="col-md-4">
+            @if($authUser->role !== "legal_associate")
+                <div class="card shadow border-0 mb-4">
+
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <span class="
+                                badge px-3
+                                @if($document->status == 'Approved') bg-success
+                                @elseif($document->status == 'Rejected') bg-danger
+                                @else bg-warning text-dark
+                                @endif
+                            ">
+                                Current Status: <strong>{{ $document->status }}</strong>
+                            </span>
+                        </div>
+                        {{-- When Rejected --}}
+                        @if($document->status === "Rejected")
+
+                            <div class="d-flex align-items-start mb-2">
+                                <i class="bi bi-calendar-x text-danger me-2 fs-5"></i>
+                                <div>
+                                    <strong>Rejected On:</strong><br>
+                                    <span class="text-muted">{{ $document->updated_at }}</span>
+                                </div>
+                            </div>
+
+                            @if(!empty($document->vettedBy))
+                            <div class="d-flex align-items-start mb-2">
+                                <i class="bi bi-person-x text-danger me-2 fs-5"></i>
+                                <div>
+                                    <strong>Rejected By:</strong><br>
+                                    <span class="text-muted">{{ $document->vettedBy->name }}</span>
+                                </div>
+                            </div>
+                            @endif
+
+                        {{-- When Approved or Pending --}}
+                        @else
+                            @if(!empty($document->vetted_on))
+                            <div class="d-flex align-items-start mb-2">
+                                <i class="bi bi-calendar-check text-success me-2 fs-5"></i>
+                                <div>
+                                    <strong>Vetted On:</strong><br>
+                                    <span class="text-muted">{{ $document->vetted_on }}</span>
+                                </div>
+                            </div>
+                            @endif
+
+                            @if(!empty($document->vettedBy))
+                            <div class="d-flex align-items-start">
+                                <i class="bi bi-person-badge text-info me-2 fs-5"></i>
+                                <div>
+                                    <strong>Approved By:</strong><br>
+                                    <span class="text-muted">{{ $document->vettedBy->name }}</span>
+                                </div>
+                            </div>
+                            @endif
+
+                        @endif
+
+                    </div>
+                </div>
+                @endif
+
             <div class="card shadow-sm mb-4">
                 <div class="card-header">
-                    <h6 class="mb-3">All Comments ({{ count($comments) }})</h6>
+                    <h6 class="mb-3">Legal Comments ({{ count($comments) }})</h6>
                 </div>
                 <div class="card-body chart-body">
                     @forelse($comments as $comment)
                         <div class="border-bottom py-2">
                             <div class="d-flex justify-content-between align-items-center">
                                 <strong>{{ $comment->admin->name ?? 'Unknown Admin' }}</strong>
-                                <small class="text-muted">{{ $comment->created_at->diffForHumans() }}</small>
+                                <small class="text-muted">{{ \Carbon\Carbon::parse($comment->created_at)->format('d M Y, h:i A') }}</small>
                             </div>
                             <div class="mt-1 text-secondary">{{ $comment->comment }}</div>
                         </div>

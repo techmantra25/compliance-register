@@ -41,7 +41,7 @@
         <h4 class="fw-bold mb-2 text-dark">Document Collections</h4>
     </div>
     
-    {{-- Right Section: Upload Acknowledgment Copy + Back Button --}}
+    {{-- Right Section: Upload Acknowledgement Copy + Back Button --}}
     <div class="d-flex flex-column align-items-end gap-2">
         {{-- Back Button --}}
         <a href="{{ route('admin.candidates.contacts') }}" class="btn btn-sm btn-danger shadow-sm">
@@ -89,7 +89,7 @@
                             </tr>
                             <tr>
                                 <th class="text-nowrap pe-3">Last Date of Submission of Nomination Form</th>
-                                <td>: {{ $nomination_date ?? 'N/A' }}</td>
+                                <td>: {{ \Carbon\Carbon::parse($nomination_date)->format('d M Y, h:i A') }}</td>
                             </tr>
                             <tr>
                                 <th class="text-nowrap pe-3">Final Status</th>
@@ -99,17 +99,17 @@
                                 </td>
                             </tr>
                             <tr>
-                                <th>Final Submission Confirmation (RO office)</th>
+                                <th>Date of Final Submission</th>
                                 <td> 
                                     @if($candidateData->final_submission_confirmation)
-                                        {{ \Carbon\Carbon::parse($candidateData->final_submission_confirmation)->format('d M Y, h:i A') }}
+                                        : {{ \Carbon\Carbon::parse($candidateData->final_submission_confirmation)->format('d M Y, h:i A') }}
                                     @else
                                         <span class="text-muted">—</span>
                                     @endif
                                 </td>
                             </tr>
                            <tr>
-                                <th>Acknowledgment Copy Reference</th>
+                                <th>Acknowledgement Copy Reference</th>
                                 <td>
                                     @if($candidateData->acknowledgment_file)
                                         <a href="{{ asset($candidateData->acknowledgment_file) }}" target="_blank" class="btn btn-sm btn-primary">
@@ -124,7 +124,7 @@
                             <tr>
                                 <th>Logged By</th>
                                 <td>
-                                    @if($candidateData->acknowledgment_by)
+                                    : @if($candidateData->acknowledgment_by)
                                         {{optional($candidateData->user)->name}}
                                     @else
                                         <span class="text-muted">—</span>
@@ -135,11 +135,17 @@
                             <tr>
                                 <th>Date & Time</th>
                                 <td>
-                                    @if($candidateData->acknowledgment_at)
+                                    : @if($candidateData->acknowledgment_at)
                                         {{ \Carbon\Carbon::parse($candidateData->acknowledgment_at)->format('d M Y, h:i A') }}
                                     @else
                                         <span class="text-muted">—</span>
                                     @endif
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Documents Approved By</th>
+                                <td>
+                                    : {{$documents_approved_by}}
                                 </td>
                             </tr>
                         </tbody>
@@ -156,7 +162,7 @@
 
                         <h6 class="fw-bold mb-3">
                             <i class="bi bi-file-earmark-arrow-up me-1 text-primary"></i>
-                            Upload Acknowledgment Copy
+                            Upload Acknowledgement Copy
                         </h6>
 
                         <form wire:submit.prevent="uploadAcknowledgmentCopy">
@@ -230,9 +236,9 @@
                             <th width="10%">Upload History</th>
                             <th width="14%">Date & Time</th>
                             <th width="8%">Status</th>
-                            <th width="20%">Remarks</th>
-                            <th width="16%">Action</th>
-                            <th width="10%">Upload Now</th>
+                            <th width="18%">Remarks by Data uploader</th>
+                            <th width="18%">Action</th>
+                            <th width="8%">Upload Now</th>
                         </tr>
                     </thead>
 
@@ -273,7 +279,7 @@
                                                         @case('gif')
                                                         @case('bmp')
                                                         @case('webp')
-                                                            <i class="bi bi-file-earmark-image text-success me-2 fs-5"></i>
+                                                            <i class="bi bi-file-earmark-image text-secondary me-2 fs-5"></i>
                                                             @break
                                                         @default
                                                             <i class="bi bi-file-earmark-text text-secondary me-2 fs-5"></i>
@@ -359,7 +365,7 @@
                                                     @if(!empty($doc['vetted_by_name']))
                                                         <div>
                                                             <i class="bi bi-person-badge me-1 text-info"></i>
-                                                            <strong>Vetted By:</strong> {{ $doc['vetted_by_name'] }}
+                                                            <strong>Approved By:</strong> {{ $doc['vetted_by_name'] }}
                                                         </div>
                                                     @endif
 
@@ -399,9 +405,46 @@
                                 {{-- No Documents Yet --}}
                                 <tr>
                                     <td><strong>{{ $label }}</strong></td>
-                                    <td colspan="5" class="text-center text-muted">
+                                    <td colspan="4" class="text-center text-muted">
                                         <i class="bi bi-inbox"></i> No documents uploaded yet
                                     </td>
+                                    <td colspan="1" class="text-center">
+
+                                        <!-- Step 1: Radio toggle -->
+                                        <div class="d-flex justify-content-center gap-3">
+
+                                            <label class="d-flex justify-content-center align-items-center">
+                                                <input type="checkbox"
+                                                    wire:model="skipOption.{{ $key }}"
+                                                    wire:change="toggleSkip('{{ $key }}', $event.target.value)"
+                                                    value="yes"
+                                                    class="me-2">
+                                                Skip this document?
+                                            </label>
+                                        </div>
+
+                                        <!-- Step 2: Show dropdown ONLY when 'Included in Another' is selected -->
+                                        @if(isset($skipOption[$key]) && $skipOption[$key] === 'yes')
+                                            <select class="form-select form-select-sm w-auto d-inline-block mt-2"
+                                                    style="min-width: 180px;"
+                                                    wire:model="attachedTo.{{ $key }}"
+                                                    wire:change="updateAttachment('{{ $key }}')">
+
+                                                <option value="">🔗 Select parent document</option>
+
+                                                @foreach($availableDocuments as $parent_key => $parent)
+                                                    @if($parent_key !== $key)
+                                                        <option value="{{ $parent }}">
+                                                            📄 {{ $parent }}
+                                                        </option>
+                                                    @endif
+                                                @endforeach
+                                            </select>
+                                        @endif
+
+
+                                    </td>
+
                                     <td class="text-center">
                                         <button class="btn btn-primary btn-sm" 
                                                 wire:click="SetDocType('{{ $key }}')" 
@@ -481,7 +524,7 @@
     <script>
         function confirmUpload() {
             Swal.fire({
-                title: "Upload Acknowledgment Copy?",
+                title: "Upload Acknowledgement Copy?",
                 text: "Are you sure you want to upload this file?",
                 icon: "warning",
                 showCancelButton: true,

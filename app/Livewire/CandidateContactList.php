@@ -534,18 +534,18 @@ class CandidateContactList extends Component
         ->orderByDesc('id')
         ->paginate(20);
 
-        if ($this->authUser->role === "legal_associate") {
-            $collection = $candidates->getCollection();
+        // if ($this->authUser->role === "legal_associate") {
+        //     $collection = $candidates->getCollection();
 
-            $filtered = $collection->filter(function ($candidate) {
-                if (!$candidate) return false;
+        //     $filtered = $collection->filter(function ($candidate) {
+        //         if (!$candidate) return false;
 
-                $uploaded_documents = $candidate->documents->groupBy('type')->count();
-                return $uploaded_documents == $this->required_document;
-            })->values();
+        //         $uploaded_documents = $candidate->documents->groupBy('type')->count();
+        //         return $uploaded_documents == $this->required_document;
+        //     })->values();
 
-            $candidates->setCollection($filtered);
-        }
+        //     $candidates->setCollection($filtered);
+        // }
 
         return view('livewire.candidate-contact-list', [
             'candidates' => $candidates,

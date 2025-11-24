@@ -34,7 +34,7 @@ if (!function_exists('getFinalDocStatus')) {
     {
         $statuses = [
             'verified_pending_submission' => [
-                'label' => 'Verified Correct but yet to be submitted',
+                'label' => 'Vetting completed, pending for submission',
                 'icon'  => '✅',
             ],
             'ready_for_vetting' => [
