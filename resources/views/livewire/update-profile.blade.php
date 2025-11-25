@@ -44,8 +44,8 @@
                 <select class="form-control" wire:model.defer="role">
                     <option value="">Select Role</option>
                     <option value="admin">Admin</option>
-                    <option value="manager">Manager</option>
-                    <option value="user">User</option>
+                    <option value="employee">Employee</option>
+                    <option value="legal_associate">Legal Associate</option>
                 </select>
                 @error('role') <small class="text-danger">{{ $message }}</small> @enderror
             </div>
