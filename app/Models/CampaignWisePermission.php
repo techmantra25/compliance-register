@@ -9,7 +9,7 @@ class CampaignWisePermission extends Model
     protected $table = "campaign_wise_permissions";
 
     protected $fillable = [
-       'campaign_id', 'event_required_permission_id', 'status', 'remarks', 'applied_copy', 'uploaded_by', 'uploaded_at', 'approved_by', 'approved_at'
+       'campaign_id', 'event_required_permission_id', 'doc_type', 'file', 'status', 'rejected_reason', 'remarks', 'uploaded_by', 'uploaded_at', 'approved_by', 'approved_at'
     ];
 
     public function campaign(){
