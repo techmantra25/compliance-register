@@ -93,7 +93,7 @@
                                     <tr wire:key="campaign-row-{{ $camp->id }}">
                                         <td>{{ $campaigns->firstItem() + $index }}</td>
 
-                                        <td>{{ ucwords($camp->campaigner->name) }}<br>{{$camp->campaigner->mobile}} <br>{{$camp->address}}</td>
+                                        <td>{{ ucwords($camp->campaigner->name) }}<br>{{$camp->campaigner->mobile}} <br>{{ucwords($camp->address)}}</td>
 
                                         <td>{{ ucwords($camp->assembly->assembly_name_en ?? '_')}}<br>{{($camp->assembly->assembly_code) ?? '-' }} <br>
                                         ({{ ucwords($camp->assembly->assemblyPhase->phase->name ?? 'N/A') }})</td>

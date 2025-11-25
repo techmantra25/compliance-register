@@ -179,7 +179,7 @@
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end shadow-sm">
                         <li>
-                            <a class="dropdown-item" href="#">{{ __('admin/sidebar.profile') }}</a>
+                            <a class="dropdown-item" href="{{route('admin.update.profile')}}">{{ __('admin/sidebar.profile') }}</a>
                         </li>
                         <li>
                             <form method="POST" action="{{ route('admin.logout') }}">
