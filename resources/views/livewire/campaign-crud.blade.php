@@ -73,101 +73,130 @@
 
                 <div class="card-body p-2">
                     <div class="table-responsive">
-                        <table class="table align-middle mb-0">
-                            <thead class="table-light">
+                        <table class="table table-hover align-middle mb-0 shadow-sm rounded">
+                            <thead class="table-primary text-center">
                                 <tr>
                                     <th>#</th>
-                                    <th>Campaigners Details</th>
+                                    <th>Campaigner</th>
                                     <th>Assembly</th>
-                                    <th width="20%">Event Type</th>
-                                    <th width="25%">Date & Time</th>
-                                    <th width="10%">Permission Required</th>
+                                    <th>Event Type</th>
+                                    <th>Date & Time</th>
+                                    <th>Permissions</th>
                                     <th>Status</th>
-                                    <th width="20%">Action</th>
+                                    <th>Action</th>
                                 </tr>
                             </thead>
 
                             <tbody>
-                            {{-- @dd($campaigns) --}}
                                 @forelse($campaigns as $index => $camp)
-                                    <tr wire:key="campaign-row-{{ $camp->id }}">
-                                        <td>{{ $campaigns->firstItem() + $index }}</td>
+                                <tr class="text-center">
 
-                                        <td>{{ ucwords($camp->campaigner->name) }}<br>{{$camp->campaigner->mobile}} <br>{{ucwords($camp->address)}}</td>
+                                    <!-- SL -->
+                                    <td class="fw-bold text-dark">
+                                        {{ $campaigns->firstItem() + $index }}
+                                    </td>
 
-                                        <td>{{ ucwords($camp->assembly->assembly_name_en ?? '_')}}<br>{{($camp->assembly->assembly_code) ?? '-' }} <br>
-                                        ({{ ucwords($camp->assembly->assemblyPhase->phase->name ?? 'N/A') }})</td>
+                                    <!-- Campaigner -->
+                                    <td class="text-start">
+                                        <div class="fw-semibold">{{ ucwords($camp->campaigner->name) }}</div>
+                                        <div class="text-muted small"><i class="bi bi-telephone"></i> {{ $camp->campaigner->mobile }}</div>
+                                        <div class="small">{{ $camp->address }}</div>
+                                    </td>
 
-                                        <td>{{ ucwords($camp->category->name) ?? '-' }}</td>
+                                    <!-- Assembly -->
+                                    <td class="text-start">
+                                        <div class="fw-semibold">{{ ucwords($camp->assembly->assembly_name_en ?? '_') }}</div>
+                                        <div class="text-muted small">Code: {{ $camp->assembly->assembly_code ?? '-' }}</div>
+                                        <div class="small text-primary">
+                                            ({{ ucwords($camp->assembly->assemblyPhase->phase->name ?? 'N/A') }})
+                                        </div>
+                                    </td>
 
-                                        <td>
-                                            <div class="mb-1">
-                                                <i class="bi bi-calendar-event me-1 text-primary"></i>
-                                                <strong>Campaign Date:</strong>
-                                                {{ date('d M Y, h:i A', strtotime($camp->campaign_date)) }}
-                                            </div>
+                                    <!-- Event Type -->
+                                    <td class="fw-semibold">
+                                        {{ ucwords($camp->category->name) ?? '-' }}
+                                    </td>
 
-                                            <div>
-                                                <i class="bi bi-calendar-check me-1 text-danger"></i>
-                                                <strong>Last Date of Permission:</strong>
-                                                {{ date('d M Y, h:i A', strtotime($camp->last_date_of_permission)) }}
-                                            </div>
-                                        </td>
+                                    <!-- Dates -->
+                                    <td class="text-start">
+                                        <div class="mb-1">
+                                            <i class="bi bi-calendar-event text-primary me-1"></i>
+                                            <strong>Campaign:</strong>
+                                            {{ date('d M Y, h:i A', strtotime($camp->campaign_date)) }}
+                                        </div>
+                                        <div>
+                                            <i class="bi bi-calendar-check text-danger me-1"></i>
+                                            <strong>Last Permission:</strong>
+                                            {{ date('d M Y, h:i A', strtotime($camp->last_date_of_permission)) }}
+                                        </div>
+                                    </td>
 
-                                        <td>{{$camp->category->permissions->count() ?? 0}}</td>
+                                    <!-- Permission Count -->
+                                    <td>
+                                        <span class="badge bg-danger">  
+                                            {{ $camp->category->permissions->count() ?? 0 }} Required
+                                        </span>
+                                    </td>
 
-                                        <td>
-                                            <select class="form-select form-select-sm w-auto px-3"
-                                                wire:change="statusChanged({{ $camp->id }}, $event.target.value)">
-                                                <option value="pending" @selected($camp->status == 'pending')>Pending</option>
-                                                <option value="rescheduled" @selected($camp->status == 'rescheduled')>Rescheduled</option>
-                                                <option value="cancelled" @selected($camp->status == 'cancelled')>Cancelled</option>
-                                                <option value="completed" @selected($camp->status == 'completed')>Completed</option>
-                                            </select>
-                                            @if($camp->status == 'rescheduled' && $camp->rescheduled_at)
-                                                <small class="text-primary d-block mt-1">
-                                                    <i class="bi bi-clock-history"></i>
-                                                    Rescheduled Date: {{ date('d M Y, h:i A', strtotime($camp->rescheduled_at)) }}
-                                                </small>
-                                            @endif
+                                    <!-- Status -->
+                                    <td>
+                                        <select class="form-select form-select-sm px-2 w-auto mx-auto"
+                                            wire:change="statusChanged({{ $camp->id }}, $event.target.value)">
+                                            <option value="pending" @selected($camp->status == 'pending')>Pending</option>
+                                            <option value="rescheduled" @selected($camp->status == 'rescheduled')>Rescheduled</option>
+                                            <option value="cancelled" @selected($camp->status == 'cancelled')>Cancelled</option>
+                                            <option value="completed" @selected($camp->status == 'completed')>Completed</option>
+                                        </select>
 
-                                            @if($camp->status == 'cancelled' && $camp->cancelled_remarks)
-                                                <small class="text-danger d-block mt-1">
-                                                    <i class="bi bi-x-circle"></i>
-                                                    Cancelled Remarks: {{ ucwords($camp->cancelled_remarks) }}
-                                                </small>
-                                            @endif
-                                        </td>
+                                        @if($camp->status == 'rescheduled' && $camp->rescheduled_at)
+                                            <small class="text-primary d-block mt-1">
+                                                <i class="bi bi-clock-history"></i>
+                                                {{ date('d M Y, h:i A', strtotime($camp->rescheduled_at)) }}
+                                            </small>
+                                        @endif
 
-                                        <td>
+                                        @if($camp->status == 'cancelled' && $camp->cancelled_remarks)
+                                            <small class="text-danger d-block mt-1">
+                                                <i class="bi bi-x-circle"></i>
+                                                {{ ucwords($camp->cancelled_remarks) }}
+                                            </small>
+                                        @endif
+                                    </td>
+
+                                    <!-- Actions -->
+                                    <td class="text-center">
+                                        <div class="btn-group">
+
+                                            <!-- Edit -->
                                             <button class="btn btn-sm btn-outline-primary"
-                                                    wire:click="edit({{ $camp->id }})" data-bs-toggle="modal" data-bs-target="#campaignModal">
+                                                title="Edit Campaign"
+                                                wire:click="edit({{ $camp->id }})"
+                                                data-bs-toggle="modal" data-bs-target="#campaignModal">
                                                 <i class="bi bi-pencil"></i>
                                             </button>
 
+                                            <!-- Permission -->
                                             <a href="{{ route('admin.campaigns.permission', $camp->id) }}"
-                                                class="btn btn-sm btn-outline-primary"
-                                                title="View campaigner Document Collections">
-                                               <i class="bi bi-file-earmark-arrow-up"></i>Permission
+                                                class="btn btn-sm btn-outline-success"
+                                                title="View Permissions">
+                                                <i class="bi bi-file-earmark-arrow-up"></i>
                                             </a>
 
-                                            {{-- <button class="btn btn-sm btn-danger"
-                                                    wire:click="delete({{ $camp->id }})">
-                                                <i class="bi bi-trash"></i>
-                                            </button> --}}
-                                        </td>
-                                    </tr>
+                                        </div>
+                                    </td>
 
+                                </tr>
                                 @empty
-                                    <tr>
-                                        <td colspan="8" class="text-center text-muted py-3">
-                                            No campaigns found
-                                        </td>
-                                    </tr>
+                                <tr>
+                                    <td colspan="8" class="text-center text-muted py-4">
+                                        <i class="bi bi-info-circle"></i> No campaigns found
+                                    </td>
+                                </tr>
                                 @endforelse
                             </tbody>
 
                         </table>
+
                     </div>
                 </div>
 
@@ -192,9 +221,10 @@
                     @if($selected_status == 'rescheduled')
                     <div class="modal-body">
                         <label class="form-label">Rescheduled Date</label>
-                        <input type="datetime-local" wire:model="rescheduled_at" class="form-control">
+                        <input type="datetime-local" wire:model="new_campaign_date" class="form-control"
+                        min="{{ now()->format('Y-m-d\TH:i') }}">
 
-                        @error('rescheduled_at')
+                        @error('new_campaign_date')
                             <small class="text-danger">{{ $message }}</small>
                         @enderror
                     </div>

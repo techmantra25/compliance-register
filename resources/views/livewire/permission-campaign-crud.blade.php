@@ -1,34 +1,7 @@
 <div>
     <style>
-        .delete-btn-padding{
-            padding: 0px 2px;
-        }
-        .file-format-size{
-            font-size: 9px;
-        }
-          .upload-history {
-        max-height: 200px;
-        overflow-y: auto;
-    }
     
-    .upload-item {
-        padding: 8px;
-        border-radius: 4px;
-        background: #f8f9fa;
-    }
     
-    .upload-item:last-child {
-        border-bottom: none !important;
-        margin-bottom: 0 !important;
-        padding-bottom: 0 !important;
-    }
-    
-    .upload-details {
-        font-size: 0.75rem;
-    }
-    .badge {
-        font-size: 0.65rem;
-    }
     body.modal-open {
     overflow: hidden;
     padding-right: 17px;
@@ -125,59 +98,243 @@
             <table class="table mb-0 align-middle table-bordered">
                 <thead class="table-light">
                     <tr class="text-center">
-                        <th width="5%">SL No.</th>
-                        <th width="10%">Permission</th>
-                        <th width="20%">Issuing Authority / Department</th>
-                        <th width="8%">Current Status</th>
-                        <th width="20%">Remarks</th>
-                        <th width="16%">Applied Copy</th>
-                        <th width="10%">Approval Document </th>
+                        <th width="5%">SL</th>
+                        <th width="20%">Permission</th>
+                        <th width="20%">Issuing Authority</th>
+                        <th width="40%">Upload History</th>
+                        <th width="15%">Actions</th>
                     </tr>
                 </thead>
+
                 <tbody>
-                    @forelse($requiredPermissions as $index => $permission)
+                    @foreach ($requiredPermissions as $index => $permission)
+                        @php
+                            $records = App\Models\CampaignWisePermission::where('campaign_id', $camp->id)
+                                ->where('event_required_permission_id', $permission->id)
+                                ->orderBy('id', 'desc')
+                                ->get();
+
+                            $latest = $records->first();  // latest entry
+                        @endphp
+
                         <tr>
+
                             <td class="text-center">{{ $index + 1 }}</td>
 
-                            <td>{{ $permission->permission_required ?? 'N/A' }}</td>
+                            <td>{{ $permission->permission_required }}</td>
 
-                            <td>{{ $permission->issuing_authority ?? 'N/A' }}</td>
+                            <td>{{ $permission->issuing_authority }}</td>
 
+
+                            <!-- UPLOAD HISTORY -->
                             <td>
-                                <span class="badge bg-secondary">Pending</span>
+                                @forelse($records as $verIndex => $row)
+
+                                    <div class="p-2 mb-2 border rounded bg-light">
+                                        
+                                        {{-- HEADER --}}
+                                        <div class="d-flex justify-content-between">
+                                            <div>
+                                                <span class="fw-bold text-uppercase">
+                                                    {{ str_replace('_', ' ', $row->doc_type) }}
+                                                </span>
+
+                                                <span class="mx-2">|</span>
+
+                                                {{-- STATUS BADGE --}}
+                                                @if($row->status == 'approved')
+                                                    <span class="badge bg-success">Approved</span>
+                                                @elseif($row->status == 'rejected')
+                                                    <span class="badge bg-danger">Rejected</span>
+                                                @else
+                                                    <span class="badge bg-warning text-dark">Pending</span>
+                                                @endif
+                                            </div>
+
+                                            <div>
+                                                <a href="{{ asset($row->file) }}" target="_blank" 
+                                                class="btn btn-sm btn-outline-secondary">
+                                                    <i class="bi bi-eye"></i> View
+                                                </a>
+                                            </div>
+                                        </div>
+
+
+                                        {{-- META INFORMATION --}}
+                                        <div class="small text-muted mt-2">
+                                            {{-- Approved Info (only approved rows) --}}
+                                            @if($row->status == 'approved')
+                                                <div>
+                                                    <i class="bi bi-check2-circle me-1"></i>
+                                                    Approved By: <strong>{{ $row->approvedBy ? $row->approvedBy->name : 'N/A' }}</strong>
+                                                    @if($row->approved_at)
+                                                        — {{ \Carbon\Carbon::parse($row->approved_at)->format('d M Y h:i A') }}
+                                                    @endif
+                                                </div>
+                                            @endif
+
+                                            {{-- Rejected Reason --}}
+                                            @if($row->status == 'rejected' || $row->rejected_reason)
+                                                <div class="text-danger mt-1">
+                                                    <i class="bi bi-x-circle me-1"></i>
+                                                    Rejected By: <strong>{{ $row->approvedBy ? $row->approvedBy->name : 'N/A' }}</strong> 
+                                                     @if($row->approved_at)
+                                                        — {{ \Carbon\Carbon::parse($row->approved_at)->format('d M Y h:i A') }}
+                                                    @endif <br>
+                                                    @if($row->rejected_reason)
+                                                    <strong>Reason:</strong> {{ $row->rejected_reason }}
+                                                    @endif
+                                                </div>
+                                                 <br>
+                                            @endif
+
+                                            {{-- Uploaded Info --}}
+                                            <div>
+                                                <i class="bi bi-upload me-1"></i>
+                                                Uploaded By: <strong>{{ $row->uploadedBy ? $row->uploadedBy->name : 'N/A' }}</strong>
+                                                @if($row->uploaded_at)
+                                                    — {{ \Carbon\Carbon::parse($row->uploaded_at)->format('d M Y h:i A') }}
+                                                @endif
+                                            </div>
+                                            {{-- Remarks --}}
+                                            @if($row->remarks)
+                                                <div class="mt-1">
+                                                    <i class="bi bi-chat-left-text me-1"></i>
+                                                    {{ $row->remarks }}
+                                                </div>
+                                            @endif
+
+                                        </div>
+                                    </div>
+
+                                @empty
+                                    <span class="text-muted text-center">No uploads yet</span>
+                                @endforelse
                             </td>
 
-                            <td></td> 
-                            <td class="text-center">
-                                <button class="btn btn-sm btn-primary"
-                                    wire:click= "openModal({{$permission->id}}, {{$camp->id}})">
-                                    <i class="bi bi-upload me-1"></i>
-                                    Upload
-                                </button>
-                            </td>
 
-                            <td class="text-center">
-                                <button class="btn btn-sm btn-secondary">
-                                <i class="bi bi-eye me-1"></i>
-                                    View
-                                </button>
-                            </td>
+                           <td class="text-center">
+
+                            {{-- For Legal Associate Role --}}
+                            @if(Auth::user()->role === 'legal_associate')
+
+                                {{-- No uploads yet --}}
+                                @if(!$latest)
+                                    <span class="badge bg-secondary">No document uploaded</span>
+
+                                {{-- LATEST = pending / awaiting action --}}
+                                @elseif($latest->status === 'pending')
+                                    <button class="btn btn-sm btn-success"
+                                        onclick="confirmApprove({{ $latest->id }})">
+                                        <i class="bi bi-check2-circle me-1"></i> Approve
+                                    </button>
+
+                                    <button class="btn btn-sm btn-danger"
+                                        wire:click="openRejectModal({{ $latest->id }})">
+                                        <i class="bi bi-x-circle me-1"></i> Reject
+                                    </button>
+
+                                {{-- If already approved --}}
+                                @elseif($latest->status === 'approved')
+                                    <span class="badge bg-success">Approved</span>
+
+                                {{-- If rejected --}}
+                                @elseif($latest->status === 'rejected')
+                                    <span class="badge bg-danger">Rejected</span>
+                                @endif
+
+                            @else
+                            {{-- Normal USER upload flow (your existing logic) --}}
+
+                                {{-- No uploads yet --}}
+                                @if(!$latest)
+                                    <button class="btn btn-sm btn-primary"
+                                        wire:click="uploadApplied({{ $permission->id }}, {{$camp->id}})">
+                                        <i class="bi bi-upload me-1"></i> Upload Applied Copy
+                                    </button>
+
+                                {{-- Latest = applied --}}
+                                @elseif($latest->doc_type == 'applied_copy')
+
+                                    @if($latest->status == 'rejected')
+                                        <button class="btn btn-sm btn-danger"
+                                            wire:click="uploadApplied({{ $permission->id }}, {{ $camp->id }})">
+                                            <i class="bi bi-arrow-repeat me-1"></i> Re-Upload Applied
+                                        </button>
+
+                                    @elseif($latest->status == 'approved')
+                                        <button class="btn btn-sm btn-warning"
+                                            wire:click="uploadApproved({{ $permission->id }}, {{$camp->id}})">
+                                            <i class="bi bi-upload me-1"></i> Upload Approved Copy
+                                        </button>
+
+                                    @else
+                                        <span class="badge bg-warning text-dark">Awaiting Verification</span>
+                                    @endif
+
+                                {{-- Latest = approved copy --}}
+                                @elseif($latest->doc_type == 'approved_copy')
+
+                                    @if($latest->status == 'rejected')
+                                        <button class="btn btn-sm btn-warning"
+                                            wire:click="uploadApproved({{ $permission->id }}, {{ $camp->id }})">
+                                            <i class="bi bi-arrow-repeat me-1"></i> Re-Upload Approved
+                                        </button>
+
+                                    @elseif($latest->status == 'approved')
+                                        <span class="badge bg-success">Completed</span>
+
+                                    @else
+                                        <span class="badge bg-warning text-dark">Awaiting Approval</span>
+                                    @endif
+
+                                @endif
+
+                            @endif
+
+                        </td>
+
+
                         </tr>
-                    @empty
-                        <tr>
-                            <td colspan="7" class="text-center text-muted py-3">No permissions defined for this event.</td>
-                        </tr>
-                    @endforelse
+
+                    @endforeach
                 </tbody>
             </table>
         </div>
     </div>
+
+    <div wire:ignore.self class="modal fade" id="rejectModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">Reject Document</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+                    <label>Rejection Remarks</label>
+                    <textarea class="form-control" wire:model="rejectRemarks" required></textarea>
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+
+                    <button class="btn btn-primary btn-sm" wire:click="submitRejection">
+                        <i class="bi bi-x-circle me-1"></i> Confirm Reject
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
     <div wire:ignore.self class="modal fade" id="DocumentModal" tabindex="-1" aria-labelledby="DocumentModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow-lg rounded-3">
 
                 <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title" id="DocumentModalLabel">Upload Document</h5>
+                    <h5 class="modal-title" id="DocumentModalLabel">Upload {{$doc_type=="applied_copy" ? 'Applied Copy' : 'Approved Copy'}}</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" wire:click="resetForm"></button>
                 </div>
 
@@ -254,6 +411,35 @@
                 const modal = bootstrap.Modal.getInstance(modalEl);
                 modal.hide();
             });
+            // Rejected Modal
+            window.addEventListener('open_reject_modal', () => {
+                const modalEl = document.getElementById('rejectModal');
+                const modal = new bootstrap.Modal(modalEl);
+                modal.show();
+            });
+
+            window.addEventListener('close_reject_modal', () => {
+                const modalEl = document.getElementById('rejectModal');
+                const modal = bootstrap.Modal.getInstance(modalEl);
+                modal.hide();
+            });
+        </script>
+        <script>
+            function confirmApprove(id) {
+                Swal.fire({
+                    title: "Are you sure?",
+                    text: "You are going to approve this document.",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#28a745",
+                    cancelButtonColor: "#d33",
+                    confirmButtonText: "Yes, Approve"
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        @this.call('approveDocument', id);
+                    }
+                });
+            }
         </script>
     @endpush
 

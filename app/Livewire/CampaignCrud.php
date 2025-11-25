@@ -22,6 +22,7 @@ class CampaignCrud extends Component
     public $isEdit = false;
     public $search = '';
 
+    public $new_campaign_date;
     public $selected_campaign_id;
     public $rescheduled_at;
     public $selected_status;
@@ -299,21 +300,25 @@ class CampaignCrud extends Component
     public function saveCampaignStatus()
     {
         $campaign = Campaign::find($this->selected_campaign_id);
-        $oldData = $campaign->only(['status', 'rescheduled_at', 'cancelled_remarks']);
+
+        $oldData = $campaign->only(['status', 'campaign_date','rescheduled_at', 'cancelled_remarks']);
+
         if ($this->selected_status == 'rescheduled') {
 
             $this->validate([
-                'rescheduled_at' => 'required|date|after:today',
+                'new_campaign_date' => 'required|date|after:today',
             ],[
-                'rescheduled_at.after' => 'The rescheduled date must be a future date.',
+                'new_campaign_date.after' => 'The rescheduled date must be a future date.',
             ]);
 
             $campaign->update([
                 'status' => 'rescheduled',
-                'rescheduled_at' => $this->rescheduled_at,
+                'campaign_date' => $this->new_campaign_date, 
+                'rescheduled_at' => now(),                    
                 'cancelled_remarks' => null,
             ]);
         }
+
         else if ($this->selected_status == 'cancelled') {
 
             $this->validate([
@@ -326,6 +331,7 @@ class CampaignCrud extends Component
                 'rescheduled_at' => null,
             ]);
         }    
+
         else {
             $campaign->update([
                 'status' => $this->selected_status,
@@ -333,17 +339,17 @@ class CampaignCrud extends Component
                 'cancelled_remarks' => null,
             ]);
         }
+
         $campaign->refresh();
 
-        $newData = $campaign->only(['status', 'rescheduled_at', 'cancelled_remarks']);
+        $newData = $campaign->only(['status','campaign_date','rescheduled_at','cancelled_remarks']);
+
         ChangeLog::create([
             'module_name'  => 'campaign',
             'action'       => 'status changed',
             'description'  => "Campaign status changed",
-
             'old_data'     => $oldData,
             'new_data'     => $newData,
-
             'changed_by'   => auth()->id(),
             'ip_address'   => request()->ip(),
             'user_agent'   => request()->header('User-Agent'),
@@ -352,6 +358,7 @@ class CampaignCrud extends Component
         $this->dispatch('close-reschedule-modal');
         $this->dispatch('toastr:success', message: "Campaign status updated successfully!");
     }
+
 
 
     public function resetFilters()

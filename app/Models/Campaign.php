@@ -24,4 +24,7 @@ class Campaign extends Model
     public function category(){
         return $this->belongsTo(EventCategory::class, 'event_category_id', 'id');
     }
+    public function permissions(){
+        return $this->hasMany(CampaignWisePermission::class, 'campaign_id', 'id');
+    }
 }
