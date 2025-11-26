@@ -3,6 +3,7 @@
 use App\Models\CandidateDocumentType;
 use App\Models\ChangeLog;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 if (!function_exists('getCandidateDocument')) {
     /**
@@ -102,6 +103,51 @@ if (!function_exists('logChange')) {
         } catch (\Exception $e) {
             dd($e->getMessage());
             \Log::error('ChangeLog Error: ' . $e->getMessage());
+        }
+    }
+}
+if (!function_exists('userAccess')) {
+    function userAccess($auth_id,$slug){
+        if($auth_id == 1){
+            return true;
+        }
+        $parent_module = DB::table('parent_modules')->where('slug',$slug)->first();
+        if(!$parent_module){
+            return false;
+        }
+        $permissions = DB::table('permissions')->where('parent_module_id', $parent_module->id)->pluck('id')->toArray();
+
+        if(count($permissions) == 0){
+            return false;
+        }
+        $role_module_restictions = DB::table('admin_permissions')
+            ->where('admin_id', $auth_id)
+            ->whereIn('permission_id', $permissions)
+            ->get();
+        if(count($role_module_restictions) == 0){
+            return false;
+        } else {
+            return true;
+        }
+    }
+}
+if (!function_exists('childUserAccess')) {
+    function childUserAccess($auth_id,$slug){
+        if($auth_id == 1){
+            return true;
+        }
+        $permissions = DB::table('permissions')->where('slug', $slug)->first();
+        if(!$permissions){
+            return false;
+        }
+        $role_module_restictions = DB::table('admin_permissions')
+            ->where('admin_id', $auth_id)
+            ->where('permission_id', $permissions->id)
+            ->first();
+        if(!$role_module_restictions){
+            return false;
+        } else {
+            return true;
         }
     }
 }

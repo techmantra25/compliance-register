@@ -46,15 +46,19 @@
                                             </div>
                                         </td>
                                         <td>
-                                            <button class="btn btn-sm btn-outline-primary"
-                                                wire:click="edit({{ $cat->id }})">
-                                                <i class="bi bi-pencil"></i>
+                                            @if(childUserAccess(Auth::guard('admin')->user()->id,'master_update_event_category'))
+                                                <button class="btn btn-sm btn-outline-primary"
+                                                    wire:click="edit({{ $cat->id }})">
+                                                    <i class="bi bi-pencil"></i>
+                                                </button>
+                                            @endif
+                                            @if(childUserAccess(Auth::guard('admin')->user()->id,'master_event_category_required_permission_list'))
+                                            <button type="button"
+                                                    class="btn btn-primary btn-sm"
+                                                    wire:click="openPermissionModal({{ $cat->id }})">
+                                                    Required Permissions
                                             </button>
-                                           <button type="button"
-                                                class="btn btn-primary btn-sm"
-                                                wire:click="openPermissionModal({{ $cat->id }})">
-                                                Required Permissions
-                                            </button>
+                                            @endif
                                         </td>
                                     </tr>
                                 @empty

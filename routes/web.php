@@ -21,7 +21,8 @@ use App\Livewire\{
     CampaignCrud,
     PermissionCampaignCrud,
     ForgetPassword,
-    UpdateProfile
+    UpdateProfile,
+    RolePermissions
 };
 use App\Livewire\Candidate\DocumentComments;
 use App\Http\Controllers\CandidateController;
@@ -77,13 +78,18 @@ Route::prefix('/admin')->middleware('auth:admin')->group(function () {
     Route::get('/update/profile', UpdateProfile::class)->name('admin.update.profile');
 
     Route::prefix('master')->group(function () {
-        Route::get('/zones', ZoneCrud::class)->name('admin.master.zones');
-        Route::get('/phases', PhaseCrud::class)->name('admin.master.phases');
-        Route::get('/event-categories', EventCategoryCrud::class)->name('admin.master.eventcategory');
+        Route::get('/zones', ZoneCrud::class)->name('admin.master.zones')->middleware('employee.permission:master_view_zones');
+        Route::get('/phases', PhaseCrud::class)->name('admin.master.phases')->middleware('employee.permission:master_view_phases');
+        Route::get('/event-categories', EventCategoryCrud::class)->name('admin.master.eventcategory')->middleware('employee.permission:master_view_event_categories');
     });
-    Route::get('/employees', EmployeeCrud::class)->name('admin.employees');
-    Route::get('/assemblies', AssemblyList::class)->name('admin.assemblies');
-    Route::get('/contacts', AgentCrud::class)->name('admin.agents');
+
+    Route::prefix('/employees')->group(function (){
+        Route::get('/', EmployeeCrud::class)->name('admin.employees')->middleware('employee.permission:employee_view_employee');
+        Route::get('/permissions/{id}', RolePermissions::class)->name('admin.employees.permissions');
+    });
+
+    Route::get('/assemblies', AssemblyList::class)->name('admin.assemblies')->middleware('employee.permission:assembly_view_assembly');
+    Route::get('/contacts', AgentCrud::class)->name('admin.agents')->middleware('employee.permission:contact_view_contacts');
     
     Route::prefix('candidates')->group(function () {
         Route::get('/journey/{id}', CandidateJourney::class)->name('admin.candidates.journey');
@@ -99,8 +105,8 @@ Route::prefix('/admin')->middleware('auth:admin')->group(function () {
 
 
     Route::prefix('campaign')->group(function (){
-        Route::get('/', CampaignCrud::class)->name('admin.campaigns');
-        Route::get('/permission/{campaign_id}', PermissionCampaignCrud::class)->name('admin.campaigns.permission');
+        Route::get('/', CampaignCrud::class)->name('admin.campaigns')->middleware('employee.permission:campaign_view_campaign');
+        Route::get('/permission/{campaign_id}', PermissionCampaignCrud::class)->name('admin.campaigns.permission')->middleware('employee.permission:campaign_campaign_permission');
     });
 });
 

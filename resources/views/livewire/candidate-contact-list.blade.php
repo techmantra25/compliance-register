@@ -20,16 +20,22 @@
                 </nav>
             </div>
             <div>
+                @if(childUserAccess(Auth::guard('admin')->user()->id,'nomination_export_candidate'))
                 <a wire:click='exportCsv' class="btn btn-primary btn-sm">
                     <i class="bi bi-cloud-arrow-down me-1"></i>Export
                 </a>
+                @endif
+                @if(childUserAccess(Auth::guard('admin')->user()->id,'nomination_import_candidate'))
                 <button class="btn btn-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#uploadcandidateModal">
                     <i class="bi bi-upload me-1"></i>Upload Candidate
                 </button>
+                @endif
+                @if(childUserAccess(Auth::guard('admin')->user()->id,'nomination_add_candidate'))
                 <button class="btn btn-primary btn-sm" wire:click="newCandidate" data-bs-toggle="modal"
                     data-bs-target="#candidateModal">
                     <i class="bi bi-plus-circle me-1"></i> Add Candidate
                 </button>
+                @endif
             </div>
         </div>
 
@@ -169,26 +175,34 @@
                                                 </a>
                                             @endif
                                         @else
+                                            @if(childUserAccess(Auth::guard('admin')->user()->id,'nomination_assign_agents'))
                                             <button class="btn btn-sm btn-outline-{{count($candidate->agents)>0?"primary":"danger"}}" wire:click="openAgentModal({{ $candidate->id }})"
                                                 data-bs-toggle="modal" data-bs-target="#assignAgentModal"
                                                 title="Assign Agent">
                                                 <i class="bi bi-people"></i>
                                             </button>
+                                            @endif
+                                            @if(childUserAccess(Auth::guard('admin')->user()->id,'nomination_update_candidate'))
                                             <button class="btn btn-sm btn-outline-primary"
                                                 wire:click="edit({{ $candidate->id }})" data-bs-toggle="modal"
                                                 data-bs-target="#candidateModal" title="Edit Candidate">
                                                 <i class="bi bi-pencil"></i>
                                             </button>
+                                            @endif
+                                            @if(childUserAccess(Auth::guard('admin')->user()->id,'nomination_document_collections'))
                                             <a href="{{ route('admin.candidates.documents', ['candidate' => $candidate->id]) }}"
                                                 class="btn btn-sm btn-outline-primary"
                                                 title="View Candidate Document Collections">
                                                <i class="bi bi-file-earmark-arrow-up"></i>
                                             </a>
+                                            @endif
+                                            @if(childUserAccess(Auth::guard('admin')->user()->id,'nomination_candidate_journey_timeline'))
                                             <a href="{{ route('admin.candidates.journey', $candidate->id) }}"
                                                 class="btn btn-sm btn-outline-primary"
                                                 title="Candidate Journey Timeline">
-                                            <i class="bi bi-person-lines-fill"></i> <!-- Using a more relevant icon -->
+                                            <i class="bi bi-person-lines-fill"></i>
                                             </a>
+                                            @endif
                                             
                                         @endif
                                     </td>

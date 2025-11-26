@@ -15,6 +15,9 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->web([
             \App\Http\Middleware\SetLocale::class,
         ]);
+        $middleware->alias([
+            'employee.permission' => \App\Http\Middleware\EmployeePermission::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

@@ -38,115 +38,135 @@
                     <i class="bi bi-house me-2"></i> {{ __('admin/sidebar.dashboard') }}
                 </a>
             </li>
+            <!-- Master Data Dropdown -->
+            @if(userAccess(Auth::guard('admin')->user()->id,'master_management'))
+                <li class="nav-item mb-2">
+                    <a class="nav-link d-flex justify-content-between align-items-center {{ request()->is('admin/master*') ? 'active' : 'collapsed' }}"
+                        data-bs-toggle="collapse"
+                        href="#masterMenu"
+                        role="button"
+                        aria-expanded="{{ request()->is('admin/master*') ? 'true' : 'false' }}"
+                        aria-controls="masterMenu">
+                        <span><i class="bi bi-gear me-2"></i> Master</span>
+                        <i class="bi bi-chevron-down small"></i>
+                    </a>
+
+                    <div class="collapse {{ request()->is('admin/master*') ? 'show' : '' }}" id="masterMenu">
+                        <ul class="nav flex-column ms-4 border-start ps-2 mt-1">
+                            @if(childUserAccess(Auth::guard('admin')->user()->id,'master_view_zones'))
+                                <li class="nav-item mb-1">
+                                    <a href="{{ route('admin.master.zones') }}"
+                                        class="nav-link small {{ request()->routeIs('admin.master.zones') ? 'active' : '' }}">
+                                        <i class="bi bi-geo-alt me-1"></i> Zones
+                                    </a>
+                                </li>
+                            @endif
+
+                            @if(childUserAccess(Auth::guard('admin')->user()->id,'master_view_phases'))
+                                <li class="nav-item mb-1">
+                                    <a href="{{ route('admin.master.phases') }}"
+                                        class="nav-link small {{ request()->routeIs('admin.master.phases') ? 'active' : '' }}">
+                                        <i class="bi bi-calendar2-event me-1"></i> Phases
+                                    </a>
+                                </li>
+                            @endif
+                            @if(childUserAccess(Auth::guard('admin')->user()->id,'master_view_event_categories'))
+                                <li class="nav-item mb-1">
+                                <a href="{{ route('admin.master.eventcategory') }}"
+                                    class="nav-link small {{ request()->routeIs('admin.master.eventcategory') ? 'active' : '' }}">
+                                        <i class="bi bi-calendar-event-fill me-1"></i> Event Categories
+                                    </a>
+                                </li>
+                            @endif
+
+                        </ul>
+                    </div>
+                </li>
+            @endif
+
+
+            @if(userAccess(Auth::guard('admin')->user()->id,'employee_management'))
+                <li class="nav-item mb-2">
+                    <a href="{{ route('admin.employees') }}"
+                    class="nav-link {{ request()->routeIs('admin.employees*') ? 'active' : '' }}">
+                        <i class="bi bi-people me-2"></i> Employees
+                    </a>
+                </li>
+            @endif
+
+            @if(userAccess(Auth::guard('admin')->user()->id,'contact_management'))
             <li class="nav-item mb-2">
-                <a class="nav-link d-flex justify-content-between align-items-center {{ request()->is('admin/master*') ? 'active' : 'collapsed' }}"
-                    data-bs-toggle="collapse"
-                    href="#masterMenu"
-                    role="button"
-                    aria-expanded="{{ request()->is('admin/master*') ? 'true' : 'false' }}"
-                    aria-controls="masterMenu">
-                    <span><i class="bi bi-gear me-2"></i> Master</span>
-                    <i class="bi bi-chevron-down small"></i>
-                </a>
+                    <a href="{{ route('admin.agents') }}"
+                    class="nav-link {{ request()->routeIs('admin.agents') ? 'active' : '' }}">
+                        <i class="bi bi-person-badge me-2"></i> Contacts
+                    </a>
+                </li>
+            @endif
 
-                <div class="collapse {{ request()->is('admin/master*') ? 'show' : '' }}" id="masterMenu">
-                    <ul class="nav flex-column ms-4 border-start ps-2 mt-1">
-
-                        <li class="nav-item mb-1">
-                            <a href="{{ route('admin.master.zones') }}"
-                                class="nav-link small {{ request()->routeIs('admin.master.zones') ? 'active' : '' }}">
-                                <i class="bi bi-geo-alt me-1"></i> Zones
-                            </a>
-                        </li>
-
-                        <li class="nav-item mb-1">
-                            <a href="{{ route('admin.master.phases') }}"
-                                class="nav-link small {{ request()->routeIs('admin.master.phases') ? 'active' : '' }}">
-                                <i class="bi bi-calendar2-event me-1"></i> Phases
-                            </a>
-                        </li>
-                        <li class="nav-item mb-1">
-                           <a href="{{ route('admin.master.eventcategory') }}"
-                            class="nav-link small {{ request()->routeIs('admin.master.eventcategory') ? 'active' : '' }}">
-                                <i class="bi bi-calendar-event-fill me-1"></i> Event Categories
-                            </a>
-
-                        </li>
-
-                    </ul>
-                </div>
-            </li>
-
-
+            @if(userAccess(Auth::guard('admin')->user()->id,'assembly_management'))
             <li class="nav-item mb-2">
-                <a href="{{ route('admin.employees') }}"
-                   class="nav-link {{ request()->routeIs('admin.employees') ? 'active' : '' }}">
-                    <i class="bi bi-people me-2"></i> Employees
-                </a>
-            </li>
-
-           <li class="nav-item mb-2">
-                <a href="{{ route('admin.agents') }}"
-                class="nav-link {{ request()->routeIs('admin.agents') ? 'active' : '' }}">
-                    <i class="bi bi-person-badge me-2"></i> Contacts
-                </a>
-            </li>
-           <li class="nav-item mb-2">
-                <a href="{{ route('admin.assemblies') }}"
-                class="nav-link {{ request()->routeIs('admin.assemblies') ? 'active' : '' }}">
-                    <i class="bi bi-building me-2"></i> {{ __('admin/sidebar.assemblies') }}
-                </a>
-            </li>
+                    <a href="{{ route('admin.assemblies') }}"
+                    class="nav-link {{ request()->routeIs('admin.assemblies') ? 'active' : '' }}">
+                        <i class="bi bi-building me-2"></i> {{ __('admin/sidebar.assemblies') }}
+                    </a>
+                </li>
+            @endif
             <!-- Candidates Dropdown -->
-            <li class="nav-item mb-2">
-                <a class="nav-link d-flex justify-content-between align-items-center {{ request()->is('admin/candidates*') ? 'active' : 'collapsed' }}"
-                data-bs-toggle="collapse"
-                href="#candidateMenu"
-                role="button"
-                aria-expanded="{{ request()->is('admin/candidates*') ? 'true' : 'false' }}"
-                aria-controls="candidateMenu">
-                    <span><i class="bi bi-person-badge me-2"></i> Nominations</span>
-                    <i class="bi bi-chevron-down small"></i>
-                </a>
-
-                <div class="collapse {{ request()->is('admin/candidates*') ? 'show' : '' }}" id="candidateMenu">
-                    <ul class="nav flex-column ms-4 border-start ps-2 mt-1">
-                        <li class="nav-item mb-1">
-                            <a href="{{ route('admin.candidates.contacts') }}"
-                            class="nav-link small {{ request()->routeIs('admin.candidates.contacts') ? 'active' : '' }}">
-                                <i class="bi bi-people me-2"></i> Candidates
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            </li>
-            <!-- Candidates Dropdown -->
-            <li class="nav-item mb-2">
-                <a class="nav-link d-flex justify-content-between align-items-center 
-                    {{ request()->is('admin/campaign*') ? 'active' : 'collapsed' }}"
+            @if(userAccess(Auth::guard('admin')->user()->id,'nomination_management'))
+                <li class="nav-item mb-2">
+                    <a class="nav-link d-flex justify-content-between align-items-center {{ request()->is('admin/candidates*') ? 'active' : 'collapsed' }}"
                     data-bs-toggle="collapse"
-                    href="#campaignMenu"
+                    href="#candidateMenu"
                     role="button"
-                    aria-expanded="{{ request()->is('admin/campaign*') ? 'true' : 'false' }}"
-                    aria-controls="campaignMenu">
+                    aria-expanded="{{ request()->is('admin/candidates*') ? 'true' : 'false' }}"
+                    aria-controls="candidateMenu">
+                        <span><i class="bi bi-person-badge me-2"></i> Nominations</span>
+                        <i class="bi bi-chevron-down small"></i>
+                    </a>
 
-                    <span><i class="bi bi-megaphone-fill me-2"></i> Campaigns</span>
-                    <i class="bi bi-chevron-down small"></i>
-                </a>
+                    <div class="collapse {{ request()->is('admin/candidates*') ? 'show' : '' }}" id="candidateMenu">
+                        <ul class="nav flex-column ms-4 border-start ps-2 mt-1">
+                            @if(childUserAccess(Auth::guard('admin')->user()->id,'nomination_view_candidate'))
+                                <li class="nav-item mb-1">
+                                    <a href="{{ route('admin.candidates.contacts') }}"
+                                    class="nav-link small {{ request()->routeIs('admin.candidates.contacts') ? 'active' : '' }}">
+                                        <i class="bi bi-people me-2"></i> Candidates
+                                    </a>
+                                </li>
+                            @endif
+                        </ul>
+                    </div>
+                </li>
+            @endif
+            <!-- Candidates Dropdown -->
+            @if(userAccess(Auth::guard('admin')->user()->id,'campaign_management'))
+                <li class="nav-item mb-2">
+                    <a class="nav-link d-flex justify-content-between align-items-center 
+                        {{ request()->is('admin/campaign*') ? 'active' : 'collapsed' }}"
+                        data-bs-toggle="collapse"
+                        href="#campaignMenu"
+                        role="button"
+                        aria-expanded="{{ request()->is('admin/campaign*') ? 'true' : 'false' }}"
+                        aria-controls="campaignMenu">
 
-                <div class="collapse {{ request()->is('admin/campaign*') ? 'show' : '' }}" id="campaignMenu">
-                    <ul class="nav flex-column ms-4 border-start ps-2 mt-1">
+                        <span><i class="bi bi-megaphone-fill me-2"></i> Campaigns</span>
+                        <i class="bi bi-chevron-down small"></i>
+                    </a>
 
-                        <li class="nav-item mb-1">
-                            <a href="{{ route('admin.campaigns') }}"
-                            class="nav-link small {{ request()->routeIs('admin.campaigns') ? 'active' : '' }}">
-                                <i class="bi bi-clipboard-data me-2"></i> List
-                            </a>
-                        </li>
-
-                    </ul>
-                </div>
-            </li>
+                    <div class="collapse {{ request()->is('admin/campaign*') ? 'show' : '' }}" id="campaignMenu">
+                        <ul class="nav flex-column ms-4 border-start ps-2 mt-1">
+                            @if(childUserAccess(Auth::guard('admin')->user()->id,'campaign_view_campaign'))
+                                <li class="nav-item mb-1">
+                                    <a href="{{ route('admin.campaigns') }}"
+                                    class="nav-link small {{ request()->routeIs('admin.campaigns') ? 'active' : '' }}">
+                                        <i class="bi bi-clipboard-data me-2"></i> List
+                                    </a>
+                                </li>
+                            @endif
+                        </ul>
+                    </div>
+                </li>
+            @endif
 
         </ul>
     </nav>

@@ -1,6 +1,5 @@
 <div>
     <div class="row g-4">
-        <!-- 🧭 Page Header -->
         <div class="d-flex flex-wrap justify-content-between align-items-center">
             <div>
                 <h4 class="fw-bold mb-1 text-dark">
@@ -31,69 +30,104 @@
                         class="form-control form-control-sm w-auto" placeholder="Search...">
                 </div>
 
-                <div class="card-body p-2">
-                    <div class="table-responsive">
-                        <table class="table mb-0 align-middle">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>#</th>
-                                    <th>Name</th>
-                                    <th>Email</th>
-                                    <th>Mobile</th>
-                                    <th>Role</th>
-                                    <th>Suspend Status</th>
-                                    <th width="120">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @forelse ($admins as $admin)
-                                <tr wire:key="admin-{{ $admin->id }}">
-                                    <td>{{ $loop->iteration }}</td>
-                                    <td>{{ ucwords($admin->name) }}</td>
-                                    <td>{{ $admin->email }}</td>
-                                    <td>{{ $admin->mobile ?? '-' }}</td>
-                                    <td>
-                                        <span class="badge {{ $admin->role === 'admin' ? 'bg-primary-subtle text-primary' : 'bg-danger-subtle text-danger' }}">
-                                            {{ ucfirst($admin->role) }}
-                                        </span>
-                                    </td>
-                                    @if ($admin->role !== 'admin')
-                                        
-                                    
-                                    <td>
-                                        <div class="form-check form-switch">
-                                            <input class="form-check-input" type="checkbox"
-                                                wire:change="toggleStatus({{ $admin->id }})"
-                                                {{ $admin->suspended_status == 1 ? 'checked' : '' }}>
-                                            <label class="form-check-label">
-                                                {{ $admin->suspended_status == 1 ? 'Active' : 'Suspended' }}
-                                            </label>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <button class="btn btn-sm btn-outline-primary" wire:click="edit({{ $admin->id }})">
-                                            <i class="bi bi-pencil"></i>
-                                        </button>
-                                        @if($admin->id !==1)
-                                            <button class="btn btn-sm btn-outline-danger" wire:click="confirmDelete({{ $admin->id }})">
-                                                <i class="bi bi-trash"></i>
-                                            </button>
-                                        @endif
-                                    </td>
-                                  @else
-                                        <td>-</td>
-                                        <td>-</td>
-                                    @endif
-                                </tr>
-                                @empty
-                                <tr>
-                                    <td colspan="6" class="text-center text-muted py-3">
-                                        No employees found
-                                    </td>
-                                </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
+               <div class="card">
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table mb-0 align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="text-center">#</th>
+                                        <th>Name & Email</th>
+                                        <th>Mobile</th>
+                                        <th class="text-center">Role</th>
+                                        <th class="text-center">Status</th>
+                                        <th class="text-center" style="width: 150px;">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse ($admins as $admin)
+                                        <tr wire:key="admin-{{ $admin->id }}">
+                                            <td class="text-center">{{ $loop->iteration }}</td>
+
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <i class="bi bi-person-circle fs-4 me-2 text-secondary"></i>
+                                                    <div>
+                                                        <div class="fw-bold text-dark">{{ ucwords($admin->name) }}</div>
+                                                        <span class="text-muted small">{{ $admin->email }}</span>
+                                                    </div>
+                                                </div>
+                                            </td>
+
+                                            <td>{{ $admin->mobile ?? '-' }}</td>
+
+                                            <td class="text-center">
+                                                @php
+                                                    $role_text = ucwords(str_replace('_', ' ', $admin->role));
+                                                    $role_class = $admin->role === 'admin' ? 'bg-primary-subtle text-primary' : 'bg-info-subtle text-info';
+                                                @endphp
+                                                <span class="badge {{ $role_class }} px-2 py-1">
+                                                    {{ $role_text }}
+                                                </span>
+                                            </td>
+
+                                            @if(childUserAccess(Auth::guard('admin')->user()->id,'employee_suspend_employee_status'))
+                                                @if ($admin->role !== 'admin')
+                                                    <td class="text-center">
+                                                        <div class="form-check form-switch d-inline-block">
+                                                            <input class="form-check-input" type="checkbox" role="switch" id="statusSwitch-{{ $admin->id }}"
+                                                                wire:change="toggleStatus({{ $admin->id }})"
+                                                                {{ $admin->suspended_status == 1 ? 'checked' : '' }}>
+                                                            <label class="form-check-label small text-nowrap" for="statusSwitch-{{ $admin->id }}">
+                                                                @if ($admin->suspended_status == 1)
+                                                                    <span class="text-success fw-bold">Active</span>
+                                                                @else
+                                                                    <span class="text-danger fw-bold">Suspended</span>
+                                                                @endif
+                                                            </label>
+                                                        </div>
+                                                    </td>
+                                                @else
+                                                    <td class="text-center">
+                                                        <span class="badge bg-secondary-subtle text-secondary py-1">Permanent</span>
+                                                    </td>
+                                                @endif
+                                            @endif
+
+                                            @if ($admin->id !== 1)
+                                            <td class="text-center text-nowrap">
+                                                @if(childUserAccess(Auth::guard('admin')->user()->id,'employee_update_employee'))
+                                                <button class="btn btn-sm btn-outline-primary me-1" title="Edit" wire:click="edit({{ $admin->id }})">
+                                                    <i class="bi bi-pencil"></i>
+                                                </button>
+                                                @endif
+
+                                                <a href="{{ route('admin.employees.permissions', $admin->id) }}" class="btn btn-sm btn-outline-secondary me-1" title="Permissions">
+                                                    <i class="bi bi-shield-lock"></i>
+                                                </a>
+
+                                                @if(childUserAccess(Auth::guard('admin')->user()->id,'employee_delete_employee'))
+                                                @if ($admin->id !== 1)
+                                                    <button class="btn btn-sm btn-outline-danger" title="Delete" wire:click="confirmDelete({{ $admin->id }})">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                @endif
+                                                @endif
+                                            </td>
+                                            @else
+                                                <td class="text-center text-muted">-</td>
+                                            @endif
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="6" class="text-center text-muted py-4">
+                                                <i class="bi bi-info-circle-fill me-1"></i> No employees found
+                                            </td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -151,7 +185,7 @@
                                 <option value="">Select Role</option>
                                 <option value="admin">Admin</option>
                                 <option value="employee">Employee</option>
-                                <option value="legal_associate">legal Associate</option>
+                                <option value="legal_associate">Legal Associate</option>
                             </select>
                             @error('role') <small class="text-danger">{{ $message }}</small> @enderror
                         </div>

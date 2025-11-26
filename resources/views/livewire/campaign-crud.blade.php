@@ -14,13 +14,17 @@
                 </ol>
             </div>
             <div>
+                @if(childUserAccess(Auth::guard('admin')->user()->id,'campaign_import_campaigner'))
                 <button class="btn btn-secondary btn-sm me-2" data-bs-toggle="modal" data-bs-target="#uploadcampaignerModal">
                     <i class="bi bi-upload me-1"></i> Import Campaigner
                 </button>
+                @endif
+                @if(childUserAccess(Auth::guard('admin')->user()->id,'campaign_add_campaign'))
                 <button class="btn btn-primary btn-sm" wire:click="openCampaignModal" data-bs-toggle="modal"
                     data-bs-target="#campaignModal">
                     <i class="bi bi-plus-circle me-1"></i> Add Campaign
                 </button>
+                @endif
             </div>
         </div>
 
@@ -139,6 +143,7 @@
                                     </td>
 
                                     <!-- Status -->
+                                    @if(childUserAccess(Auth::guard('admin')->user()->id,'campaign_campaign_status'))
                                     <td>
                                         <select class="form-select form-select-sm px-2 w-auto mx-auto"
                                             wire:change="statusChanged({{ $camp->id }}, $event.target.value)">
@@ -162,25 +167,30 @@
                                             </small>
                                         @endif
                                     </td>
+                                    @endif
 
                                     <!-- Actions -->
                                     <td class="text-center">
                                         <div class="btn-group">
 
                                             <!-- Edit -->
+                                            @if(childUserAccess(Auth::guard('admin')->user()->id,'campaign_update_campaign'))
                                             <button class="btn btn-sm btn-outline-primary"
                                                 title="Edit Campaign"
                                                 wire:click="edit({{ $camp->id }})"
                                                 data-bs-toggle="modal" data-bs-target="#campaignModal">
                                                 <i class="bi bi-pencil"></i>
                                             </button>
+                                            @endif
 
                                             <!-- Permission -->
-                                            <a href="{{ route('admin.campaigns.permission', $camp->id) }}"
-                                                class="btn btn-sm btn-outline-success"
-                                                title="View Permissions">
-                                                <i class="bi bi-file-earmark-arrow-up"></i>
-                                            </a>
+                                            @if(childUserAccess(Auth::guard('admin')->user()->id,'campaign_campaign_permission'))
+                                                <a href="{{ route('admin.campaigns.permission', $camp->id) }}"
+                                                    class="btn btn-sm btn-outline-success"
+                                                    title="View Permissions">
+                                                    <i class="bi bi-file-earmark-arrow-up"></i>
+                                                </a>
+                                            @endif
 
                                         </div>
                                     </td>

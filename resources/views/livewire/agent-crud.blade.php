@@ -20,13 +20,17 @@
                 </nav>
             </div>
             <div>
-                <button class="btn btn-primary btn-sm" wire:click="import" data-bs-toggle="modal" data-bs-target="#importModal">
-                    <i class="bi bi-plus-circle me-1"></i> Bulk Upload
-                </button>
-                <button class="btn btn-primary btn-sm" wire:click="newAgent" data-bs-toggle="modal"
-                    data-bs-target="#agentModal">
-                    <i class="bi bi-plus-circle me-1"></i> Add New Contacts
-                </button>
+                @if(childUserAccess(Auth::guard('admin')->user()->id,'contact_bulk_contact_upload'))
+                    <button class="btn btn-primary btn-sm" wire:click="import" data-bs-toggle="modal" data-bs-target="#importModal">
+                        <i class="bi bi-plus-circle me-1"></i> Bulk Upload
+                    </button>
+                @endif
+                @if(childUserAccess(Auth::guard('admin')->user()->id,'contact_add_contact'))
+                    <button class="btn btn-primary btn-sm" wire:click="newAgent" data-bs-toggle="modal"
+                        data-bs-target="#agentModal">
+                        <i class="bi bi-plus-circle me-1"></i> Add New Contacts
+                    </button>
+                @endif
             </div>
         </div>
 
@@ -79,15 +83,19 @@
                                             wire:click="view({{ $agent->id }})">
                                             <i class="bi bi-eye"></i>
                                         </button>
+                                        @if(childUserAccess(Auth::guard('admin')->user()->id,'contact_update_contact'))
                                         <button class="btn btn-sm btn-outline-primary"
                                             wire:click="edit({{ $agent->id }})" data-bs-toggle="modal"
                                             data-bs-target="#agentModal">
                                             <i class="bi bi-pencil"></i>
                                         </button>
+                                        @endif
+                                        @if(childUserAccess(Auth::guard('admin')->user()->id,'contact_delete_contact'))
                                         <button class="btn btn-sm btn-outline-primary"
                                             wire:click="confirmDelete({{ $agent->id }})">
                                             <i class="bi bi-trash"></i>
                                         </button>
+                                        @endif
 
                                     </td>
 

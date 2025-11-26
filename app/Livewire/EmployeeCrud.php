@@ -162,6 +162,7 @@ class EmployeeCrud extends Component
         $this->dispatch('toastr:success', message: 'Employee deleted successfully!');
     }
 
+
     public function render()
     {
         $this->zones = Zone::all()->map(function ($zone) {

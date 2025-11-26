@@ -75,9 +75,11 @@
                                             </div>
                                         </td>
                                         <td>
+                                            @if(childUserAccess(Auth::guard('admin')->user()->id,'master_update_phase'))
                                             <button wire:click="edit({{ $phase->id }})" class="btn btn-sm btn-outline-primary">
                                                 <i class="bi bi-pencil"></i>
                                             </button>
+                                            @endif
                                         </td>
                                     </tr>
                                 @empty

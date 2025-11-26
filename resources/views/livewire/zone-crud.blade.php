@@ -47,8 +47,12 @@
                                             @endif
                                         </td>
                                         <td>
-                                            <button class="btn btn-sm btn-outline-primary" wire:click="edit({{ $zone->id }})"><i class="bi bi-pencil"></i></button>
+                                            @if(childUserAccess(Auth::guard('admin')->user()->id,'master_update_zone'))
+                                                <button class="btn btn-sm btn-outline-primary" wire:click="edit({{ $zone->id }})"><i class="bi bi-pencil"></i></button>
+                                            @endif
+                                            @if(childUserAccess(Auth::guard('admin')->user()->id,'master_delete_zone'))
                                             <button class="btn btn-sm btn-outline-danger" wire:click="confirmDelete({{ $zone->id }})"><i class="bi bi-trash"></i></button>
+                                            @endif
                                         </td>
                                     </tr>
                                 @empty
