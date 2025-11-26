@@ -6,7 +6,6 @@
                 <div class="card border-0 shadow-lg overflow-hidden">
                     <div class="row g-0">
                         
-                        <!-- Left Side (Form) -->
                         <div class="col-md-6 p-5 bg-white">
                             <div class="text-center mb-4">
                                 <img src="{{ asset('assets/img/logo.png') }}" alt="Logo" height="50">
@@ -41,7 +40,7 @@
                                         <input wire:model="remember" type="checkbox" class="form-check-input" id="remember">
                                         <label class="form-check-label" for="remember">Remember me</label>
                                     </div>
-                                    <a href="javascript:void(0)" class="text-decoration-none text-muted small">Forgot your password?</a>
+                                    <a href="{{route('forget.password')}}" class="text-decoration-none text-muted small">Forgot your password?</a>
                                 </div>
 
                                 <button type="submit" class="btn w-100 text-white py-2" style="background-color: #3A1212;">
@@ -50,7 +49,6 @@
                             </form>
                         </div>
 
-                        <!-- Right Side (Image) -->
                         <div class="col-md-6 d-none d-md-block position-relative" 
                              style="background: url('{{ asset('assets/img/logo-background.jpg') }}') center/cover no-repeat;">
                             <div class="overlay position-absolute top-0 start-0 w-100 h-100" 

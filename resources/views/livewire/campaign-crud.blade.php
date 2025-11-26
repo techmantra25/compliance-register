@@ -221,9 +221,10 @@
                     @if($selected_status == 'rescheduled')
                     <div class="modal-body">
                         <label class="form-label">Rescheduled Date</label>
-                        <input type="datetime-local" wire:model="rescheduled_at" class="form-control">
+                        <input type="datetime-local" wire:model="new_campaign_date" class="form-control"
+                        min="{{ now()->format('Y-m-d\TH:i') }}">
 
-                        @error('rescheduled_at')
+                        @error('new_campaign_date')
                             <small class="text-danger">{{ $message }}</small>
                         @enderror
                     </div>

@@ -19,7 +19,9 @@ use App\Livewire\{
     AgentCrud,
     AdminLogin,
     CampaignCrud,
-    PermissionCampaignCrud
+    PermissionCampaignCrud,
+    ForgetPassword,
+    UpdateProfile
 };
 use App\Livewire\Candidate\DocumentComments;
 use App\Http\Controllers\CandidateController;
@@ -60,6 +62,8 @@ Route::get('/login', AdminLogin::class)
     ->middleware('guest:admin')
     ->name('login');
 
+Route::get('/forget/password',ForgetPassword::class)->name('forget.password');
+
 /*
 |--------------------------------------------------------------------------
 | Authenticated Admin Routes
@@ -70,6 +74,7 @@ Route::get('/login', AdminLogin::class)
 */
 Route::prefix('/admin')->middleware('auth:admin')->group(function () {
     Route::get('/dashboard', AdminDashboard::class)->name('admin.dashboard');
+    Route::get('/update/profile', UpdateProfile::class)->name('admin.update.profile');
 
     Route::prefix('master')->group(function () {
         Route::get('/zones', ZoneCrud::class)->name('admin.master.zones');
