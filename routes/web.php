@@ -78,7 +78,7 @@ Route::prefix('/admin')->middleware('auth:admin')->group(function () {
     });
     Route::get('/employees', EmployeeCrud::class)->name('admin.employees');
     Route::get('/assemblies', AssemblyList::class)->name('admin.assemblies');
-    Route::get('/agents', AgentCrud::class)->name('admin.agents');
+    Route::get('/contacts', AgentCrud::class)->name('admin.agents');
     
     Route::prefix('candidates')->group(function () {
         Route::get('/journey/{id}', CandidateJourney::class)->name('admin.candidates.journey');

@@ -4,7 +4,7 @@
         <div class="d-flex flex-wrap justify-content-between align-items-center">
             <div>
                 <h4 class="fw-bold mb-1 text-dark">
-                    <i class="bi bi-person-lines-fill me-2 text-primary"></i> Contact List
+                    <i class="bi bi-person-lines-fill me-2 text-primary"></i> Contact Management
                 </h4>
                 <nav aria-label="breadcrumb">
                     <ol class="breadcrumb mb-0 small">
