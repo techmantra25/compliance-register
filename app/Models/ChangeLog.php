@@ -20,6 +20,6 @@ class ChangeLog extends Model
 
     public function user()
     {
-        return $this->belongsTo(User::class, 'change_by');
+        return $this->belongsTo(Admin::class, 'changed_by', 'id');
     }
 }

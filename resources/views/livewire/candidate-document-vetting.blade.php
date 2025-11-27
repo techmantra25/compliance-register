@@ -298,7 +298,8 @@
                                             @if($index === 0)
                                                 <td rowspan="{{ $rowspan }}"><strong>{{ $label }}</strong></td>
                                             @endif
-                                            {{-- File Name + Icon --}}
+                                            @if($doc['status'] !== 'Skipped')
+                                                {{-- File Name + Icon --}}
                                                 <td style="cursor: pointer;" title="Click to view document comments"
                                                     onclick="window.location='{{ route('admin.candidates.documents.comments', $doc['id']) }}'">
                                                     
@@ -350,6 +351,7 @@
                                                         {{ $doc['vetted_on'] }}
                                                     </td>
                                                 @endif
+
                                                 {{-- Status --}}
                                                 <td class="text-center">
                                                     <span class="cursor-pointer badge
@@ -373,6 +375,36 @@
                                                         </div>
                                                     </td>
                                                 @endif
+                                            @else
+                                                <td colspan="4" class="text-center">
+                                                    <span class="cursor-pointer badge
+                                                        @if($doc['status'] == 'Approved') bg-lavel-success
+                                                        @elseif($doc['status'] == 'Rejected') bg-lavel-danger
+                                                        @elseif($doc['status'] == 'Pending') bg-lavel-warning
+                                                        @else bg-secondary @endif">
+                                                        {{ $doc['status'] ?? 'Uploaded' }}
+                                                    </span>
+                                                </td>
+                                                <td colspan="2">
+                                                    <div class="p-2 bg-light rounded border small">
+
+                                                        {{-- Skipped By --}}
+                                                        <div class="mb-1">
+                                                            <i class="bi bi-person-check me-1 text-primary"></i>
+                                                            <strong>Skipped By:</strong>
+                                                            <span class="text-dark">{{ $doc['uploaded_by_name'] ?? 'N/A' }}</span>
+                                                        </div>
+
+                                                        {{-- Attached With --}}
+                                                        <div>
+                                                            <i class="bi bi-link-45deg me-1 text-danger"></i>
+                                                            <strong>Attached With:</strong>
+                                                            <span class="text-dark">{{ $doc['attached_with'] ?? 'N/A' }}</span>
+                                                        </div>
+
+                                                    </div>
+                                                </td>
+                                            @endif
                                         </tr>
                                     @endforeach
                                 @else
@@ -392,20 +424,6 @@
                                 </td>
                             </tr>     
                         @endif
-                        @if($candidateData->is_special_case == 0 && $candidateData->document_collection_status != "verified_submitted_with_copy" && $candidateData->document_collection_status != "rejected")
-                            <tr>
-                                <td colspan="7">
-                                    <!-- MARK SPECIAL CASE BUTTON -->
-                                    <div class="text-end">
-                                        <button class="btn btn-danger btn-sm rounded-pill px-3"
-                                                onclick="openSpecialCaseModal({{ $candidateData->id }})">
-                                            <i class="bi bi-stars me-1"></i>
-                                            Mark Special Case
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        @endif
                     </tbody>
 
                 </table>
@@ -421,31 +439,6 @@
     @push('scripts')
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        function openSpecialCaseModal(candidateId) {
-            Swal.fire({
-                title: "Create Special Case Clone?",
-                input: "textarea",
-                inputLabel: "Remarks (Required)",
-                inputPlaceholder: "Explain why this candidate is being marked as Special Case...",
-                inputAttributes: {
-                    "aria-label": "Type your remarks here"
-                },
-                showCancelButton: true,
-                confirmButtonText: "Create Clone",
-                confirmButtonColor: "#000",
-                preConfirm: (value) => {
-                    if (!value) {
-                        Swal.showValidationMessage("Remarks are required!");
-                    }
-                    return value;
-                }
-            }).then(result => {
-                if (result.isConfirmed) {
-                    @this.call('createSpecialCaseClone', candidateId, result.value);
-                }
-            });
-        }
-
         window.addEventListener('special-case-created', event => {
             Swal.fire({
                 icon: "success",
@@ -473,29 +466,106 @@
         // Reject Confirmation With Reason
         function confirmReject(id) {
             Swal.fire({
-                title: "Reject Acknowledgement?",
-                input: "textarea",
-                inputLabel: "Reason for rejection",
-                inputPlaceholder: "Enter rejection reason...",
-                inputAttributes: {
-                    "aria-label": "Enter rejection reason"
-                },
+                title: "Select Rejection Type",
+                html: `
+                    <div class="text-start">
+
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" id="revetted">
+                            <label class="form-check-label" for="revetted">
+                                Acknowledgement Copy needs to be revetted.
+                            </label>
+                        </div>
+
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" id="specialCase">
+                            <label class="form-check-label" for="specialCase">
+                            Inconsistent and needs to be revetted & Special Case
+                            </label>
+                        </div>
+
+                        <div id="reasonBox" style="display:none;">
+                            <textarea id="rejectReason" class="form-control mt-2"
+                                placeholder="Enter reason..."></textarea>
+                        </div>
+
+                    </div>
+                `,
                 showCancelButton: true,
+                confirmButtonText: "Continue",
                 confirmButtonColor: "#d33",
                 cancelButtonColor: "#6c757d",
-                confirmButtonText: "Reject",
-                preConfirm: (reason) => {
-                    if (!reason) {
-                        Swal.showValidationMessage("Reason is required");
+
+                didOpen: () => {
+                    const revetted = Swal.getPopup().querySelector("#revetted");
+                    const reasonBox = Swal.getPopup().querySelector("#reasonBox");
+
+                    revetted.addEventListener("change", () => {
+                        reasonBox.style.display = revetted.checked ? "block" : "none";
+                    });
+                },
+
+                preConfirm: () => {
+                    const revetted = Swal.getPopup().querySelector("#revetted").checked;
+                    const specialCase = Swal.getPopup().querySelector("#specialCase").checked;
+                    const reason = Swal.getPopup().querySelector("#rejectReason").value.trim();
+
+                    if (!revetted && !specialCase) {
+                        Swal.showValidationMessage("Select at least one option!");
+                        return false;
                     }
-                    return reason;
+
+                    if (revetted && reason === "") {
+                        Swal.showValidationMessage("Reason is required for Special Case!");
+                        return false;
+                    }
+
+                    return { revetted, specialCase, reason };
                 }
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    @this.call('rejectAcknowledgment', id, result.value);
+            }).then(result => {
+                if (!result.isConfirmed) return;
+
+                const data = result.value;
+
+                // SPECIAL CASE → open clone modal
+                if (data.specialCase) {
+                    openSpecialCaseModalWithReason(id, data.reason);
+                } 
+                else {
+                    // NORMAL REJECTION (reason optional)
+                    @this.call('rejectAcknowledgment', id, data.reason || "Needs revetting.");
                 }
             });
         }
+
+
+        function openSpecialCaseModalWithReason(candidateId, remarks) {
+            Swal.fire({
+                title: "Create Special Case Clone?",
+                input: "textarea",
+                inputLabel: "Remarks (Required)",
+                inputValue: remarks,
+                inputAttributes: {
+                    "aria-label": "Type your remarks here"
+                },
+                showCancelButton: true,
+                confirmButtonText: "Create Clone",
+                confirmButtonColor: "#000",
+                preConfirm: (value) => {
+                    if (!value.trim()) {
+                        Swal.showValidationMessage("Remarks are required!");
+                        return false;
+                    }
+                    return value;
+                }
+            }).then(result => {
+                if (result.isConfirmed) {
+                    @this.call('createSpecialCaseClone', candidateId, result.value);
+                }
+            });
+        }
+
+
     </script>
     <script>
         window.addEventListener('showConfirm', function (event) {

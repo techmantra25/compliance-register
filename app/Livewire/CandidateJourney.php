@@ -20,7 +20,7 @@ class CandidateJourney extends Component
             abort(404, 'Candidate not found.');
         }
         // Order by created_at ascending for a correct timeline view
-        $this->change_logs = ChangeLog::where('module_id', $id)
+        $this->change_logs = ChangeLog::with('user')->where('module_id', $id)
             ->orderBy('created_at', 'ASC')
             ->get();
 
@@ -42,7 +42,7 @@ class CandidateJourney extends Component
                 'action' => $log->action,
                 'module' => $log->module_name,
                 'badge_color' => $badgeColor,
-                'changed_by' => $log->changed_by, // Use User model relationship in production
+                'changed_by' => $log->user ? $log->user->name : null, // Use User model relationship in production
             ];
         }
         $this->timeline = $timeline;

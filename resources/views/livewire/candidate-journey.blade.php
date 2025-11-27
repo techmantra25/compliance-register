@@ -166,7 +166,7 @@
                                     <div class="timeline-body mt-2">
                                         <p class="mb-1 text-sm">{!! $item['details'] !!}</p>
                                         <p class="text-xs text-muted mb-0">
-                                            Action By: User ID {{ $item['changed_by'] }} at {{ $item['time'] }}
+                                            Action By: <strong>{{ $item['changed_by'] }}</strong> at {{ $item['time'] }}
                                         </p>
                                     </div>
                                 </div>

@@ -12,6 +12,7 @@ use App\Models\CandidateDocumentType;
 use App\Models\CandidateDocument;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 class CandidateDocumentVetting extends Component
 {
@@ -64,12 +65,18 @@ class CandidateDocumentVetting extends Component
                 return $latest->status; // only return the status
             })
             ->toArray();
-        
+        $skipOption = CandidateDocument::with('uploadedBy')
+            ->where('candidate_id', $this->candidateId)
+            ->where('status', 'Skipped')
+            ->orderBy('id', 'desc')
+            ->get()
+            ->groupBy('type')->toArray();
+
         if(count($required_documents) == count($documentsData)){
             if($this->candidateData->document_collection_status=="verified_submitted_with_copy" || $this->candidateData->document_collection_status=="rejected"){
                 return true;
             }
-            $approvedCount = count(array_filter($documentsData, fn($status)=> $status === "Approved"));
+            $approvedCount = count(array_filter($documentsData, fn($status)=> $status === "Approved")) + count($skipOption);
             $pendingCount = count(array_filter($documentsData, fn($status)=> $status === "Pending"));
 
             if(count($required_documents) == $approvedCount){
@@ -118,6 +125,7 @@ class CandidateDocumentVetting extends Component
                     'created_at' => $document->created_at->format('d/m/Y h:i A'),
                     'vetted_on' => $document->vetted_on?$document->vetted_on->format('d/m/Y h:i A'):"N/A",
                     'uploaded_by_name' => $document->uploadedBy->name ?? 'System',
+                    'attached_with' => $document->attached_with,
                     'uploaded_by_id' => $document->uploaded_by,
                     'status' => $document->status,
                 ];
@@ -187,7 +195,7 @@ class CandidateDocumentVetting extends Component
             $clone->is_special_case = 1;
             $clone->special_case_label = "Special Case";
             $clone->parent_candidate_id = $candidate->id;
-            $clone->document_collection_status = "pending"; // reset flow
+            $clone->document_collection_status = "not_received_form"; // reset flow
             $clone->cloned_by = auth()->id();
             $clone->cloned_at = now();
             $clone->clone_remarks = $remarks;
@@ -208,7 +216,6 @@ class CandidateDocumentVetting extends Component
             $candidate->cloned_by = auth()->id();
             $candidate->cloned_at = now();
             $candidate->clone_remarks = $remarks;
-            $candidate->is_closed = 1; // prevents future updates
             $candidate->save();
 
             DB::commit();

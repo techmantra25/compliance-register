@@ -94,14 +94,21 @@ class CandidateDocumentCollection extends Component
         }
     }
 
-    public function updateAttachment($key)
+    public function updateAttachment($key, $attachedWith)
     {
-        // Save attachment logic here
-        // Example:
-        // Document::where('key', $key)->update([
-        //     'attached_to' => $this->attachedTo[$key] ?? null,
-        //     'is_skipped'  => 1
-        // ]);
+        $create = CandidateDocument::updateOrCreate(
+            [
+                'candidate_id' => $this->candidateId,
+                'type' => $key,
+            ],
+            [
+                'attached_with' => $attachedWith,
+                'uploaded_by' => Auth::guard('admin')->id(),
+                'status' => 'Skipped',
+            ]
+        );
+        $this->dispatch('toastr:success', message: 'Attachment updated successfully!');
+        $this->loadDocuments();
     }
     /**
      * Helper function — all document names
@@ -130,6 +137,7 @@ class CandidateDocumentCollection extends Component
                     'created_at' => $document->created_at->format('d/m/Y h:i A'), 
                     'updated_at' => $document->updated_at->format('d/m/Y h:i A'), 
                     'uploaded_by_name' => $document->uploadedBy->name ?? 'System',
+                    'attached_with' => $document->attached_with,
                     'vetted_by_name' => $document->vettedBy->name ?? 'N/A',
                     'vetted_on' => $document->vetted_on?$document->vetted_on->format('d/m/Y h:i A'):"N/A",
                     'uploaded_by_id' => $document->uploaded_by,
@@ -339,15 +347,20 @@ class CandidateDocumentCollection extends Component
                 return $latest->status; // only return the status
             })
             ->toArray();
-        
+        $skipOption = CandidateDocument::with('uploadedBy')
+            ->where('candidate_id', $this->candidateId)
+            ->where('status', 'Skipped')
+            ->orderBy('id', 'desc')
+            ->get()
+            ->groupBy('type')->toArray();
         if(count($required_documents) == count($documentsData)){
 
             if($this->candidateData->document_collection_status=="verified_submitted_with_copy" ||$this->candidateData->document_collection_status=="rejected"){
                 return true;
             }
-            $approvedCount = count(array_filter($documentsData, fn($status)=> $status === "Approved"));
+            $approvedCount = count(array_filter($documentsData, fn($status)=> $status === "Approved")) + count($skipOption);
             $pendingCount = count(array_filter($documentsData, fn($status)=> $status === "Pending"));
-
+            // dd($approvedCount);
             if(count($required_documents) == $approvedCount){
                 $this->candidateData->document_collection_status = "verified_pending_submission";
                 $this->candidateData->save();

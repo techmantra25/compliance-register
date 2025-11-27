@@ -518,146 +518,176 @@
                                             <td rowspan="{{ $rowspan }}"><strong>{{ $label }}</strong></td>
                                         @endif
 
-                                        {{-- File Name + Icon --}}
-                                    <td onclick="window.location='{{ route('admin.candidates.documents.comments', $doc['id']) }}'"
-                                        style="cursor: pointer;"
-                                        title="Click to view document comments">
-                                            <div class="d-flex align-items-center justify-content-between">
+                                        @if($doc['status'] !== 'Skipped')
+                                            {{-- File Name + Icon --}}
+                                            <td onclick="window.location='{{ route('admin.candidates.documents.comments', $doc['id']) }}'"
+                                            style="cursor: pointer;"
+                                            title="Click to view document comments">
+                                                <div class="d-flex align-items-center justify-content-between">
 
-                                                <div class="d-flex align-items-center">
-                                                    @switch(strtolower($extension))
-                                                        @case('pdf')
-                                                            <i class="bi bi-file-earmark-pdf text-danger me-2 fs-5"></i>
-                                                            @break
-                                                        @case('doc')
-                                                        @case('docx')
-                                                            <i class="bi bi-file-earmark-word text-primary me-2 fs-5"></i>
-                                                            @break
-                                                        @case('jpg')
-                                                        @case('jpeg')
-                                                        @case('png')
-                                                        @case('gif')
-                                                        @case('bmp')
-                                                        @case('webp')
-                                                            <i class="bi bi-file-earmark-image text-secondary me-2 fs-5"></i>
-                                                            @break
-                                                        @default
-                                                            <i class="bi bi-file-earmark-text text-secondary me-2 fs-5"></i>
-                                                    @endswitch
+                                                    <div class="d-flex align-items-center">
+                                                        @switch(strtolower($extension))
+                                                            @case('pdf')
+                                                                <i class="bi bi-file-earmark-pdf text-danger me-2 fs-5"></i>
+                                                                @break
+                                                            @case('doc')
+                                                            @case('docx')
+                                                                <i class="bi bi-file-earmark-word text-primary me-2 fs-5"></i>
+                                                                @break
+                                                            @case('jpg')
+                                                            @case('jpeg')
+                                                            @case('png')
+                                                            @case('gif')
+                                                            @case('bmp')
+                                                            @case('webp')
+                                                                <i class="bi bi-file-earmark-image text-secondary me-2 fs-5"></i>
+                                                                @break
+                                                            @default
+                                                                <i class="bi bi-file-earmark-text text-secondary me-2 fs-5"></i>
+                                                        @endswitch
 
-                                                    <strong class="text-dark fw-medium">V{{ count($documents[$key]) - $index }}</strong>
-                                                </div>
-
-                                                <div class="mx-2">
-                                                    @if($doc['comments_count']>0)
-                                                    <a href="javascript:void(0)"
-                                                    class="text-decoration-none position-relative text-secondary"
-                                                    title="View Comments">
-                                                        <i class="bi bi-chat-dots fs-5"></i>
-                                                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                                                           {{$doc['comments_count']}}
-                                                        </span>
-                                                    </a>
-                                                    @endif
-                                                </div>
-
-                                            </div>
-                                        </td>
-                                        {{-- Uploaded At --}}
-                                        <td>
-                                            <i class="bi bi-clock me-1"></i>
-                                            {{ $doc['created_at'] ?? '' }}
-                                        </td>
-
-                                        {{-- Status --}}
-                                        <td class="text-center">
-                                            <span class="cursor-pointer badge
-                                                @if($doc['status'] == 'Approved') bg-lavel-success
-                                                @elseif($doc['status'] == 'Rejected') bg-lavel-danger
-                                                @elseif($doc['status'] == 'Pending') bg-lavel-warning
-                                                @else bg-secondary @endif">
-                                                {{ $doc['status'] ?? 'Uploaded' }}
-                                            </span>
-                                        </td>
-
-                                        {{-- Remarks --}}
-                                        <td>
-                                            <span class="text-muted">
-                                                {{ $doc['remarks'] ?: '-' }}
-                                            </span>
-                                        </td>
-                                          {{-- Uploaded By --}}
-                                        <td class="align-middle" style="font-size:12px;">
-                                            <div class="d-flex flex-column text-start">
-                                                <div>
-                                                    <i class="bi bi-person me-1 text-primary"></i>
-                                                    <strong>Uploaded By:</strong> {{ $doc['uploaded_by_name'] ?? 'N/A' }}
-                                                </div>
-                                                @if($doc['status'] === "Rejected")
-
-                                                    {{-- Rejected At --}}
-                                                    <div>
-                                                        <i class="bi bi-calendar-x me-1 text-danger"></i>
-                                                        <strong>Rejected At:</strong> 
-                                                        {{ $doc['updated_at'] }}
+                                                        <strong class="text-dark fw-medium">V{{ count($documents[$key]) - $index }}</strong>
                                                     </div>
 
-                                                    {{-- Rejected By --}}
-                                                    @if(!empty($doc['vetted_by_name']))
-                                                        <div>
-                                                            <i class="bi bi-person-x me-1 text-danger"></i>
-                                                            <strong>Rejected By:</strong> {{ $doc['vetted_by_name'] }}
-                                                        </div>
-                                                    @endif
+                                                    <div class="mx-2">
+                                                        @if($doc['comments_count']>0)
+                                                        <a href="javascript:void(0)"
+                                                        class="text-decoration-none position-relative text-secondary"
+                                                        title="View Comments">
+                                                            <i class="bi bi-chat-dots fs-5"></i>
+                                                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                                            {{$doc['comments_count']}}
+                                                            </span>
+                                                        </a>
+                                                        @endif
+                                                    </div>
 
-                                                @else
-
-                                                    {{-- Vetted On --}}
-                                                    @if(!empty($doc['vetted_on']))
-                                                        <div>
-                                                            <i class="bi bi-calendar-check me-1 text-success"></i>
-                                                            <strong>Vetted On:</strong> 
-                                                            {{ $doc['vetted_on'] }}
-                                                        </div>
-                                                    @endif
-
-                                                    {{-- Vetted By --}}
-                                                    @if(!empty($doc['vetted_by_name']))
-                                                        <div>
-                                                            <i class="bi bi-person-badge me-1 text-info"></i>
-                                                            <strong>Approved By:</strong> {{ $doc['vetted_by_name'] }}
-                                                        </div>
-                                                    @endif
-
-                                                @endif
-
-                                            </div>
-                                        </td>
-
-
-                                        {{-- Upload Button or Status --}}
-                                        @if($index === 0)
-                                            <td class="text-center" rowspan="{{ $rowspan }}">
-                                                @php
-                                                    $lastDocument = $documents[$key][0];
-                                                @endphp
-
-                                                @if($lastDocument['status'] == 'Rejected')
-                                                    <button class="btn btn-primary btn-sm" 
-                                                            wire:click="SetDocType('{{ $key }}')" 
-                                                            data-bs-toggle="modal" 
-                                                            data-bs-target="#DocumentModal">
-                                                        <i class="bi bi-upload me-1"></i> Upload
-                                                    </button>
-                                                   
-                                                @elseif($lastDocument['status'] == 'Approved')
-                                                    <span class="badge bg-success">Verified</span>
-                                                @else
-                                                    <a href="{{ route('admin.candidates.documents.comments', $doc['id']) }}" class="btn btn-secondary btn-sm"> 
-                                                        View <i class="bi bi-eye-slash"></i>
-                                                    </a>
-                                                @endif
+                                                </div>
                                             </td>
+                                            {{-- Uploaded At --}}
+                                            <td>
+                                                <i class="bi bi-clock me-1"></i>
+                                                {{ $doc['created_at'] ?? '' }}
+                                            </td>
+
+                                            {{-- Status --}}
+                                            <td class="text-center">
+                                                <span class="cursor-pointer badge
+                                                    @if($doc['status'] == 'Approved') bg-lavel-success
+                                                    @elseif($doc['status'] == 'Rejected') bg-lavel-danger
+                                                    @elseif($doc['status'] == 'Pending') bg-lavel-warning
+                                                    @else bg-secondary @endif">
+                                                    {{ $doc['status'] ?? 'Uploaded' }}
+                                                </span>
+                                            </td>
+
+                                            {{-- Remarks --}}
+                                            <td>
+                                                <span class="text-muted">
+                                                    {{ $doc['remarks'] ?: '-' }}
+                                                </span>
+                                            </td>
+                                            {{-- Uploaded By --}}
+                                            <td class="align-middle" style="font-size:12px;">
+                                                <div class="d-flex flex-column text-start">
+                                                    <div>
+                                                        <i class="bi bi-person me-1 text-primary"></i>
+                                                        <strong>Uploaded By:</strong> {{ $doc['uploaded_by_name'] ?? 'N/A' }}
+                                                    </div>
+                                                    @if($doc['status'] === "Rejected")
+
+                                                        {{-- Rejected At --}}
+                                                        <div>
+                                                            <i class="bi bi-calendar-x me-1 text-danger"></i>
+                                                            <strong>Rejected At:</strong> 
+                                                            {{ $doc['updated_at'] }}
+                                                        </div>
+
+                                                        {{-- Rejected By --}}
+                                                        @if(!empty($doc['vetted_by_name']))
+                                                            <div>
+                                                                <i class="bi bi-person-x me-1 text-danger"></i>
+                                                                <strong>Rejected By:</strong> {{ $doc['vetted_by_name'] }}
+                                                            </div>
+                                                        @endif
+
+                                                    @else
+
+                                                        {{-- Vetted On --}}
+                                                        @if(!empty($doc['vetted_on']))
+                                                            <div>
+                                                                <i class="bi bi-calendar-check me-1 text-success"></i>
+                                                                <strong>Vetted On:</strong> 
+                                                                {{ $doc['vetted_on'] }}
+                                                            </div>
+                                                        @endif
+
+                                                        {{-- Vetted By --}}
+                                                        @if(!empty($doc['vetted_by_name']))
+                                                            <div>
+                                                                <i class="bi bi-person-badge me-1 text-info"></i>
+                                                                <strong>Approved By:</strong> {{ $doc['vetted_by_name'] }}
+                                                            </div>
+                                                        @endif
+
+                                                    @endif
+
+                                                </div>
+                                            </td>
+                                            {{-- Upload Button or Status --}}
+                                            @if($index === 0)
+                                                <td class="text-center" rowspan="{{ $rowspan }}">
+                                                    @php
+                                                        $lastDocument = $documents[$key][0];
+                                                    @endphp
+
+                                                    @if($lastDocument['status'] == 'Rejected')
+                                                        <button class="btn btn-primary btn-sm" 
+                                                                wire:click="SetDocType('{{ $key }}')" 
+                                                                data-bs-toggle="modal" 
+                                                                data-bs-target="#DocumentModal">
+                                                            <i class="bi bi-upload me-1"></i> Upload
+                                                        </button>
+                                                    
+                                                    @elseif($lastDocument['status'] == 'Approved')
+                                                        <span class="badge bg-success">Verified</span>
+                                                    @else
+                                                        <a href="{{ route('admin.candidates.documents.comments', $doc['id']) }}" class="btn btn-secondary btn-sm"> 
+                                                            View <i class="bi bi-eye-slash"></i>
+                                                        </a>
+                                                    @endif
+                                                </td>
+                                            @endif
+                                        @else
+                                            <td colspan="4" class="text-center">
+                                                <span class="cursor-pointer badge
+                                                    @if($doc['status'] == 'Approved') bg-lavel-success
+                                                    @elseif($doc['status'] == 'Rejected') bg-lavel-danger
+                                                    @elseif($doc['status'] == 'Pending') bg-lavel-warning
+                                                    @else bg-secondary @endif">
+                                                    {{ $doc['status'] ?? 'Uploaded' }}
+                                                </span>
+                                            </td>
+                                            <td colspan="2">
+                                                <div class="p-2 bg-light rounded border small">
+
+                                                    {{-- Skipped By --}}
+                                                    <div class="mb-1">
+                                                        <i class="bi bi-person-check me-1 text-primary"></i>
+                                                        <strong>Skipped By:</strong>
+                                                        <span class="text-dark">{{ $doc['uploaded_by_name'] ?? 'N/A' }}</span>
+                                                    </div>
+
+                                                    {{-- Attached With --}}
+                                                    <div>
+                                                        <i class="bi bi-link-45deg me-1 text-danger"></i>
+                                                        <strong>Attached With:</strong>
+                                                        <span class="text-dark">{{ $doc['attached_with'] ?? 'N/A' }}</span>
+                                                    </div>
+
+                                                </div>
+                                            </td>
+
                                         @endif
                                     </tr>
                                 @endforeach
@@ -688,7 +718,7 @@
                                             <select class="form-select form-select-sm w-auto d-inline-block mt-2"
                                                     style="min-width: 180px;"
                                                     wire:model="attachedTo.{{ $key }}"
-                                                    wire:change="updateAttachment('{{ $key }}')">
+                                                    wire:change="updateAttachment('{{ $key }}', $event.target.value)">
 
                                                 <option value="">🔗 Select parent document</option>
 
