@@ -9,7 +9,7 @@ class Candidate extends Model
    protected $table = "candidates";
     
    protected $fillable = [
-        'name', 'designation', 'email', 'contact_number', 'contact_number_alt_1', 'contact_number_alt_2', 'type', 'assembly_id', 'document_collection_status', 'acknowledgment_file', 'acknowledgment_by', 'acknowledgment_at', 'final_submission_confirmation'
+        'name', 'designation', 'email', 'contact_number', 'contact_number_alt_1', 'contact_number_alt_2', 'type', 'assembly_id', 'document_collection_status', 'parent_candidate_id', 'cloned_by', 'cloned_at', 'clone_remarks', 'is_special_case', 'special_case_label'
    ];
 
    public function documents()
@@ -20,13 +20,13 @@ class Candidate extends Model
     {
         return $this->belongsTo(Assembly::class, 'assembly_id');
     }
-   public function user()
-    {
-        return $this->belongsTo(Admin::class, 'acknowledgment_by');
-    }
 
     public function agents()
     {
         return $this->belongsToMany(Agent::class, 'candidate_agents', 'candidate_id', 'agent_id');
+    }
+    public function clonedBy()
+    {
+        return $this->belongsTo(Admin::class, 'cloned_by');
     }
 }

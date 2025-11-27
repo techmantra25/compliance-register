@@ -143,7 +143,7 @@
 
                                                 {{-- STATUS BADGE --}}
                                                 @if($row->status == 'approved')
-                                                    <span class="badge bg-success">Uploaded</span>
+                                                    <span class="badge bg-success">Approved</span>
                                                 @elseif($row->status == 'rejected')
                                                     <span class="badge bg-danger">Rejected</span>
                                                 @else
@@ -165,11 +165,11 @@
                                             {{-- Approved Info (only approved rows) --}}
                                             @if($row->status == 'approved')
                                                 <div>
-                                                    {{-- <i class="bi bi-check2-circle me-1"></i> --}}
-                                                    {{-- Approved By: <strong>{{ $row->approvedBy ? $row->approvedBy->name : 'N/A' }}</strong> --}}
-                                                    {{-- @if($row->approved_at)
+                                                    <i class="bi bi-check2-circle me-1"></i>
+                                                    Approved By: <strong>{{ $row->approvedBy ? $row->approvedBy->name : 'N/A' }}</strong>
+                                                    @if($row->approved_at)
                                                         — {{ \Carbon\Carbon::parse($row->approved_at)->format('d M Y h:i A') }}
-                                                    @endif --}}
+                                                    @endif
                                                 </div>
                                             @endif
 
@@ -212,21 +212,91 @@
                                 @endforelse
                             </td>
 
-                            <td class="text-center">
 
-                                <button class="btn btn-sm btn-primary"
-                                    wire:click="uploadApplied({{ $permission->id }}, {{$camp->id}})">
-                                    <i class="bi bi-upload me-1"></i> Applied Copy
-                                </button>
+                           <td class="text-center">
 
-                                <button class="btn btn-sm btn-warning mt-1"
-                                    wire:click="uploadApproved({{ $permission->id }}, {{$camp->id}})">
-                                    <i class="bi bi-upload me-1"></i> Approved Copy
-                                </button>
+                            {{-- For Legal Associate Role --}}
+                            @if(Auth::user()->role === 'legal_associate')
 
-                            </td>
+                                {{-- No uploads yet --}}
+                                @if(!$latest)
+                                    <span class="badge bg-secondary">No document uploaded</span>
+
+                                {{-- LATEST = pending / awaiting action --}}
+                                @elseif($latest->status === 'pending')
+                                    <button class="btn btn-sm btn-success"
+                                        onclick="confirmApprove({{ $latest->id }})">
+                                        <i class="bi bi-check2-circle me-1"></i> Approve
+                                    </button>
+
+                                    <button class="btn btn-sm btn-danger"
+                                        wire:click="openRejectModal({{ $latest->id }})">
+                                        <i class="bi bi-x-circle me-1"></i> Reject
+                                    </button>
+
+                                {{-- If already approved --}}
+                                @elseif($latest->status === 'approved')
+                                    <span class="badge bg-success">Approved</span>
+
+                                {{-- If rejected --}}
+                                @elseif($latest->status === 'rejected')
+                                    <span class="badge bg-danger">Rejected</span>
+                                @endif
+
+                            @else
+                            {{-- Normal USER upload flow (your existing logic) --}}
+
+                                {{-- No uploads yet --}}
+                                @if(!$latest)
+                                    <button class="btn btn-sm btn-primary"
+                                        wire:click="uploadApplied({{ $permission->id }}, {{$camp->id}})">
+                                        <i class="bi bi-upload me-1"></i> Upload Applied Copy
+                                    </button>
+
+                                {{-- Latest = applied --}}
+                                @elseif($latest->doc_type == 'applied_copy')
+
+                                    @if($latest->status == 'rejected')
+                                        <button class="btn btn-sm btn-danger"
+                                            wire:click="uploadApplied({{ $permission->id }}, {{ $camp->id }})">
+                                            <i class="bi bi-arrow-repeat me-1"></i> Re-Upload Applied
+                                        </button>
+
+                                    @elseif($latest->status == 'approved')
+                                        <button class="btn btn-sm btn-warning"
+                                            wire:click="uploadApproved({{ $permission->id }}, {{$camp->id}})">
+                                            <i class="bi bi-upload me-1"></i> Upload Approved Copy
+                                        </button>
+
+                                    @else
+                                        <span class="badge bg-warning text-dark">Awaiting Verification</span>
+                                    @endif
+
+                                {{-- Latest = approved copy --}}
+                                @elseif($latest->doc_type == 'approved_copy')
+
+                                    @if($latest->status == 'rejected')
+                                        <button class="btn btn-sm btn-warning"
+                                            wire:click="uploadApproved({{ $permission->id }}, {{ $camp->id }})">
+                                            <i class="bi bi-arrow-repeat me-1"></i> Re-Upload Approved
+                                        </button>
+
+                                    @elseif($latest->status == 'approved')
+                                        <span class="badge bg-success">Completed</span>
+
+                                    @else
+                                        <span class="badge bg-warning text-dark">Awaiting Approval</span>
+                                    @endif
+
+                                @endif
+
+                            @endif
+
+                        </td>
+
 
                         </tr>
+
                     @endforeach
                 </tbody>
             </table>

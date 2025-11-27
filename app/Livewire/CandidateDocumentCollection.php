@@ -6,6 +6,7 @@ use Livewire\Component;
 use Illuminate\Http\Request;
 use Livewire\WithFileUploads;
 use App\Models\Candidate;
+use App\Models\CandidateAcknowledgmentCopy;
 use Illuminate\Support\Facades\DB;
 use App\Models\ChangeLog;
 use App\Models\CandidateAcknoledgmentCopy;
@@ -22,6 +23,7 @@ class CandidateDocumentCollection extends Component
     public $candidateName,$assemblyName,$agentName,$agentNumber,$agentId,$phase =1,$nomination_date;
     public $documents = [];
     // public $newFiles = [];
+    public $acknowledgmentCopies = [];
     public $candidateData;
     public $newFile;
     public $type;
@@ -252,49 +254,79 @@ class CandidateDocumentCollection extends Component
         }
     }
 
-    public function uploadAcknowledgmentCopy(){
+    public function saveAcknowledgment()
+    {
         $this->validate([
-            'acknowledgment_file' => 'required|file|mimes:pdf,doc,docx,jpg,jpeg,png,gif,bmp,webp|max:5120',
+            'acknowledgment_file' => 'required|mimes:pdf,doc,docx,jpg,jpeg,png,webp|max:5120',
             'final_submission_confirmation' => 'required|date',
         ]);
-        DB::beginTransaction();
 
-        try {
-        // Get file instance
-        $file = $this->acknowledgment_file;
-
-        // Create unique filename
         $timestamp = now()->format('Ymd_His');
-        $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-        $extension = $file->getClientOriginalExtension();
-        $filename = "{$originalName}_{$timestamp}.{$extension}";
+        $ext = $this->acknowledgment_file->getClientOriginalExtension();
+        $filename = "ack_{$this->candidateId}_{$timestamp}.{$ext}";
 
-        // Store file in public/candidate_docs/{id}/
-        $path = $file->storeAs("candidate_docs/{$this->candidateId}", $filename, 'public');
+        $path = $this->acknowledgment_file->storeAs(
+            "candidate_acknowledgment/{$this->candidateId}",
+            $filename,
+            'public'
+        );
 
-        // Save record in DB
-        CandidateAcknoledgmentCopy::create([
+        CandidateAcknowledgmentCopy::create([
             'candidate_id' => $this->candidateId,
-            'path' => 'storage/'.$path,
+            'path' => "storage/{$path}",
+            'uploaded_by' => auth('admin')->id(),
+            'uploaded_at' => now(),
+            'final_submission_confirmation' => $this->final_submission_confirmation,
         ]);
 
-       $candidateUpdate = Candidate::findOrFail($this->candidateId);
-       $candidateUpdate->acknowledgment_file = 'storage/'.$path;
-       $candidateUpdate->acknowledgment_by = Auth::guard('admin')->id();
-       $candidateUpdate->final_submission_confirmation = $this->final_submission_confirmation;
-       $candidateUpdate->document_collection_status = "verified_submitted_with_copy";
-       $candidateUpdate->acknowledgment_at = now();
-       $candidateUpdate->save();
+        $this->reset(['acknowledgment_file','final_submission_confirmation']);
 
-        DB::commit();
-        session()->flash('success', 'Document uploaded successfully!');
-        return redirect()->route('admin.candidates.documents', ['candidate'=>$this->candidateId]);
-
-       } catch (\Exception $e) {
-            // dd($e->getMessage());
-            $this->dispatch('toastr:error', message: 'Error uploading document: ' . $e->getMessage());
-        }
+        $this->dispatch('toastr:success', message: 'Acknowledgment uploaded successfully');
     }
+
+    // public function uploadAcknowledgmentCopy(){
+    //     $this->validate([
+    //         'acknowledgment_file' => 'required|file|mimes:pdf,doc,docx,jpg,jpeg,png,gif,bmp,webp|max:5120',
+    //         'final_submission_confirmation' => 'required|date',
+    //     ]);
+    //     DB::beginTransaction();
+
+    //     try {
+    //     // Get file instance
+    //     $file = $this->acknowledgment_file;
+
+    //     // Create unique filename
+    //     $timestamp = now()->format('Ymd_His');
+    //     $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+    //     $extension = $file->getClientOriginalExtension();
+    //     $filename = "{$originalName}_{$timestamp}.{$extension}";
+
+    //     // Store file in public/candidate_docs/{id}/
+    //     $path = $file->storeAs("candidate_docs/{$this->candidateId}", $filename, 'public');
+
+    //     // Save record in DB
+    //     CandidateAcknoledgmentCopy::create([
+    //         'candidate_id' => $this->candidateId,
+    //         'path' => 'storage/'.$path,
+    //     ]);
+
+    //    $candidateUpdate = Candidate::findOrFail($this->candidateId);
+    //    $candidateUpdate->acknowledgment_file = 'storage/'.$path;
+    //    $candidateUpdate->acknowledgment_by = Auth::guard('admin')->id();
+    //    $candidateUpdate->final_submission_confirmation = $this->final_submission_confirmation;
+    //    $candidateUpdate->document_collection_status = "verified_submitted_with_copy";
+    //    $candidateUpdate->acknowledgment_at = now();
+    //    $candidateUpdate->save();
+
+    //     DB::commit();
+    //     session()->flash('success', 'Document uploaded successfully!');
+    //     return redirect()->route('admin.candidates.documents', ['candidate'=>$this->candidateId]);
+
+    //    } catch (\Exception $e) {
+    //         // dd($e->getMessage());
+    //         $this->dispatch('toastr:error', message: 'Error uploading document: ' . $e->getMessage());
+    //     }
+    // }
     public function FinalStatusUpdate(){
         $required_documents = $this->getDocumentTypes();
         $documentsData = CandidateDocument::with('uploadedBy')
@@ -310,7 +342,7 @@ class CandidateDocumentCollection extends Component
         
         if(count($required_documents) == count($documentsData)){
 
-            if($this->candidateData->document_collection_status=="verified_submitted_with_copy"){
+            if($this->candidateData->document_collection_status=="verified_submitted_with_copy" ||$this->candidateData->document_collection_status=="rejected"){
                 return true;
             }
             $approvedCount = count(array_filter($documentsData, fn($status)=> $status === "Approved"));
@@ -334,8 +366,12 @@ class CandidateDocumentCollection extends Component
             }
         }
     }
+    public function getAcknowledgmentCopies(){
+        $this->acknowledgmentCopies = CandidateAcknowledgmentCopy::where('candidate_id', $this->candidateId)->orderBy('uploaded_at', 'desc')->get();
+    }
     public function render()
     {
+        $this->getAcknowledgmentCopies();
         $this->FinalStatusUpdate();
         return view('livewire.candidate-document-collection')->layout('layouts.admin');
     }

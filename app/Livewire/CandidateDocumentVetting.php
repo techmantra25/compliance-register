@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Livewire\WithFileUploads;
 use App\Models\Candidate;
 use App\Models\ChangeLog;
+use App\Models\CandidateAcknowledgmentCopy;
 use App\Models\CandidateDocumentType;
 use App\Models\CandidateDocument;
 use Illuminate\Support\Facades\Auth;
@@ -19,6 +20,7 @@ class CandidateDocumentVetting extends Component
     public $candidateId;
     public $candidateName,$assemblyName,$agentName,$agentNumber,$agentId,$phase =1, $nomination_date;
     public $documents = [];
+    public $acknowledgmentCopies;
     public $candidateData;
     public $remarks;
     public $availableDocuments = [];
@@ -64,7 +66,7 @@ class CandidateDocumentVetting extends Component
             ->toArray();
         
         if(count($required_documents) == count($documentsData)){
-            if($this->candidateData->document_collection_status=="verified_submitted_with_copy"){
+            if($this->candidateData->document_collection_status=="verified_submitted_with_copy" || $this->candidateData->document_collection_status=="rejected"){
                 return true;
             }
             $approvedCount = count(array_filter($documentsData, fn($status)=> $status === "Approved"));
@@ -130,9 +132,98 @@ class CandidateDocumentVetting extends Component
         $this->reset(['remarks']);
     }
     
+    public function getAcknowledgmentCopies(){
+        $this->acknowledgmentCopies = CandidateAcknowledgmentCopy::where('candidate_id', $this->candidateId)
+            ->orderBy('id', 'desc')
+            ->first();
+    }
+
+    public function approveAcknowledgment($id)
+    {
+        $copy = CandidateAcknowledgmentCopy::find($id);
+        $copy->status = 'approved';
+        $copy->acknowledgment_at = now();
+        $copy->acknowledgment_by = auth()->id();
+        $copy->save();
+        $this->candidateData->document_collection_status = "verified_submitted_with_copy";
+        $this->candidateData->save();
+
+        $this->getAcknowledgmentCopies();
+        $this->dispatch('toastr:success', message: 'Acknowledgment Approved Successfully');
+    }
+
+    public function rejectAcknowledgment($id, $reason)
+    {
+        $copy = CandidateAcknowledgmentCopy::find($id);
+        $copy->status = 'rejected';
+        $copy->rejected_reason = $reason;
+        $copy->acknowledgment_at = now();
+        $copy->acknowledgment_by = auth()->id();
+        $copy->save();
+        $this->candidateData->document_collection_status = "verified_pending_submission";
+        $this->candidateData->save();
+
+        $this->getAcknowledgmentCopies();
+        $this->dispatch('toastr:error', message: 'Acknowledgment Rejected Successfully');
+    }
+
     public function reloadData(){}
+
+    public function createSpecialCaseClone($candidateId, $remarks)
+    {
+        $candidate = Candidate::with('agents')->find($candidateId);
+
+        if (!$candidate) {
+            return;
+        }
+
+        DB::beginTransaction();
+        try {
+
+            // STEP 1: CREATE CLONE
+            $clone = $candidate->replicate(); // copies all columns
+
+            // Reset / Modify fields for clone
+            $clone->is_special_case = 1;
+            $clone->special_case_label = "Special Case";
+            $clone->parent_candidate_id = $candidate->id;
+            $clone->document_collection_status = "pending"; // reset flow
+            $clone->cloned_by = auth()->id();
+            $clone->cloned_at = now();
+            $clone->clone_remarks = $remarks;
+
+            // Important: avoid copying timestamps from old record
+            $clone->created_at = now();
+            $clone->updated_at = now();
+
+            $clone->save();
+
+            // STEP 2: CLONE AGENTS (Pivot Table)
+            if ($candidate->agents && $candidate->agents->count() > 0) {
+                $clone->agents()->sync($candidate->agents->pluck('id')->toArray());
+            }
+
+            // STEP 3: MARK ORIGINAL AS REJECTED & CLOSED
+            $candidate->document_collection_status = 'rejected';
+            $candidate->cloned_by = auth()->id();
+            $candidate->cloned_at = now();
+            $candidate->clone_remarks = $remarks;
+            $candidate->is_closed = 1; // prevents future updates
+            $candidate->save();
+
+            DB::commit();
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw $e;
+        }
+        // STEP 3: Fire success alert
+        return redirect()->route('admin.candidates.contacts')->with('success', 'Special Case Clone Created Successfully.');
+    }
+
     public function render()
     {
+        $this->getAcknowledgmentCopies();
         $this->FinalStatusUpdate();
         return view('livewire.candidate-document-vetting')->layout('layouts.admin');
     }

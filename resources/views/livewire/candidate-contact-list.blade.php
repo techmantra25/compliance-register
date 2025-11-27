@@ -163,6 +163,40 @@
                                     <td>
                                         {{ getFinalDocStatus($candidate->document_collection_status, 'icon') }}
                                         {{ getFinalDocStatus($candidate->document_collection_status, 'label') }}
+                                        <br>
+                                        @if($candidate->is_special_case==1)
+                                            <span class="badge bg-warning text-dark ms-1">Special Case</span>
+                                        @endif
+                                         <!-- REJECTED DETAILS -->
+                                        @if($candidate->document_collection_status == 'rejected')
+
+                                            <div class="mt-1 small text-danger">
+
+                                                <div>
+                                                    <i class="bi bi-person-x me-1"></i>
+                                                    <strong>Rejected By:</strong> 
+                                                    {{ optional($candidate->clonedBy)->name ?? 'Legal Associate' }}
+                                                </div>
+
+                                                @if($candidate->cloned_at)
+                                                <div>
+                                                    <i class="bi bi-clock-history me-1"></i>
+                                                    <strong>Rejected At:</strong>
+                                                    {{ \Carbon\Carbon::parse($candidate->cloned_at)->format('d M Y, h:i A') }}
+                                                </div>
+                                                @endif
+
+                                                @if($candidate->clone_remarks)
+                                                <div class="mt-1">
+                                                    <i class="bi bi-chat-left-quote me-1"></i>
+                                                    <strong>Remarks:</strong> 
+                                                    {{ $candidate->clone_remarks }}
+                                                </div>
+                                                @endif
+
+                                            </div>
+
+                                        @endif
                                     </td>
                                     <td>{{ optional(optional(optional($candidate->assembly)->assemblyPhase)->phase)->last_date_of_nomination ?? 'N/A' }}</td>
 
@@ -171,23 +205,29 @@
                                             @if($uploaded == $required_document)
                                                 <a href="{{route('admin.candidates.documents.vetting', $candidate->id)}}"
                                                     class="btn btn-sm btn-outline-primary" title="Verify Documents">
+                                                    @if($candidate->document_collection_status == 'rejected')
+                                                        <i class="bi bi-arrow-clockwise"></i> View Details
+                                                    @else   
                                                     <i class="bi bi-check2-square"></i> Verify Now
+                                                    @endif
                                                 </a>
                                             @endif
                                         @else
-                                            @if(childUserAccess(Auth::guard('admin')->user()->id,'nomination_assign_agents'))
-                                            <button class="btn btn-sm btn-outline-{{count($candidate->agents)>0?"primary":"danger"}}" wire:click="openAgentModal({{ $candidate->id }})"
-                                                data-bs-toggle="modal" data-bs-target="#assignAgentModal"
-                                                title="Assign Agent">
-                                                <i class="bi bi-people"></i>
-                                            </button>
-                                            @endif
-                                            @if(childUserAccess(Auth::guard('admin')->user()->id,'nomination_update_candidate'))
-                                            <button class="btn btn-sm btn-outline-primary"
-                                                wire:click="edit({{ $candidate->id }})" data-bs-toggle="modal"
-                                                data-bs-target="#candidateModal" title="Edit Candidate">
-                                                <i class="bi bi-pencil"></i>
-                                            </button>
+                                            @if($candidate->document_collection_status !== 'rejected')
+                                                @if(childUserAccess(Auth::guard('admin')->user()->id,'nomination_assign_agents'))
+                                                <button class="btn btn-sm btn-outline-{{count($candidate->agents)>0?"primary":"danger"}}" wire:click="openAgentModal({{ $candidate->id }})"
+                                                    data-bs-toggle="modal" data-bs-target="#assignAgentModal"
+                                                    title="Assign Agent">
+                                                    <i class="bi bi-people"></i>
+                                                </button>
+                                                @endif
+                                                @if(childUserAccess(Auth::guard('admin')->user()->id,'nomination_update_candidate'))
+                                                <button class="btn btn-sm btn-outline-primary"
+                                                    wire:click="edit({{ $candidate->id }})" data-bs-toggle="modal"
+                                                    data-bs-target="#candidateModal" title="Edit Candidate">
+                                                    <i class="bi bi-pencil"></i>
+                                                </button>
+                                                @endif
                                             @endif
                                             @if(childUserAccess(Auth::guard('admin')->user()->id,'nomination_document_collections'))
                                             <a href="{{ route('admin.candidates.documents', ['candidate' => $candidate->id]) }}"
