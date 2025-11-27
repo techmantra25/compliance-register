@@ -58,6 +58,10 @@ if (!function_exists('getFinalDocStatus')) {
                 'label' => 'Have Not Received Form',
                 'icon'  => '⛔',
             ],
+            'rejected' => [
+                'label' => 'Rejected by legal associate',
+                'icon'  => '❌',
+            ],
         ];
 
         // Return all if no key

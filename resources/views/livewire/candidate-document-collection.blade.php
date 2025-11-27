@@ -36,19 +36,19 @@
     </style>
 
     <div class="d-flex flex-wrap justify-content-between align-items-start mb-3">
-    {{-- Left Section: Title + Candidate Info --}}
-    <div class="mb-2">
-        <h4 class="fw-bold mb-2 text-dark">Document Collections</h4>
+        {{-- Left Section: Title + Candidate Info --}}
+        <div class="mb-2">
+            <h4 class="fw-bold mb-2 text-dark">Document Collections</h4>
+        </div>
+        
+        {{-- Right Section: Upload Acknowledgement Copy + Back Button --}}
+        <div class="d-flex flex-column align-items-end gap-2">
+            {{-- Back Button --}}
+            <a href="{{ route('admin.candidates.contacts') }}" class="btn btn-sm btn-danger shadow-sm">
+                <i class="bi bi-arrow-left-circle me-1"></i> Back
+            </a>
+        </div>
     </div>
-    
-    {{-- Right Section: Upload Acknowledgement Copy + Back Button --}}
-    <div class="d-flex flex-column align-items-end gap-2">
-        {{-- Back Button --}}
-        <a href="{{ route('admin.candidates.contacts') }}" class="btn btn-sm btn-danger shadow-sm">
-            <i class="bi bi-arrow-left-circle me-1"></i> Back
-        </a>
-    </div>
-</div>
     <div class="d-flex flex-wrap justify-content-between align-items-start mb-3">
         <div class="col-md-8">
             <div class="card shadow-sm border-0 p-3 mb-3 mx-1">
@@ -99,126 +99,386 @@
                                 </td>
                             </tr>
                             <tr>
-                                <th>Date of Final Submission</th>
-                                <td> 
-                                    @if($candidateData->final_submission_confirmation)
-                                        : {{ \Carbon\Carbon::parse($candidateData->final_submission_confirmation)->format('d M Y, h:i A') }}
-                                    @else
-                                        <span class="text-muted">—</span>
-                                    @endif
-                                </td>
-                            </tr>
-                           <tr>
-                                <th>Acknowledgement Copy Reference</th>
-                                <td>
-                                    @if($candidateData->acknowledgment_file)
-                                        <a href="{{ asset($candidateData->acknowledgment_file) }}" target="_blank" class="btn btn-sm btn-primary">
-                                            <i class="bi bi-file-earmark-text"></i> View File
-                                        </a>
-                                    @else
-                                        <span class="text-muted">Not Uploaded</span>
-                                    @endif
-                                </td>
-                            </tr>
-
-                            <tr>
-                                <th>Logged By</th>
-                                <td>
-                                    : @if($candidateData->acknowledgment_by)
-                                        {{optional($candidateData->user)->name}}
-                                    @else
-                                        <span class="text-muted">—</span>
-                                    @endif
-                                </td>
-                            </tr>
-
-                            <tr>
-                                <th>Date & Time</th>
-                                <td>
-                                    : @if($candidateData->acknowledgment_at)
-                                        {{ \Carbon\Carbon::parse($candidateData->acknowledgment_at)->format('d M Y, h:i A') }}
-                                    @else
-                                        <span class="text-muted">—</span>
-                                    @endif
-                                </td>
-                            </tr>
-                            <tr>
                                 <th>Documents Approved By</th>
                                 <td>
                                     : {{$documents_approved_by}}
                                 </td>
                             </tr>
+                            @if($candidateData->is_special_case == 1)
+                            <tr>
+                                <th class="text-nowrap pe-3 align-top">Special Case Details</th>
+
+                                <td>
+                                    <div class="border border-danger rounded p-3 bg-light shadow-sm">
+
+                                        <!-- Label -->
+                                        <div class="mb-1">
+                                            <span class="badge bg-danger px-3 py-2 fs-6">
+                                                <i class="bi bi-exclamation-diamond me-1"></i>
+                                                {{ $candidateData->special_case_label ?? 'Special Case' }}
+                                            </span>
+                                        </div>
+
+                                        <!-- Remarks -->
+                                        @if($candidateData->clone_remarks)
+                                        <div class="mt-2 text-muted small">
+                                            <i class="bi bi-chat-left-quote me-1"></i>
+                                            <strong>Remarks:</strong>
+                                            <span class="ms-1">{{ $candidateData->clone_remarks }}</span>
+                                        </div>
+                                        @endif
+
+                                        <!-- Clone Meta Info -->
+                                        <div class="mt-2 text-muted small">
+
+                                            @if($candidateData->clonedBy)
+                                            <div>
+                                                <i class="bi bi-person-check me-1"></i>
+                                                <strong>Created By:</strong>
+                                                {{ $candidateData->clonedBy->name }}
+                                            </div>
+                                            @endif
+
+                                            @if($candidateData->cloned_at)
+                                            <div>
+                                                <i class="bi bi-clock-history me-1"></i>
+                                                <strong>Created At:</strong>
+                                                {{ \Carbon\Carbon::parse($candidateData->cloned_at)->format('d M Y, h:i A') }}
+                                            </div>
+                                            @endif
+
+                                        </div>
+
+                                    </div>
+                                </td>
+                            </tr>
+                            @endif
+
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
-        @if($candidateData->document_collection_status=="verified_pending_submission")
+        @if($candidateData->document_collection_status=="verified_pending_submission" || $candidateData->document_collection_status=="verified_submitted_with_copy")
             <div class="col-md-4">
-
-                <!-- Upload Card -->
-                <div class="card shadow-sm border-0 mb-3 upload-card">
+                <div class="card shadow-sm border-0 mb-3">
                     <div class="card-body">
+                        @if(count($acknowledgmentCopies) == 0 || (count($acknowledgmentCopies) > 0 &&
+                        $acknowledgmentCopies['0']->status == 'rejected'))
+                            <h6 class="fw-bold mb-3">
+                                <i class="bi bi-cloud-arrow-up text-primary me-2"></i>
+                                Upload Acknowledgement Copy
+                            </h6>
 
-                        <h6 class="fw-bold mb-3">
-                            <i class="bi bi-file-earmark-arrow-up me-1 text-primary"></i>
-                            Upload Acknowledgement Copy
-                        </h6>
+                            <form wire:submit.prevent="saveAcknowledgment">
 
-                        <form wire:submit.prevent="uploadAcknowledgmentCopy">
+                                <!-- Upload Box -->
+                                <div
+                                    class="custom-upload-box mb-1 @error('acknowledgment_file') border border-danger @enderror">
+                                    <input type="file" wire:model="acknowledgment_file" class="form-control file-input"
+                                        accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.gif,.bmp,.webp">
 
-                            <!-- File Upload Area -->
-                            <div class="custom-upload-box mb-1 @error('acknowledgment_file') border border-danger @enderror">
-                                <input type="file" 
-                                    wire:model="acknowledgment_file" 
-                                    class="form-control file-input"
-                                    accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.gif,.bmp,.webp">
-
-                                <div class="upload-label">
-                                    <i class="bi bi-cloud-upload fs-3"></i>
-                                    <p class="mb-0 small">Click to choose a file or drag & drop</p>
+                                    <div class="upload-label">
+                                        <i class="bi bi-cloud-upload fs-3"></i>
+                                        <p class="mb-0 small">Click to choose a file or drag & drop</p>
+                                    </div>
                                 </div>
-                            </div>
-                            @error('acknowledgment_file')
-                                <div class="text-danger small mt-1">
-                                    <i class="bi bi-exclamation-circle"></i> {{ $message }}
+
+                                @error('acknowledgment_file')
+                                <div class="text-danger small">
+                                    <i class="bi bi-exclamation-triangle"></i> {{ $message }}
                                 </div>
-                            @enderror
+                                @enderror
 
-                            <!-- Show "Uploading..." while Livewire is processing the file -->
-                            <div wire:loading wire:target="acknowledgment_file" class="text-center mb-2">
-                                <div class="spinner-border spinner-border-sm text-primary"></div>
-                                <span class="ms-2">Uploading...</span>
-                            </div>
+                                <!-- Loader -->
+                                <div wire:loading wire:target="acknowledgment_file" class="text-center my-2">
+                                    <div class="spinner-border spinner-border-sm text-primary"></div>
+                                    <span class="ms-2 small">Uploading...</span>
+                                </div>
 
-                            <!-- Upload Button (visible ONLY after upload is ready) -->
-                            <div wire:loading.remove wire:target="acknowledgment_file">
+                                <!-- Final Submission Date -->
                                 @if($acknowledgment_file)
-                                <div class="mb-2">
-                                    <label class="form-label small">Final Submission Confirmation Date(RO office)</label>
-                                    <input type="datetime-local" 
-                                        wire:model="final_submission_confirmation"
-                                        class="form-control form-control-sm @error('final_submission_confirmation') is-invalid @enderror">
-                                    
+                                <div class="mt-3">
+                                    <label class="form-label small fw-bold">
+                                        Final Submission Confirmation (RO Office)
+                                    </label>
+                                    <input type="datetime-local" wire:model="final_submission_confirmation"
+                                        class="form-control form-control-sm">
                                     @error('final_submission_confirmation')
-                                        <div class="invalid-feedback">{{ $message }}</div>
+                                        <div class="text-danger small">
+                                            <i class="bi bi-exclamation-triangle"></i> {{ $message }}
+                                        </div>
                                     @enderror
                                 </div>
-                                    <button 
-                                        type="button" 
-                                        class="btn btn-primary w-100"
-                                        onclick="confirmUpload()">
-                                        <i class="bi bi-upload me-1"></i> Upload File
-                                    </button>
                                 @endif
+
+                                <!-- Save Button -->
+                                @if($acknowledgment_file)
+                                <button type="button" class="btn btn-primary w-100 mt-3 rounded-pill"
+                                    onclick="confirmAckUpload()">
+                                    <i class="bi bi-upload me-1"></i> Save Acknowledgment Copy
+                                </button>
+                                @endif
+
+                            </form>
+
+                            @if(count($acknowledgmentCopies) > 0 && $acknowledgmentCopies[0]->status == 'rejected')
+
+                                <div class="card border-danger shadow-sm mt-3">
+                                    <div class="card-body">
+
+                                        <!-- Header -->
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <h6 class="fw-bold text-danger mb-0">
+                                                <i class="bi bi-x-circle me-1"></i> Acknowledgement Copy (Rejected)
+                                            </h6>
+
+                                            <span class="badge bg-danger px-3 py-2">
+                                                <i class="bi bi-exclamation-octagon me-1"></i> Rejected
+                                            </span>
+                                        </div>
+
+                                        <!-- Details -->
+                                        <div class="text-muted small">
+
+                                            <div class="mb-1">
+                                                <i class="bi bi-clock-history me-1 text-danger"></i>
+                                                <strong>Rejected At:</strong>
+                                                {{ \Carbon\Carbon::parse($acknowledgmentCopies[0]->acknowledgment_at)->format('d M Y, h:i A') }}
+                                            </div>
+
+                                            <div class="mb-1">
+                                                <i class="bi bi-person-x me-1 text-danger"></i>
+                                                <strong>Rejected By:</strong>
+                                                {{ $acknowledgmentCopies[0]->acknowledger->name ?? 'N/A' }}
+                                            </div>
+
+                                            @if($acknowledgmentCopies[0]->rejected_reason)
+                                            <div class="mb-1">
+                                                <i class="bi bi-chat-left-quote me-1 text-danger"></i>
+                                                <strong>Reason:</strong> 
+                                                {{ $acknowledgmentCopies[0]->rejected_reason }}
+                                            </div>
+                                            @endif
+
+                                            <div class="mb-1">
+                                                <i class="bi bi-upload me-1 text-secondary"></i>
+                                                <strong>Uploaded By:</strong>
+                                                {{ $acknowledgmentCopies[0]->uploader->name ?? 'N/A' }}
+                                            </div>
+
+                                            <div>
+                                                <i class="bi bi-calendar2-check me-1 text-secondary"></i>
+                                                <strong>Uploaded At:</strong>
+                                                {{ \Carbon\Carbon::parse($acknowledgmentCopies[0]->uploaded_at)->format('d M Y, h:i A') }}
+                                            </div>
+
+                                        </div>
+
+                                        <!-- View Button -->
+                                        <div class="mt-3 text-end">
+                                            <a href="{{ asset($acknowledgmentCopies[0]->path) }}" 
+                                            target="_blank"
+                                            class="btn btn-outline-primary btn-sm rounded-pill px-3">
+                                                <i class="bi bi-eye"></i> View Document
+                                            </a>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                            @endif
+
+
+                        @else
+                            <ul class="nav nav-tabs" id="ackTabs" role="tablist">
+
+                                <!-- TAB 1 – Latest Acknowledgement Copy -->
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" id="ack-copy-tab" data-bs-toggle="tab"
+                                        data-bs-target="#ack-copy" type="button" role="tab">
+                                        <i class="bi bi-file-earmark-text me-1"></i>
+                                        Latest Copy
+                                    </button>
+                                </li>
+
+                                <!-- TAB 2 – HISTORY -->
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="history-tab" data-bs-toggle="tab" data-bs-target="#history"
+                                        type="button" role="tab">
+                                        <i class="bi bi-clock-history me-1"></i>
+                                        Upload History
+                                    </button>
+                                </li>
+
+                            </ul>
+
+                            <div class="tab-content" id="ackTabsContent">
+
+                                <!-- ==================== TAB 1 : LATEST COPY ==================== -->
+                                <div class="tab-pane fade show active" id="ack-copy" role="tabpanel">
+
+                                    @php
+                                    $latest = $acknowledgmentCopies->first();
+                                    @endphp
+
+                                    @if($latest)
+                                        <div class="border rounded p-3 mb-2 shadow-sm bg-light">
+
+                                            <!-- Header -->
+                                            <div class="d-flex justify-content-between">
+                                                <div>
+                                                    <i class="bi bi-file-earmark-text me-2"></i>
+                                                    <strong>Acknowledgement Copy</strong>
+                                                </div>
+
+                                                <div>
+                                                    @if($latest->status == 'approved')
+                                                        <span class="badge bg-success">Approved</span>
+                                                    @elseif($latest->status == 'rejected')
+                                                        <span class="badge bg-danger">Rejected</span>
+                                                    @else
+                                                        <span class="badge bg-warning text-dark">Pending</span>
+                                                    @endif
+                                                </div>
+                                            </div>
+
+                                            <!-- Uploaded Details -->
+                                            <div class="text-muted small mt-2">
+                                                <div>
+                                                    <i class="bi bi-cloud-arrow-up me-1"></i>
+                                                    Uploaded At:  
+                                                    {{ \Carbon\Carbon::parse($latest->uploaded_at)->format('d M Y, h:i A') }}
+                                                </div>
+
+                                                <div>
+                                                    <i class="bi bi-person me-1"></i>
+                                                    Uploaded By: {{ $latest->uploader->name ?? 'N/A' }}
+                                                </div>
+
+                                                @if($latest->final_submission_confirmation)
+                                                <div>
+                                                    <i class="bi bi-calendar-check me-1"></i>
+                                                    Final Submission Confirmation (RO office):
+                                                    {{ \Carbon\Carbon::parse($latest->final_submission_confirmation)->format('d M Y, h:i A') }}
+                                                </div>
+                                                @endif
+                                            </div>
+
+                                            <!-- Approve / Reject Info -->
+                                            <div class="text-muted small mt-3">
+                                                @if($latest->status != 'pending')
+                                                    <div>
+                                                        <i class="bi bi-clock me-1"></i>
+                                                        {{ $latest->status == 'approved' ? 'Acknowledged At:' : 'Rejected At:' }}
+                                                        {{ \Carbon\Carbon::parse($latest->acknowledgment_at)->format('d M Y, h:i A') }}
+                                                    </div>
+
+                                                    <div>
+                                                        <i class="bi bi-person-check me-1"></i>
+                                                        {{ $latest->status == 'approved' ? 'Acknowledged By:' : 'Rejected By:' }}
+                                                        {{ $latest->acknowledger->name ?? 'N/A' }}
+                                                    </div>
+                                                @endif
+
+                                                @if($latest->status == 'rejected' && $latest->rejected_reason)
+                                                    <div>
+                                                        <i class="bi bi-x-circle me-1"></i>
+                                                        Rejection Reason: {{ $latest->rejected_reason }}
+                                                    </div>
+                                                @endif
+                                            </div>
+
+                                            <!-- Button -->
+                                            <div class="mt-3">
+                                                <a href="{{ asset($latest->path) }}" target="_blank"
+                                                    class="btn btn-sm btn-primary rounded-pill px-3">
+                                                    <i class="bi bi-eye"></i> View
+                                                </a>
+                                            </div>
+
+                                        </div>
+
+                                        @else
+                                        <div class="text-center text-muted py-4">
+                                            No acknowledgement copy uploaded yet.
+                                        </div>
+                                        @endif
+
+
+                                </div>
+
+                                <!-- ==================== TAB 2 : HISTORY ==================== -->
+                                <div class="tab-pane fade" id="history" role="tabpanel">
+
+
+                                    @php
+                                    $history = $acknowledgmentCopies->slice(1); // all except latest
+                                    @endphp
+
+                                    @if($history->count() > 0)
+
+                                    @foreach($history as $copy)
+                                    <div class="border rounded p-3 mb-2 shadow-sm bg-light">
+
+                                        <div class="d-flex justify-content-between">
+                                            <div>
+                                                <i class="bi bi-file-earmark-text me-2"></i>
+                                                <strong>Acknowledgement Copy</strong>
+                                            </div>
+
+                                            <div>
+                                                @if($copy->status == 'approved')
+                                                <span class="badge bg-success">Approved</span>
+                                                @elseif($copy->status == 'rejected')
+                                                <span class="badge bg-danger">Rejected</span>
+                                                @else
+                                                <span class="badge bg-warning text-dark">Pending</span>
+                                                @endif
+                                            </div>
+                                        </div>
+
+                                        <div class="text-muted small mt-2">
+                                            <div><i class="bi bi-clock me-1"></i>
+                                                {{$copy->status== 'approved' ? 'Acknowledged At' : 'Rejected At'}}:
+                                                {{ \Carbon\Carbon::parse($copy->acknowledgment_at)->format('d M Y, h:i A') }}
+                                            </div>
+
+                                            <div><i class="bi bi-person me-1"></i>
+                                                {{$copy->status== 'approved' ? 'Acknowledged' : 'Rejected'}} By:
+                                                {{ $copy->acknowledger->name ?? 'N/A' }}
+                                            </div>
+
+                                            @if($copy->status == 'rejected' && $copy->rejected_reason)
+                                            <div><i class="bi bi-x-circle me-1"></i>
+                                                Reason: {{ $copy->rejected_reason }}
+                                            </div>
+                                            @endif
+                                        </div>
+
+                                        <div class="mt-2">
+                                            <a href="{{ asset($copy->path) }}" target="_blank"
+                                                class="btn btn-sm btn-primary rounded-pill px-3">
+                                                <i class="bi bi-eye"></i> View
+                                            </a>
+                                        </div>
+
+                                    </div>
+                                    @endforeach
+
+                                    @else
+                                    <div class="text-center text-muted py-4">
+                                        No previous uploads found.
+                                    </div>
+                                    @endif
+
+                                </div>
+
                             </div>
 
-                        </form>
-
-
+                        @endif
                     </div>
                 </div>
-
             </div>
         @endif
     </div>
@@ -514,7 +774,7 @@
                 </div>
         </div>
     </div>
-    <div class="loader-container" wire:loading wire:target="saveDocument,uploadAcknowledgmentCopy">
+    <div class="loader-container" wire:loading wire:target="saveDocument,saveAcknowledgment">
         <div class="loader"></div>
     </div>
 
@@ -522,7 +782,7 @@
     @push('scripts')
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        function confirmUpload() {
+        function confirmAckUpload() {
             Swal.fire({
                 title: "Upload Acknowledgement Copy?",
                 text: "Are you sure you want to upload this file?",
@@ -533,7 +793,7 @@
                 confirmButtonText: "Yes, Upload"
             }).then((result) => {
                 if (result.isConfirmed) {
-                    @this.call('uploadAcknowledgmentCopy');
+                    @this.call('saveAcknowledgment');
                 }
             });
         }

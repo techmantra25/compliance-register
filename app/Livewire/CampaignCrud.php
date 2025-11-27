@@ -151,9 +151,10 @@ class CampaignCrud extends Component
 
 
             $this->dispatch('toastr:success', message: 'Campaign updated successfully!');
-            $this->dispatch('refreshChosen');
-            $this->dispatch('resetField');
-            $this->dispatch('modelHide');
+            // $this->dispatch('refreshChosen');
+            // $this->dispatch('resetField');
+            // $this->dispatch('modelHide');
+            return redirect()->route('admin.campaigns');
 
         } catch (\Exception $e) {
             //dd($e->getMessage());
@@ -193,9 +194,10 @@ class CampaignCrud extends Component
             ]);
 
             $this->dispatch('toastr:success', message: 'Campaign created successfully!');
-            $this->dispatch('refreshChosen');
-            $this->dispatch('resetField');
-            $this->dispatch('modelHide');
+            // $this->dispatch('refreshChosen');
+            // $this->dispatch('resetField');
+            // $this->dispatch('modelHide');
+            return redirect()->route('admin.campaigns');
 
         } catch (\Exception $e) {
             $this->dispatch('toastr:error', message: 'Something went wrong while creating!');

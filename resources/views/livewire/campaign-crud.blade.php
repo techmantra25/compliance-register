@@ -1,4 +1,22 @@
 <div>
+   <style>
+        .status-dropdown {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6 !important;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .status-dropdown:hover {
+            background: #eef2f6;
+        }
+        .alert {
+            border-left-width: 4px;
+            border-left-style: solid;
+        }
+        .alert-primary { border-left-color: #0d6efd; }
+        .alert-danger { border-left-color: #dc3545; }
+    </style>
+
     <div class="row g-4">
         
         <div class="d-flex flex-wrap justify-content-between align-items-center">
@@ -86,7 +104,9 @@
                                     <th>Event Type</th>
                                     <th>Date & Time</th>
                                     <th>Permissions</th>
-                                    <th>Status</th>
+                                    <th width="15%">
+                                            <i class="bi bi-flag me-1"></i> Campaign Status
+                                    </th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
@@ -143,31 +163,56 @@
                                     </td>
 
                                     <!-- Status -->
-                                    @if(childUserAccess(Auth::guard('admin')->user()->id,'campaign_campaign_status'))
-                                    <td>
-                                        <select class="form-select form-select-sm px-2 w-auto mx-auto"
-                                            wire:change="statusChanged({{ $camp->id }}, $event.target.value)">
-                                            <option value="pending" @selected($camp->status == 'pending')>Pending</option>
-                                            <option value="rescheduled" @selected($camp->status == 'rescheduled')>Rescheduled</option>
-                                            <option value="cancelled" @selected($camp->status == 'cancelled')>Cancelled</option>
-                                            <option value="completed" @selected($camp->status == 'completed')>Completed</option>
-                                        </select>
+                                   @if(childUserAccess(Auth::guard('admin')->user()->id,'campaign_campaign_status'))
+                                    <td class="text-center">
 
+                                        <div class="d-inline-block">
+                                            <select class="form-select form-select-sm shadow-sm border-0 rounded-pill px-3 
+                                                        text-center fw-semibold status-dropdown"
+                                                    wire:change="statusChanged({{ $camp->id }}, $event.target.value)"
+                                                    style="min-width:150px;">
+
+                                                <option value="pending" 
+                                                    @selected($camp->status == 'pending')>
+                                                    ⏳ Pending
+                                                </option>
+
+                                                <option value="rescheduled" 
+                                                    @selected($camp->status == 'rescheduled')>
+                                                    🔄 Rescheduled
+                                                </option>
+
+                                                <option value="cancelled" 
+                                                    @selected($camp->status == 'cancelled')>
+                                                    ❌ Cancelled
+                                                </option>
+
+                                                <option value="completed" 
+                                                    @selected($camp->status == 'completed')>
+                                                    ✅ Completed
+                                                </option>
+                                            </select>
+                                        </div>
+
+                                        {{-- Status Meta Information --}}
                                         @if($camp->status == 'rescheduled' && $camp->rescheduled_at)
-                                            <small class="text-primary d-block mt-1">
-                                                <i class="bi bi-clock-history"></i>
-                                                {{ date('d M Y, h:i A', strtotime($camp->rescheduled_at)) }}
-                                            </small>
+                                            <div class="alert alert-primary mt-2 py-1 px-2 small text-start shadow-sm rounded">
+                                                <i class="bi bi-clock-history me-1"></i>
+                                                Rescheduled On:
+                                                <strong>{{ date('d M Y, h:i A', strtotime($camp->rescheduled_at)) }}</strong>
+                                            </div>
                                         @endif
 
                                         @if($camp->status == 'cancelled' && $camp->cancelled_remarks)
-                                            <small class="text-danger d-block mt-1">
-                                                <i class="bi bi-x-circle"></i>
+                                            <div class="alert alert-danger mt-2 py-1 px-2 small text-start shadow-sm rounded">
+                                                <i class="bi bi-x-circle me-1"></i>
                                                 {{ ucwords($camp->cancelled_remarks) }}
-                                            </small>
+                                            </div>
                                         @endif
+
                                     </td>
                                     @endif
+
 
                                     <!-- Actions -->
                                     <td class="text-center">

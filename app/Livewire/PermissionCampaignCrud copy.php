@@ -41,7 +41,13 @@ class PermissionCampaignCrud extends Component
         $this->reset(['file', 'remarks']);
         $this->dispatch('open-document-modal');
     }
-  
+    public function openRejectModal($id)
+    {
+        $this->rejectId = $id;
+        $this->rejectRemarks = '';
+        $this->dispatch('open_reject_modal'); // JS/modal trigger
+    }
+
     public function resetForm()
     {
         $this->reset(['file', 'remarks', 'campaign_id', 'event_required_permission_id', 'doc_type']);
@@ -54,39 +60,19 @@ class PermissionCampaignCrud extends Component
             'remarks' => 'nullable|string|max:255',
         ]);
 
-        // Auto Reject previous version of SAME doc_type for SAME permission + campaign
-        $previous = CampaignWisePermission::where('campaign_id', $this->campaign_id)
-            ->where('event_required_permission_id', $this->event_required_permission_id)
-            ->where('doc_type', $this->doc_type)
-            ->orderBy('id', 'desc')
-            ->first();
-
-        if ($previous && in_array($previous->status, ['pending', 'approved'])) {
-            $previous->status = 'rejected';
-            $previous->rejected_reason = 'Auto-Rejected due to new upload';
-            $previous->approved_by = auth('admin')->id();
-            $previous->approved_at = now();
-            $previous->save();
-        }
-
-        // File Upload
+  
         $timestamp = now()->format('Ymd_His');
         $originalName = pathinfo($this->file->getClientOriginalName(), PATHINFO_FILENAME);
         $extension = $this->file->getClientOriginalExtension();
         $filename = "{$originalName}_{$timestamp}.{$extension}";
 
-        $path = $this->file->storeAs(
-            "campaign_permission_docs/{$this->campaign_id}",
-            $filename,
-            'public'
-        );
+        $path = $this->file->storeAs("campaign_permission_docs/{$this->campaign_id}", $filename, 'public');
 
-        // Create new upload record
         $create = new CampaignWisePermission();
         $create->campaign_id = $this->campaign_id;
         $create->event_required_permission_id = $this->event_required_permission_id;
-        $create->status = 'approved'; // always approved since no legal associate flow
-        $create->remarks = $this->remarks;
+        $create->status = 'pending';
+        $create->remarks = $this->remarks;  
         $create->file = "storage/{$path}";
         $create->doc_type = $this->doc_type;
         $create->uploaded_by = auth('admin')->id();
@@ -96,8 +82,32 @@ class PermissionCampaignCrud extends Component
         $this->reset(['file', 'remarks', 'doc_type']);
 
         $this->dispatch('close-document-modal');
+
         $this->dispatch('toastr:success', message: "Document uploaded successfully");
     }
+    public function approveDocument($id)
+    {
+        $doc = CampaignWisePermission::find($id);
+        $doc->status = 'approved';
+        $doc->approved_by = auth('admin')->id();
+        $doc->approved_at = now();
+        $doc->save();
+
+        $this->dispatch('toastr:success', message: "Document approved successfully");
+    }
+    public function submitRejection()
+    {
+        $doc = CampaignWisePermission::find($this->rejectId);
+        $doc->status = 'rejected';
+        $doc->rejected_reason = $this->rejectRemarks;
+        $doc->approved_by = auth('admin')->id();
+        $doc->approved_at = now();
+        $doc->save();
+
+        $this->dispatch('close_reject_modal');
+        $this->dispatch('toastr:success', message: "Document rejected successfully");
+    }
+
 
     public function render()
     {
