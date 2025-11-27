@@ -56,7 +56,7 @@
                     <div class="d-flex align-items-center">
                         <div wire:ignore>
                             <select wire:model="filter_by_assembly" class="form-select chosen-select">
-                                <option value="">Filer by Assembly</option>
+                                <option value="">Filter by Assembly</option>
                                 @foreach ($assembly as $assemb)
                                 <option value="{{ $assemb->id }}">
                                     {{ $assemb->assembly_name_en }} ({{ $assemb->assembly_code }})
@@ -66,7 +66,7 @@
                         </div>
                         <div  wire:ignore>
                             <select wire:model="filter_by_district" class="form-select chosen-select">
-                                <option value="">Filer by District</option>
+                                <option value="">Filter by District</option>
                                 @foreach ($districts as $district)
                                 <option value="{{ $district->id }}">
                                     {{ $district->name_en }} ({{ $district->name_bn }})
@@ -76,7 +76,7 @@
                         </div>
                         <div  wire:ignore>
                             <select wire:model="filter_by_zone" class="form-select chosen-select">
-                                <option value="">Filer by Zone</option>
+                                <option value="">Filter by Zone</option>
                                 @foreach ($zones as $z)
                                     <option value="{{ $z->id }}">{{ $z->name }}</option>
                                 @endforeach
@@ -122,23 +122,23 @@
 
                                     <!-- Campaigner -->
                                     <td class="text-start">
-                                        <div class="fw-semibold">{{ ucwords($camp->campaigner->name) }}</div>
-                                        <div class="text-muted small"><i class="bi bi-telephone"></i> {{ $camp->campaigner->mobile }}</div>
-                                        <div class="small">{{ $camp->address }}</div>
+                                        <div class="fw-semibold">{{ ucwords(optional($camp->campaigner)->name) }}</div>
+                                        <div class="text-muted small"><i class="bi bi-telephone"></i> {{ optional($camp->campaigner)->mobile }}</div>
+                                        <div class="small">{{ ucwords($camp->address) }}</div>
                                     </td>
 
                                     <!-- Assembly -->
                                     <td class="text-start">
-                                        <div class="fw-semibold">{{ ucwords($camp->assembly->assembly_name_en ?? '_') }}</div>
-                                        <div class="text-muted small">Code: {{ $camp->assembly->assembly_code ?? '-' }}</div>
+                                        <div class="fw-semibold">{{ ucwords(optional($camp->assembly)->assembly_name_en ?? '_') }}</div>
+                                        <div class="text-muted small">Code: {{ optional($camp->assembly)->assembly_code ?? '-' }}</div>
                                         <div class="small text-primary">
-                                            ({{ ucwords($camp->assembly->assemblyPhase->phase->name ?? 'N/A') }})
+                                            ({{ ucwords(optional(optional(optional($camp->assembly)->assemblyPhase)->phase)->name ?? 'N/A') }})
                                         </div>
                                     </td>
 
                                     <!-- Event Type -->
                                     <td class="fw-semibold">
-                                        {{ ucwords($camp->category->name) ?? '-' }}
+                                        {{ ucwords(optional($camp->category)->name) ?? '-' }}
                                     </td>
 
                                     <!-- Dates -->

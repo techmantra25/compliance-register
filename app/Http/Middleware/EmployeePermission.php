@@ -36,7 +36,7 @@ class EmployeePermission
             abort(403, 'Permission Not Found');
         }
 
-        $userPermissions = $user->getPermissionAttribute(); // already an array
+        $userPermissions = $user->getPermissionAttribute(); 
 
         if (!in_array($userPermission->id, $userPermissions)) {
             abort(403, 'Permission Denied');
