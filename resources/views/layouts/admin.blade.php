@@ -167,7 +167,7 @@
                     </div>
                     <div class="collapse {{ request()->is('admin/campaign*') ? 'show' : '' }}" id="campaignMenu">
                         <ul class="nav flex-column ms-4 border-start ps-2 mt-1">
-                            @if(childUserAccess(Auth::guard('admin')->user()->id,'campaign_add_campaigner'))
+                            @if(childUserAccess(Auth::guard('admin')->user()->id,'campaign_view_campaigner'))
                                 <li class="nav-item mb-1">
                                     <a href="{{route('admin.campaigns.star-campaigner')}}"
                                     class="nav-link small {{ request()->routeIs('admin.campaigns') ? 'active' : '' }}">

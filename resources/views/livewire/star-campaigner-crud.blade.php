@@ -19,10 +19,12 @@
                     <i class="bi bi-upload me-1"></i> Import Campaigner
                 </button>
                 @endif
+                @if(childUserAccess(Auth::guard('admin')->user()->id,'campaign_add_campaigner'))
                 <button class="btn btn-primary btn-sm" wire:click="openAddModal" data-bs-toggle="modal"
                     data-bs-target="#campaignerModal">
                     <i class="bi bi-plus-circle me-1"></i> Add Campaigner
                 </button>
+                @endif
             </div>
         </div>
 
