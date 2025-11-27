@@ -1,108 +1,110 @@
 <div>
     <style>
-    .timeline {
-        list-style: none;
-        padding: 20px 0 20px;
-        position: relative;
-    }
+        .timeline {
+            list-style: none;
+            padding: 20px 0 20px;
+            position: relative;
+        }
 
-    /* Vertical Line */
-    .timeline:before {
-        top: 0;
-        bottom: 0;
-        position: absolute;
-        content: " ";
-        width: 3px;
-        background-color: #dee2e6;
-        left: 20px; /* Position the line */
-        margin-left: -1.5px;
-    }
+        /* Vertical Line */
+        .timeline:before {
+            top: 0;
+            bottom: 0;
+            position: absolute;
+            content: " ";
+            width: 3px;
+            background-color: #dee2e6;
+            left: 20px; /* Position the line */
+            margin-left: -1.5px;
+        }
 
-    /* Timeline Item */
-    .timeline-item {
-        margin-bottom: 20px;
-        position: relative;
-    }
-    .timeline-item:after, .timeline-item:before {
-        content: " ";
-        display: table;
-    }
-    .timeline-item:after {
-        clear: both;
-    }
+        /* Timeline Item */
+        .timeline-item {
+            margin-bottom: 20px;
+            position: relative;
+        }
+        .timeline-item:after, .timeline-item:before {
+            content: " ";
+            display: table;
+        }
+        .timeline-item:after {
+            clear: both;
+        }
 
-    /* Timeline Dot (Badge) */
-    .timeline-badge {
-        color: #fff;
-        width: 40px;
-        height: 40px;
-        line-height: 40px;
-        font-size: 1.2em;
-        text-align: center;
-        position: absolute;
-        top: 5px;
-        left: 0;
-        margin-left: 0;
-        background-color: #6c757d; /* Default color */
-        z-index: 100;
-        border-radius: 50%;
-        border: 2px solid #fff;
-        box-shadow: 0 0 0 4px rgba(0,0,0,.1);
-    }
-    .timeline-badge i {
-        line-height: 1;
-        vertical-align: middle;
-    }
+        /* Timeline Dot (Badge) */
+        .timeline-badge {
+            color: #fff;
+            width: 40px;
+            height: 40px;
+            line-height: 40px;
+            font-size: 1.2em;
+            text-align: center;
+            position: absolute;
+            top: 5px;
+            left: 0;
+            margin-left: 0;
+            background-color: #6c757d; /* Default color */
+            z-index: 100;
+            border-radius: 50%;
+            border: 2px solid #fff;
+            box-shadow: 0 0 0 4px rgba(0,0,0,.1);
+        }
+        .timeline-badge i {
+            line-height: 1;
+            vertical-align: middle;
+        }
 
-    /* Timeline Content Panel */
-    .timeline-panel {
-        width: calc(100% - 70px); /* Adjust width */
-        float: right;
-        padding: 10px 15px;
-        border: 1px solid #e9ecef;
-        border-radius: 6px;
-        background: #fff;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    }
+        /* Timeline Content Panel */
+        .timeline-panel {
+            width: calc(100% - 70px); /* Adjust width */
+            float: right;
+            padding: 10px 15px;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            background: #fff;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
 
-    /* Panel Pointer (Arrow) */
-    .timeline-panel:before {
-        position: absolute;
-        top: 17px;
-        left: 45px;
-        right: auto;
-        display: inline-block;
-        border-top: 10px solid transparent;
-        border-left: 0 solid #ccc;
-        border-right: 10px solid #e9ecef;
-        border-bottom: 10px solid transparent;
-        content: " ";
-    }
-    .timeline-panel:after {
-        position: absolute;
-        top: 18px;
-        left: 46px;
-        right: auto;
-        display: inline-block;
-        border-top: 9px solid transparent;
-        border-left: 0 solid #fff;
-        border-right: 9px solid #fff;
-        border-bottom: 9px solid transparent;
-        content: " ";
-    }
+        /* Panel Pointer (Arrow) */
+        .timeline-panel:before {
+            position: absolute;
+            top: 17px;
+            left: 45px;
+            right: auto;
+            display: inline-block;
+            border-top: 10px solid transparent;
+            border-left: 0 solid #ccc;
+            border-right: 10px solid #e9ecef;
+            border-bottom: 10px solid transparent;
+            content: " ";
+        }
+        .timeline-panel:after {
+            position: absolute;
+            top: 18px;
+            left: 46px;
+            right: auto;
+            display: inline-block;
+            border-top: 9px solid transparent;
+            border-left: 0 solid #fff;
+            border-right: 9px solid #fff;
+            border-bottom: 9px solid transparent;
+            content: " ";
+        }
 
-    /* Text size adjustment for small content */
-    .text-sm { font-size: 0.9rem; }
-    .text-xs { font-size: 0.8rem; }
-</style>
+        /* Text size adjustment for small content */
+        .text-sm { font-size: 0.9rem; }
+        .text-xs { font-size: 0.8rem; }
+    </style>
     <div class="row g-4 mb-4">
         <div class="col-12">
             <div class="card border-0 shadow-sm">
                 <div class="card-body">
                     <h4 class="card-title text-primary mb-3">
-                        <div class="row">
-                            <a href="{{ route('admin.candidates.contacts') }}" class="btn btn-sm btn-danger shadow-sm">
-                                <i class="bi bi-arrow-left-circle me-1"></i> Back
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <nav aria-label="breadcrumb">
+                            </nav>
+                            <a href="{{ route('admin.candidates.contacts') }}" class="btn btn-dark btn-sm text-end">
+                                <i class="bi bi-arrow-left me-1"></i> Back
                             </a>
                         </div>
                         <i class="bi bi-person-circle me-2"></i> {{ $candidate->name }}

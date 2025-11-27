@@ -165,6 +165,18 @@
                             @endif
                         </ul>
                     </div>
+                    <div class="collapse {{ request()->is('admin/campaign*') ? 'show' : '' }}" id="campaignMenu">
+                        <ul class="nav flex-column ms-4 border-start ps-2 mt-1">
+                            @if(childUserAccess(Auth::guard('admin')->user()->id,'campaign_add_campaigner'))
+                                <li class="nav-item mb-1">
+                                    <a href="{{route('admin.campaigns.star-campaigner')}}"
+                                    class="nav-link small {{ request()->routeIs('admin.campaigns') ? 'active' : '' }}">
+                                        <i class="bi bi-star me-2"></i> Star Campaigner
+                                    </a>
+                                </li>
+                            @endif
+                        </ul>
+                    </div>
                 </li>
             @endif
 
@@ -224,9 +236,6 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
         crossorigin="anonymous"></script>
-
-
-
     <script>
         toastr.options = {
             "closeButton": true,

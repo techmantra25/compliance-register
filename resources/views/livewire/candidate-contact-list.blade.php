@@ -48,7 +48,7 @@
                     <div class="d-flex align-items-center">
                         <div wire:ignore>
                             <select wire:model="filter_by_assembly" class="form-select chosen-select">
-                                <option value="">Filer by Assembly</option>
+                                <option value="">Filter by Assembly</option>
                                 @foreach ($assemblies as $assembly)
                                 <option value="{{ $assembly->id }}">
                                     {{ $assembly->assembly_name_en }} ({{ $assembly->assembly_code }})
@@ -58,7 +58,7 @@
                         </div>
                         <div  wire:ignore>
                             <select wire:model="filter_by_district" class="form-select chosen-select">
-                                <option value="">Filer by District</option>
+                                <option value="">Filter by District</option>
                                 @foreach ($districts as $district)
                                 <option value="{{ $district->id }}">
                                     {{ $district->name_en }} ({{ $district->name_bn }})
@@ -68,7 +68,7 @@
                         </div>
                         <div  wire:ignore>
                             <select wire:model="filter_by_phase" class="form-select chosen-select">
-                                <option value="">Filer by phase</option>
+                                <option value="">Filter by phase</option>
                                 @foreach ($phases as $phase)
                                 <option value="{{ $phase->id }}">
                                     {{ ucwords($phase->name) }} ({{$phase->last_date_of_nomination}})
