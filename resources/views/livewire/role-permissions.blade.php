@@ -25,7 +25,7 @@
             </nav>
         </div>
 
-        <a href="{{ route('admin.employees') }}" class="btn btn-dark btn-sm">
+        <a href="{{ route('admin.employees') }}" class="btn btn-danger btn-sm">
             <i class="bi bi-arrow-left me-1"></i> Back
         </a>
     </div>

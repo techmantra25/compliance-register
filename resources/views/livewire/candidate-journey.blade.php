@@ -99,16 +99,15 @@
         <div class="col-12">
             <div class="card border-0 shadow-sm">
                 <div class="card-body">
-                    <h4 class="card-title text-primary mb-3">
-                        <div class="d-flex justify-content-between align-items-center mb-4">
-                            <nav aria-label="breadcrumb">
-                            </nav>
-                            <a href="{{ route('admin.candidates.contacts') }}" class="btn btn-dark btn-sm text-end">
-                                <i class="bi bi-arrow-left me-1"></i> Back
-                            </a>
-                        </div>
-                        <i class="bi bi-person-circle me-2"></i> {{ $candidate->name }}
-                    </h4>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h4 class="mb-0 text-primary">
+                            <i class="bi bi-person-circle me-2"></i> {{ $candidate->name }}
+                        </h4>
+
+                        <a href="{{ route('admin.candidates.contacts') }}" class="btn btn-danger btn-sm">
+                            <i class="bi bi-arrow-left me-1"></i> Back
+                        </a>
+                    </div>
                     <div class="row">
                         <div class="col-md-4 mb-2">
                             <strong class="d-block text-muted">Email:</strong>
@@ -119,14 +118,13 @@
                             <span class="text-dark">{{ $candidate->contact_number }}</span>
                         </div>
                         <div class="col-md-4 mb-2">
-                            <strong class="d-block text-muted">Assembly ID:</strong>
-                            <span class="text-dark">{{ $candidate->assembly_id }}</span>
+                            <strong class="d-block text-muted">Assembly Name:</strong>
+                            <span class="text-dark">{{ $candidate->assembly->assembly_name_en }}</span>
                         </div>
                         <div class="col-md-4 mb-2">
                             <strong class="d-block text-muted">Status:</strong>
                             <span class="badge bg-info text-capitalize">{{ str_replace('_', ' ', $candidate->document_collection_status) }}</span>
                         </div>
-                        {{-- Add more candidate details here --}}
                     </div>
                 </div>
             </div>
