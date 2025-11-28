@@ -277,3 +277,99 @@ body {
     .filter-card .chosen-container{
         min-width: 205px !important;
     }
+
+    /* ================================
+   CHOSEN STYLES ONLY FOR THIS SECTION
+   ================================ */
+
+    #nomination-status-card .chosen-container-single .chosen-single {
+        border: 1px solid #f7d98e !important;
+        height: 32px !important;                    /* smaller height */
+        line-height: 32px !important;
+        border-radius: 6px !important;
+        padding-left: 10px !important;
+    }
+
+    /* Arrow box */
+    #nomination-status-card .chosen-container-single .chosen-single div {
+        background-color: #fff9e6 !important;
+        border-left: 1px solid #f7d98e !important;
+        width: 32px !important;
+    }
+
+    /* Arrow icon alignment */
+    #nomination-status-card .chosen-container-single .chosen-single div b {
+        margin-top: 4px !important;
+    }
+
+    /* Dropdown results background */
+    #nomination-status-card .chosen-container .chosen-drop {
+        border: 2px solid #f7d98e !important;
+        border-radius: 6px !important;
+    }
+
+    /* Hover on results */
+    #nomination-status-card .chosen-container .chosen-results li.highlighted {
+        background-color: #ffefc1 !important;
+        color: #000 !important;
+    }
+
+    /* Placeholder text */
+    #nomination-status-card .chosen-container-single .chosen-single span {
+        color: #666 !important;
+    }
+
+    /* Search box inside dropdown */
+    #nomination-status-card .chosen-container .chosen-search input {
+        background: #ffffff !important;
+        border: 1px solid #f7d98e !important;
+        border-radius: 6px !important;
+        height: 32px !important;
+    }
+    
+
+    #campaign-permission-status-card .chosen-container-single .chosen-single {
+        border: 1px solid #c2f2fb !important;
+        height: 32px !important;                    /* smaller height */
+        line-height: 32px !important;
+        border-radius: 6px !important;
+        padding-left: 10px !important;
+    }
+
+    /* Arrow box */
+    #campaign-permission-status-card .chosen-container-single .chosen-single div {
+        background-color: #c2f2fb !important;
+        border-left: 1px solid #c2f2fb !important;
+        width: 32px !important;
+    }
+
+    /* Arrow icon alignment */
+    #campaign-permission-status-card .chosen-container-single .chosen-single div b {
+        margin-top: 4px !important;
+    }
+
+    /* Dropdown results background */
+    #campaign-permission-status-card .chosen-container .chosen-drop {
+        border: 2px solid #c2f2fb !important;
+        border-radius: 6px !important;
+    }
+
+    /* Hover on results */
+    #campaign-permission-status-card .chosen-container .chosen-results li.highlighted {
+        background-color: #c2f2fb !important;
+        color: #000 !important;
+    }
+
+    /* Placeholder text */
+    #campaign-permission-status-card .chosen-container-single .chosen-single span {
+        color: #666 !important;
+    }
+
+    /* Search box inside dropdown */
+    #campaign-permission-status-card .chosen-container .chosen-search input {
+        background: #ffffff !important;
+        border: 1px solid #c2f2fb !important;
+        border-radius: 6px !important;
+        height: 32px !important;
+    }
+

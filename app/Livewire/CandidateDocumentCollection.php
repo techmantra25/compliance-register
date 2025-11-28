@@ -290,7 +290,7 @@ class CandidateDocumentCollection extends Component
             'path' => "storage/{$path}",
             'uploaded_by' => auth('admin')->id(),
             'uploaded_at' => now(),
-            'final_submission_confirmation' => $this->final_submission_confirmation,
+            'final_submission_confirmation' => $this->final_submission_confirmation. ' 00:00:00',
         ]);
 
         $this->reset(['acknowledgment_file','final_submission_confirmation']);

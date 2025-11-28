@@ -202,7 +202,7 @@
                                     <label class="form-label small fw-bold">
                                         Final Submission Confirmation (RO Office)
                                     </label>
-                                    <input type="datetime-local" wire:model="final_submission_confirmation"
+                                    <input type="date" wire:model="final_submission_confirmation"
                                         class="form-control form-control-sm">
                                     @error('final_submission_confirmation')
                                         <div class="text-danger small">
@@ -360,7 +360,7 @@
                                                 <div>
                                                     <i class="bi bi-calendar-check me-1"></i>
                                                     Final Submission Confirmation (RO office):
-                                                    {{ \Carbon\Carbon::parse($latest->final_submission_confirmation)->format('d M Y, h:i A') }}
+                                                    {{ \Carbon\Carbon::parse($latest->final_submission_confirmation)->format('d M Y') }}
                                                 </div>
                                                 @endif
                                             </div>

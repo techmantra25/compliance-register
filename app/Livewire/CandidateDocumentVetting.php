@@ -180,7 +180,7 @@ class CandidateDocumentVetting extends Component
     public function createSpecialCaseClone($candidateId, $remarks)
     {
         $candidate = Candidate::with('agents')->find($candidateId);
-
+        
         if (!$candidate) {
             return;
         }
@@ -221,8 +221,10 @@ class CandidateDocumentVetting extends Component
             DB::commit();
 
         } catch (\Exception $e) {
+            // dd($e->getMessage());
             DB::rollBack();
             throw $e;
+            return redirect()->route('admin.candidates.contacts')->with('error', 'Special Case Clone Creation Failed.');
         }
         // STEP 3: Fire success alert
         return redirect()->route('admin.candidates.contacts')->with('success', 'Special Case Clone Created Successfully.');

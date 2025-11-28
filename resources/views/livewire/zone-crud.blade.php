@@ -157,7 +157,7 @@
 
         Livewire.hook('morph.updated', ({ el, component }) => {
             initChosen();
-            // ✅ After re-init, sync the Livewire value back to Chosen
+            //  After re-init, sync the Livewire value back to Chosen
             $('.chosen-select').each(function () {
                 const el = $(this);
                 const model = el.attr('wire:model');
@@ -176,7 +176,7 @@
             const chosen = $('.chosen-select');
             if (chosen.length) {
                 chosen.val('').trigger('chosen:updated');
-                $('.chosen-single span').text('Filter by Vendor');
+                $('.chosen-single span').text('Filter by Districts');
             }
         });
     </script>

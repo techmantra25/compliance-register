@@ -49,7 +49,7 @@
         </div>
     </div>
     <div class="d-flex flex-wrap justify-content-between align-items-start mb-3">
-        <div class="col-md-8">
+        <div class="col-md-7">
             <div class="card shadow-sm border-0 p-3">
                 <table class="table table-sm table-borderless w-auto mb-0">
                     <tbody>
@@ -149,7 +149,7 @@
             </div>
         </div>
         @if($candidateData->document_collection_status=="verified_pending_submission" || $candidateData->document_collection_status=="verified_submitted_with_copy")
-            <div class="col-md-4">
+            <div class="col-md-5">
                 <div class="card shadow-sm border-0 mb-3">
                     <div class="card-body">
 
@@ -194,7 +194,7 @@
                                     <div>
                                         <i class="bi bi-calendar-check me-1"></i>
                                         Final Submission Confirmation:
-                                        {{ \Carbon\Carbon::parse($acknowledgmentCopies->final_submission_confirmation)->format('d M Y, h:i A') }}
+                                        {{ \Carbon\Carbon::parse($acknowledgmentCopies->final_submission_confirmation)->format('d M Y') }}
                                     </div>
                                     @endif
 
@@ -227,29 +227,33 @@
                                 @endif
 
                                 <!-- View Button -->
-                                <div class="mt-3 d-flex justify-content-between">
+                               <div class="mt-3 d-flex flex-column flex-md-row justify-content-between align-items-start gap-2">
 
+                                    <!-- VIEW BUTTON (Left side) -->
                                     <a href="{{ asset($acknowledgmentCopies->path) }}" target="_blank"
                                     class="btn btn-sm btn-outline-primary rounded-pill px-3">
                                         <i class="bi bi-eye"></i> View
                                     </a>
 
-                                    <!-- Approve & Reject Buttons -->
+                                    <!-- Approve & Reject Buttons (Vertical / Up-Down) -->
                                     @if($acknowledgmentCopies->status == 'pending')
-                                    <div>
-                                        <button class="btn btn-sm btn-success rounded-pill px-3 me-1"
-                                                onclick="confirmApprove({{ $acknowledgmentCopies->id }})">
-                                            <i class="bi bi-check2-circle"></i> Approve
-                                        </button>
+                                        <div class="d-flex flex-column gap-2">
 
-                                        <button class="btn btn-sm btn-danger rounded-pill px-3"
-                                                onclick="confirmReject({{ $acknowledgmentCopies->id }})">
-                                            <i class="bi bi-x-circle"></i> Reject
-                                        </button>
-                                    </div>
+                                            <button class="btn btn-sm btn-success rounded-pill px-3"
+                                                    onclick="confirmApprove({{ $acknowledgmentCopies->id }})">
+                                                <i class="bi bi-check2-circle"></i> Document is consistent with the vetted version
+                                            </button>
+                                            <button class="btn btn-sm btn-danger rounded-pill px-3"
+                                                    onclick="confirmReject({{ $acknowledgmentCopies->id }},{{$acknowledgmentCopies->candidate_id}})">
+                                                <i class="bi bi-x-circle"></i> Inconsistent and needs to be revetted
+                                            </button>
+
+                                        </div>
                                     @endif
 
                                 </div>
+
+
 
                             </div>
 
@@ -321,7 +325,7 @@
                                                                 @case('gif')
                                                                 @case('bmp')
                                                                 @case('webp')
-                                                                    <i class="bi bi-file-earmark-image text-success me-2 fs-5"></i>
+                                                                    <i class="bi bi-file-earmark-image text-secondary me-2 fs-5"></i>
                                                                     @break
                                                                 @default
                                                                     <i class="bi bi-file-earmark-text text-secondary me-2 fs-5"></i>
@@ -464,7 +468,7 @@
         }
 
         // Reject Confirmation With Reason
-        function confirmReject(id) {
+        function confirmReject(id, candidateId) {
             Swal.fire({
                 title: "Select Rejection Type",
                 html: `
@@ -529,7 +533,7 @@
 
                 // SPECIAL CASE → open clone modal
                 if (data.specialCase) {
-                    openSpecialCaseModalWithReason(id, data.reason);
+                    openSpecialCaseModalWithReason(candidateId, data.reason);
                 } 
                 else {
                     // NORMAL REJECTION (reason optional)
