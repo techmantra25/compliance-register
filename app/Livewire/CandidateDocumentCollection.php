@@ -32,6 +32,7 @@ class CandidateDocumentCollection extends Component
     public $availableDocuments = [];
     public $skipOption = [];
     public $attachedTo = [];
+    public $remainRequiredDocuments = [];
     public $documents_approved_by;
 
     public function mount(Request $request)
@@ -81,12 +82,11 @@ class CandidateDocumentCollection extends Component
     }
 
 
-    public function toggleSkip($key, $value)
+    public function toggleSkip($key, $checked)
     {
         // If unchecked, Livewire clears the value
-        $item_value = $value??null;
+        $item_value = $checked??null;
         $this->skipOption[$key] = $item_value;
-        // dd($item_value);
         if ($item_value !== 'yes') {
             // User unchecked — treat as NO
             $this->skipOption[$key] = null;
@@ -110,12 +110,18 @@ class CandidateDocumentCollection extends Component
         $this->dispatch('toastr:success', message: 'Attachment updated successfully!');
         $this->loadDocuments();
     }
+    
     /**
      * Helper function — all document names
      */
     protected function getDocumentTypes()
     {
         return CandidateDocumentType::pluck('name', 'key')->toArray();
+    }
+    protected function remainDocuments(){
+        $skippedDocs = CandidateDocument::where('candidate_id', $this->candidateId)->where('status', 'Skipped')->pluck('type')->toArray();
+        $allDocs = CandidateDocumentType::whereNotIn('key', $skippedDocs)->pluck('name','key')->toArray();
+        return $allDocs;
     }
 
     /**
@@ -384,6 +390,7 @@ class CandidateDocumentCollection extends Component
     }
     public function render()
     {
+        $this->remainRequiredDocuments = $this->remainDocuments();
         $this->getAcknowledgmentCopies();
         $this->FinalStatusUpdate();
         return view('livewire.candidate-document-collection')->layout('layouts.admin');

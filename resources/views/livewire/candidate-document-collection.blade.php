@@ -699,33 +699,30 @@
                                         <i class="bi bi-inbox"></i> No documents uploaded yet
                                     </td>
                                     <td colspan="1" class="text-center">
-
                                         <!-- Step 1: Radio toggle -->
-                                        <div class="d-flex justify-content-center gap-3">
-
-                                            <label class="d-flex justify-content-center align-items-center">
-                                                <input type="checkbox"
-                                                    wire:model="skipOption.{{ $key }}"
-                                                    wire:change="toggleSkip('{{ $key }}', $event.target.value)"
-                                                    value="yes"
-                                                    class="me-2">
-                                                Skip this document?
-                                            </label>
-                                        </div>
+                                        @if(!in_array($key, ['nomination_paper','affidavit']))
+                                            <div class="d-flex justify-content-center gap-3">
+                                                <label class="d-flex justify-content-center align-items-center cursor-pointer">
+                                                    <input type="checkbox"
+                                                        wire:model="skipOption.{{ $key }}"
+                                                        wire:change="toggleSkip('{{ $key }}', $event.target.checked ? 'yes' : null)"
+                                                        value="yes"
+                                                        class="me-2">
+                                                    Skip this document?
+                                                </label>
+                                            </div>
+                                        @endif
 
                                         <!-- Step 2: Show dropdown ONLY when 'Included in Another' is selected -->
                                         @if(isset($skipOption[$key]) && $skipOption[$key] === 'yes')
                                             <select class="form-select form-select-sm w-auto d-inline-block mt-2"
                                                     style="min-width: 180px;"
                                                     wire:model="attachedTo.{{ $key }}"
-                                                    wire:change="updateAttachment('{{ $key }}', $event.target.value)">
-
-                                                <option value="">🔗 Select parent document</option>
-
-                                                @foreach($availableDocuments as $parent_key => $parent)
+                                                    onchange="confirmUpdateAttachment('{{$key}}', this.value)">
+                                                <option value="" > Select document</option>
+                                                @foreach($remainRequiredDocuments as $parent_key => $parent)
                                                     @if($parent_key !== $key)
-                                                        <option value="{{ $parent }}">
-                                                            📄 {{ $parent }}
+                                                        <option value="{{ $parent }}">{{ $parent }}
                                                         </option>
                                                     @endif
                                                 @endforeach
@@ -812,6 +809,30 @@
     @push('scripts')
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
+        function confirmUpdateAttachment(key, value) {
+            if(value === "") {
+                toastr.success("Attachment reset.");
+                return;
+            }
+            Swal.fire({
+                title: "Update Attachment?",
+                text: "Are you sure you want to attach this document?",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Yes, Update"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Livewire call to updateAttachment
+                    @this.call('updateAttachment', key, value);
+                    
+                } else {
+                    // If cancelled, revert the dropdown
+                    @this.set('attachedTo.' + key, '');
+                }
+            });
+        }
         function confirmAckUpload() {
             Swal.fire({
                 title: "Upload Acknowledgement Copy?",
@@ -846,37 +867,7 @@
         </script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
         <script>
-            //  window.addEventListener('ResetFormData', () => {
-            //     const modalEl = document.getElementById('DocumentModal');
-
-            //     // 1️⃣ Clear all form fields in modal
-            //     modalEl.querySelectorAll('input, textarea, select').forEach(el => el.value = '');
-
-            //     // 2️⃣ Close modal (try Bootstrap API first)
-            //     if (typeof bootstrap !== 'undefined' && modalEl) {
-            //         let modalInstance = bootstrap.Modal.getInstance(modalEl);
-            //         if (!modalInstance) {
-            //             modalInstance = new bootstrap.Modal(modalEl);
-            //         }
-            //         modalInstance.hide();
-            //     }
-
-            //     // 3️⃣ Fallback: ensure modal & backdrop are fully removed
-            //     setTimeout(() => {
-            //         modalEl.classList.remove('show');
-            //         modalEl.style.display = 'none';
-            //         modalEl.removeAttribute('aria-modal');
-            //         modalEl.setAttribute('aria-hidden', 'true');
-
-            //         // Remove all modal backdrops
-            //         document.querySelectorAll('.modal-backdrop').forEach(backdrop => backdrop.remove());
-
-            //         // ✅ Re-enable page scrolling
-            //         document.body.classList.remove('modal-open');
-            //         document.body.style.removeProperty('overflow');
-            //         document.body.style.removeProperty('padding-right');
-            //     }, 300); // small delay to let Bootstrap finish animation
-            // });
+          
             document.addEventListener('livewire:init', () => {
                 Livewire.on('toastr:success', (event) => {
                     toastr.success(event.message);
