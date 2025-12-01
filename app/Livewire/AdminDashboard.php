@@ -78,10 +78,8 @@ class AdminDashboard extends Component
     {
         // Base query
         $baseQuery = Candidate::query();
-
         // Apply only ONE filter at a time
         if ($this->assembly) {
-
             $baseQuery->where('assembly_id', $this->assembly);
 
         } elseif ($this->phase) {
@@ -91,7 +89,6 @@ class AdminDashboard extends Component
             });
 
         } elseif ($this->district) {
-
             $baseQuery->whereHas('assembly', function ($q) {
                 $q->where('district_id', $this->district);
             });
