@@ -10,13 +10,31 @@ use App\Models\Zone;
 use App\Models\EventCategory;
 use App\Models\Candidate;
 use App\Models\Campaign;
+use App\Models\CampaignWisePermission;
 
 class AdminDashboard extends Component
 {
     public $phases;
     public $chartData = [];
-    public $districtChart = [];
-   
+    public $totalScheduled;
+    public $pending;
+    public $appliedAwaitingApproval;
+    public $approvedCopyReceived;
+
+    
+    // public function mount()
+    // {
+    //     $this->phases = Phase::with([
+    //         'assemblies',
+    //         'assemblies.candidates'
+    //     ])->get()->toArray();
+
+       
+    //     // foreach($this->phases as $key =>$item){
+    //     //      dd($item);
+    //     // }
+    // }
+
     public function mount()
     {
         $this->phases = Phase::with([
@@ -24,11 +42,14 @@ class AdminDashboard extends Component
             'assemblies.candidates'
         ])->get();
 
+        $this->totalScheduled = Campaign::count();
+        $this->pending = Campaign::where('status', 'pending')->count();
+        $this->appliedAwaitingApproval = CampaignWisePermission::where('doc_type','applied_copy')->whereNull('approved_by')->count();
+        $this->approvedCopyReceived = CampaignWisePermission::where('doc_type','approved_copy')->whereNotNull('approved_by')->count();
+
         $this->chartData = [];
 
         foreach ($this->phases as $key => $phase) {
-
-            
             $allCandidates = $phase->assemblies
                 ->flatMap(fn($assembly) => $assembly->candidates);
 
@@ -38,7 +59,7 @@ class AdminDashboard extends Component
                 ->pluck('id')
                 ->toArray();
 
-            // dd($getSpecialCaseCan);
+           // dd($getSpecialCaseCan);
 
             $pending_at_fox = $allCandidates
                 ->where('document_collection_status', 'ready_for_vetting')
@@ -74,8 +95,6 @@ class AdminDashboard extends Component
         }
     }
 
-
-    
 
     public function render()
     {
