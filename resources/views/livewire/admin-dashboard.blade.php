@@ -13,11 +13,13 @@
                         </div>
                     </div>
                 </div>
+                {{-- @dd($chartData) --}}
                 <div class="col-md-6 mb-4">
                     <div class="inner-wrapper">
                         <div class="title-head">Nomination Vetting (Phase-wise Status) - {{ $this->phases->count() }} Phases</div>
                         <div class="wrappper-bpdy">
                             <div class="row">
+                                {{-- @dd($this->phases) --}}
                                 @foreach($this->phases as $key => $phase)
                                     <div class="col-md-3">
                                         <div class="inner-grid">
@@ -42,7 +44,7 @@
                                 <div class="color-grid"><span style="background-color: #A7A7A7;"></span >Pending Submission</div>
                                 <div class="color-grid"><span style="background-color: #F46674;"></span>Rejected (if any)</div>
                             </div>
-                            <a href="#" class="btm-small blue-btm">Click for Distric View (Bar Chart)</a>
+                            <a href="{{route('admin.phasewise.district')}}" class="btm-small blue-btm">Click for Distric View (Bar Chart)</a>
                         </div>
                     </div>
                 </div>
@@ -407,12 +409,7 @@
     </section>
 
     @push('scripts')
-        {{-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script> --}}
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-        <!-- <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script> -->
-        <!-- <script src="./assets/js/main.js"></script> -->
-
 
     <script>
         var ctx = document.getElementById("myChart").getContext('2d');
@@ -434,54 +431,7 @@
             }
         });
 
-        // window.addEventListener('DOMContentLoaded', function () {
-
-        //     var canvas = document.getElementById("phase1");
-        //     if (!canvas) {
-        //         console.error("Canvas not found");
-        //         return;
-        //     }
-
-        //     var counts = JSON.parse(canvas.dataset.chart);
-
-        //     var ctx = canvas.getContext('2d');
-
-        //     new Chart(ctx, {
-        //         type: 'doughnut',
-        //         data: {
-        //             datasets: [{
-        //                 data: counts,
-        //                 borderColor: ['#1BC976', '#FDB747', '#A7A7A7', '#F46674'],
-        //                 backgroundColor: ['#1BC976', '#FDB747', '#A7A7A7', '#F46674'],
-        //                 borderWidth: 1
-        //             }]
-        //         },
-        //         options: {
-        //             responsive: true,
-        //             maintainAspectRatio: false,
-        //             cutout: '70%',
-        //             plugins: {
-        //                 legend: { display: false }
-        //             }
-        //         },
-        //         plugins: [{
-        //             afterDraw(chart) {
-        //                 const ctx = chart.ctx;
-        //                 const total = chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-
-        //                 ctx.save();
-        //                 ctx.font = 'normal 13px Arial';
-        //                 ctx.fillStyle = '#333';
-        //                 ctx.textAlign = 'center';
-        //                 ctx.textBaseline = 'middle';
-        //                 ctx.fillText('Phase', chart.width / 2, chart.height / 2);
-        //                 ctx.fillText('1', chart.width / 2, chart.height / 2 + 16);
-        //                 ctx.restore();
-        //             }
-        //         }]
-        //     });
-
-        // });
+       
         window.addEventListener('DOMContentLoaded', function () {
 
             document.querySelectorAll("canvas[id^='phase']").forEach(canvas => {

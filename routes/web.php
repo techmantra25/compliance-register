@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\App;
 use App\Livewire\{
     AdminDashboard,
+    PhaseWiseDistrict,
     ZoneCrud,
     PhaseCrud,
     EventCategoryCrud,
@@ -77,6 +78,7 @@ Route::get('/forget/password',ForgetPassword::class)->name('forget.password');
 Route::prefix('/admin')->middleware('auth:admin')->group(function () {
     Route::get('/dashboard', AdminDashboard::class)->name('admin.dashboard');
     Route::get('/update/profile', UpdateProfile::class)->name('admin.update.profile');
+    Route::get('/phasewise/district', PhaseWiseDistrict::class)->name('admin.phasewise.district');
 
     Route::prefix('master')->group(function () {
         Route::get('/zones', ZoneCrud::class)->name('admin.master.zones')->middleware('employee.permission:master_view_zones');

@@ -15,20 +15,8 @@ class AdminDashboard extends Component
 {
     public $phases;
     public $chartData = [];
-
-    // public function mount()
-    // {
-    //     $this->phases = Phase::with([
-    //         'assemblies',
-    //         'assemblies.candidates'
-    //     ])->get()->toArray();
-
-       
-    //     // foreach($this->phases as $key =>$item){
-    //     //      dd($item);
-    //     // }
-    // }
-
+    public $districtChart = [];
+   
     public function mount()
     {
         $this->phases = Phase::with([
@@ -44,15 +32,13 @@ class AdminDashboard extends Component
             $allCandidates = $phase->assemblies
                 ->flatMap(fn($assembly) => $assembly->candidates);
 
-            //$getSpecialCaseCan = $allCandidates->where('is_special_case',1)->whereIn('document_collection_status',['ready_for_vetting','verified_pending_submission','verified_submitted_with_copy'])->pluck('id')->toArray();
-            //dd($getSpecialCaseCan);
-
+                
             $getSpecialCaseCan = $allCandidates
                 ->filter(fn($c) => (int) $c->is_special_case === 1)
                 ->pluck('id')
                 ->toArray();
 
-            dd($getSpecialCaseCan);
+            // dd($getSpecialCaseCan);
 
             $pending_at_fox = $allCandidates
                 ->where('document_collection_status', 'ready_for_vetting')
@@ -66,9 +52,7 @@ class AdminDashboard extends Component
                 ->where('document_collection_status', 'verified_submitted_with_copy')
                 ->count();
             
-            // $rejected = $allCandidates
-            //     ->where('document_collection_status', 'rejected')
-            //     ->count();
+           
             $rejected = $allCandidates
                 ->where('document_collection_status', 'rejected')
                 ->reject(fn($c) => in_array($c->id, $getSpecialCaseCan))
@@ -83,6 +67,10 @@ class AdminDashboard extends Component
                     $rejected
                 ]
             ];
+
+
+            
+
         }
     }
 
