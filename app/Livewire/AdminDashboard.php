@@ -12,6 +12,7 @@ use App\Models\Candidate;
 use App\Models\Campaign;
 use App\Models\CampaignWisePermission;
 
+
 class AdminDashboard extends Component
 {
     public $phases;
@@ -89,7 +90,7 @@ class AdminDashboard extends Component
                 ]
             ];
 
-
+            
             
 
         }

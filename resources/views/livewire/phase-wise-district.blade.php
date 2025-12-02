@@ -20,18 +20,19 @@
                     <div class="inner-wrapper">
                         <div class="title-head">Event Permission (Sate Lavel)</div>
                         <div class="wrappper-bpdy">
-
                             <div class="bar-chirt-option">
+                                @foreach ($uniqueEventDistricts as $index => $row)
                                 <div class="chirt-stack">
-                                    <div class="label">District A</div>
+                                    <div class="label">{{ $row['district'] ?? 'unknown'}}</div>
                                     <div class="stack-chirt">
-                                        <div class="bar j-blue-bg" style="width:60%">60%</div>
-                                        <div class="bar j-yellow-bg" style="width:10%">10%</div>
-                                        <div class="bar j-gray-bg" style="width:10%">10%</div>
-                                        <div class="bar j-green-bg" style="width:20%">20%</div>
+                                        <div class="bar j-blue-bg" style="width:{{$row['total_campaign_percentage']}}%">{{$row['total_campaign_percentage']}}%</div>
+                                        <div class="bar j-yellow-bg" style="width:{{$row['percent']['pending']}}%">{{$row['percent']['pending']}}%</div>
+                                        <div class="bar j-gray-bg" style="width:{{$row['percent']['applied_awaiting']}}%">{{$row['percent']['applied_awaiting']}}%</div>
+                                        <div class="bar j-green-bg" style="width:{{$row['percent']['approved']}}%">{{$row['percent']['approved']}}%</div>
                                     </div>
                                 </div>
-                                <div class="chirt-stack">
+                                @endforeach
+                                {{-- <div class="chirt-stack">
                                     <div class="label">District B</div>
                                     <div class="stack-chirt">
                                         <div class="bar j-blue-bg" style="width:40%">40%</div>
@@ -66,7 +67,7 @@
                                         <div class="bar j-gray-bg" style="width:10%">10%</div>
                                         <div class="bar j-green-bg" style="width:10%">10%</div>
                                     </div>
-                                </div>
+                                </div> --}}
                             </div>
 
                             <div class="color-label mb-5">
@@ -198,7 +199,7 @@
 
     <script>
         var ctx = document.getElementById("myChart").getContext('2d');
-var myChart = new Chart(ctx, {
+        var myChart = new Chart(ctx, {
     type: 'doughnut',
     data: {
         labels: ["Total Event Scheduled",	"Applied-Awaiting Approval ",	"Pending Application",	"Approved-Copy Received"],
