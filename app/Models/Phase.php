@@ -24,16 +24,5 @@ class Phase extends Model
         return $this->belongsToMany(Assembly::class, 'phase_wise_assembly', 'phase_id', 'assembly_id');
     }
 
-    public function candidates()
-    {
-        return $this->hasManyThrough(
-            Candidate::class,
-            PhaseWiseAssembly::class,
-            'phase_id',     
-            'assembly_id',   
-            'id',
-            'assembly_id'
-        );
-    }
 
 }

@@ -14,6 +14,7 @@ use App\Models\Campaign;
 class AdminDashboard extends Component
 {
     public $phases;
+    public $chartData = [];
 
     // public function mount()
     // {
@@ -35,29 +36,56 @@ class AdminDashboard extends Component
             'assemblies.candidates'
         ])->get();
 
-    
-        foreach ($this->phases as $phase) {
+        $this->chartData = [];
+
+        foreach ($this->phases as $key => $phase) {
 
             
             $allCandidates = $phase->assemblies
                 ->flatMap(fn($assembly) => $assembly->candidates);
 
-            $phase->verified_correct = $allCandidates->where('document_collection_status', 'Verified Correct but yet to be submitted')->count();
+            //$getSpecialCaseCan = $allCandidates->where('is_special_case',1)->whereIn('document_collection_status',['ready_for_vetting','verified_pending_submission','verified_submitted_with_copy'])->pluck('id')->toArray();
+            //dd($getSpecialCaseCan);
 
-            $phase->incomplete_docs = $allCandidates->where('document_collection_status', 'Incomplete / Additional Documents Required')->count();
+            $getSpecialCaseCan = $allCandidates
+                ->filter(fn($c) => (int) $c->is_special_case === 1)
+                ->pluck('id')
+                ->toArray();
 
-            $phase->verified_submitted = $allCandidates->where('document_collection_status', 'Verified and Submitted with Received Copy')->count();
+            dd($getSpecialCaseCan);
 
-            $phase->not_received = $allCandidates->where('document_collection_status', 'Have Not Received Form')->count();
+            $pending_at_fox = $allCandidates
+                ->where('document_collection_status', 'ready_for_vetting')
+                ->count();
 
-            $phase->chartData = [
-                $phase->verified_correct,
-                $phase->incomplete_docs,
-                $phase->verified_submitted,
-                $phase->not_received
+            $pending_submission = $allCandidates
+                ->where('document_collection_status', 'verified_pending_submission')
+                ->count();
+
+            $approved_complete = $allCandidates
+                ->where('document_collection_status', 'verified_submitted_with_copy')
+                ->count();
+            
+            // $rejected = $allCandidates
+            //     ->where('document_collection_status', 'rejected')
+            //     ->count();
+            $rejected = $allCandidates
+                ->where('document_collection_status', 'rejected')
+                ->reject(fn($c) => in_array($c->id, $getSpecialCaseCan))
+                ->count();
+
+            $this->chartData[$key] = [
+                'phase_name' => $phase->name,
+                'data' => [
+                    $pending_at_fox,
+                    $pending_submission,
+                    $approved_complete,
+                    $rejected
+                ]
             ];
         }
     }
+
 
     
 

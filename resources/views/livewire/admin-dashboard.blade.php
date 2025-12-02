@@ -15,18 +15,26 @@
                 </div>
                 <div class="col-md-6 mb-4">
                     <div class="inner-wrapper">
-                        <div class="title-head">Nomination Vetting (Phase-wise Status) - 8 Phases</div>
+                        <div class="title-head">Nomination Vetting (Phase-wise Status) - {{ $this->phases->count() }} Phases</div>
                         <div class="wrappper-bpdy">
                             <div class="row">
-                                <div class="col-md-3">
-                                    <div class="inner-grid">
-                                        <div class="chrat-place">
-                                             <canvas width="100" id="phase1"></canvas>
-                                        </div> 
-                                       
+                                @foreach($this->phases as $key => $phase)
+                                    <div class="col-md-3">
+                                        <div class="inner-grid">
+                                            <div class="chrat-place">
+                                                <canvas 
+                                                    id="phase{{ $key+1 }}" 
+                                                    width="100"
+                                                    data-chart='@json($chartData[$key]["data"])'
+                                                    data-phase="{{ $chartData[$key]["phase_name"] }}"
+                                                    >
+                                                </canvas>
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
+                                @endforeach
                             </div>
+
                             <div class="color-label mb-5">
                                 <h6>Legend</h6>
                                 <div class="color-grid"><span style="background-color: #1BC976;"></span>Approved & Complete</div>
@@ -426,103 +434,99 @@
             }
         });
 
-        // document.addEventListener("livewire:load", function () {
+        // window.addEventListener('DOMContentLoaded', function () {
 
-        //    // let chartData = @json(($phases[0]->chartData ?? [0,0,0,0]));
+        //     var canvas = document.getElementById("phase1");
+        //     if (!canvas) {
+        //         console.error("Canvas not found");
+        //         return;
+        //     }
 
-        //     var ctx2 = document.getElementById("phase1").getContext('2d');
-        //     var phase1 = new Chart(ctx2, {
+        //     var counts = JSON.parse(canvas.dataset.chart);
+
+        //     var ctx = canvas.getContext('2d');
+
+        //     new Chart(ctx, {
         //         type: 'doughnut',
         //         data: {
-        //             datasets: [{    
-        //                 data: chartData,
-        //                 borderColor: ['#1BC976', '#FDB747', '#F46674', '#A7A7A7'], 
-        //                 backgroundColor: ['#1BC976', '#FDB747', '#F46674', '#A7A7A7'],
-        //                 borderWidth: 1 
+        //             datasets: [{
+        //                 data: counts,
+        //                 borderColor: ['#1BC976', '#FDB747', '#A7A7A7', '#F46674'],
+        //                 backgroundColor: ['#1BC976', '#FDB747', '#A7A7A7', '#F46674'],
+        //                 borderWidth: 1
         //             }]
-        //         },         
+        //         },
         //         options: {
         //             responsive: true,
         //             maintainAspectRatio: false,
         //             cutout: '70%',
         //             plugins: {
-        //                 legend: {
-        //                     position: 'top',
-        //                 },
-        //                 datalabels: {
-        //                     display: false
-        //                 }
+        //                 legend: { display: false }
         //             }
         //         },
-
         //         plugins: [{
-        //             afterDraw: function(chart) {
+        //             afterDraw(chart) {
         //                 const ctx = chart.ctx;
-        //                 const centerX = chart.width / 2;
-        //                 const centerY = chart.height / 2;
-                        
+        //                 const total = chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+
         //                 ctx.save();
         //                 ctx.font = 'normal 13px Arial';
         //                 ctx.fillStyle = '#333';
         //                 ctx.textAlign = 'center';
         //                 ctx.textBaseline = 'middle';
-        //                 ctx.fillText('Phase', centerX, centerY);
-        //                 ctx.fillText('1', centerX, centerY + 16);
+        //                 ctx.fillText('Phase', chart.width / 2, chart.height / 2);
+        //                 ctx.fillText('1', chart.width / 2, chart.height / 2 + 16);
         //                 ctx.restore();
         //             }
         //         }]
         //     });
 
         // });
+        window.addEventListener('DOMContentLoaded', function () {
 
-
-        var ctx2 = document.getElementById("phase1").getContext('2d');
-        var phase1 = new Chart(ctx2, {
-            type: 'doughnut',
-            data: {
-                //labels: ["Total Event Scheduled", "Applied-Awaiting Approval", "Pending Application", "Approved-Copy Received"],
-                datasets: [{    
-                    data: [500, 600, 800, 600],
-                    borderColor: ['#1BC976', '#FDB747', '#F46674', '#A7A7A7'], 
-                    backgroundColor: ['#1BC976', '#FDB747', '#F46674', '#A7A7A7'],
-                    borderWidth: 1 
-                }]
-            },         
-            options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            cutout: '70%',
-            plugins: {
-                legend: {
-                position: 'top',
-                },
-                datalabels: {
-                display: false // Disable default data labels if you only want center text
-                }
-            }
-            },
-
-            plugins: [{
-            afterDraw: function(chart) {
-                const ctx = chart.ctx;
-                const centerX = chart.width / 2;
-                const centerY = chart.height / 2;
+            document.querySelectorAll("canvas[id^='phase']").forEach(canvas => {
                 
-                // Calculate total
-                const total = chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-                
-                ctx.save();
-                ctx.font = 'normal 13px Arial';
-                ctx.fillStyle = '#333';
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.fillText('Phase', centerX, centerY);
-                ctx.fillText('1', centerX, centerY + 16);
-                ctx.restore();
-            }
-            }]
+                let counts = JSON.parse(canvas.dataset.chart);
+                let phaseNumber = canvas.dataset.phase;
+                let ctx = canvas.getContext('2d');
+
+                new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        datasets: [{
+                            data: counts,
+                            borderColor: ['#1BC976', '#FDB747', '#A7A7A7', '#F46674'],
+                            backgroundColor: ['#1BC976', '#FDB747', '#A7A7A7', '#F46674'],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        cutout: '70%',
+                        plugins: {
+                            legend: { display: false }
+                        }
+                    },
+                    plugins: [{
+                        afterDraw(chart) {
+                            const ctx = chart.ctx;
+                            ctx.save();
+                            ctx.font = 'normal 13px Arial';
+                            ctx.fillStyle = '#333';
+                            ctx.textAlign = 'center';
+                            ctx.textBaseline = 'middle';
+                            // ctx.fillText('Phase', chart.width / 2, chart.height / 2);
+                            ctx.fillText(phaseNumber, chart.width / 2, chart.height / 2);
+                            ctx.restore();
+                        }
+                    }]
+                });
+
+            });
 
         });
+
 
     </script>
     @endpush

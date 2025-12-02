@@ -25,4 +25,5 @@ class Assembly extends Model
     {
         return $this->hasOne(PhaseWiseAssembly::class, 'assembly_id','id');
     }
+    
 }
