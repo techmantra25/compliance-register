@@ -9,11 +9,11 @@
                             <div class="chrat-place">
                                 <canvas width="300" id="myChart"></canvas>
                             </div>
-                            <a href="#" class="btm-small blue-btm">Click for Distric View (Bar Chart)</a>
+                            <a href="{{route('admin.phasewise.district')}}" class="btm-small blue-btm">Click for Distric View (Bar Chart)</a>
                         </div>
                     </div>
                 </div>
-                {{-- @dd($chartData) --}}
+                
                 <div class="col-md-6 mb-4">
                     <div class="inner-wrapper">
                         <div class="title-head">Nomination Vetting (Phase-wise Status) - {{ $this->phases->count() }} Phases</div>
