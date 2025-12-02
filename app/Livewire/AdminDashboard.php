@@ -59,7 +59,7 @@ class AdminDashboard extends Component
                 ->pluck('id')
                 ->toArray();
 
-           // dd($getSpecialCaseCan);
+            //dd($getSpecialCaseCan);
 
             $pending_at_fox = $allCandidates
                 ->where('document_collection_status', 'ready_for_vetting')
@@ -88,10 +88,6 @@ class AdminDashboard extends Component
                     $rejected
                 ]
             ];
-
-
-            
-
         }
     }
 

@@ -127,15 +127,6 @@
 
                 <div class="col-md-6">
                     <div class="inner-wrapper">
-                        <div class="title-head">Nomination Vetting (Phase-wise Status) - 8 Phases</div>
-                        <div class="wrappper-bpdy">
-
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-6">
-                    <div class="inner-wrapper">
                         <div class="title-head">Mcc Complaints Phase 1 District Wise View</div>
                         <div class="wrappper-bpdy">
                             <div class="bar-chirt-option">
@@ -198,25 +189,21 @@
 
     <script>
         var ctx = document.getElementById("myChart").getContext('2d');
-var myChart = new Chart(ctx, {
-    type: 'doughnut',
-    data: {
-        labels: ["Total Event Scheduled",	"Applied-Awaiting Approval ",	"Pending Application",	"Approved-Copy Received"],
-        datasets: [{    
-            data: [500,	600, 800, 600],
-            borderColor: ['#1BC976', '#FDB747', '#F46674', '#5B86FC'], 
-            backgroundColor: ['#1BC976', '#FDB747', '#F46674', '#5B86FC'],
-            borderWidth: 1 
-        }]},         
-    options: {
-      responsive: true, // Instruct chart js to respond nicely.
-      maintainAspectRatio: false, // Add to prevent default behaviour of full-width/height 
-    }
-});
-
-
-
-
+        var myChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ["Total Event Scheduled",	"Applied-Awaiting Approval ",	"Pending Application",	"Approved-Copy Received"],
+                datasets: [{    
+                    data: [500,	600, 800, 600],
+                    borderColor: ['#1BC976', '#FDB747', '#F46674', '#5B86FC'], 
+                    backgroundColor: ['#1BC976', '#FDB747', '#F46674', '#5B86FC'],
+                    borderWidth: 1 
+                }]},         
+            options: {
+            responsive: true, // Instruct chart js to respond nicely.
+            maintainAspectRatio: false, // Add to prevent default behaviour of full-width/height 
+            }
+        });
     </script>
 
 

@@ -15,7 +15,7 @@ class PhaseWiseDistrict extends Component
     public $uniqueDistricts = [];
 
     public function mount(){
-         $this->phases = Phase::with([
+        $this->phases = Phase::with([
             'assemblies',
             'assemblies.candidates'
         ])->get();
@@ -23,7 +23,7 @@ class PhaseWiseDistrict extends Component
         $this->chartData = [];
 
         foreach ($this->phases as $key => $phase) {
-            // Nomination Vetting Phase District View
+            
             $districtGroups = $phase->assemblies
                 ->groupBy(fn($asm) => $asm->district->name_en ?? 'Unknown');
             
