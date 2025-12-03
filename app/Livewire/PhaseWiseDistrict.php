@@ -39,7 +39,7 @@ class PhaseWiseDistrict extends Component
                                     ->where('is_special_case', 1)
                                     ->pluck('id')
                                     ->toArray();
-                 $pending_at_fox = $candidates->where('document_collection_status', 'ready_for_vetting')->count();
+                $pending_at_fox = $candidates->where('document_collection_status', 'ready_for_vetting')->count();
 
                 $pending_submission = $candidates->where('document_collection_status', 'verified_pending_submission')->count();
 

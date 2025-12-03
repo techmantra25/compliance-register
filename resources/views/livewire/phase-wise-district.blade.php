@@ -121,7 +121,8 @@
 
                             </div>
                             <a href="{{route('admin.dashboard')}}" class="btm-small blue-btm">Back to state
-                                Dashboard</a>
+                                Dashboard
+                            </a>
                         </div>
                     </div>
                 </div>
