@@ -586,6 +586,7 @@ body {
     overflow: hidden;
 }
 .stack-chirt .bar {
+    min-width: 98px;
     height: 100%;
     display: flex;
     align-items: center;

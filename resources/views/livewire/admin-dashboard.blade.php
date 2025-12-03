@@ -9,7 +9,7 @@
                             <div class="chrat-place">
                                 <canvas width="300" id="myChart"></canvas>
                             </div>
-                            <a href="{{route('admin.phasewise.district')}}" class="btm-small blue-btm">Click for Distric View (Bar Chart)</a>
+                             <a href="{{route('admin.eventwise.district')}}" class="btm-small blue-btm">Click for Distric View (Bar Chart)</a> 
                         </div>
                     </div>
                 </div>
@@ -23,13 +23,13 @@
                                 @foreach($this->phases as $key => $phase)
                                     <div class="col-md-3">
                                         <div class="inner-grid">
-                                            <div class="chrat-place">
+                                            <div class="chrat-place phase-click"
+                                                data-url="{{ route('admin.phasewise.district', $phase->id) }}">
                                                 <canvas 
                                                     id="phase{{ $key+1 }}" 
                                                     width="100"
                                                     data-chart='@json($chartData[$key]["data"])'
-                                                    data-phase="{{ $chartData[$key]["phase_name"] }}"
-                                                    >
+                                                    data-phase="{{ $chartData[$key]["phase_name"] }}">
                                                 </canvas>
                                             </div>
                                         </div>
@@ -44,7 +44,7 @@
                                 <div class="color-grid"><span style="background-color: #A7A7A7;"></span >Pending Submission</div>
                                 <div class="color-grid"><span style="background-color: #F46674;"></span>Rejected (if any)</div>
                             </div>
-                            <a href="{{route('admin.phasewise.district')}}" class="btm-small blue-btm">Click for Distric View (Bar Chart)</a>
+                             <p class="btm-small blue-btm">Click on Phase to Check the Details View</p>
                         </div>
                     </div>
                 </div>
@@ -55,165 +55,84 @@
                             <div class="row">
                                 <div class="col-md-3">
                                     <div class="inner-grid">
-                                        <h2>Phase 1</h2>
-                                        <div class="grid-total">
-                                            166
-                                        </div>
-                                        <div class="grid-label j-green-bg">
-                                            100
-                                        </div>
-                                        <div class="grid-label j-yellow-bg">
-                                        50
-                                        </div>
-                                        <div class="grid-label j-gray-bg">
-                                        10
-                                        </div>
-                                        <div class="grid-label j-red-bg">
-                                        6
+                                        <div class="chrat-place">
+                                            <canvas 
+                                                id="mcc1" 
+                                                width="100">
+                                            </canvas>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col-md-3">
                                     <div class="inner-grid">
-                                        <h2>Phase 2</h2>
-                                        <div class="grid-total">
-                                            166
-                                        </div>
-                                        <div class="grid-label j-green-bg">
-                                            100
-                                        </div>
-                                        <div class="grid-label j-yellow-bg">
-                                        50
-                                        </div>
-                                        <div class="grid-label j-gray-bg">
-                                        10
-                                        </div>
-                                        <div class="grid-label j-red-bg">
-                                        6
+                                        <div class="chrat-place">
+                                            <canvas 
+                                                id="mcc2" 
+                                                width="100">
+                                            </canvas>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col-md-3">
                                     <div class="inner-grid">
-                                        <h2>Phase 3</h2>
-                                        <div class="grid-total">
-                                            166
-                                        </div>
-                                        <div class="grid-label j-green-bg">
-                                            100
-                                        </div>
-                                        <div class="grid-label j-yellow-bg">
-                                        50
-                                        </div>
-                                        <div class="grid-label j-gray-bg">
-                                        10
-                                        </div>
-                                        <div class="grid-label j-red-bg">
-                                        6
+                                        <div class="chrat-place">
+                                            <canvas 
+                                                id="mcc3" 
+                                                width="100">
+                                            </canvas>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col-md-3">
                                     <div class="inner-grid">
-                                        <h2>Phase 4 </h2>
-                                        <div class="grid-total">
-                                            166
-                                        </div>
-                                        <div class="grid-label j-green-bg">
-                                            100
-                                        </div>
-                                        <div class="grid-label j-yellow-bg">
-                                        50
-                                        </div>
-                                        <div class="grid-label j-gray-bg">
-                                        10
-                                        </div>
-                                        <div class="grid-label j-red-bg">
-                                        6
+                                        <div class="chrat-place">
+                                            <canvas 
+                                                id="mcc4" 
+                                                width="100">
+                                            </canvas>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col-md-3">
                                     <div class="inner-grid">
-                                        <h2>Phase 5</h2>
-                                        <div class="grid-total">
-                                            166
-                                        </div>
-                                        <div class="grid-label j-green-bg">
-                                            100
-                                        </div>
-                                        <div class="grid-label j-yellow-bg">
-                                        50
-                                        </div>
-                                        <div class="grid-label j-gray-bg">
-                                        10
-                                        </div>
-                                        <div class="grid-label j-red-bg">
-                                        6
+                                        <div class="chrat-place">
+                                            <canvas 
+                                                id="mcc5" 
+                                                width="100">
+                                            </canvas>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col-md-3">
                                     <div class="inner-grid">
-                                        <h2>Phase 6 </h2>
-                                        <div class="grid-total">
-                                            166
-                                        </div>
-                                        <div class="grid-label j-green-bg">
-                                            100
-                                        </div>
-                                        <div class="grid-label j-yellow-bg">
-                                        50
-                                        </div>
-                                        <div class="grid-label j-gray-bg">
-                                        10
-                                        </div>
-                                        <div class="grid-label j-red-bg">
-                                        6
+                                        <div class="chrat-place">
+                                            <canvas 
+                                                id="mcc6" 
+                                                width="100">
+                                            </canvas>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col-md-3">
                                     <div class="inner-grid">
-                                        <h2>Phase 7 </h2>
-                                        <div class="grid-total">
-                                            166
-                                        </div>
-                                        <div class="grid-label j-green-bg">
-                                            100
-                                        </div>
-                                        <div class="grid-label j-yellow-bg">
-                                        50
-                                        </div>
-                                        <div class="grid-label j-gray-bg">
-                                        10
-                                        </div>
-                                        <div class="grid-label j-red-bg">
-                                        6
+                                        <div class="chrat-place">
+                                            <canvas 
+                                                id="mcc7" 
+                                                width="100">
+                                            </canvas>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col-md-3">
                                     <div class="inner-grid">
-                                        <h2>Phase 8 </h2>
-                                        <div class="grid-total">
-                                            166
-                                        </div>
-                                        <div class="grid-label j-green-bg">
-                                            100
-                                        </div>
-                                        <div class="grid-label j-yellow-bg">
-                                        50
-                                        </div>
-                                        <div class="grid-label j-gray-bg">
-                                        10
-                                        </div>
-                                        <div class="grid-label j-red-bg">
-                                        6
+                                        <div class="chrat-place">
+                                            <canvas 
+                                                id="mcc8" 
+                                                width="100">
+                                            </canvas>
                                         </div>
                                     </div>
                                 </div>
-                                
                             </div>
                             <div class="color-label mb-5">
                                 <h6>Legend</h6>
@@ -235,91 +154,211 @@
         <!-- <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script> -->
         <!-- <script src="./assets/js/main.js"></script> -->
   
-    <script>
-        var totalScheduled = @json($totalScheduled);
-        var pending = @json($pending);
-        var appliedAwaitingApproval = @json($appliedAwaitingApproval);
-        var approvedCopyReceived = @json($approvedCopyReceived);
+        <script>
+            var totalScheduled = @json($totalScheduled);
+            var pending = @json($pending);
+            var appliedAwaitingApproval = @json($appliedAwaitingApproval);
+            var approvedCopyReceived = @json($approvedCopyReceived);
 
 
-        var ctx = document.getElementById("myChart").getContext('2d');
+            var ctx = document.getElementById("myChart").getContext('2d');
 
-        var myChart = new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: ["Total Event Scheduled","Pending Application","Applied-Awaiting Approval", "Approved-Copy Received"],
-                datasets: [{    
-                    data: [totalScheduled, pending,appliedAwaitingApproval,approvedCopyReceived],
-                    borderColor: ['#1BC976','#FDB747','#F46674','#5B86FC'], 
-                    backgroundColor: ['#1BC976','#FDB747','#F46674','#5B86FC'],
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-            }
-        });
-        // var ctx = document.getElementById("myChart").getContext('2d');
+            var myChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ["Total Event Scheduled","Pending Application","Applied-Awaiting Approval", "Approved-Copy Received"],
+                    datasets: [{    
+                        data: [totalScheduled, pending,appliedAwaitingApproval,approvedCopyReceived],
+                        borderColor: ['#1BC976','#FDB747','#F46674','#5B86FC'], 
+                        backgroundColor: ['#1BC976','#FDB747','#F46674','#5B86FC'],
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                }
+            });
 
-        // var myChart = new Chart(ctx, {
-        //     type: 'doughnut',
-        //     data: {
-        //         labels: ["Total Event Scheduled",	"Applied-Awaiting Approval ",	"Pending Application",	"Approved-Copy Received"],
-        //         datasets: [{    
-        //             data: [totalScheduled,	600, pending, 600],
-        //             borderColor: ['#1BC976', '#FDB747', '#F46674', '#5B86FC'], 
-        //             backgroundColor: ['#1BC976', '#FDB747', '#F46674', '#5B86FC'],
-        //             borderWidth: 1 
-        //         }]},         
-        //     options: {
-        //     responsive: true,
-        //     maintainAspectRatio: false, 
-            
-        //     }
-        // });
+            window.addEventListener('DOMContentLoaded', function () {
+                document.querySelectorAll("canvas[id^='phase']").forEach(canvas => {
+                    
+                    let counts = JSON.parse(canvas.dataset.chart);
+                    let phaseNumber = canvas.dataset.phase;
+                    let ctx = canvas.getContext('2d');
 
-        window.addEventListener('DOMContentLoaded', function () {
-            document.querySelectorAll("canvas[id^='phase']").forEach(canvas => {
-                
-                let counts = JSON.parse(canvas.dataset.chart);
-                let phaseNumber = canvas.dataset.phase;
-                let ctx = canvas.getContext('2d');
-
-                new Chart(ctx, {
-                    type: 'doughnut',
-                    data: {
-                        datasets: [{
-                            data: counts,
-                            borderColor: ['#1BC976', '#FDB747', '#A7A7A7', '#F46674'],
-                            backgroundColor: ['#1BC976', '#FDB747', '#A7A7A7', '#F46674'],
-                            borderWidth: 1
+                    new Chart(ctx, {
+                        type: 'doughnut',
+                        data: {
+                            datasets: [{
+                                data: counts,
+                                borderColor: ['#1BC976', '#FDB747', '#A7A7A7', '#F46674'],
+                                backgroundColor: ['#1BC976', '#FDB747', '#A7A7A7', '#F46674'],
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            cutout: '70%',
+                            plugins: {
+                                legend: { display: false }
+                            }
+                        },
+                        plugins: [{
+                            afterDraw(chart) {
+                                const ctx = chart.ctx;
+                                ctx.save();
+                                ctx.font = 'normal 13px Arial';
+                                ctx.fillStyle = '#333';
+                                ctx.textAlign = 'center';
+                                ctx.textBaseline = 'middle';
+                                // ctx.fillText('Phase', chart.width / 2, chart.height / 2);
+                                ctx.fillText(phaseNumber, chart.width / 2, chart.height / 2);
+                                ctx.restore();
+                            }
                         }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        cutout: '70%',
-                        plugins: {
-                            legend: { display: false }
+                    });
+                });
+            });
+        </script>
+        
+        <script>
+            document.querySelectorAll('.phase-click').forEach(div => {
+                div.addEventListener('click', function () {
+                    window.location.href = this.dataset.url;
+                });
+            });
+        </script>
+
+
+        <script>
+            function createAutoTotalDoughnutChart(chartId, chartData, chartOptions = {}) {
+                const ctx = document.getElementById(chartId).getContext('2d');
+                
+                if (!ctx) {
+                    console.error(`Element with id "${chartId}" not found`);
+                    return null;
+                }
+                
+                const total = chartData.datasets[0].data.reduce((a, b) => a + b, 0);
+                
+                const defaultOptions = {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '70%',
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        datalabels: {
+                            display: false
                         }
-                    },
+                    }
+                };
+                const options = { ...defaultOptions, ...chartOptions };
+                
+                return new Chart(ctx, {
+                    type: 'doughnut',
+                    data: chartData,
+                    options: options,
                     plugins: [{
-                        afterDraw(chart) {
+                        afterDraw: function(chart) {
                             const ctx = chart.ctx;
+                            const centerX = chart.width / 2;
+                            const centerY = chart.height / 2;
+                            
+                            const chartTotal = chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                            
                             ctx.save();
-                            ctx.font = 'normal 13px Arial';
-                            ctx.fillStyle = '#333';
-                            ctx.textAlign = 'center';
-                            ctx.textBaseline = 'middle';
-                            // ctx.fillText('Phase', chart.width / 2, chart.height / 2);
-                            ctx.fillText(phaseNumber, chart.width / 2, chart.height / 2);
+                            
+                                ctx.font = 'bold 16px Arial';
+                                ctx.fillStyle = '#666';
+                                ctx.textAlign = 'center';
+                                ctx.textBaseline = 'middle';
+                                //ctx.fillText('Total', centerX, centerY - 15);
+                                ctx.font = 'bold 24px Arial';
+                                ctx.fillStyle = '#333';
+                                
+                                //ctx.fillText(chartTotal.toString(), centerX, centerY + 10);
+                            
                             ctx.restore();
                         }
                     }]
                 });
+            }
+
+            const chart1 = createAutoTotalDoughnutChart('mcc1', {
+                datasets: [{    
+                    data: [500, 600, 800, 600],
+                    borderColor: ['#1BC976', '#FDB747', '#F46674', '#A7A7A7'], 
+                    backgroundColor: ['#1BC976', '#FDB747', '#F46674', '#A7A7A7'],
+                    borderWidth: 1 
+                }]
             });
-        });
-    </script>
+
+            const chart2 = createAutoTotalDoughnutChart('mcc2', {
+                datasets: [{    
+                    data: [500, 600, 800, 600],
+                    borderColor: ['#1BC976', '#FDB747', '#F46674', '#A7A7A7'], 
+                    backgroundColor: ['#1BC976', '#FDB747', '#F46674', '#A7A7A7'],
+                    borderWidth: 1 
+                }]
+            });
+
+            const chart3 = createAutoTotalDoughnutChart('mcc3', {
+                datasets: [{    
+                    data: [500, 600, 800, 600],
+                    borderColor: ['#1BC976', '#FDB747', '#F46674', '#A7A7A7'], 
+                    backgroundColor: ['#1BC976', '#FDB747', '#F46674', '#A7A7A7'],
+                    borderWidth: 1 
+                }]
+            });
+
+            const chart4 = createAutoTotalDoughnutChart('mcc4', {
+                datasets: [{    
+                    data: [500, 600, 800, 600],
+                    borderColor: ['#1BC976', '#FDB747', '#F46674', '#A7A7A7'], 
+                    backgroundColor: ['#1BC976', '#FDB747', '#F46674', '#A7A7A7'],
+                    borderWidth: 1 
+                }]
+            });
+
+            const chart5 = createAutoTotalDoughnutChart('mcc5', {
+                datasets: [{    
+                    data: [500, 600, 800, 600],
+                    borderColor: ['#1BC976', '#FDB747', '#F46674', '#A7A7A7'], 
+                    backgroundColor: ['#1BC976', '#FDB747', '#F46674', '#A7A7A7'],
+                    borderWidth: 1 
+                }]
+            });
+
+            const chart6 = createAutoTotalDoughnutChart('mcc6', {
+                datasets: [{    
+                    data: [500, 600, 800, 600],
+                    borderColor: ['#1BC976', '#FDB747', '#F46674', '#A7A7A7'], 
+                    backgroundColor: ['#1BC976', '#FDB747', '#F46674', '#A7A7A7'],
+                    borderWidth: 1 
+                }]
+            });
+
+            const chart7 = createAutoTotalDoughnutChart('mcc7', {
+                datasets: [{    
+                    data: [500, 600, 800, 600],
+                    borderColor: ['#1BC976', '#FDB747', '#F46674', '#A7A7A7'], 
+                    backgroundColor: ['#1BC976', '#FDB747', '#F46674', '#A7A7A7'],
+                    borderWidth: 1 
+                }]
+            });
+
+            const chart8 = createAutoTotalDoughnutChart('mcc8', {
+                datasets: [{    
+                    data: [500, 600, 800, 600],
+                    borderColor: ['#1BC976', '#FDB747', '#F46674', '#A7A7A7'], 
+                    backgroundColor: ['#1BC976', '#FDB747', '#F46674', '#A7A7A7'],
+                    borderWidth: 1 
+                }]
+            });
+        </script>
     @endpush
 </div>
 
