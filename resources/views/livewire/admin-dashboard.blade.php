@@ -40,6 +40,7 @@
                             <div class="color-label mb-5">
                                 <h6>Legend</h6>
                                 <div class="color-grid"><span style="background-color: #1BC976;"></span>Approved & Complete</div>
+                                <div class="color-grid"><span style="background-color: #f3a3a3;"></span>Document Yet To Be Received By Fox For Vetting</div>
                                 <div class="color-grid"><span style="background-color: #FDB747;"></span>Pending at FOX</div>
                                 <div class="color-grid"><span style="background-color: #A7A7A7;"></span >Pending Submission</div>
                                 <div class="color-grid"><span style="background-color: #F46674;"></span>Rejected (if any)</div>
@@ -191,8 +192,8 @@
                         data: {
                             datasets: [{
                                 data: counts,
-                                borderColor: ['#1BC976', '#FDB747', '#A7A7A7', '#F46674'],
-                                backgroundColor: ['#1BC976', '#FDB747', '#A7A7A7', '#F46674'],
+                                borderColor: ['#1BC976','#f3a3a3', '#FDB747', '#A7A7A7', '#F46674'],
+                                backgroundColor: ['#1BC976','#f3a3a3', '#FDB747', '#A7A7A7', '#F46674'],
                                 borderWidth: 1
                             }]
                         },

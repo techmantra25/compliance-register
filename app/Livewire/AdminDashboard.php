@@ -74,6 +74,10 @@ class AdminDashboard extends Component
                 ->where('document_collection_status', 'verified_pending_submission')
                 ->count();
 
+            $document_yettobe_received_by_fox_for_vetting = $allCandidates
+                ->whereIn('document_collection_status',['incomplete_additional_required','not_received_form'])
+                ->count();
+
             $approved_complete = $allCandidates
                 ->where('document_collection_status', 'verified_submitted_with_copy')
                 ->count();
@@ -89,6 +93,7 @@ class AdminDashboard extends Component
                 'data' => [
                     $pending_at_fox,
                     $pending_submission,
+                    $document_yettobe_received_by_fox_for_vetting,
                     $approved_complete,
                     $rejected
                 ]
