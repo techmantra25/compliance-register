@@ -46,7 +46,7 @@ class AdminDashboard extends Component
        // $this->approvedCopyReceived = CampaignWisePermission::whereNotNull('approved_by')->count();
 
 
-       
+
         $this->phases = Phase::with([
             'assemblies',
             'assemblies.candidates'
@@ -67,7 +67,7 @@ class AdminDashboard extends Component
             //dd($getSpecialCaseCan);
 
             $pending_at_fox = $allCandidates
-                ->where('document_collection_status', 'ready_for_vetting')
+                ->whereIn('document_collection_status',['ready_for_vetting','vetting_in_progress'])
                 ->count();
 
             $pending_submission = $allCandidates
