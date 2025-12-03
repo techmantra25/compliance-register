@@ -4,7 +4,7 @@ namespace App\Livewire;
 
 use Livewire\Component;
 use App\Models\Phase;
-use App\Models\campaign;
+use App\Models\Campaign;
 
 class EventWiseDistrict extends Component
 {
@@ -145,6 +145,7 @@ class EventWiseDistrict extends Component
                 ->unique('district')
                 ->values()
                 ->toArray();
+        //dd($this->uniqueEventDistricts);
     }
 
     public function render()
