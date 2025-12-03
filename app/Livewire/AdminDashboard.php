@@ -38,15 +38,19 @@ class AdminDashboard extends Component
 
     public function mount()
     {
-        $this->phases = Phase::with([
-            'assemblies',
-            'assemblies.candidates'
-        ])->get();
-
+       
         $this->totalScheduled = Campaign::count();
         $this->pending = Campaign::where('status', 'pending')->count();
         $this->appliedAwaitingApproval = CampaignWisePermission::where('doc_type','applied_copy')->whereNull('approved_by')->count();
         $this->approvedCopyReceived = CampaignWisePermission::where('doc_type','approved_copy')->whereNotNull('approved_by')->count();
+       // $this->approvedCopyReceived = CampaignWisePermission::whereNotNull('approved_by')->count();
+
+
+       
+        $this->phases = Phase::with([
+            'assemblies',
+            'assemblies.candidates'
+        ])->get();
 
         $this->chartData = [];
 
@@ -89,9 +93,6 @@ class AdminDashboard extends Component
                     $rejected
                 ]
             ];
-
-            
-            
 
         }
     }

@@ -24,7 +24,8 @@ use App\Livewire\{
     ForgetPassword,
     UpdateProfile,
     RolePermissions,
-    StarCampaignerCrud
+    StarCampaignerCrud,
+    EventWiseDistrict
 };
 use App\Livewire\Candidate\DocumentComments;
 use App\Http\Controllers\CandidateController;
@@ -78,7 +79,9 @@ Route::get('/forget/password',ForgetPassword::class)->name('forget.password');
 Route::prefix('/admin')->middleware('auth:admin')->group(function () {
     Route::get('/dashboard', AdminDashboard::class)->name('admin.dashboard');
     Route::get('/update/profile', UpdateProfile::class)->name('admin.update.profile');
-    Route::get('/phasewise/district', PhaseWiseDistrict::class)->name('admin.phasewise.district');
+    Route::get('phase/{phaseId}/district', PhaseWiseDistrict::class)->name('admin.phasewise.district');
+    Route::get('/eventwise/district', EventWiseDistrict::class)->name('admin.eventwise.district');
+
 
     Route::prefix('master')->group(function () {
         Route::get('/zones', ZoneCrud::class)->name('admin.master.zones')->middleware('employee.permission:master_view_zones');
