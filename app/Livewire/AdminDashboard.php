@@ -91,10 +91,10 @@ class AdminDashboard extends Component
             $this->chartData[$key] = [
                 'phase_name' => $phase->name,
                 'data' => [
+                    $approved_complete,
+                    $document_yettobe_received_by_fox_for_vetting,
                     $pending_at_fox,
                     $pending_submission,
-                    $document_yettobe_received_by_fox_for_vetting,
-                    $approved_complete,
                     $rejected
                 ]
             ];
