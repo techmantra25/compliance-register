@@ -25,7 +25,6 @@ class AdminDashboard extends Component
 
     public function mount()
     {
-       
         $this->totalScheduled = Campaign::count();
         $campaigns = Campaign::with(['category.permissions', 'permissions'])->get();
 
@@ -35,7 +34,6 @@ class AdminDashboard extends Component
         $cancelledOrRescheduled = 0;
 
         foreach ($campaigns as $camp) {
-
             $required = $camp->category->permissions->count(); 
             $applied = $camp->permissions->where('doc_type', 'applied_copy')->count();
             $approved = $camp->permissions->where('doc_type', 'approved_copy')->count();

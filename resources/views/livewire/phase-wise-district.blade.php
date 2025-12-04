@@ -16,9 +16,9 @@
                                                 $row['percent']['approved'] }}%
                                             </div>
                                         @endif
-                                        @if($row['percent']['document_yet_tobe_received_for_vetting'] > 0)
-                                            <div class="bar j-pink-bg" style="width:{{ $row['percent']['document_yet_tobe_received_for_vetting'] }}%">{{
-                                                $row['percent']['document_yet_tobe_received_for_vetting'] }}%
+                                        @if($row['percent']['document_yet_to_be_received_by_fox_for_vetting'] > 0)
+                                            <div class="bar j-pink-bg" style="width:{{ $row['percent']['document_yet_to_be_received_by_fox_for_vetting'] }}%">{{
+                                                $row['percent']['document_yet_to_be_received_by_fox_for_vetting'] }}%
                                             </div>
                                         @endif
                                         @if($row['percent']['vetting_in_progress_at_fox'] > 0)
