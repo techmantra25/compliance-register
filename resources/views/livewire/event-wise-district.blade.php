@@ -15,7 +15,7 @@
                                             <span>(Total:{{$row['total_campaigns'] ?? 'N/A'}})</span>
                                         </div>
                                         <div class="stack-chirt">
-                                            @if($row['percent']['cancelled'] > 0)
+                                            {{-- @if($row['percent']['cancelled'] > 0)
                                                 <div class="bar j-pink-bg" style="width:{{$row['percent']['cancelled']}}%">
                                                     {{$row['percent']['cancelled']}}%
                                                 </div>
@@ -29,7 +29,39 @@
                                             @endif
                                             @if($row['percent']['approved'] > 0)
                                                 <div class="bar j-green-bg" style="width:{{$row['percent']['approved']}}%">{{$row['percent']['approved']}}%</div>
-                                            @endif
+                                            @endif --}}
+                                            @if($row['percent']['cancelled'] > 0)
+                                                <div class="bar j-pink-bg"
+                                                    style="width:{{$row['percent']['cancelled']}}%"
+                                                    title="Cancelled: {{$row['percent']['cancelled']}}%">
+                                                    {{$row['cancelled_or_rescheduled']}}
+                                                </div>
+                                                @endif
+
+                                                @if($row['percent']['pending'] > 0)
+                                                <div class="bar j-yellow-bg"
+                                                    style="width:{{$row['percent']['pending']}}%"
+                                                    title="Pending: {{$row['percent']['pending']}}%">
+                                                    {{$row['pending_applications']}}
+                                                </div>
+                                                @endif
+
+                                                @if($row['percent']['applied_awaiting'] > 0)
+                                                <div class="bar j-red-bg"
+                                                    style="width:{{$row['percent']['applied_awaiting']}}%"
+                                                    title="Applied-Awaiting: {{$row['percent']['applied_awaiting']}}%">
+                                                    {{$row['applied_awaiting']}}
+                                                </div>
+                                                @endif
+
+                                                @if($row['percent']['approved'] > 0)
+                                                <div class="bar j-green-bg"
+                                                    style="width:{{$row['percent']['approved']}}%"
+                                                    title="Approved: {{$row['percent']['approved']}}%">
+                                                    {{$row['approved_received']}}
+                                                </div>
+                                                @endif
+
                                         </div>
                                     </div>
                                 @endforeach

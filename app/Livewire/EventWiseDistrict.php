@@ -139,6 +139,7 @@ class EventWiseDistrict extends Component
                         'pending_applications' => $pendingCount,
                         'applied_awaiting' => $appliedAwaitingCount,
                         'approved_received' => $approvedCount,
+                        'cancelled_or_rescheduled' => $cancelledOrRescheduled,
                        'percent' => [
                                 'cancelled' => round(($cancelledOrRescheduled / $totalCampaigns) * 100, 1),
                                 'pending' => round(($pendingCount / $totalCampaigns) * 100, 1),
