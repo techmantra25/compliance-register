@@ -1,11 +1,4 @@
 <div>
-    <style>
-        .j-red-bg {
-        background-color: #f46674 !important;
-        color: #fff; /* text white for visibility */
-    }
-
-    </style>
     <section class="dash-wrapper">
         <div class="container">
 
