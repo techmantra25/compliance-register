@@ -1,6 +1,14 @@
 <div>
+    <style>
+        .j-red-bg {
+        background-color: #f46674 !important;
+        color: #fff; /* text white for visibility */
+    }
+
+    </style>
     <section class="dash-wrapper">
         <div class="container">
+
             <div class="row mb-4">
                 <div class="col-md-8 mb-4">
                     <div class="inner-wrapper">
@@ -39,7 +47,7 @@
                                 </div>
                                 <div class="color-grid"><span style="background-color: #FDB747;"></span>Pending
                                     Application</div>
-                                <div class="color-grid"><span style="background-color: #a83236;"></span>Applied-Awaiting
+                                <div class="color-grid"><span style="background-color: #f46674;"></span>Applied-Awaiting
                                     Approval</div>
                                 <div class="color-grid"><span style="background-color: #1BC976;"></span>Approved Copy
                                     Received</div>
