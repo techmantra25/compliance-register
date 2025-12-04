@@ -16,15 +16,20 @@
                                                 $row['percent']['approved'] }}%
                                             </div>
                                         @endif
-                                        @if($row['percent']['pending_at_fox'] > 0)
-                                        <div class="bar j-yellow-bg"
-                                            style="width:{{ $row['percent']['pending_at_fox'] }}%">{{
-                                            $row['percent']['pending_at_fox'] }}%</div>
+                                        @if($row['percent']['document_yet_tobe_received_for_vetting'] > 0)
+                                            <div class="bar j-pink-bg" style="width:{{ $row['percent']['document_yet_tobe_received_for_vetting'] }}%">{{
+                                                $row['percent']['document_yet_tobe_received_for_vetting'] }}%
+                                            </div>
                                         @endif
-                                        @if($row['percent']['pending_submission'] > 0)
+                                        @if($row['percent']['vetting_in_progress_at_fox'] > 0)
+                                        <div class="bar j-yellow-bg"
+                                            style="width:{{ $row['percent']['vetting_in_progress_at_fox'] }}%">{{
+                                            $row['percent']['vetting_in_progress_at_fox'] }}%</div>
+                                        @endif
+                                        @if($row['percent']['pending_acknowledgement_copy'] > 0)
                                             <div class="bar j-gray-bg"
-                                                style="width:{{ $row['percent']['pending_submission'] }}%">{{
-                                                $row['percent']['pending_submission'] }}%</div>
+                                                style="width:{{ $row['percent']['pending_acknowledgement_copy'] }}%">{{
+                                                $row['percent']['pending_acknowledgement_copy'] }}%</div>
                                         @endif
                                         @if($row['percent']['rejected'] > 0)
                                             <div class="bar j-red-bg" style="width:{{ $row['percent']['rejected'] }}%">{{
@@ -38,10 +43,11 @@
                             <div class="color-label mb-5">
                                 <div class="color-grid"><span style="background-color: #1BC976;"></span>Approved
                                     Complete</div>
-                                <div class="color-grid"><span style="background-color: #FDB747;"></span>Pending at Fox
+                                <div class="color-grid"><span style="background-color: #f3a3a3;"></span>Document Yet to be Received For Vetting
                                 </div>
-                                <div class="color-grid"><span style="background-color: #A7A7A7;"></span>Pending
-                                    Submissin at Fox</div>
+                                <div class="color-grid"><span style="background-color: #FDB747;"></span>Vetting in Progress at Fox
+                                </div>
+                                <div class="color-grid"><span style="background-color: #A7A7A7;"></span>Pending Acknowledgement Copy</div>
                                 <div class="color-grid"><span style="background-color: #F46674;"></span>Rejected</div>
 
                             </div>

@@ -4,7 +4,7 @@
             <div class="row mb-4">
                 <div class="col-md-8 mb-4">
                     <div class="inner-wrapper">
-                        <div class="title-head">Event Permission (State Level)</div>
+                        <div class="title-head">Event Permission (District Level)</div>
                         <div class="wrappper-bpdy">
                             <div class="bar-chirt-option">
                                 {{-- @dd($uniqueEventDistricts) --}}

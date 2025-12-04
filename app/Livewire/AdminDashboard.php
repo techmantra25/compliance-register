@@ -21,31 +21,45 @@ class AdminDashboard extends Component
     public $pending;
     public $appliedAwaitingApproval;
     public $approvedCopyReceived;
-
-    
-    // public function mount()
-    // {
-    //     $this->phases = Phase::with([
-    //         'assemblies',
-    //         'assemblies.candidates'
-    //     ])->get()->toArray();
-
-       
-    //     // foreach($this->phases as $key =>$item){
-    //     //      dd($item);
-    //     // }
-    // }
+    public $cancelledOrRescheduled;
 
     public function mount()
     {
        
         $this->totalScheduled = Campaign::count();
-        $this->pending = Campaign::where('status', 'pending')->count();
-        $this->appliedAwaitingApproval = CampaignWisePermission::where('doc_type','applied_copy')->whereNull('approved_by')->count();
-        $this->approvedCopyReceived = CampaignWisePermission::where('doc_type','approved_copy')->whereNotNull('approved_by')->count();
-       // $this->approvedCopyReceived = CampaignWisePermission::whereNotNull('approved_by')->count();
+        $campaigns = Campaign::with(['category.permissions', 'permissions'])->get();
 
+        $pending = 0;
+        $appliedAwaitingApproval = 0;
+        $approvedCopyReceived = 0;
+        $cancelledOrRescheduled = 0;
 
+        foreach ($campaigns as $camp) {
+
+            $required = $camp->category->permissions->count(); 
+            $applied = $camp->permissions->where('doc_type', 'applied_copy')->count();
+            $approved = $camp->permissions->where('doc_type', 'approved_copy')->count();
+
+            if (in_array($camp->status, ['cancelled', 'rescheduled'])) {
+                $cancelledOrRescheduled++;
+                continue;
+            }
+
+            if ($approved == $required && $required > 0) {
+                $approvedCopyReceived++;
+            }
+            else if ($applied == $required && $required > 0) {
+                $appliedAwaitingApproval++;
+            }
+            else {
+                $pending++;
+            }
+        }
+
+        $this->pending = $pending;
+        $this->appliedAwaitingApproval = $appliedAwaitingApproval;
+        $this->approvedCopyReceived = $approvedCopyReceived;
+        $this->cancelledOrRescheduled = $cancelledOrRescheduled;
 
         $this->phases = Phase::with([
             'assemblies',
@@ -66,11 +80,11 @@ class AdminDashboard extends Component
 
             //dd($getSpecialCaseCan);
 
-            $pending_at_fox = $allCandidates
+            $vetting_in_progress_at_fox = $allCandidates
                 ->whereIn('document_collection_status',['ready_for_vetting','vetting_in_progress'])
                 ->count();
 
-            $pending_submission = $allCandidates
+            $pending_acknowledgement_copy = $allCandidates
                 ->where('document_collection_status', 'verified_pending_submission')
                 ->count();
 
@@ -91,10 +105,10 @@ class AdminDashboard extends Component
             $this->chartData[$key] = [
                 'phase_name' => $phase->name,
                 'data' => [
-                    $pending_at_fox,
-                    $pending_submission,
-                    $document_yettobe_received_by_fox_for_vetting,
                     $approved_complete,
+                    $document_yettobe_received_by_fox_for_vetting,
+                    $vetting_in_progress_at_fox,
+                    $pending_acknowledgement_copy,
                     $rejected
                 ]
             ];
