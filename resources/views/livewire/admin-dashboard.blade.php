@@ -4,7 +4,7 @@
             <div class="row mb-4">
                 <div class="col-md-6 mb-4">
                     <div class="inner-wrapper">
-                        <div class="title-head">Event Permission (District View)</div>
+                        <div class="title-head">Event Permission (State View)</div>
                         <div class="wrappper-bpdy">
                             <div class="chrat-place">
                                 <canvas width="300" id="myChart"></canvas>
@@ -16,7 +16,7 @@
                 
                 <div class="col-md-6 mb-4">
                     <div class="inner-wrapper">
-                        <div class="title-head">Nomination Vetting (Phase-wise Status) - {{ $this->phases->count() }} Phases</div>
+                        <div class="title-head">Nomination Vetting (State View) - {{ $this->phases->count() }} Phases</div>
                         <div class="wrappper-bpdy">
                             <div class="row">
                                 {{-- @dd($this->phases) --}}
@@ -41,8 +41,8 @@
                                 <h6>Legend</h6>
                                 <div class="color-grid"><span style="background-color: #1BC976;"></span>Approved & Complete</div>
                                 <div class="color-grid"><span style="background-color: #f3a3a3;"></span>Document Yet To Be Received By Fox For Vetting</div>
-                                <div class="color-grid"><span style="background-color: #FDB747;"></span>Pending at FOX</div>
-                                <div class="color-grid"><span style="background-color: #A7A7A7;"></span >Pending Submission</div>
+                                <div class="color-grid"><span style="background-color: #FDB747;"></span>Vetting in Progress at FOX</div>
+                                <div class="color-grid"><span style="background-color: #A7A7A7;"></span >Pending Acknowledgement Copy</div>
                                 <div class="color-grid"><span style="background-color: #F46674;"></span>Rejected (if any)</div>
                             </div>
                              <p class="btm-small blue-btm">Click on Phase to Check the Details View</p>
@@ -139,7 +139,7 @@
                                 <h6>Legend</h6>
                                 <div class="color-grid"><span style="background-color: #1BC976;"></span>Approved & Complete</div>
                                 <div class="color-grid"><span style="background-color: #FDB747;"></span>Pending at FOX</div>
-                                <div class="color-grid"><span style="background-color: #A7A7A7;"></span >Pending Submission</div>
+                                <div class="color-grid"><span style="background-color: #A7A7A7;"></span >Pending Acknowledgement Copy</div>
                                 <div class="color-grid"><span style="background-color: #F46674;"></span>Rejected (if any)</div>
                             </div>
                             <a href="#" class="btm-small blue-btm">Click for Distric View</a>
@@ -160,10 +160,11 @@
             var pending = @json($pending);
             var appliedAwaitingApproval = @json($appliedAwaitingApproval);
             var approvedCopyReceived = @json($approvedCopyReceived);
+            var cancelledOrRescheduled = @json($cancelledOrRescheduled);
 
 
             var ctx = document.getElementById("myChart").getContext('2d');
-            const centerTextPluginMainChart = {
+                const centerTextPluginMainChart = {
                     id: 'centerTextMain',
                     afterDraw(chart) {
                         const ctx = chart.ctx;
@@ -185,11 +186,11 @@
             var myChart = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
-                    labels: ["Pending Application","Applied-Awaiting Approval", "Approved-Copy Received"],
+                    labels: ["Pending Application","Applied-Awaiting Approval", "Approved-Copy Received" ,"Cancelled or Rescheduled"],
                     datasets: [{    
-                        data: [pending,appliedAwaitingApproval,approvedCopyReceived],
-                        borderColor: ['#FDB747','#F46674','#5B86FC'], 
-                        backgroundColor: ['#FDB747','#F46674','#5B86FC'],
+                        data: [pending,appliedAwaitingApproval,approvedCopyReceived,cancelledOrRescheduled],
+                        borderColor: ['#FDB747','#F46674','#5B86FC', '#f3a3a3'], 
+                        backgroundColor: ['#FDB747','#F46674','#5B86FC', '#f3a3a3'],
                     }]
                 },
                 options: {
@@ -208,6 +209,7 @@
                     
                     let counts = JSON.parse(canvas.dataset.chart);
                     let phaseNumber = canvas.dataset.phase;
+                    phaseNumber = phaseNumber.replace(/\b\w/g, char => char.toUpperCase());
                     let ctx = canvas.getContext('2d');
 
                     new Chart(ctx, {
