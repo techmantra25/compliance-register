@@ -41,7 +41,6 @@ class EventWiseDistrict extends Component
                 $pending_submission = $candidates->where('document_collection_status', 'verified_pending_submission')->count();
 
                 $approved_complete = $candidates->where('document_collection_status',     'verified_submitted_with_copy')->count();
-                
                 $rejected = $candidates->where('document_collection_status', 'rejected')
                                         ->reject(fn($c) => in_array($c->id, $specialCases))
                                         ->count();
@@ -70,21 +69,16 @@ class EventWiseDistrict extends Component
                 $campaigns = Campaign::whereIn('assembly_id', $assemblyIds)
                     ->with(['category.permissions', 'permissions','assembly.district'])
                     ->get();
-                
-                // Process ALL campaigns for this district (regardless of event)
+
                 $totalCampaigns = $campaigns->count();
-                
+
                 if ($totalCampaigns > 0) {
                     $pendingCount = 0;
                     $appliedAwaitingCount = 0;
                     $approvedCount = 0;
-                    $districtNameActual = $districtName;
-                    $eventCategoryIds = [];
                     
                     foreach ($campaigns as $campaign) {
-                        $districtNameActual = $campaign->assembly->district->name_en ?? $districtName;
-                        $eventCategoryIds[] = $campaign->event_category_id;
-                        
+                         $districtNameActual = $campaign->assembly->district->name_en ?? $districtName;
                         // Get required permissions for this campaign's category
                         $requiredPermissions = $campaign->category->permissions ?? collect([]);
                         $totalRequired = $requiredPermissions->count();
@@ -95,45 +89,23 @@ class EventWiseDistrict extends Component
                         
                         $submittedPermissions = $campaign->permissions;
                         
-                        // Count how many have applied_copy submitted
-                        $appliedCount = $submittedPermissions
-                            ->where('doc_type', 'applied_copy')
-                            ->whereNotNull('file')
-                            ->count();
+                        $appliedCount = $submittedPermissions->whereNotNull('file')->count();
                         
-                        // Count how many have approved_copy submitted (fully approved with file)
                         $approvedCopyCount = $submittedPermissions
-                            ->where('doc_type', 'approved_copy')
-                            ->whereNotNull('file')
+                            ->where('status', 'approved')
+                            ->whereNotNull('approved_copy')
                             ->count();
                         
-                        // CASE 1: All approved copies received → 100% Green
-                        if ($approvedCopyCount == $totalRequired) {
-                            $approvedCount++;
-                        }
-                        // CASE 2: All applied, some approved → Partial Green + Grey
-                        elseif ($appliedCount == $totalRequired && $approvedCopyCount > 0) {
-                            // Calculate partial completion
-                            $approvedRatio = $approvedCopyCount / $totalRequired;
-                            $awaitingRatio = 1 - $approvedRatio;
-                            
-                            $approvedCount += $approvedRatio;
-                            $appliedAwaitingCount += $awaitingRatio;
-                        }
-                        // CASE 3: All applied but none approved → 100% Grey
-                        elseif ($appliedCount == $totalRequired && $approvedCopyCount == 0) {
-                            $appliedAwaitingCount++;
-                        }
-                        // CASE 4: Not all applied yet → 100% Yellow
-                        else {
+                        if ($appliedCount < $totalRequired) {
                             $pendingCount++;
+                        } elseif ($appliedCount == $totalRequired && $approvedCopyCount < $totalRequired) {
+                            $appliedAwaitingCount++;
+                        } elseif ($approvedCopyCount == $totalRequired) {
+                            $approvedCount++;
                         }
                     }
                     
-                    // Get unique event IDs for display
-                    $uniqueEvents = array_unique($eventCategoryIds);
-                    
-                    // Calculate percentages for this district (all events combined)
+                    // Calculate percentages
                     $campaignStats[] = [
                         'district' => $districtNameActual,
                         'total_campaigns' => $totalCampaigns,
@@ -147,9 +119,12 @@ class EventWiseDistrict extends Component
                         ]
                     ];
                 }
+
             }
-            
             $this->districtChart[$key] = $districtStats;
+
+           
+            
             $this->campaignChart[$key] = $campaignStats;
         }
 
@@ -161,8 +136,10 @@ class EventWiseDistrict extends Component
 
         $this->uniqueEventDistricts = collect($this->campaignChart)
                 ->flatten(1)
+                ->unique('district')
                 ->values()
                 ->toArray();
+        //dd($this->uniqueEventDistricts);
     }
 
     public function render()

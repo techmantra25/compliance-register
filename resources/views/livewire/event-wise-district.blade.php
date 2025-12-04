@@ -7,23 +7,24 @@
                         <div class="title-head">Event Permission (State Level)</div>
                         <div class="wrappper-bpdy">
                             <div class="bar-chirt-option">
+                                {{-- @dd($uniqueEventDistricts) --}}
                                 @foreach ($uniqueEventDistricts as $index => $row)
-                                <div class="chirt-stack">
-                                    <div class="label">{{ $row['district'] ?? 'N/A'}}
-                                        <span>(Eve:{{$row['total_campaigns'] ?? 'N/A'}})</span>
+                                    <div class="chirt-stack">
+                                        <div class="label">{{ $row['district'] ?? 'N/A'}}
+                                            <span>(Total:{{$row['total_campaigns'] ?? 'N/A'}})</span>
+                                        </div>
+                                        <div class="stack-chirt">
+                                            @if($row['percent']['pending'] > 0)
+                                                <div class="bar j-yellow-bg" style="width:{{$row['percent']['pending']}}%">{{$row['percent']['pending']}}%</div>
+                                            @endif
+                                            @if($row['percent']['applied_awaiting'] > 0)
+                                                <div class="bar j-gray-bg" style="width:{{$row['percent']['applied_awaiting']}}%">{{$row['percent']['applied_awaiting']}}%</div>
+                                            @endif
+                                            @if($row['percent']['approved'] > 0)
+                                                <div class="bar j-green-bg" style="width:{{$row['percent']['approved']}}%">{{$row['percent']['approved']}}%</div>
+                                            @endif
+                                        </div>
                                     </div>
-                                    <div class="stack-chirt">
-                                        @if($row['percent']['pending'] > 0)
-                                            <div class="bar j-yellow-bg" style="width:{{$row['percent']['pending']}}%">{{$row['percent']['pending']}}%</div>
-                                        @endif
-                                        @if($row['percent']['applied_awaiting'] > 0)
-                                            <div class="bar j-gray-bg" style="width:{{$row['percent']['applied_awaiting']}}%">{{$row['percent']['applied_awaiting']}}%</div>
-                                        @endif
-                                        @if($row['percent']['approved'] > 0)
-                                            <div class="bar j-green-bg" style="width:{{$row['percent']['approved']}}%">{{$row['percent']['approved']}}%</div>
-                                        @endif
-                                    </div>
-                                </div>
                                 @endforeach
                             </div>
 
