@@ -189,8 +189,8 @@
                     labels: ["Pending Application","Applied-Awaiting Approval", "Approved-Copy Received" ,"Cancelled or Rescheduled"],
                     datasets: [{    
                         data: [pending,appliedAwaitingApproval,approvedCopyReceived,cancelledOrRescheduled],
-                        borderColor: ['#FDB747','#F46674','#5B86FC', '#f3a3a3'], 
-                        backgroundColor: ['#FDB747','#F46674','#5B86FC', '#f3a3a3'],
+                        borderColor: ['#FDB747','#F46674','#1BC976', '#f3a3a3'], 
+                        backgroundColor: ['#FDB747','#F46674','#1BC976', '#f3a3a3'],
                     }]
                 },
                 options: {

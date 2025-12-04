@@ -78,6 +78,7 @@ class EventWiseDistrict extends Component
                     $pendingCount = 0;
                     $appliedAwaitingCount = 0;
                     $approvedCount = 0;
+                    $cancelledOrRescheduled = 0;
                     $districtNameActual = $districtName;
                     $eventCategoryIds = [];
                     
@@ -90,6 +91,10 @@ class EventWiseDistrict extends Component
                         $totalRequired = $requiredPermissions->count();
                         
                         if ($totalRequired == 0) {
+                            continue;
+                        }
+                         if (in_array($campaign->status, ['cancelled', 'rescheduled'])) {
+                            $cancelledOrRescheduled++;
                             continue;
                         }
                         
@@ -107,27 +112,19 @@ class EventWiseDistrict extends Component
                             ->whereNotNull('file')
                             ->count();
                         
-                        // CASE 1: All approved copies received → 100% Green
+                       // CASE 1: All approved → 100% Green
                         if ($approvedCopyCount == $totalRequired) {
                             $approvedCount++;
                         }
-                        // CASE 2: All applied, some approved → Partial Green + Grey
-                        elseif ($appliedCount == $totalRequired && $approvedCopyCount > 0) {
-                            // Calculate partial completion
-                            $approvedRatio = $approvedCopyCount / $totalRequired;
-                            $awaitingRatio = 1 - $approvedRatio;
-                            
-                            $approvedCount += $approvedRatio;
-                            $appliedAwaitingCount += $awaitingRatio;
-                        }
-                        // CASE 3: All applied but none approved → 100% Grey
-                        elseif ($appliedCount == $totalRequired && $approvedCopyCount == 0) {
+                        // CASE 2: All applied but NOT all approved → 100% Grey
+                        elseif ($appliedCount == $totalRequired) {
                             $appliedAwaitingCount++;
                         }
-                        // CASE 4: Not all applied yet → 100% Yellow
+                        // CASE 3: Anything missing → 100% Yellow
                         else {
                             $pendingCount++;
                         }
+
                     }
                     
                     // Get unique event IDs for display
@@ -140,11 +137,13 @@ class EventWiseDistrict extends Component
                         'pending_applications' => $pendingCount,
                         'applied_awaiting' => $appliedAwaitingCount,
                         'approved_received' => $approvedCount,
-                        'percent' => [
-                            'pending' => round(($pendingCount / $totalCampaigns) * 100, 1),
-                            'applied_awaiting' => round(($appliedAwaitingCount / $totalCampaigns) * 100, 1),
-                            'approved' => round(($approvedCount / $totalCampaigns) * 100, 1)
-                        ]
+                       'percent' => [
+                                'cancelled' => round(($cancelledOrRescheduled / $totalCampaigns) * 100, 1),
+                                'pending' => round(($pendingCount / $totalCampaigns) * 100, 1),
+                                'applied_awaiting' => round(($appliedAwaitingCount / $totalCampaigns) * 100, 1),
+                                'approved' => round(($approvedCount / $totalCampaigns) * 100, 1)
+                            ]
+
                     ];
                 }
             }
