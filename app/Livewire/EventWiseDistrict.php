@@ -123,13 +123,7 @@ class EventWiseDistrict extends Component
             }
             $this->districtChart[$key] = $districtStats;
 
-            $totalCampaignsInPhase = collect($campaignStats)->sum('total_campaigns');
-            
-            if ($totalCampaignsInPhase > 0) {
-                foreach ($campaignStats as &$stat) {
-                    $stat['total_campaign_percentage'] = round(($stat['total_campaigns'] / $totalCampaignsInPhase) * 100, 1);
-                }
-            }
+           
             
             $this->campaignChart[$key] = $campaignStats;
         }
@@ -145,7 +139,7 @@ class EventWiseDistrict extends Component
                 ->unique('district')
                 ->values()
                 ->toArray();
-        //dd($this->uniqueEventDistricts);
+                // dd($this->uniqueEventDistricts);
     }
 
     public function render()

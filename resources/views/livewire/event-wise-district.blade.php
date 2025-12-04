@@ -9,11 +9,10 @@
                             <div class="bar-chirt-option">
                                 @foreach ($uniqueEventDistricts as $index => $row)
                                 <div class="chirt-stack">
-                                    <div class="label">{{ $row['district'] ?? 'unknown'}}</div>
+                                    <div class="label">{{ $row['district'] ?? 'N/A'}}
+                                        <span>(Eve:{{$row['total_campaigns'] ?? 'N/A'}})</span>
+                                    </div>
                                     <div class="stack-chirt">
-                                        @if($row['total_campaign_percentage'] > 0)
-                                        <div class="bar j-purple-bg" style="width:{{$row['total_campaign_percentage']}}%">{{$row['total_campaign_percentage']}}%</div>
-                                        @endif
                                         @if($row['percent']['pending'] > 0)
                                             <div class="bar j-yellow-bg" style="width:{{$row['percent']['pending']}}%">{{$row['percent']['pending']}}%</div>
                                         @endif
@@ -29,8 +28,8 @@
                             </div>
 
                             <div class="color-label mb-5">
-                                <div class="color-grid"><span style="background-color: #D28BDF;"></span>Total Events
-                                </div>
+                                {{-- <div class="color-grid"><span style="background-color: #D28BDF;"></span>Total Events
+                                </div> --}}
                                 <div class="color-grid"><span style="background-color: #FDB747;"></span>Pending
                                     Application</div>
                                 <div class="color-grid"><span style="background-color: #A7A7A7;"></span>Applied-Awaiting
