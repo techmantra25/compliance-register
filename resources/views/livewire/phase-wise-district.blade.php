@@ -12,29 +12,45 @@
                                     <div class="label">{{ $row['district'] ?? 'unknown'}}</div>
                                     <div class="stack-chirt">
                                         @if($row['percent']['approved'] > 0)
-                                            <div class="bar j-green-bg" style="width:{{ $row['percent']['approved'] }}%">{{
-                                                $row['percent']['approved'] }}%
+                                            <div class="bar j-green-bg"
+                                                style="width:{{ $row['percent']['approved'] }}%"
+                                                title="Approved: {{ $row['percent']['approved'] }}%">
+                                                {{ $row['approved'] }}
                                             </div>
                                         @endif
+
                                         @if($row['percent']['document_yet_to_be_received_by_fox_for_vetting'] > 0)
-                                            <div class="bar j-pink-bg" style="width:{{ $row['percent']['document_yet_to_be_received_by_fox_for_vetting'] }}%">{{
-                                                $row['percent']['document_yet_to_be_received_by_fox_for_vetting'] }}%
+                                            <div class="bar j-pink-bg"
+                                                style="width:{{ $row['percent']['document_yet_to_be_received_by_fox_for_vetting'] }}%"
+                                                title="Yet to Receive: {{ $row['percent']['document_yet_to_be_received_by_fox_for_vetting'] }}%">
+                                                {{ $row['document_yet_to_be_received_for_vetting'] }}
                                             </div>
                                         @endif
+
                                         @if($row['percent']['vetting_in_progress_at_fox'] > 0)
-                                        <div class="bar j-yellow-bg"
-                                            style="width:{{ $row['percent']['vetting_in_progress_at_fox'] }}%">{{
-                                            $row['percent']['vetting_in_progress_at_fox'] }}%</div>
+                                            <div class="bar j-yellow-bg"
+                                                style="width:{{ $row['percent']['vetting_in_progress_at_fox'] }}%"
+                                                title="Vetting in Progress: {{ $row['percent']['vetting_in_progress_at_fox'] }}%">
+                                                {{ $row['vetting_in_progress_at_fox'] }}
+                                            </div>
                                         @endif
+
                                         @if($row['percent']['pending_acknowledgement_copy'] > 0)
                                             <div class="bar j-gray-bg"
-                                                style="width:{{ $row['percent']['pending_acknowledgement_copy'] }}%">{{
-                                                $row['percent']['pending_acknowledgement_copy'] }}%</div>
+                                                style="width:{{ $row['percent']['pending_acknowledgement_copy'] }}%"
+                                                title="Pending Ack Copy: {{ $row['percent']['pending_acknowledgement_copy'] }}%">
+                                                {{ $row['pending_acknowledgement_copy'] }}
+                                            </div>
                                         @endif
+
                                         @if($row['percent']['rejected'] > 0)
-                                            <div class="bar j-red-bg" style="width:{{ $row['percent']['rejected'] }}%">{{
-                                                $row['percent']['rejected'] }}%</div>
+                                            <div class="bar j-red-bg"
+                                                style="width:{{ $row['percent']['rejected'] }}%"
+                                                title="Rejected: {{ $row['percent']['rejected'] }}%">
+                                                {{ $row['rejected'] }}
+                                            </div>
                                         @endif
+
                                     </div>
                                 </div>
                                 @endforeach
