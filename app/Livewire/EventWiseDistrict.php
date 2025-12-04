@@ -83,7 +83,12 @@ class EventWiseDistrict extends Component
                     $eventCategoryIds = [];
                     
                     foreach ($campaigns as $campaign) {
-                        $districtNameActual = $campaign->assembly->district->name_en ?? $districtName;
+                        // Cancelled / Rescheduled events
+                        if (in_array($campaign->status, ['cancelled', 'rescheduled'])) {
+                            $cancelledOrRescheduled++;
+                            continue;
+                        }
+                        $districtNameActual = $campaign->assembly->district->name_en;
                         $eventCategoryIds[] = $campaign->event_category_id;
                         
                         // Get required permissions for this campaign's category
@@ -93,10 +98,7 @@ class EventWiseDistrict extends Component
                         if ($totalRequired == 0) {
                             continue;
                         }
-                         if (in_array($campaign->status, ['cancelled', 'rescheduled'])) {
-                            $cancelledOrRescheduled++;
-                            continue;
-                        }
+                        
                         
                         $submittedPermissions = $campaign->permissions;
                         
@@ -162,6 +164,7 @@ class EventWiseDistrict extends Component
                 ->flatten(1)
                 ->values()
                 ->toArray();
+                // dd($this->uniqueEventDistricts);
     }
 
     public function render()
