@@ -1,4 +1,10 @@
 <div>
+    <style>
+      
+
+
+
+    </style>
     <section class="dash-wrapper">
         <div class="container">
 
@@ -33,7 +39,8 @@
                                             @if($row['percent']['cancelled'] > 0)
                                                 <div class="bar j-pink-bg"
                                                     style="width:{{$row['percent']['cancelled']}}%"
-                                                    title="Cancelled: {{$row['percent']['cancelled']}}%">
+                                                    data-tooltip="Cancelled: {{$row['percent']['cancelled']}}%"
+                                                    data-color="#f3a3a3">
                                                     {{$row['cancelled_or_rescheduled']}}
                                                 </div>
                                                 @endif
@@ -41,7 +48,8 @@
                                                 @if($row['percent']['pending'] > 0)
                                                 <div class="bar j-yellow-bg"
                                                     style="width:{{$row['percent']['pending']}}%"
-                                                    title="Pending: {{$row['percent']['pending']}}%">
+                                                    data-tooltip="Pending: {{$row['percent']['pending']}}%"
+                                                    data-color="#FDB747">
                                                     {{$row['pending_applications']}}
                                                 </div>
                                                 @endif
@@ -49,7 +57,8 @@
                                                 @if($row['percent']['applied_awaiting'] > 0)
                                                 <div class="bar j-red-bg"
                                                     style="width:{{$row['percent']['applied_awaiting']}}%"
-                                                    title="Applied-Awaiting: {{$row['percent']['applied_awaiting']}}%">
+                                                    data-tooltip="Applied-Awaiting: {{$row['percent']['applied_awaiting']}}%"
+                                                    data-color="#f46674">
                                                     {{$row['applied_awaiting']}}
                                                 </div>
                                                 @endif
@@ -57,7 +66,8 @@
                                                 @if($row['percent']['approved'] > 0)
                                                 <div class="bar j-green-bg"
                                                     style="width:{{$row['percent']['approved']}}%"
-                                                    title="Approved: {{$row['percent']['approved']}}%">
+                                                    data-tooltip="Approved: {{$row['percent']['approved']}}%"
+                                                    data-color="#1BC976">
                                                     {{$row['approved_received']}}
                                                 </div>
                                                 @endif
@@ -109,5 +119,47 @@
                 }
             });
         </script>
+      <script>
+            document.addEventListener("DOMContentLoaded", () => {
+
+                // Create tooltip box
+                let tooltip = document.createElement("div");
+                tooltip.className = "chirt-tooltip";
+                document.body.appendChild(tooltip);
+
+                document.querySelectorAll(".bar").forEach(bar => {
+                    
+                    bar.addEventListener("mousemove", e => {
+
+                        let text = bar.dataset.tooltip;  // Already contains label + %
+                        let color = bar.dataset.color;  // Background color of bar
+                        let count = bar.innerText.trim(); // Count inside the bar
+
+                        tooltip.innerHTML = `
+                            <span class="dot" style="background:${color}"></span>
+                            <div>
+                                ${text}  
+                                <br> <small style="opacity:0.8;">(${count} events)</small>
+                            </div>
+                        `;
+
+                        tooltip.style.left = (e.pageX + 20) + "px";
+                        tooltip.style.top = (e.pageY + 15) + "px";
+
+                        tooltip.style.opacity = 1;
+                        tooltip.style.transform = "translateY(0)";
+                    });
+
+                    bar.addEventListener("mouseleave", () => {
+                        tooltip.style.opacity = 0;
+                        tooltip.style.transform = "translateY(5px)";
+                    });
+
+                });
+            });
+            </script>
+
+
+
     @endpush
 </div>

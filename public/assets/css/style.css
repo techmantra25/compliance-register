@@ -605,4 +605,32 @@ body {
     color:#000000;
 }
 
+  .chirt-tooltip {
+        position: fixed;
+        padding: 10px 14px;
+        background: rgba(0, 0, 0, 0.90);
+        color: #fff;
+        font-size: 13px;
+        border-radius: 8px;
+        line-height: 1.4;
+        pointer-events: none;
+        opacity: 0;
+        transform: translateY(5px);
+        transition: opacity 0.15s ease, transform 0.15s ease;
+        z-index: 999999;
+        white-space: nowrap;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    /* Color dot */
+    .chirt-tooltip .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        display: inline-block;
+    }
+
 
