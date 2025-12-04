@@ -163,21 +163,44 @@
 
 
             var ctx = document.getElementById("myChart").getContext('2d');
+            const centerTextPluginMainChart = {
+                    id: 'centerTextMain',
+                    afterDraw(chart) {
+                        const ctx = chart.ctx;
+                        ctx.save();
+
+                        const text = "Total Events : " + totalScheduled;
+
+                        ctx.font = 'bold 18px Arial';
+                        ctx.fillStyle = '#333';
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        ctx.fillText(text, chart.width / 2, chart.height / 2);
+
+                        ctx.restore();
+                    }
+                };
+
 
             var myChart = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
-                    labels: ["Total Event Scheduled","Pending Application","Applied-Awaiting Approval", "Approved-Copy Received"],
+                    labels: ["Pending Application","Applied-Awaiting Approval", "Approved-Copy Received"],
                     datasets: [{    
-                        data: [totalScheduled, pending,appliedAwaitingApproval,approvedCopyReceived],
-                        borderColor: ['#1BC976','#FDB747','#F46674','#5B86FC'], 
-                        backgroundColor: ['#1BC976','#FDB747','#F46674','#5B86FC'],
+                        data: [pending,appliedAwaitingApproval,approvedCopyReceived],
+                        borderColor: ['#FDB747','#F46674','#5B86FC'], 
+                        backgroundColor: ['#FDB747','#F46674','#5B86FC'],
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                }
+                     cutout: "60%",
+                    plugins: {
+                        legend: { display: true }
+                    }
+                },
+                 plugins: [centerTextPluginMainChart]
             });
 
             window.addEventListener('DOMContentLoaded', function () {
