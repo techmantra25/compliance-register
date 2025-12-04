@@ -25,7 +25,6 @@ class AdminDashboard extends Component
 
     public function mount()
     {
-       
         $this->totalScheduled = Campaign::count();
         $campaigns = Campaign::with(['category.permissions', 'permissions'])->get();
 
