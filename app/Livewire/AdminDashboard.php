@@ -39,7 +39,7 @@ class AdminDashboard extends Component
             $required = $camp->category->permissions->count(); 
             $applied = $camp->permissions->where('doc_type', 'applied_copy')->count();
             $approved = $camp->permissions->where('doc_type', 'approved_copy')->count();
-
+            
             if (in_array($camp->status, ['cancelled', 'rescheduled'])) {
                 $cancelledOrRescheduled++;
                 continue;

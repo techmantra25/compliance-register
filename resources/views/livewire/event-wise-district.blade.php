@@ -14,11 +14,17 @@
                                             <span>(Total:{{$row['total_campaigns'] ?? 'N/A'}})</span>
                                         </div>
                                         <div class="stack-chirt">
+                                            @if($row['percent']['cancelled'] > 0)
+                                                <div class="bar j-pink-bg" style="width:{{$row['percent']['cancelled']}}%">
+                                                    {{$row['percent']['cancelled']}}%
+                                                </div>
+                                            @endif
+
                                             @if($row['percent']['pending'] > 0)
                                                 <div class="bar j-yellow-bg" style="width:{{$row['percent']['pending']}}%">{{$row['percent']['pending']}}%</div>
                                             @endif
                                             @if($row['percent']['applied_awaiting'] > 0)
-                                                <div class="bar j-gray-bg" style="width:{{$row['percent']['applied_awaiting']}}%">{{$row['percent']['applied_awaiting']}}%</div>
+                                                <div class="bar j-red-bg" style="width:{{$row['percent']['applied_awaiting']}}%">{{$row['percent']['applied_awaiting']}}%</div>
                                             @endif
                                             @if($row['percent']['approved'] > 0)
                                                 <div class="bar j-green-bg" style="width:{{$row['percent']['approved']}}%">{{$row['percent']['approved']}}%</div>
@@ -29,11 +35,11 @@
                             </div>
 
                             <div class="color-label mb-5">
-                                {{-- <div class="color-grid"><span style="background-color: #D28BDF;"></span>Total Events
-                                </div> --}}
+                                <div class="color-grid"><span style="background-color: #f3a3a3;"></span>Cancelled or Rescheduled
+                                </div>
                                 <div class="color-grid"><span style="background-color: #FDB747;"></span>Pending
                                     Application</div>
-                                <div class="color-grid"><span style="background-color: #A7A7A7;"></span>Applied-Awaiting
+                                <div class="color-grid"><span style="background-color: #a83236;"></span>Applied-Awaiting
                                     Approval</div>
                                 <div class="color-grid"><span style="background-color: #1BC976;"></span>Approved Copy
                                     Received</div>

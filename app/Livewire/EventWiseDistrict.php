@@ -78,6 +78,7 @@ class EventWiseDistrict extends Component
                     $pendingCount = 0;
                     $appliedAwaitingCount = 0;
                     $approvedCount = 0;
+                    $cancelledOrRescheduled = 0;
                     $districtNameActual = $districtName;
                     $eventCategoryIds = [];
                     
@@ -90,6 +91,10 @@ class EventWiseDistrict extends Component
                         $totalRequired = $requiredPermissions->count();
                         
                         if ($totalRequired == 0) {
+                            continue;
+                        }
+                         if (in_array($campaign->status, ['cancelled', 'rescheduled'])) {
+                            $cancelledOrRescheduled++;
                             continue;
                         }
                         
@@ -133,6 +138,7 @@ class EventWiseDistrict extends Component
                         'applied_awaiting' => $appliedAwaitingCount,
                         'approved_received' => $approvedCount,
                        'percent' => [
+                                'cancelled' => round(($cancelledOrRescheduled / $totalCampaigns) * 100, 1),
                                 'pending' => round(($pendingCount / $totalCampaigns) * 100, 1),
                                 'applied_awaiting' => round(($appliedAwaitingCount / $totalCampaigns) * 100, 1),
                                 'approved' => round(($approvedCount / $totalCampaigns) * 100, 1)
