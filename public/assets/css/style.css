@@ -446,7 +446,8 @@ body {
     color: #fff;
 }
 .chrat-place {
-    margin-bottom: 20px;
+    /*margin-bottom: 20px;*/
+    cursor:pointer;
 }
 
 .grid-place {
@@ -461,12 +462,12 @@ body {
     display: flex;
     align-items: center;
     text-align: center;
-    /* height: 116px; */
+     height: 116px; 
     justify-content: center;
     border: 1px solid #ccc;
     margin-bottom: 24px;
     flex-direction: column;
-    padding: 7px 0 0;
+    /*padding: 7px 0 0;*/
 }
 .grid-label {
     text-align: center;
@@ -508,14 +509,13 @@ body {
 .color-label {
     display: flex;
     flex-wrap: wrap;
-    column-gap:9px;
+    gap:12px;
 }
 
 .color-label h6 {
     font-size: 12px;
     font-weight: 700;
     color: #000;
-    margin: 0 0 13px 0;
     width: 100%;
     text-align: left;
 }
@@ -589,8 +589,8 @@ body {
     flex: 1;
     height: 26px;
     background: #e8e8e8;
-    border-top-right-radius: 7px;
-    border-bottom-right-radius: 7px;
+    border-top-right-radius: 30px;
+    border-bottom-right-radius: 30px;
     overflow: hidden;
 }
 .stack-chirt .bar {
@@ -605,32 +605,32 @@ body {
     color:#000000;
 }
 
-  .chirt-tooltip {
-        position: fixed;
-        padding: 10px 14px;
-        background: rgba(0, 0, 0, 0.90);
-        color: #fff;
-        font-size: 13px;
-        border-radius: 8px;
-        line-height: 1.4;
-        pointer-events: none;
-        opacity: 0;
-        transform: translateY(5px);
-        transition: opacity 0.15s ease, transform 0.15s ease;
-        z-index: 999999;
-        white-space: nowrap;
-        font-weight: 600;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
-
-    /* Color dot */
-    .chirt-tooltip .dot {
-        width: 10px;
-        height: 10px;
-        border-radius: 50%;
-        display: inline-block;
-    }
+.chirt-tooltip {
+    position: fixed;
+    padding: 10px 14px;
+    background: rgba(0, 0, 0, 0.90);
+    color: #fff;
+    font-size: 13px;
+    border-radius: 8px;
+    line-height: 1.4;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(5px);
+    transition: opacity 0.15s ease, transform 0.15s ease;
+    z-index: 999999;
+    white-space: nowrap;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+ 
+/* Color dot */
+.chirt-tooltip .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+}
 
 

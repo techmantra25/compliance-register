@@ -1,15 +1,12 @@
 <div>
-    <style>
-      
-
-
-
-    </style>
+    
     <section class="dash-wrapper">
         <div class="container">
 
-            <div class="row mb-4">
-                <div class="col-md-8 mb-4">
+            <div class="row mb-4 justify-content-center">
+                <div class="col-md-9">
+                    <div class="row">
+                        <div class="col-md-12 mb-4">
                     <div class="inner-wrapper">
                         <div class="title-head">Event Permission (District Level)</div>
                         <div class="wrappper-bpdy">
@@ -89,6 +86,8 @@
                             </div>
                             <a href="{{route('admin.dashboard')}}" class="btm-small blue-btm">Back to State Dashboard</a>
                         </div>
+                    </div>
+                </div>
                     </div>
                 </div>
             </div>

@@ -30,6 +30,7 @@ use App\Livewire\{
 use App\Livewire\Candidate\DocumentComments;
 use App\Http\Controllers\CandidateController;
 
+Route::middleware('site.down')->group(function () {
 /*
 |--------------------------------------------------------------------------
 | Language Switch Route
@@ -137,3 +138,5 @@ Route::post('/logout', function () {
     request()->session()->regenerateToken();
     return redirect('/login');
 })->name('admin.logout');
+
+});
