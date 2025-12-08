@@ -25,7 +25,8 @@ use App\Livewire\{
     UpdateProfile,
     RolePermissions,
     StarCampaignerCrud,
-    EventWiseDistrict
+    EventWiseDistrict,
+    MccViolationCrud
 };
 use App\Livewire\Candidate\DocumentComments;
 use App\Http\Controllers\CandidateController;
@@ -115,6 +116,10 @@ Route::prefix('/admin')->middleware('auth:admin')->group(function () {
         Route::get('/', CampaignCrud::class)->name('admin.campaigns')->middleware('employee.permission:campaign_view_campaign');
         Route::get('/permission/{campaign_id}', PermissionCampaignCrud::class)->name('admin.campaigns.permission')->middleware('employee.permission:campaign_campaign_permission');
         Route::get('/star-campaigner', StarCampaignerCrud::class)->name('admin.campaigns.star-campaigner');
+    });
+
+    Route::prefix('mcc-violation')->group(function (){
+        Route::get('/', MccViolationCrud::class)->name('admin.mcc_violation');
     });
 });
 
