@@ -24,4 +24,5 @@ class Phase extends Model
         return $this->belongsToMany(Assembly::class, 'phase_wise_assembly', 'phase_id', 'assembly_id');
     }
 
+
 }
