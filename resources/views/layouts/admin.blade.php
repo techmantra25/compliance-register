@@ -179,6 +179,47 @@
                     </div>
                 </li>
             @endif
+
+            {{-- @if(userAccess(Auth::guard('admin')->user()->id,'mcc_violation')) --}}
+                <li class="nav-item mb-2">
+                    <a class="nav-link d-flex justify-content-between align-items-center 
+                        {{ request()->is('admin/mcc*') ? 'active' : 'collapsed' }}"
+                        data-bs-toggle="collapse"
+                        href="#mccMenu"
+                        role="button"
+                        aria-expanded="{{ request()->is('admin/mcc*') ? 'true' : 'false' }}"
+                        aria-controls="mccMenu">
+
+                        <span><i class="bi bi-megaphone-fill me-2"></i> MCC Violation</span>
+                        <i class="bi bi-chevron-down small"></i>
+                    </a>
+
+                    <div class="collapse {{ request()->is('admin/mcc*') ? 'show' : '' }}" id="mccMenu">
+                        <ul class="nav flex-column ms-4 border-start ps-2 mt-1">
+                            {{-- @if(childUserAccess(Auth::guard('admin')->user()->id,'campaign_view_campaign')) --}}
+                                <li class="nav-item mb-1">
+                                    <a href="{{route('admin.mcc_violation')}}"
+                                    class="nav-link small {{ request()->routeIs('admin.mcc_violation') ? 'active' : '' }}">
+                                        <i class="bi bi-clipboard-data me-2"></i> List
+                                    </a>
+                                </li>
+                            {{-- @endif --}}
+                        </ul>
+                    </div>
+                    <div class="collapse {{ request()->is('admin/mcc*') ? 'show' : '' }}" id="mccMenu">
+                        <ul class="nav flex-column ms-4 border-start ps-2 mt-1">
+                            {{-- @if(childUserAccess(Auth::guard('admin')->user()->id,'campaign_view_campaigner')) --}}
+                                <li class="nav-item mb-1">
+                                    <a href=""
+                                    class="nav-link small {{ request()->routeIs('admin.mcc') ? 'active' : '' }}">
+                                        <i class="bi bi-star me-2"></i> Add MCC
+                                    </a>
+                                </li>
+                            {{-- @endif --}}
+                        </ul>
+                    </div>
+                </li>
+            {{-- @endif --}}
         </ul>
     </nav>
 

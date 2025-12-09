@@ -17,6 +17,7 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
         $middleware->alias([
             'employee.permission' => \App\Http\Middleware\EmployeePermission::class,
+             'site.down'   => \App\Http\Middleware\SiteDownMiddleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

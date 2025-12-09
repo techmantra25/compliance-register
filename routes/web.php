@@ -25,11 +25,13 @@ use App\Livewire\{
     UpdateProfile,
     RolePermissions,
     StarCampaignerCrud,
-    EventWiseDistrict
+    EventWiseDistrict,
+    MccViolationCrud
 };
 use App\Livewire\Candidate\DocumentComments;
 use App\Http\Controllers\CandidateController;
 
+Route::middleware('site.down')->group(function () {
 /*
 |--------------------------------------------------------------------------
 | Language Switch Route
@@ -115,6 +117,10 @@ Route::prefix('/admin')->middleware('auth:admin')->group(function () {
         Route::get('/permission/{campaign_id}', PermissionCampaignCrud::class)->name('admin.campaigns.permission')->middleware('employee.permission:campaign_campaign_permission');
         Route::get('/star-campaigner', StarCampaignerCrud::class)->name('admin.campaigns.star-campaigner');
     });
+
+    Route::prefix('mcc-violation')->group(function (){
+        Route::get('/', MccViolationCrud::class)->name('admin.mcc_violation');
+    });
 });
 
 /*
@@ -137,3 +143,5 @@ Route::post('/logout', function () {
     request()->session()->regenerateToken();
     return redirect('/login');
 })->name('admin.logout');
+
+});
