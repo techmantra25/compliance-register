@@ -239,6 +239,8 @@ class MccViolationCrud extends Component
         $this->search = '';
 
         $this->dispatch('refreshChosen'); 
+
+         $this->dispatch('clear-search-input');
     }
 
     public function filterCampaign($searchTerm)
@@ -382,10 +384,6 @@ class MccViolationCrud extends Component
             session()->flash('error', 'Import failed: ' . $e->getMessage());
         }
     }
-
-
-
-
     // public function render()
     // {
     //     return view('livewire.mcc-violation-crud', [
@@ -401,7 +399,6 @@ class MccViolationCrud extends Component
                 'assembly.assemblyPhase.phase',
             ])
 
-            // SEARCH
             ->when($this->search, function ($query) {
                 $query->where(function ($q) {
                     $q->where('block', "like", "%{$this->search}%")
@@ -417,7 +414,6 @@ class MccViolationCrud extends Component
                 });
             })
 
-            // FILTER BY ASSEMBLY
             ->when($this->filter_by_assembly, function ($q) {
                 $q->where('assembly_id', $this->filter_by_assembly);
             })

@@ -467,6 +467,13 @@
             document.body.style = "";
         });
     </script>
+
+    <script>
+        window.addEventListener('clear-search-input', () => {
+            const input = document.querySelector('input[wire\\:model="search"]');
+            if (input) input.value = '';
+        });
+    </script>
     @endpush
 </div>
 
