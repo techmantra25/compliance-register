@@ -121,11 +121,11 @@
                                                     <i class="bi bi-eye"></i>
                                                 </button>
                                             </div>
-                                            <p>Escalated To:{{$item->action_taken}}</p>
+                                            <p>Escalated To:{{ucwords($item->action_taken)}}</p>
                                         </td>
                                         <td>
                                             <select class="form-select form-select-sm"
-                                                    wire:change="changeStatus({{ $item->id }}, $event.target.value)">
+                                                wire:change="changeStatus({{ $item->id }}, $event.target.value)">
                                                 <option value="pending_to_process" {{ $item->status == 'pending_to_process' ? 'selected' : '' }}>
                                                     Pending to Process
                                                 </option>
@@ -226,7 +226,7 @@
 
                                 <div class="col-md-6 mb-3">
                                     <label>Complainer Name<span class="text-danger">*</span></label>
-                                    <textarea class="form-control" wire:model="complainer_name" placeholder="Enter Compaliner Name"></textarea>
+                                    <textarea class="form-control" wire:model="complainer_name" placeholder="Enter Complainer Name"></textarea>
                                     @error('complainer_name') <small class="text-danger">{{ $message }}</small> @enderror
                                 </div>
 
@@ -237,7 +237,7 @@
                                 </div>
 
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label">Complainer Description<span class="text-danger">*</span></label>
+                                    <label class="form-label">Complainer Description</label>
                                     <textarea class="form-control" wire:model="complainer_description" placeholder="Write your complain here"></textarea>
                                     @error('complainer_description') <small class="text-danger">{{ $message }}</small> @enderror
                                 </div>
@@ -457,6 +457,16 @@
         });
     </script>
 
+    <script>
+        window.addEventListener('closeActionTakenModal', () => {
+            let modal = bootstrap.Modal.getInstance(document.getElementById('openActionTakenModal'));
+            modal.hide();
+
+            document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+            document.body.classList.remove('modal-open');
+            document.body.style = "";
+        });
+    </script>
     @endpush
 </div>
 

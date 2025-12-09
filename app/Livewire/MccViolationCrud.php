@@ -17,7 +17,7 @@ class MccViolationCrud extends Component
     public $assembly;
     public $search = '';
     public $mccFile;
-    public $Status;
+    public $status;
     
     public $action_taken;
     public $selected_mcc_id;
@@ -130,7 +130,7 @@ class MccViolationCrud extends Component
             $this->resetInputFields();
 
         } catch (\Exception $e) {
-            dd($e->getMessage(), $e->getLine(), $e->getFile());
+           // dd($e->getMessage(), $e->getLine(), $e->getFile());
             $this->dispatch('toastr:error', message: 'Something went wrong while creating!');
         }
     }
@@ -181,6 +181,7 @@ class MccViolationCrud extends Component
         $mcc = Mcc::find($id);
 
         $this->action_taken = $mcc->action_taken ?? '';
+        $this->status = $mcc->status ?? 'pending_to_process';
 
         $this->dispatch('openActionTakenModal');
     }
@@ -214,16 +215,22 @@ class MccViolationCrud extends Component
 
         $this->dispatch('toastr:success', message: 'Escalation saved successfully');
 
-        $this->dispatch('openActionTakenModal');
+        $this->dispatch('closeActionTakenModal');
     }
 
-    public function changeStatus($id, $status)
+    public function changeStatus($id, $newStatus)
     {
         $mcc = Mcc::find($id);
-        $mcc->status = $status;
+
+        if (!$mcc) {
+            $this->dispatch('toastr:error', message: 'Record not found');
+            return;
+        }
+
+        $mcc->status = $newStatus;
         $mcc->save();
 
-        session()->flash('success', 'Status updated!');
+        $this->dispatch('toastr:success', message: 'Status updated successfully');
     }
 
     public function resetFilters()
