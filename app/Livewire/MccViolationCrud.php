@@ -183,7 +183,7 @@ class MccViolationCrud extends Component
         $this->action_taken = $mcc->action_taken ?? '';
         $this->status = $mcc->status ?? 'pending_to_process';
 
-        $this->dispatch('openActionTakenModal');
+        $this->dispatch('open-escalation-modal');
     }
 
     public function saveActionTaken()
@@ -215,7 +215,7 @@ class MccViolationCrud extends Component
 
         $this->dispatch('toastr:success', message: 'Escalation saved successfully');
 
-        $this->dispatch('closeActionTakenModal');
+        $this->dispatch('close-escalation-modal');
     }
 
     public function changeStatus($id, $newStatus)
