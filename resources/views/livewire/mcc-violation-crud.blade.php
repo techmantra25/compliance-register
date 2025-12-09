@@ -258,7 +258,7 @@
             </div>
         </div>
 
-        <div wire:ignore.self class="modal fade" id="openActionTakenModal" tabindex="-1" aria-labelledby="actionTakenModalLabel"
+        <div wire:ignore.self class="modal fade" id="escalationModal" tabindex="-1" aria-labelledby="actionTakenModalLabel"
             aria-hidden="true">
             <div class="modal-dialog modal-l"> 
                 <div class="modal-content">
@@ -440,6 +440,10 @@
 
             Livewire.on('close-escalation-modal', () => {
                 $("#escalationModal").modal('hide');
+
+                document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+                document.body.classList.remove('modal-open');
+                document.body.style = "";
             });
 
         });
@@ -454,24 +458,6 @@
             document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
             document.body.classList.remove('modal-open');
             document.body.style = "";
-        });
-    </script>
-
-    <script>
-        window.addEventListener('closeActionTakenModal', () => {
-            let modal = bootstrap.Modal.getInstance(document.getElementById('openActionTakenModal'));
-            modal.hide();
-
-            document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
-            document.body.classList.remove('modal-open');
-            document.body.style = "";
-        });
-    </script>
-
-    <script>
-        window.addEventListener('clear-search-input', () => {
-            const input = document.querySelector('input[wire\\:model="search"]');
-            if (input) input.value = '';
         });
     </script>
     @endpush
