@@ -118,7 +118,7 @@
                                                     title="Action Taken"
                                                     wire:click="openActionTakenModal({{ $item->id }})"
                                                     data-bs-toggle="modal" data-bs-target="#openActionTakenModal">
-                                                    <i class="bi bi-eye"></i>
+                                                    <i class="bi bi-incognito"></i>
                                                 </button>
                                             </div>
                                             <p>Escalated To:{{ucwords($item->action_taken)}}</p>
@@ -157,6 +157,13 @@
                                                     <i class="bi bi-pencil"></i>
                                                 </button>
                                                 {{-- @endif --}}
+                                            </div>
+                                            <div class="btn-group">
+                                                <a href="{{ route('admin.mcc_log_details', $item->id)}}"
+                                                    class="btn btn-sm btn-outline-primary"
+                                                    title="MCC Log">
+                                                    <i class="bi bi-person-lines-fill"></i>
+                                                </a>
                                             </div>
                                         </td>
                                     </tr>

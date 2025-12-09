@@ -198,6 +198,11 @@ class MccViolationCrud extends Component
             $this->dispatch('toastr:error', message: 'Record not found');
             return;
         }
+
+        $oldData = [
+            'action_taken' => $mcc->action_taken,
+            'status'       => $mcc->status,
+        ];
         $mcc->action_taken = $this->action_taken;
 
         if ($this->status == 'confirm_resolved') {
@@ -213,6 +218,22 @@ class MccViolationCrud extends Component
 
         $mcc->save();
 
+        $newData = [
+            'action_taken' => $mcc->action_taken,
+            'status'       => $mcc->status,
+        ];
+
+        ChangeLog::create([
+            'module_name'  => 'MCC',  
+            'module_id'    => $mcc->id,  
+            'action'       => 'Action Taken Updated',
+            'old_data'     => $oldData,
+            'new_data'     => $newData,
+            'changed_by'   => auth()->id(),
+            'ip_address'   => request()->ip(),
+            'user_agent'   => request()->header('User-Agent'),
+        ]);
+
         $this->dispatch('toastr:success', message: 'Escalation saved successfully');
 
         $this->dispatch('close-escalation-modal');
@@ -227,12 +248,30 @@ class MccViolationCrud extends Component
             return;
         }
 
+        $oldData = [
+            'status' => $mcc->status
+        ];
+
         $mcc->status = $newStatus;
         $mcc->save();
 
+        $newData = [
+            'status' => $newStatus
+        ];
+
+        ChangeLog::create([
+            'module_name'  => 'MCC',
+            'module_id'    => $mcc->id,
+            'action'       => 'Status Updated',
+            'old_data'     => $oldData,
+            'new_data'     => $newData,
+            'changed_by'   => auth()->id(),
+            'ip_address'   => request()->ip(),
+            'user_agent'   => request()->header('User-Agent'),
+        ]);
+
         $this->dispatch('toastr:success', message: 'Status updated successfully');
     }
-
     public function resetFilters()
     {
         $this->filter_by_assembly = '';

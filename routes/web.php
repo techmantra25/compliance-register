@@ -26,7 +26,8 @@ use App\Livewire\{
     RolePermissions,
     StarCampaignerCrud,
     EventWiseDistrict,
-    MccViolationCrud
+    MccViolationCrud,
+    MccLogDetails
 };
 use App\Livewire\Candidate\DocumentComments;
 use App\Http\Controllers\CandidateController;
@@ -120,6 +121,7 @@ Route::prefix('/admin')->middleware('auth:admin')->group(function () {
 
     Route::prefix('mcc-violation')->group(function (){
         Route::get('/', MccViolationCrud::class)->name('admin.mcc_violation');
+        Route::get('/log-details/{id}', MccLogDetails::class)->name('admin.mcc_log_details');
     });
 });
 
