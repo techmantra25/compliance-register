@@ -198,17 +198,22 @@ class MccViolationCrud extends Component
         }
         $mcc->action_taken = $this->action_taken;
 
-        if (!empty($mcc->action_taken)) {
-            $mcc->status = 'processed';
-        } else {
-            $mcc->status = 'pending_to_process';
+        if ($this->status == 'confirm_resolved') {
+            $mcc->status = 'confirm_resolved';
+        }
+        else{
+            if (!empty($mcc->action_taken)) {
+                $mcc->status = 'processed';
+            } else {
+                $mcc->status = 'pending_to_process';
+            }
         }
 
         $mcc->save();
 
         $this->dispatch('toastr:success', message: 'Escalation saved successfully');
 
-        $this->dispatch('close-escalation-modal');
+        $this->dispatch('openActionTakenModal');
     }
 
     public function changeStatus($id, $status)
@@ -238,6 +243,68 @@ class MccViolationCrud extends Component
         session()->forget(['success', 'error']);
     }
 
+    // public function saveMcc()
+    // {
+    //     $this->validate([
+    //         'mccFile' => 'required|file|mimes:csv,txt|max:2048'
+    //     ]);
+
+    //     try {
+
+    //         $path = $this->mccFile->getRealPath();
+    //         $file = fopen($path, 'r');
+
+    //         $header = fgetcsv($file);
+
+    //         $required = ['assembly_number', 'block', 'gp', 'complainer_name', 'complainer_phone', 'complainer_description'];
+
+    //         foreach ($required as $col) {
+    //             if (!in_array($col, $header)) {
+    //                 session()->flash('error', "Missing required column: <b>$col</b>");
+    //                 return;
+    //             }
+    //         }
+
+    //         while (($row = fgetcsv($file)) !== false) {
+
+    //             $data = array_combine($header, $row);
+
+    //             if (!preg_match('/^[0-9]{10}$/', $data['complainer_phone'])) {
+    //                 throw new \Exception("Complainer Phone must be EXACTLY 10 digits.");
+    //             }
+
+    //             $assembly = Assembly::where('assembly_number', $data['assembly_number'])->first();
+
+    //             if (!$assembly) {
+    //                 session()->flash('error', "Assembly number <b>{$data['assembly_number']}</b> does NOT exist in database!");
+    //                 fclose($file);
+    //                 return;
+    //             }
+
+    //             Mcc::create([
+    //                 'assembly_id'            => $assembly->id,
+    //                 'block'                  => $data['block'],
+    //                 'gp'                     => $data['gp'],
+    //                 'complainer_name'        => $data['complainer_name'],
+    //                 'complainer_phone'       => $data['complainer_phone'],
+    //                 'complainer_description' => $data['complainer_description'],
+    //             ]);
+    //         }
+
+    //         fclose($file);
+
+    //         session()->flash('success', 'MCC CSV uploaded successfully!');
+
+    //         $this->resetForm();
+
+    //         $this->dispatch('closeModal', id: 'importMccModal');
+
+    //     } catch (\Exception $e) {
+
+    //         session()->flash('error', 'Something went wrong: ' . $e->getMessage());
+    //     }
+    // }
+
     public function saveMcc()
     {
         $this->validate([
@@ -260,31 +327,43 @@ class MccViolationCrud extends Component
                 }
             }
 
+            $rows = [];
+            $line = 1;
+
             while (($row = fgetcsv($file)) !== false) {
+                $line++;
 
                 $data = array_combine($header, $row);
 
+                if (!preg_match('/^[0-9]{10}$/', $data['complainer_phone'])) {
+                    throw new \Exception("Row $line : Complainer Phone must be EXACTLY 10 digits.");
+                }
+
+            
                 $assembly = Assembly::where('assembly_number', $data['assembly_number'])->first();
 
                 if (!$assembly) {
-                    session()->flash('error', "Assembly number <b>{$data['assembly_number']}</b> does NOT exist in database!");
-                    fclose($file);
-                    return;
+                    throw new \Exception("Row $line : Assembly number <b>{$data['assembly_number']}</b> NOT found.");
                 }
 
-                Mcc::create([
+                $rows[] = [
                     'assembly_id'            => $assembly->id,
                     'block'                  => $data['block'],
                     'gp'                     => $data['gp'],
                     'complainer_name'        => $data['complainer_name'],
                     'complainer_phone'       => $data['complainer_phone'],
                     'complainer_description' => $data['complainer_description'],
-                ]);
+                    'created_at'             => now(),
+                    'updated_at'             => now()
+                ];
             }
 
             fclose($file);
 
-            session()->flash('success', 'MCC CSV uploaded successfully!');
+
+            Mcc::insert($rows);
+
+            session()->flash('success', 'MCC CSV uploaded successfully! ALL rows imported.');
 
             $this->resetForm();
 
@@ -292,9 +371,10 @@ class MccViolationCrud extends Component
 
         } catch (\Exception $e) {
 
-            session()->flash('error', 'Something went wrong: ' . $e->getMessage());
+            session()->flash('error', 'Import failed: ' . $e->getMessage());
         }
     }
+
 
 
 

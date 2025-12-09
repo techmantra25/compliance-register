@@ -133,7 +133,7 @@
                                                 <option value="processed" {{ $item->status == 'processed' ? 'selected' : '' }}>
                                                     Processed
                                                 </option>
-                                                <option value="resolved" {{ $item->status == 'resolved' ? 'selected' : '' }}>
+                                                <option value="confirm_resolved" {{ $item->status == 'confirm_resolved' ? 'selected' : '' }}>
                                                     Resolved
                                                 </option>
                                             </select>
@@ -141,7 +141,7 @@
                                             <span class="badge 
                                                 @if($item->status == 'pending_to_process') bg-warning
                                                 @elseif($item->status == 'processed') bg-info
-                                                @elseif($item->status == 'resolved') bg-success
+                                                @elseif($item->status == 'confirm_resolved') bg-success
                                                 @else bg-secondary
                                                 @endif
                                                 ">
@@ -215,32 +215,32 @@
                                 </div>
 
                                 <div class="col-md-6 mb-3">
-                                    <label>Block</label>
+                                    <label>Block<span class="text-danger">*</span></label>
                                     <textarea class="form-control" wire:model="block" placeholder="Enter blocks"></textarea>
                                     @error('block') <small class="text-danger">{{ $message }}</small> @enderror
                                 </div>
 
                                 <div class="col-md-6 mb-3">
-                                    <label>GP</label>
+                                    <label>GP<span class="text-danger">*</span></label>
                                     <textarea class="form-control" wire:model="gp" placeholder="Enter GP"></textarea>
                                     @error('gp') <small class="text-danger">{{ $message }}</small> @enderror
                                 </div>
 
                                 <div class="col-md-6 mb-3">
-                                    <label>Complainer Name</label>
+                                    <label>Complainer Name<span class="text-danger">*</span></label>
                                     <textarea class="form-control" wire:model="complainer_name" placeholder="Enter Compaliner Name"></textarea>
                                     @error('complainer_name') <small class="text-danger">{{ $message }}</small> @enderror
                                 </div>
 
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label">Complainer Phone</label>
+                                    <label class="form-label">Complainer Phone<span class="text-danger">*</span></label>
                                     <input type="number" class="form-control" wire:model="complainer_phone">
                                     @error('complainer_phone') <small class="text-danger">{{ $message }}</small> @enderror
                                 </div>
 
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label">Complainer Description</label>
-                                    <textarea class="form-control" wire:model="complainer_description" placeholder="Enter blocks"></textarea>
+                                    <label class="form-label">Complainer Description<span class="text-danger">*</span></label>
+                                    <textarea class="form-control" wire:model="complainer_description" placeholder="Write your complain here"></textarea>
                                     @error('complainer_description') <small class="text-danger">{{ $message }}</small> @enderror
                                 </div>
                             </div>
