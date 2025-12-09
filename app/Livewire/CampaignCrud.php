@@ -26,6 +26,7 @@ class CampaignCrud extends Component
     public $selected_campaign_id;
     public $rescheduled_at;
     public $selected_status;
+    public $old_selected_status;
     public $cancelled_remarks;
 
     public $filter_by_assembly = '';
@@ -214,9 +215,10 @@ class CampaignCrud extends Component
 
     public function statusChanged($id, $status)
     {
+        $Campaign = Campaign::find($id);
         $this->selected_campaign_id = $id;
         $this->selected_status = $status;
-
+        $this->old_selected_status = $Campaign->status;
         $this->rescheduled_at = null;
         $this->cancelled_remark = null;
 
@@ -226,6 +228,9 @@ class CampaignCrud extends Component
            // Campaign::where('id', $id)->update(['status' => $status]);
            $this->saveCampaignStatus();
         }
+    }
+    public function resetSelectField(){
+        return redirect()->route('admin.campaigns');
     }
 
 

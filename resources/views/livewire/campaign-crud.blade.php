@@ -167,10 +167,10 @@
                                     <td class="text-center">
 
                                         <div class="d-inline-block">
-                                            <select class="form-select form-select-sm shadow-sm border-0 rounded-pill px-3 
-                                                        text-center fw-semibold status-dropdown"
-                                                    wire:change="statusChanged({{ $camp->id }}, $event.target.value)"
-                                                    style="min-width:150px;">
+                                            <select wire:change="statusChanged({{ $camp->id }}, $event.target.value)"
+                                                    class="form-select form-select-sm shadow-sm border-0 rounded-pill px-3 text-center fw-semibold status-dropdown"
+                                                    style="min-width:150px;"
+                                                >
 
                                                 <option value="pending" 
                                                     @selected($camp->status == 'pending')>
@@ -272,15 +272,15 @@
                     </div>
 
                     @if($selected_status == 'rescheduled')
-                    <div class="modal-body">
-                        <label class="form-label">Rescheduled Date</label>
-                        <input type="datetime-local" wire:model="new_campaign_date" class="form-control"
-                        min="{{ now()->format('Y-m-d\TH:i') }}">
+                        <div class="modal-body">
+                            <label class="form-label">Rescheduled Date</label>
+                            <input type="datetime-local" wire:model="new_campaign_date" class="form-control"
+                            min="{{ now()->format('Y-m-d\TH:i') }}">
 
-                        @error('new_campaign_date')
-                            <small class="text-danger">{{ $message }}</small>
-                        @enderror
-                    </div>
+                            @error('new_campaign_date')
+                                <small class="text-danger">{{ $message }}</small>
+                            @enderror
+                        </div>
                     @endif
 
                     @if($selected_status == 'cancelled')
@@ -295,8 +295,7 @@
                     @endif
 
                     <div class="modal-footer">
-                        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-
+                        <button class="btn btn-secondary" data-bs-dismiss="modal" wire:click="resetSelectField()">Cancel</button>
                         <button class="btn btn-primary" wire:click="saveCampaignStatus">
                             Save
                         </button>
@@ -557,6 +556,11 @@
     <script>
         window.addEventListener('refreshChosen', () => {
             $('.chosen-select').val('').trigger('chosen:updated');
+        });
+        document.addEventListener('DOMContentLoaded', function () {
+            $('#RescheduleModal').on('hidden.bs.modal', function () {
+                location.reload(); // reloads page without backend redirect
+            });
         });
     </script>
     @endpush
