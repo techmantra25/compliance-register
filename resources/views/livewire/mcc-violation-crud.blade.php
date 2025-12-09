@@ -38,8 +38,7 @@
                 </button>
                 {{-- @endif --}}
                 {{-- @if(childUserAccess(Auth::guard('admin')->user()->id,'campaign_add_campaign')) --}}
-                <button class="btn btn-primary btn-sm" wire:click="openMccModal" data-bs-toggle="modal"
-                    data-bs-target="#mccModal">
+                <button class="btn btn-primary btn-sm" wire:click="openMccModal">
                     <i class="bi bi-plus-circle me-1"></i> Add MCC
                 </button>
                 {{-- @endif --}}
@@ -154,8 +153,7 @@
                                                 {{-- @if(childUserAccess(Auth::guard('admin')->user()->id,'campaign_update_campaign')) --}}
                                                 <button class="btn btn-sm btn-outline-primary"
                                                     title="Edit Campaign"
-                                                    wire:click="edit({{ $item->id }})"
-                                                    data-bs-toggle="modal" data-bs-target="#mccModal">
+                                                    wire:click="edit({{ $item->id }})">
                                                     <i class="bi bi-pencil"></i>
                                                 </button>
                                                 {{-- @endif --}}
@@ -417,12 +415,17 @@
                 $(".chosen-select").trigger("chosen:updated");
             });
 
-            Livewire.on('modelHide', () => {
-                $("#mccModal").modal('hide');
-            });
-
             Livewire.on('open-edit-modal', () => {
                 $("#mccModal").modal('show');
+            });
+
+            Livewire.on('modelHide', () => {
+                $("#mccModal").modal('hide');
+
+                // Cleanup leftover backdrop
+                document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+                document.body.classList.remove('modal-open');
+                document.body.style = "";
             });
         });
 
@@ -446,6 +449,11 @@
         window.addEventListener('closeModal', event => {
             var modal = bootstrap.Modal.getInstance(document.getElementById(event.detail.id));
             modal.hide();
+
+            // Fix leftover backdrop
+            document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+            document.body.classList.remove('modal-open');
+            document.body.style = "";
         });
     </script>
 

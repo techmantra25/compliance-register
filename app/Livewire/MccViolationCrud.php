@@ -56,6 +56,7 @@ class MccViolationCrud extends Component
         $this->isEdit = false;
 
         $this->dispatch('refreshChosen');
+        $this->dispatch('open-edit-modal'); 
     }
 
     public function resetInputFields()
@@ -91,7 +92,7 @@ class MccViolationCrud extends Component
         $this->isEdit = true;
 
         $this->dispatch('refreshChosen');
-        $this->dispatch('mccModal');
+        $this->dispatch('open-edit-modal');
     }
 
     public function save()
@@ -125,7 +126,7 @@ class MccViolationCrud extends Component
             ]);
 
             $this->dispatch('toastr:success', message: 'MCC created successfully!');
-            $this->dispatch('modelHide');
+            $this->dispatch('closeModal', id: 'mccModal');
             $this->resetInputFields();
 
         } catch (\Exception $e) {
