@@ -114,25 +114,37 @@
                                         <td>{{ $item->created_at->format('d-m-Y h:i A') }}</td>
                                         <td class="text-center">
                                             <div class="btn-group">
-                                                <button class="btn btn-sm btn-outline-primary"
-                                                    title="Action Taken"
-                                                    wire:click="openActionTakenModal({{ $item->id }})"
-                                                    data-bs-toggle="modal" data-bs-target="#openActionTakenModal">
-                                                    <i class="bi bi-eye"></i>
-                                                </button>
+                                                @if(empty($item->action_taken))
+                                                    <button class="btn btn-sm btn-outline-primary"
+                                                        title="Action Taken"
+                                                        wire:click="openActionTakenModal({{ $item->id }})"
+                                                        data-bs-toggle="modal" data-bs-target="#openActionTakenModal">
+                                                        Escalated To:
+                                                    </button>
+                                                @else
+                                                    <button class="btn btn-sm btn-success"
+                                                        title="Action Taken">
+                                                        Escalated To: {{ ucwords($item->action_taken) }}
+                                                    </button>
+                                                @endif
                                             </div>
-                                            <p>Escalated To:{{ucwords($item->action_taken)}}</p>
                                         </td>
                                         <td>
                                             <select class="form-select form-select-sm"
-                                                wire:change="changeStatus({{ $item->id }}, $event.target.value)">
-                                                <option value="pending_to_process" {{ $item->status == 'pending_to_process' ? 'selected' : '' }}>
+                                                wire:change="changeStatus({{ $item->id }}, $event.target.value)"
+                                                @if($item->status == 'pending_to_process' || $item->status == 'confirm_resolved') disabled @endif >
+
+                                                <option value="pending_to_process"
+                                                    {{ $item->status == 'pending_to_process' ? 'selected' : '' }}>
                                                     Pending to Process
                                                 </option>
-                                                <option value="processed" {{ $item->status == 'processed' ? 'selected' : '' }}>
+                                                <option value="processed"
+                                                    {{ $item->status == 'processed' ? 'selected' : '' }}
+                                                    @if($item->status == 'confirm_resolved') disabled @endif>
                                                     Processed
                                                 </option>
-                                                <option value="confirm_resolved" {{ $item->status == 'confirm_resolved' ? 'selected' : '' }}>
+                                                <option value="confirm_resolved"
+                                                    {{ $item->status == 'confirm_resolved' ? 'selected' : '' }}>
                                                     Resolved
                                                 </option>
                                             </select>
@@ -146,6 +158,9 @@
                                                 ">
                                                 {{ ucwords(str_replace('_',' ', $item->status)) }}
                                             </span>
+                                            <div class="mt-1">
+                                                <small class="text-muted d-block">Remarks: {{ $item->remarks ?? 'N/A' }}</small>
+                                            </div>
                                         </td>
                                         <td class="text-center">
                                             <div class="btn-group">
@@ -342,6 +357,31 @@
                 </div>
             </div>
         </div>
+        <div wire:ignore.self class="modal fade" id="resolveModal" tabindex="-1">
+            <div class="modal-dialog modal-md">
+                <div class="modal-content">
+
+                    <div class="modal-header">
+                        <h5 class="modal-title">Status: Resolved</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+
+                    <div class="modal-body">
+                        <label>Remarks <span class="text-danger"></span></label>
+                        <textarea class="form-control" wire:model="remarks" rows="4"
+                            placeholder="Enter remarks here..."></textarea>
+                        @error('remarks') <small class="text-danger">{{ $message }}</small> @enderror
+                    </div>
+
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                        <button class="btn btn-success btn-sm" wire:click="saveResolution">Save</button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
 
 
     <div class="loader-container" wire:loading wire:target="save,openCampaignModal">
@@ -444,6 +484,7 @@
                 document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
                 document.body.classList.remove('modal-open');
                 document.body.style = "";
+                document.querySelector('#resolveModal input[type="text"]').value = '';
             });
 
         });
@@ -465,6 +506,25 @@
         window.addEventListener('clear-search-input', () => {
             const input = document.querySelector('input[wire\\:model="search"]');
             if (input) input.value = '';
+        });
+    </script>
+    <script>
+        document.addEventListener('livewire:init', () => {
+
+            Livewire.on('open-resolve-modal', () => {
+                $("#resolveModal").modal('show');
+            });
+
+            Livewire.on('close-resolve-modal', () => {
+
+                $("#resolveModal").modal('hide');
+
+                document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+                document.body.classList.remove('modal-open');
+                document.body.style = "";
+                document.querySelector('#resolveModal textarea').value = '';
+            });
+
         });
     </script>
 

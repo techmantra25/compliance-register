@@ -18,6 +18,8 @@ class MccViolationCrud extends Component
     public $search = '';
     public $mccFile;
     public $status;
+    public $selectedId;
+    public $remarks;
     
     public $action_taken;
     public $selected_mcc_id;
@@ -227,10 +229,46 @@ class MccViolationCrud extends Component
             return;
         }
 
+         // Restrict status change
+        if ($mcc->status == 'pending_to_process') {
+            $this->dispatch('toastr:error', message: 'Status cannot be changed from Pending to Process');
+            return;
+        }
+
+        if ($mcc->status == 'processed' && $newStatus == 'pending_to_process') {
+            $this->dispatch('toastr:error', message: 'Cannot move back to Pending to Process');
+            return;
+        }
+
+        if ($mcc->status == 'confirm_resolved') {
+            $this->dispatch('toastr:error', message: 'Resolved status cannot be changed');
+            return;
+        }
+
+        if ($newStatus == 'confirm_resolved') {
+            $this->selectedId = $id;
+            $this->reset('remarks');
+
+            // open modal
+            $this->dispatch('open-resolve-modal');
+            return;
+        }
+
         $mcc->status = $newStatus;
         $mcc->save();
 
         $this->dispatch('toastr:success', message: 'Status updated successfully');
+    }
+
+    public function saveResolution()
+    {
+        $mcc = Mcc::find($this->selectedId);
+        $mcc->status = 'confirm_resolved';
+        $mcc->remarks = $this->remarks;
+        $mcc->save();
+
+        $this->dispatch('close-resolve-modal');
+        $this->dispatch('toastr:success', message: 'Resolved successfully');
     }
 
     public function resetFilters()
@@ -417,7 +455,7 @@ class MccViolationCrud extends Component
             ->when($this->filter_by_assembly, function ($q) {
                 $q->where('assembly_id', $this->filter_by_assembly);
             })
-
+            ->orderBy('id', 'DESC') 
             ->paginate(20);
 
         return view('livewire.mcc-violation-crud', [
