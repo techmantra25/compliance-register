@@ -32,16 +32,16 @@
                 </ol>
             </div>
             <div>
-                @if(childUserAccess(Auth::guard('admin')->user()->id,'mcc_import_mcc'))
+                {{-- @if(childUserAccess(Auth::guard('admin')->user()->id,'campaign_import_campaigner')) --}}
                 <button class="btn btn-secondary btn-sm me-2" data-bs-toggle="modal" data-bs-target="#importMccModal">
                     <i class="bi bi-upload me-1"></i> Import MCC
                 </button>
-                @endif
-                @if(childUserAccess(Auth::guard('admin')->user()->id,'mcc_add_mcc'))
+                {{-- @endif --}}
+                {{-- @if(childUserAccess(Auth::guard('admin')->user()->id,'campaign_add_campaign')) --}}
                 <button class="btn btn-primary btn-sm" wire:click="openMccModal">
                     <i class="bi bi-plus-circle me-1"></i> Add MCC
                 </button>
-                @endif
+                {{-- @endif --}}
             </div>
         </div>
 
@@ -114,20 +114,18 @@
                                         <td>{{ $item->created_at->format('d-m-Y h:i A') }}</td>
                                         <td class="text-center">
                                             <div class="btn-group">
-                                                @if(childUserAccess(Auth::guard('admin')->user()->id,'mcc_action_taken_and_status'))
-                                                    @if(empty($item->action_taken))
-                                                        <button class="btn btn-sm btn-outline-primary"
-                                                            title="Action Taken"
-                                                            wire:click="openActionTakenModal({{ $item->id }})"
-                                                            data-bs-toggle="modal" data-bs-target="#openActionTakenModal">
-                                                            Escalated To:
-                                                        </button>
-                                                    @else
-                                                        <button class="btn btn-sm btn-success"
-                                                            title="Action Taken">
-                                                            Escalated To: {{ ucwords($item->action_taken) }}
-                                                        </button>
-                                                    @endif
+                                                @if(empty($item->action_taken))
+                                                    <button class="btn btn-sm btn-outline-primary"
+                                                        title="Action Taken"
+                                                        wire:click="openActionTakenModal({{ $item->id }})"
+                                                        data-bs-toggle="modal" data-bs-target="#openActionTakenModal">
+                                                        Escalated To:
+                                                    </button>
+                                                @else
+                                                    <button class="btn btn-sm btn-success"
+                                                        title="Action Taken">
+                                                        Escalated To: {{ ucwords($item->action_taken) }}
+                                                    </button>
                                                 @endif
                                             </div>
                                         </td>
@@ -161,28 +159,19 @@
                                                 {{ ucwords(str_replace('_',' ', $item->status)) }}
                                             </span>
                                             <div class="mt-1">
-                                                <small class="text-muted d-block">Remarks: {{ ucwords($item->remarks) ?? 'N/A' }}</small>
+                                                <small class="text-muted d-block">Remarks: {{ $item->remarks ?? 'N/A' }}</small>
                                             </div>
                                         </td>
                                         <td class="text-center">
                                             <div class="btn-group">
                                                 <!-- Edit -->
-                                                @if(childUserAccess(Auth::guard('admin')->user()->id,'mcc_update_mcc'))
+                                                {{-- @if(childUserAccess(Auth::guard('admin')->user()->id,'campaign_update_campaign')) --}}
                                                 <button class="btn btn-sm btn-outline-primary"
-                                                    title="Edit MCC"
+                                                    title="Edit Campaign"
                                                     wire:click="edit({{ $item->id }})">
                                                     <i class="bi bi-pencil"></i>
                                                 </button>
-                                                @endif
-                                            </div>
-                                            <div class="btn-group">
-                                                @if(childUserAccess(Auth::guard('admin')->user()->id,'mcc_view_mcc_log'))
-                                                <a href="{{ route('admin.mcc_log_details', $item->id)}}"
-                                                    class="btn btn-sm btn-outline-primary"
-                                                    title="MCC Log">
-                                                    <i class="bi bi-person-lines-fill"></i>
-                                                </a>
-                                                @endif
+                                                {{-- @endif --}}
                                             </div>
                                         </td>
                                     </tr>
@@ -208,7 +197,7 @@
 
         <!-- Form -->
         <div wire:ignore.self class="modal fade" id="mccModal" tabindex="-1" aria-labelledby="mccModalLabel"
-            aria-hidden="true" style="background: rgba(0,0,0,0.5);">
+        aria-hidden="true" style="background: rgba(0,0,0,0.5);">
             <div class="modal-dialog modal-xl">
                 <div class="modal-content">
 
@@ -252,7 +241,7 @@
 
                                 <div class="col-md-6 mb-3">
                                     <label>Complainer Name<span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" wire:model="complainer_name" placeholder="Enter Complainer Name">
+                                    <textarea class="form-control" wire:model="complainer_name" placeholder="Enter Complainer Name"></textarea>
                                     @error('complainer_name') <small class="text-danger">{{ $message }}</small> @enderror
                                 </div>
 
@@ -312,6 +301,7 @@
             <div class="modal-dialog modal-lg modal-dialog-centered">
                 <div class="modal-content border-0 shadow-lg rounded-3">
 
+                    <!-- Modal Header -->
                     <div class="modal-header bg-primary text-white">
                         <h5 class="modal-title" id="uploadcampaignerModalLabel">Upload MCC</h5>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"
@@ -476,11 +466,6 @@
                 document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
                 document.body.classList.remove('modal-open');
                 document.body.style = "";
-                document.querySelectorAll('#mccModal input[type="text"]').forEach(el => el.value = '');
-                document.querySelectorAll('#mccModal input[type="number"]').forEach(el => el.value = '');
-                document.querySelectorAll('#mccModal textarea').forEach(el => el.value = '');
-
-                $('#mccModal .chosen-select').val('').trigger('chosen:updated');
             });
         });
 
@@ -502,6 +487,18 @@
                 document.querySelector('#resolveModal input[type="text"]').value = '';
             });
 
+        });
+    </script>
+
+    <script>
+        window.addEventListener('closeModal', event => {
+            var modal = bootstrap.Modal.getInstance(document.getElementById(event.detail.id));
+            modal.hide();
+
+            // Fix leftover backdrop
+            document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+            document.body.classList.remove('modal-open');
+            document.body.style = "";
         });
     </script>
 
