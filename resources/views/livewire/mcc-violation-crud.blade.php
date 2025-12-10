@@ -207,7 +207,7 @@
 
 
         <!-- Form -->
-        <div wire:ignore.self class="modal fade" id="mccModal" tabindex="-1" aria-labelledby="mccModalLabel"
+        <div wire:ignore class="modal fade" id="mccModal" tabindex="-1" aria-labelledby="mccModalLabel"
             aria-hidden="true" style="background: rgba(0,0,0,0.5);">
             <div class="modal-dialog modal-xl">
                 <div class="modal-content">
@@ -284,7 +284,7 @@
             </div>
         </div>
 
-        <div wire:ignore.self class="modal fade" id="escalationModal" tabindex="-1" aria-labelledby="actionTakenModalLabel"
+        <div wire:ignore class="modal fade" id="escalationModal" tabindex="-1" aria-labelledby="actionTakenModalLabel"
             aria-hidden="true">
             <div class="modal-dialog modal-l"> 
                 <div class="modal-content">
@@ -307,7 +307,7 @@
             </div>
         </div>
 
-        <div wire:ignore.self class="modal fade" id="importMccModal" tabindex="-1"
+        <div wire:ignore class="modal fade" id="importMccModal" tabindex="-1"
             aria-labelledby="importMccModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-lg modal-dialog-centered">
                 <div class="modal-content border-0 shadow-lg rounded-3">
@@ -367,7 +367,7 @@
                 </div>
             </div>
         </div>
-        <div wire:ignore.self class="modal fade" id="resolveModal" tabindex="-1">
+        <div wire:ignore class="modal fade" id="resolveModal" tabindex="-1">
             <div class="modal-dialog modal-md">
                 <div class="modal-content">
 
@@ -391,8 +391,6 @@
                 </div>
             </div>
         </div>
-
-
 
     <div class="loader-container" wire:loading wire:target="save,openCampaignModal">
         <div class="loader"></div>
