@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class MCC extends Model
+class Mcc extends Model
 
 {
    protected $table = 'mcc';

@@ -6,7 +6,6 @@ use Livewire\Component;
 use App\Models\Mcc;
 use App\Models\ChangeLog;
 
-
 class MccLogDetails extends Component
 {
     public $mcc;
@@ -23,6 +22,9 @@ class MccLogDetails extends Component
 
         $this->timeline = $logs->map(function ($log) {
 
+            $log->old_data = is_string($log->old_data) ? json_decode($log->old_data, true) : ($log->old_data ?? []);
+            $log->new_data = is_string($log->new_data) ? json_decode($log->new_data, true) : ($log->new_data ?? []);
+
             return [
                 'title'        => ucfirst($log->action),
                 'details'      => $this->formatDetails($log),
@@ -38,27 +40,37 @@ class MccLogDetails extends Component
 
     private function formatDetails($log)
     {
-        $old = $log->old_data ?? [];
-        $new = $log->new_data ?? [];
+        $action = strtolower($log->action);
 
-        $html = "";
-
-        foreach ($new as $key => $value) {
-            $oldValue = $old[$key] ?? '-';
-
-            $html .= "
-                <div>
-                    <strong>" . ucwords(str_replace('_', ' ', $key)) . "</strong>:
-                    <span class='text-danger'>{$oldValue}</span>
-                    <i class='bi bi-arrow-right'></i>
-                    <span class='text-success'>{$value}</span>
-                </div>
-            ";
+        if (in_array($action, ['insert', 'update'])) {
+            return "<p>{$log->description}</p>";
         }
 
-        return $html;
-    }
+        if ($action === 'status change' || $action === 'action taken') {
+            $old = is_array($log->old_data) ? $log->old_data : ($log->old_data ? json_decode($log->old_data, true) : []);
+            $new = is_array($log->new_data) ? $log->new_data : ($log->new_data ? json_decode($log->new_data, true) : []);
 
+            $html = "";
+
+            foreach ($new as $key => $value) {
+                $oldValue = $old[$key] ?? '-';
+                if ($oldValue == $value) continue;
+
+                $html .= "
+                    <div class='mb-1'>
+                        <strong>".ucwords(str_replace('_',' ', $key))."</strong>:
+                        <span class='text-danger'>{$oldValue}</span>
+                        <i class='bi bi-arrow-right mx-1'></i>
+                        <span class='text-success'>{$value}</span>
+                    </div>
+                ";
+            }
+
+            return $html ?: "<p>{$log->description}</p>";
+        }
+
+        return "<p>{$log->description}</p>";
+    }
 
     private function getBadgeColor($action)
     {

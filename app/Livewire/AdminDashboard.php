@@ -22,6 +22,7 @@ class AdminDashboard extends Component
     public $appliedAwaitingApproval;
     public $approvedCopyReceived;
     public $cancelledOrRescheduled;
+    public $phaseWiseStatus;
 
     public function mount()
     {
@@ -112,8 +113,25 @@ class AdminDashboard extends Component
             ];
 
         }
-    }
 
+        $phases = Phase::with(['assemblies.mcc'])->get();
+
+        $phaseWiseStatus = [];
+
+        foreach ($phases as $phase) {
+
+            $mcc = $phase->assemblies->flatMap(function ($asm) {
+                return $asm->mcc; 
+            });
+
+            $phaseWiseStatus[$phase->id] = [
+                'pending_to_processed' => $mcc->where('status', 'pending_to_process')->count(),
+                'processed'            => $mcc->where('status', 'processed')->count(),
+                'confirm_resolved'     => $mcc->where('status', 'confirm_resolved')->count(),
+            ];
+        }
+        $this->phaseWiseStatus = $phaseWiseStatus; 
+    }
 
     public function render()
     {

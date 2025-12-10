@@ -78,7 +78,7 @@
                         </div>
                         <div class="col-md-4 mb-2">
                             <strong class="d-block text-muted">Block:</strong>
-                            <span class="text-dark">{{ $mcc->block }}</span>
+                            <span class="text-dark">{{ ucwords($mcc->block) }}</span>
                         </div>
                         <div class="col-md-4 mb-2">
                             <strong class="d-block text-muted">Status:</strong>

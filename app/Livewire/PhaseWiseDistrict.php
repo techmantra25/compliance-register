@@ -108,16 +108,11 @@ class PhaseWiseDistrict extends Component
                     'applied_awaiting' => $appliedAwaiting,
                     'approved_received' => $approved,
                 ];
-                //dd($campaignStats);
             }
         }
-
-        // Save results
         $this->districtChart = $districtStats;
         $this->campaignChart = $campaignStats;
     }
-
-
 
     public function render()
     {

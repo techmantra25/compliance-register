@@ -27,7 +27,8 @@ use App\Livewire\{
     StarCampaignerCrud,
     EventWiseDistrict,
     MccViolationCrud,
-    MccLogDetails
+    MccLogDetails,
+    PhaseWiseMcc
 };
 use App\Livewire\Candidate\DocumentComments;
 use App\Http\Controllers\CandidateController;
@@ -83,6 +84,7 @@ Route::prefix('/admin')->middleware('auth:admin')->group(function () {
     Route::get('/dashboard', AdminDashboard::class)->name('admin.dashboard');
     Route::get('/update/profile', UpdateProfile::class)->name('admin.update.profile');
     Route::get('phase/{phaseId}/district', PhaseWiseDistrict::class)->name('admin.phasewise.district');
+    Route::get('phase/{phaseId}/mcc', PhaseWiseMcc::class)->name('admin.phasewise.mcc');
     Route::get('/eventwise/district', EventWiseDistrict::class)->name('admin.eventwise.district');
 
 

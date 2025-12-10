@@ -123,10 +123,9 @@
                     
                     bar.addEventListener("mousemove", e => {
 
-                        let text = bar.dataset.tooltip;  // Already contains label + %
-                        let color = bar.dataset.color;  // Background color of bar
-                        let count = bar.innerText.trim(); // Count inside the bar
-
+                        let text = bar.dataset.tooltip;  
+                        let color = bar.dataset.color;  
+                        let count = bar.innerText.trim(); 
                         tooltip.innerHTML = `
                             <span class="dot" style="background:${color}"></span>
                             <div>

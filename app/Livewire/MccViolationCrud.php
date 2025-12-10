@@ -6,7 +6,7 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\WithFileUploads;
 use App\Models\Assembly;
-use App\Models\MCC;
+use App\Models\Mcc;
 use App\Models\ChangeLog;
 
 class MccViolationCrud extends Component
@@ -18,6 +18,8 @@ class MccViolationCrud extends Component
     public $search = '';
     public $mccFile;
     public $status;
+    public $selectedId;
+    public $remarks;
     
     public $action_taken;
     public $selected_mcc_id;
@@ -57,6 +59,7 @@ class MccViolationCrud extends Component
 
         $this->dispatch('refreshChosen');
         $this->dispatch('open-edit-modal'); 
+        $this->dispatch('open-mcc-modal');
     }
 
     public function resetInputFields()
@@ -79,7 +82,7 @@ class MccViolationCrud extends Component
     {
         $this->resetErrorBag();
 
-        $mcc = MCC::findOrFail($id);
+        $mcc = Mcc::findOrFail($id);
 
         $this->mcc_id = $mcc->id;
         $this->assembly_id = $mcc->assembly_id;
@@ -105,7 +108,7 @@ class MccViolationCrud extends Component
         $this->validate();
 
         try {
-            $mcc = MCC::create([
+            $mcc = Mcc::create([
                 'assembly_id' => $this->assembly_id,
                 'block' => $this->block,
                 'gp' => $this->gp,
@@ -116,8 +119,9 @@ class MccViolationCrud extends Component
 
             ChangeLog::create([
                 'module_name' => 'mcc',
+                'module_id'    => $mcc->id,
                 'action' => 'inserted',
-                'description' => 'New MCC created',
+                'description' => 'MCC created Successfully',
                 'old_data' => $mcc->toArray(),
                 'new_data' => $mcc->toArray(),
                 'changed_by' => auth()->id(),
@@ -130,7 +134,6 @@ class MccViolationCrud extends Component
             $this->resetInputFields();
 
         } catch (\Exception $e) {
-           // dd($e->getMessage(), $e->getLine(), $e->getFile());
             $this->dispatch('toastr:error', message: 'Something went wrong while creating!');
         }
     }
@@ -140,7 +143,7 @@ class MccViolationCrud extends Component
         $this->validate();
 
         try {
-            $mcc = MCC::findOrFail($this->mcc_id);
+            $mcc = Mcc::findOrFail($this->mcc_id);
 
             $old = $mcc->toArray();
 
@@ -157,8 +160,9 @@ class MccViolationCrud extends Component
 
             ChangeLog::create([
                 'module_name' => 'mcc',
+                'module_id'    => $mcc->id,
                 'action' => 'updated',
-                'description' => 'MCC updated',
+                'description' => 'MCC updated Successfully',
                 'old_data' => $old,
                 'new_data' => $new,
                 'changed_by' => auth()->id(),
@@ -224,9 +228,10 @@ class MccViolationCrud extends Component
         ];
 
         ChangeLog::create([
-            'module_name'  => 'MCC',  
+            'module_name'  => 'mcc',  
             'module_id'    => $mcc->id,  
             'action'       => 'Action Taken Updated',
+            'description' => 'Action Taken Updated Successfully',
             'old_data'     => $oldData,
             'new_data'     => $newData,
             'changed_by'   => auth()->id(),
@@ -248,6 +253,29 @@ class MccViolationCrud extends Component
             return;
         }
 
+        if ($mcc->status == 'pending_to_process') {
+            $this->dispatch('toastr:error', message: 'Status cannot be changed from Pending to Process');
+            return;
+        }
+
+        if ($mcc->status == 'processed' && $newStatus == 'pending_to_process') {
+            $this->dispatch('toastr:error', message: 'Cannot move back to Pending to Process');
+            return;
+        }
+
+        if ($mcc->status == 'confirm_resolved') {
+            $this->dispatch('toastr:error', message: 'Resolved status cannot be changed');
+            return;
+        }
+
+        if ($newStatus == 'confirm_resolved') {
+            $this->selectedId = $id;
+            $this->reset('remarks');
+
+            $this->dispatch('open-resolve-modal');
+            return;
+        }
+
         $oldData = [
             'status' => $mcc->status
         ];
@@ -260,9 +288,10 @@ class MccViolationCrud extends Component
         ];
 
         ChangeLog::create([
-            'module_name'  => 'MCC',
+            'module_name'  => 'mcc',
             'module_id'    => $mcc->id,
             'action'       => 'Status Updated',
+            'description' => 'Status updated Successfully',
             'old_data'     => $oldData,
             'new_data'     => $newData,
             'changed_by'   => auth()->id(),
@@ -272,6 +301,48 @@ class MccViolationCrud extends Component
 
         $this->dispatch('toastr:success', message: 'Status updated successfully');
     }
+
+    public function saveResolution()
+    {
+        $mcc = Mcc::find($this->selectedId);
+
+        if (!$mcc) {
+            $this->dispatch('toastr:error', message: 'Record not found');
+            return;
+        }
+        $oldData = [
+            'status'  => $mcc->status,
+            'remarks' => $mcc->remarks,
+        ];
+
+        $newStatus = 'confirm_resolved';
+
+        $mcc->status = $newStatus;
+        $mcc->remarks = $this->remarks;
+        $mcc->save();
+
+        $newData = [
+            'status'  => $newStatus,
+            'remarks' => $this->remarks,
+        ];
+
+        ChangeLog::create([
+            'module_name'  => 'mcc',
+            'module_id'    => $mcc->id,
+            'action'       => 'Status Change',
+            'description'  => 'MCC resolved successfully',
+            'old_data'     => json_encode($oldData),
+            'new_data'     => json_encode($newData),
+            'changed_by'   => auth()->id(),
+            'ip_address'   => request()->ip(),
+            'user_agent'   => request()->header('User-Agent'),
+        ]);
+
+        $this->dispatch('close-resolve-modal');
+        $this->dispatch('toastr:success', message: 'Resolved successfully');
+    }
+
+
     public function resetFilters()
     {
         $this->filter_by_assembly = '';
@@ -292,67 +363,6 @@ class MccViolationCrud extends Component
         session()->forget(['success', 'error']);
     }
 
-    // public function saveMcc()
-    // {
-    //     $this->validate([
-    //         'mccFile' => 'required|file|mimes:csv,txt|max:2048'
-    //     ]);
-
-    //     try {
-
-    //         $path = $this->mccFile->getRealPath();
-    //         $file = fopen($path, 'r');
-
-    //         $header = fgetcsv($file);
-
-    //         $required = ['assembly_number', 'block', 'gp', 'complainer_name', 'complainer_phone', 'complainer_description'];
-
-    //         foreach ($required as $col) {
-    //             if (!in_array($col, $header)) {
-    //                 session()->flash('error', "Missing required column: <b>$col</b>");
-    //                 return;
-    //             }
-    //         }
-
-    //         while (($row = fgetcsv($file)) !== false) {
-
-    //             $data = array_combine($header, $row);
-
-    //             if (!preg_match('/^[0-9]{10}$/', $data['complainer_phone'])) {
-    //                 throw new \Exception("Complainer Phone must be EXACTLY 10 digits.");
-    //             }
-
-    //             $assembly = Assembly::where('assembly_number', $data['assembly_number'])->first();
-
-    //             if (!$assembly) {
-    //                 session()->flash('error', "Assembly number <b>{$data['assembly_number']}</b> does NOT exist in database!");
-    //                 fclose($file);
-    //                 return;
-    //             }
-
-    //             Mcc::create([
-    //                 'assembly_id'            => $assembly->id,
-    //                 'block'                  => $data['block'],
-    //                 'gp'                     => $data['gp'],
-    //                 'complainer_name'        => $data['complainer_name'],
-    //                 'complainer_phone'       => $data['complainer_phone'],
-    //                 'complainer_description' => $data['complainer_description'],
-    //             ]);
-    //         }
-
-    //         fclose($file);
-
-    //         session()->flash('success', 'MCC CSV uploaded successfully!');
-
-    //         $this->resetForm();
-
-    //         $this->dispatch('closeModal', id: 'importMccModal');
-
-    //     } catch (\Exception $e) {
-
-    //         session()->flash('error', 'Something went wrong: ' . $e->getMessage());
-    //     }
-    // }
 
     public function saveMcc()
     {
@@ -456,7 +466,7 @@ class MccViolationCrud extends Component
             ->when($this->filter_by_assembly, function ($q) {
                 $q->where('assembly_id', $this->filter_by_assembly);
             })
-
+            ->orderBy('id', 'DESC') 
             ->paginate(20);
 
         return view('livewire.mcc-violation-crud', [

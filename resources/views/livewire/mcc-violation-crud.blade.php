@@ -32,16 +32,16 @@
                 </ol>
             </div>
             <div>
-                {{-- @if(childUserAccess(Auth::guard('admin')->user()->id,'campaign_import_campaigner')) --}}
+                @if(childUserAccess(Auth::guard('admin')->user()->id,'mcc_import_mcc'))
                 <button class="btn btn-secondary btn-sm me-2" data-bs-toggle="modal" data-bs-target="#importMccModal">
                     <i class="bi bi-upload me-1"></i> Import MCC
                 </button>
-                {{-- @endif --}}
-                {{-- @if(childUserAccess(Auth::guard('admin')->user()->id,'campaign_add_campaign')) --}}
+                @endif
+                @if(childUserAccess(Auth::guard('admin')->user()->id,'mcc_add_mcc'))
                 <button class="btn btn-primary btn-sm" wire:click="openMccModal">
                     <i class="bi bi-plus-circle me-1"></i> Add MCC
                 </button>
-                {{-- @endif --}}
+                @endif
             </div>
         </div>
 
@@ -114,25 +114,39 @@
                                         <td>{{ $item->created_at->format('d-m-Y h:i A') }}</td>
                                         <td class="text-center">
                                             <div class="btn-group">
-                                                <button class="btn btn-sm btn-outline-primary"
-                                                    title="Action Taken"
-                                                    wire:click="openActionTakenModal({{ $item->id }})"
-                                                    data-bs-toggle="modal" data-bs-target="#openActionTakenModal">
-                                                    <i class="bi bi-incognito"></i>
-                                                </button>
+                                                @if(childUserAccess(Auth::guard('admin')->user()->id,'mcc_action_taken_and_status'))
+                                                    @if(empty($item->action_taken))
+                                                        <button class="btn btn-sm btn-outline-primary"
+                                                            title="Action Taken"
+                                                            wire:click="openActionTakenModal({{ $item->id }})"
+                                                            data-bs-toggle="modal" data-bs-target="#openActionTakenModal">
+                                                            Escalated To:
+                                                        </button>
+                                                    @else
+                                                        <button class="btn btn-sm btn-success"
+                                                            title="Action Taken">
+                                                            Escalated To: {{ ucwords($item->action_taken) }}
+                                                        </button>
+                                                    @endif
+                                                @endif
                                             </div>
-                                            <p>Escalated To:{{ucwords($item->action_taken)}}</p>
                                         </td>
                                         <td>
                                             <select class="form-select form-select-sm"
-                                                wire:change="changeStatus({{ $item->id }}, $event.target.value)">
-                                                <option value="pending_to_process" {{ $item->status == 'pending_to_process' ? 'selected' : '' }}>
+                                                wire:change="changeStatus({{ $item->id }}, $event.target.value)"
+                                                @if($item->status == 'pending_to_process' || $item->status == 'confirm_resolved') disabled @endif >
+
+                                                <option value="pending_to_process"
+                                                    {{ $item->status == 'pending_to_process' ? 'selected' : '' }}>
                                                     Pending to Process
                                                 </option>
-                                                <option value="processed" {{ $item->status == 'processed' ? 'selected' : '' }}>
+                                                <option value="processed"
+                                                    {{ $item->status == 'processed' ? 'selected' : '' }}
+                                                    @if($item->status == 'confirm_resolved') disabled @endif>
                                                     Processed
                                                 </option>
-                                                <option value="confirm_resolved" {{ $item->status == 'confirm_resolved' ? 'selected' : '' }}>
+                                                <option value="confirm_resolved"
+                                                    {{ $item->status == 'confirm_resolved' ? 'selected' : '' }}>
                                                     Resolved
                                                 </option>
                                             </select>
@@ -146,24 +160,29 @@
                                                 ">
                                                 {{ ucwords(str_replace('_',' ', $item->status)) }}
                                             </span>
+                                            <div class="mt-1">
+                                                <small class="text-muted d-block">Remarks: {{ ucwords($item->remarks) ?? 'N/A' }}</small>
+                                            </div>
                                         </td>
                                         <td class="text-center">
                                             <div class="btn-group">
                                                 <!-- Edit -->
-                                                {{-- @if(childUserAccess(Auth::guard('admin')->user()->id,'campaign_update_campaign')) --}}
+                                                @if(childUserAccess(Auth::guard('admin')->user()->id,'mcc_update_mcc'))
                                                 <button class="btn btn-sm btn-outline-primary"
-                                                    title="Edit Campaign"
+                                                    title="Edit MCC"
                                                     wire:click="edit({{ $item->id }})">
                                                     <i class="bi bi-pencil"></i>
                                                 </button>
-                                                {{-- @endif --}}
+                                                @endif
                                             </div>
                                             <div class="btn-group">
+                                                @if(childUserAccess(Auth::guard('admin')->user()->id,'mcc_view_mcc_log'))
                                                 <a href="{{ route('admin.mcc_log_details', $item->id)}}"
                                                     class="btn btn-sm btn-outline-primary"
                                                     title="MCC Log">
                                                     <i class="bi bi-person-lines-fill"></i>
                                                 </a>
+                                                @endif
                                             </div>
                                         </td>
                                     </tr>
@@ -189,7 +208,7 @@
 
         <!-- Form -->
         <div wire:ignore.self class="modal fade" id="mccModal" tabindex="-1" aria-labelledby="mccModalLabel"
-        aria-hidden="true" style="background: rgba(0,0,0,0.5);">
+            aria-hidden="true" style="background: rgba(0,0,0,0.5);">
             <div class="modal-dialog modal-xl">
                 <div class="modal-content">
 
@@ -233,7 +252,7 @@
 
                                 <div class="col-md-6 mb-3">
                                     <label>Complainer Name<span class="text-danger">*</span></label>
-                                    <textarea class="form-control" wire:model="complainer_name" placeholder="Enter Complainer Name"></textarea>
+                                    <input type="text" class="form-control" wire:model="complainer_name" placeholder="Enter Complainer Name">
                                     @error('complainer_name') <small class="text-danger">{{ $message }}</small> @enderror
                                 </div>
 
@@ -293,7 +312,6 @@
             <div class="modal-dialog modal-lg modal-dialog-centered">
                 <div class="modal-content border-0 shadow-lg rounded-3">
 
-                    <!-- Modal Header -->
                     <div class="modal-header bg-primary text-white">
                         <h5 class="modal-title" id="uploadcampaignerModalLabel">Upload MCC</h5>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"
@@ -349,6 +367,31 @@
                 </div>
             </div>
         </div>
+        <div wire:ignore.self class="modal fade" id="resolveModal" tabindex="-1">
+            <div class="modal-dialog modal-md">
+                <div class="modal-content">
+
+                    <div class="modal-header">
+                        <h5 class="modal-title">Status: Resolved</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+
+                    <div class="modal-body">
+                        <label>Remarks <span class="text-danger"></span></label>
+                        <textarea class="form-control" wire:model="remarks" rows="4"
+                            placeholder="Enter remarks here..."></textarea>
+                        @error('remarks') <small class="text-danger">{{ $message }}</small> @enderror
+                    </div>
+
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                        <button class="btn btn-success btn-sm" wire:click="saveResolution">Save</button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
 
 
     <div class="loader-container" wire:loading wire:target="save,openCampaignModal">
@@ -433,6 +476,8 @@
                 document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
                 document.body.classList.remove('modal-open');
                 document.body.style = "";
+                document.querySelector('#mccModal input[type="text"]').value = '';
+                document.querySelector('#mccModal textarea').value = '';
             });
         });
 
@@ -451,6 +496,7 @@
                 document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
                 document.body.classList.remove('modal-open');
                 document.body.style = "";
+                document.querySelector('#resolveModal input[type="text"]').value = '';
             });
 
         });
@@ -465,6 +511,11 @@
             document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
             document.body.classList.remove('modal-open');
             document.body.style = "";
+            document.querySelectorAll('#mccModal input[type="text"]').forEach(el => el.value = '');
+            document.querySelectorAll('#mccModal input[type="number"]').forEach(el => el.value = '');
+            document.querySelectorAll('#mccModal textarea').forEach(el => el.value = '');
+
+            $('#mccModal .chosen-select').val('').trigger('chosen:updated');
         });
     </script>
 
@@ -472,6 +523,25 @@
         window.addEventListener('clear-search-input', () => {
             const input = document.querySelector('input[wire\\:model="search"]');
             if (input) input.value = '';
+        });
+    </script>
+    <script>
+        document.addEventListener('livewire:init', () => {
+
+            Livewire.on('open-resolve-modal', () => {
+                $("#resolveModal").modal('show');
+            });
+
+            Livewire.on('close-resolve-modal', () => {
+
+                $("#resolveModal").modal('hide');
+
+                document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+                document.body.classList.remove('modal-open');
+                document.body.style = "";
+                document.querySelector('#resolveModal textarea').value = '';
+            });
+
         });
     </script>
 
