@@ -476,8 +476,11 @@
                 document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
                 document.body.classList.remove('modal-open');
                 document.body.style = "";
-                document.querySelector('#mccModal input[type="text"]').value = '';
-                document.querySelector('#mccModal textarea').value = '';
+                document.querySelectorAll('#mccModal input[type="text"]').forEach(el => el.value = '');
+                document.querySelectorAll('#mccModal input[type="number"]').forEach(el => el.value = '');
+                document.querySelectorAll('#mccModal textarea').forEach(el => el.value = '');
+
+                $('#mccModal .chosen-select').val('').trigger('chosen:updated');
             });
         });
 
@@ -499,23 +502,6 @@
                 document.querySelector('#resolveModal input[type="text"]').value = '';
             });
 
-        });
-    </script>
-
-    <script>
-        window.addEventListener('closeModal', event => {
-            var modal = bootstrap.Modal.getInstance(document.getElementById(event.detail.id));
-            modal.hide();
-
-            // Fix leftover backdrop
-            document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
-            document.body.classList.remove('modal-open');
-            document.body.style = "";
-            document.querySelectorAll('#mccModal input[type="text"]').forEach(el => el.value = '');
-            document.querySelectorAll('#mccModal input[type="number"]').forEach(el => el.value = '');
-            document.querySelectorAll('#mccModal textarea').forEach(el => el.value = '');
-
-            $('#mccModal .chosen-select').val('').trigger('chosen:updated');
         });
     </script>
 
