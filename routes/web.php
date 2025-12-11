@@ -81,7 +81,7 @@ Route::get('/forget/password',ForgetPassword::class)->name('forget.password');
 | text is displayed in the selected language.
 */
 Route::prefix('/admin')->middleware('auth:admin')->group(function () {
-    Route::get('/dashboard', AdminDashboard::class)->name('admin.dashboard');
+    Route::get('/dashboard', AdminDashboard::class)->name('admin.dashboard')->middleware('employee.permission:view_dashboard');
     Route::get('/update/profile', UpdateProfile::class)->name('admin.update.profile');
     Route::get('phase/{phaseId}/district', PhaseWiseDistrict::class)->name('admin.phasewise.district');
     Route::get('phase/{phaseId}/mcc', PhaseWiseMcc::class)->name('admin.phasewise.mcc');
@@ -122,7 +122,7 @@ Route::prefix('/admin')->middleware('auth:admin')->group(function () {
     });
 
     Route::prefix('mcc-violation')->group(function (){
-        Route::get('/', MccViolationCrud::class)->name('admin.mcc_violation');
+        Route::get('/', MccViolationCrud::class)->name('admin.mcc_violation')->middleware('employee.permission:mcc_view_mcc');
         Route::get('/log-details/{id}', MccLogDetails::class)->name('admin.mcc_log_details');
     });
 });

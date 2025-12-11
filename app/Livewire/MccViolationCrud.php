@@ -59,6 +59,7 @@ class MccViolationCrud extends Component
 
         $this->dispatch('refreshChosen');
         $this->dispatch('open-edit-modal'); 
+        $this->dispatch('open-mcc-modal');
     }
 
     public function resetInputFields()

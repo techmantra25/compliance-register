@@ -78,8 +78,6 @@
                         </div>
                         <input type="text" wire:model="search" wire:keyup="filterCandidates($event.target.value)"
                             class="form-control form-control-sm w-auto me-2" placeholder="Search here...">
-                        {{-- <input type="text" wire:model="search" wire:model.debounce.300ms="search"
-                        class="form-control form-control-sm w-auto me-2" placeholder="Search here..."> --}}
 
                         <button class="btn btn-sm btn-danger" wire:click="resetForm">
                             <i class="bi bi-arrow-clockwise"></i> Reset
@@ -522,7 +520,6 @@
     <script src="{{ asset('assets/js/chosen.jquery.js') }}"></script>
     <script>
         function initChosen() {
-            // Destroy previous Chosen instance to avoid duplicates
             $('.chosen-select').chosen({
                 width: '100%',
                 no_results_text: "No result found",
@@ -538,7 +535,6 @@
         }
         Livewire.hook('morph.updated', ({ el, component }) => {
             initChosen();
-            // ✅ After re-init, sync the Livewire value back to Chosen
             $('.chosen-select').each(function () {
                 const el = $(this);
                 const model = el.attr('wire:model');
@@ -548,34 +544,28 @@
             });
         });
 
-        // Initial load
         document.addEventListener('livewire:load', function () {
             initChosen();
         });
 
-        // Livewire re-renders DOM -> reinitialize Chosen
         Livewire.hook('message.processed', (message, component) => {
             initChosen();
         });
 
-        // Re-init when navigating across components
         document.addEventListener("livewire:navigated", () => {
             initChosen();
         });
 
-        // When modal is opened (Chosen requires visible container)
         $('#candidateModal').on('shown.bs.modal', function () {
             setTimeout(() => initChosen(), 150);
         });
     </script>
 
     <script>
-        // Close modal event
         window.addEventListener('close-upload-modal', () => {
             $('#uploadcandidateModal').modal('hide');
         });
 
-        // Refresh chosen via Livewire event
         Livewire.on('refreshChosen', () => {
             $('.chosen-select').trigger('chosen:updated');
         });
@@ -584,9 +574,15 @@
             $('.chosen-select').trigger('chosen:updated');
         });
 
-        // Clear search fields
         window.addEventListener('clearSearch', () => {
             $('input[wire\\:model]').val('');
+        });
+
+        document.addEventListener('livewire:init', () => {
+            Livewire.on('resetAllFilters', () => {
+                $('.chosen-select').val('').trigger('chosen:updated');
+                $('input[wire\\:model="search"]').val('');
+            });
         });
     </script>
 

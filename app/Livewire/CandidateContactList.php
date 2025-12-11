@@ -353,6 +353,7 @@ class CandidateContactList extends Component
         $this->dispatch('ResetFormData');
         $this->dispatch('refreshChosen');
         $this->dispatch('clearSearch');
+        $this->dispatch('resetAllFilters');
         $this->resetPage();
     }
 
