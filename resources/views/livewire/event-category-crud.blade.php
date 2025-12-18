@@ -18,8 +18,17 @@
             <div class="card shadow-sm border-0 p-3">
                 <div class="card-header bg-white d-flex justify-content-between align-items-center">
                     <h5 class="fw-bold mb-0">Categories</h5>
-                    <input type="text" wire:model="search" wire:keyup="filter($event.target.value)"
-                           class="form-control form-control-sm w-auto" placeholder="Search...">
+                    <div class="d-flex align-items-center gap-2">
+                        <input type="text" 
+                            wire:model="search" 
+                            wire:keyup="filter($event.target.value)"
+                            class="form-control form-control-sm" 
+                            placeholder="Search...">
+
+                        <button class="btn btn-sm btn-danger" wire:click="resetInputFields">
+                            <i class="bi bi-arrow-clockwise"></i>
+                        </button>
+                    </div>
                 </div>
 
                 <div class="card-body p-2">
@@ -37,7 +46,7 @@
                                 @forelse($categories as $index => $cat)
                                     <tr wire:key="event-cat-{{$cat->id}}">
                                         <td>{{ $index + 1 }}</td>
-                                        <td>{{ $cat->name }}</td>
+                                        <td>{{ ucwords($cat->name) }}</td>
                                         <td>
                                             <div class="form-check form-switch">
                                                 <input class="form-check-input" type="checkbox"

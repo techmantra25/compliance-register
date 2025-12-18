@@ -32,12 +32,14 @@
         </div>
 
         <ul class="nav flex-column px-2">
-            <li class="nav-item mb-2">
-                <a href="{{ route('admin.dashboard') }}"
-                   class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
-                    <i class="bi bi-house me-2"></i> {{ __('admin/sidebar.dashboard') }}
-                </a>
-            </li>
+            @if(userAccess(Auth::guard('admin')->user()->id,'dashboard'))
+                <li class="nav-item mb-2">
+                    <a href="{{ route('admin.dashboard') }}"
+                    class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+                        <i class="bi bi-house me-2"></i> {{ __('admin/sidebar.dashboard') }}
+                    </a>
+                </li>
+            @endif
             <!-- Master Data Dropdown -->
             @if(userAccess(Auth::guard('admin')->user()->id,'master_management'))
                 <li class="nav-item mb-2">
@@ -179,12 +181,41 @@
                     </div>
                 </li>
             @endif
+
+            @if(userAccess(Auth::guard('admin')->user()->id,'mcc_violation'))
+                <li class="nav-item mb-2">
+                    <a class="nav-link d-flex justify-content-between align-items-center 
+                        {{ request()->is('admin/mcc*') ? 'active' : 'collapsed' }}"
+                        data-bs-toggle="collapse"
+                        href="#mccMenu"
+                        role="button"
+                        aria-expanded="{{ request()->is('admin/mcc*') ? 'true' : 'false' }}"
+                        aria-controls="mccMenu">
+
+                        <span><i class="bi bi-controller me-2"></i> MCC Violation</span>
+                        <i class="bi bi-chevron-down small"></i>
+                    </a>
+
+                    <div class="collapse {{ request()->is('admin/mcc*') ? 'show' : '' }}" id="mccMenu">
+                        <ul class="nav flex-column ms-4 border-start ps-2 mt-1">
+                            @if(childUserAccess(Auth::guard('admin')->user()->id,'mcc_view_mcc'))
+                                <li class="nav-item mb-1">
+                                    <a href="{{route('admin.mcc_violation')}}"
+                                    class="nav-link small {{ request()->routeIs('admin.mcc_violation') ? 'active' : '' }}">
+                                        <i class="bi bi-clipboard-data me-2"></i> List
+                                    </a>
+                                </li>
+                            @endif
+                        </ul>
+                    </div>
+                </li>
+            @endif
         </ul>
     </nav>
 
     {{-- Main Content --}}
     <div class="flex-grow-1">
-        <header class="topbar d-flex justify-content-between align-items-center px-3">
+        <header class="topbar d-flex justify-content-between align-items-center px-3 d-print-none">
             <div class="d-flex align-items-center gap-3">
                 <button class="menu-toggle btn btn-link p-0" id="menu-toggle">
                     <i class="bi bi-list fs-5"></i>

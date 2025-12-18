@@ -14,18 +14,18 @@ class CandidateJourney extends Component
     public $timeline = [];
     public function mount($id)
     {
-        // Fetch the candidate or abort if not found
+        
         $this->candidate = Candidate::find($id);
         if (!$this->candidate) {
             abort(404, 'Candidate not found.');
         }
-        // Order by created_at ascending for a correct timeline view
+        
         $this->change_logs = ChangeLog::with('user')->where('module_id', $id)
             ->orderBy('created_at', 'ASC')
             ->get();
 
     }
-    // Process the raw logs into a structured timeline format
+
     private function processTimeline()
     {
         $timeline = [];
@@ -42,7 +42,7 @@ class CandidateJourney extends Component
                 'action' => $log->action,
                 'module' => $log->module_name,
                 'badge_color' => $badgeColor,
-                'changed_by' => $log->user ? $log->user->name : null, // Use User model relationship in production
+                'changed_by' => $log->user ? $log->user->name : null, 
             ];
         }
         $this->timeline = $timeline;

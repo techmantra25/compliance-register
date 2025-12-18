@@ -1,533 +1,298 @@
 <div>
-     <style>
-        .section-title {
-            font-weight: 600;
-            font-size: 20px;
-            padding: 10px 0;
-        }
-        .card-header {
-            font-weight: 600;
-            font-size: 16px;
-        }
-        .stat-number {
-            font-size: 28px;
-            font-weight: bold;
-        }
-        .chart-box {
-            height: 300px;
-        }
-        .legend-box {
-            display:inline-block;
-            width:12px;
-            height:12px;
-            border-radius:3px;
-        }
-        .chart-container {
-            border: 1px solid #ffd271;
-            background: #fffdf4;
-            border-radius: 10px;
-        }
-        .stat-number {
-            font-size: 2rem;
-            font-weight: 700;
-        }
-        .chosen-container .chosen-default{
-            font-size: 14px;
-        }
-
-       
-    </style>
-    <!-- Title -->
-    <h3 class="mb-4 fw-bold">Admin Dashboard</h3>
-
-    <!-- ---------- NOMINATION STATUS ---------- -->
-    <div class="card shadow-sm mb-4 border-0" id="nomination-status-card">
-
-        <!-- Header -->
-        <div class="card-header bg-warning bg-opacity-25 fw-semibold d-flex justify-content-between align-items-center">
-            <span>Nomination Status</span>
-        </div>
-
-        <div class="card-body">
-
-            <!-- Filters -->
-            <div class="row mb-3 align-items-end">
-
-                <div class="col-md-3" wire:ignore>
-                    <label>Districts</label>
-                    <select wire:model="district" class="form-select chosen-select">
-                        <option value=""></option>
-                        @foreach ($allDistricts as $district_item)
-                            <option value="{{ $district_item->id }}">{{ $district_item->name_en }}</option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div class="col-md-3" wire:ignore>
-                    <label>Phases</label>
-                    <select wire:model="phase" class="form-select chosen-select">
-                        <option value=""></option>
-                        @foreach ($allPhases as $phase_item)
-                            <option value="{{ $phase_item->id }}">{{ $phase_item->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div class="col-md-3" wire:ignore>
-                    <label>Assemblies</label>
-                    <select wire:model="assembly" class="form-select chosen-select">
-                        <option value=""></option>
-                        @foreach($allAssemblies as $assembly_item)
-                            <option value="{{ $assembly_item->id }}">{{ $assembly_item->assembly_name_en }} ({{ $assembly_item->assembly_code }})</option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <!-- RESET BUTTON -->
-                <div class="col-md-3 text-end">
-                    <button class="btn btn-sm btn-secondary mt-3"
-                            wire:click="resetFilters">
-                        Reset Filters
-                    </button>
-                </div>
-
-            </div>
-
-            <!-- Stats + Chart -->
-            <div class="row mt-4">
-
-                <!-- Left Side Numbers -->
-                <div class="col-md-6">
-
-                    <div class="row">
-                        <!-- Row 1 -->
-                        <div class="col-md-6">
-                            <div class="py-5 px-3 rounded bg-warning bg-opacity-10 mb-3 d-flex justify-content-between">
-                                <div class="fw-semibold">Nomination Documents Received</div>
-                                <div class="stat-number text-warning">{{ $nominationDocumentsReceived }}</div>
+    <section class="dash-wrapper">
+        <div class="container">
+            <div class="row mb-4">
+                <div class="col-md-12 mb-4">
+                    <div class="inner-wrapper">
+                        <div class="title-head">Event Permission (State View)</div>
+                        <div class="wrappper-bpdy">
+                            <div class="chrat-place mb-5">
+                                <canvas width="300" id="myChart"></canvas>
                             </div>
+                             <a href="{{route('admin.eventwise.district')}}" class="btm-small blue-btm">Click for District View</a> 
                         </div>
-
-                        <div class="col-md-6">
-                            <div class="py-5 px-3 rounded bg-warning bg-opacity-10 mb-3 d-flex justify-content-between">
-                                <div class="fw-semibold">Documents Pending</div>
-                                <div class="stat-number text-warning">{{ $documentsPending }}</div>
-                            </div>
-                        </div>
-
-                        <!-- Row 2 -->
-                        <div class="col-md-6">
-                            <div class="py-5 px-3 rounded bg-warning bg-opacity-10 mb-3 d-flex justify-content-between">
-                                <div class="fw-semibold">Under Vetting</div>
-                                <div class="stat-number text-warning">{{ $underVetting }}</div>
-                            </div>
-                        </div>
-
-                        <div class="col-md-6">
-                            <div class="py-5 px-3 rounded bg-warning bg-opacity-10 mb-3 d-flex justify-content-between">
-                                <div class="fw-semibold">Vetted but not Submitted</div>
-                                <div class="stat-number text-warning">{{ $vettedButNotSubmitted }}</div>
-                            </div>
-                        </div>
-
                     </div>
                 </div>
-
-
-                <!-- Right Side Chart -->
-                <div class="col-md-6">
-
-                    <div class="chart-container p-3">
-                        <div id="nominationChart" style="width: 100%; height: 300px;"></div>
-                    </div>
-                    <!-- Chart Legend -->
-                    <div class="small text-muted d-none d-md-block text-center mt-2">
-                        <span class="me-3"><span class="legend-box bg-warning"></span> Received</span>
-                        <span class="me-3"><span class="legend-box bg-info"></span> Pending</span>
-                        <span class="me-3"><span class="legend-box bg-primary"></span> Vetting</span>
-                        <span><span class="legend-box bg-secondary"></span> Vetted</span>
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-    </div>
-
-
-    <!-- ---------- EVENT PERMISSION STATUS ---------- -->
-    <div class="card shadow-sm mb-4 border-0" id="campaign-permission-status-card">
-        <div class="card-header bg-info bg-opacity-25 fw-semibold">
-            Campaign Permission Status
-        </div>
-
-        <div class="card-body">
-
-            <!-- Filters -->
-            <div class="row mb-3">
-                <div class="col-md-3">
-                    <label>Districts</label>
-                    <select wire:model="campaignDistrict" class="form-select chosen-select">
-                        <option value=""></option>
-                        @foreach ($allDistricts as $district_item)
-                            <option value="{{ $district_item->id }}">{{ $district_item->name_en }}</option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div class="col-md-3">
-                    <label>Assemblies</label>
-                    <select wire:model="campaignAssembly" class="form-select chosen-select">
-                        <option value=""></option>
-                        @foreach($allAssemblies as $assembly_item)
-                            <option value="{{ $assembly_item->id }}">
-                                {{ $assembly_item->assembly_name_en }} ({{ $assembly_item->assembly_code }})
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div class="col-md-3">
-                    <label>Event Categories</label>
-                    <select wire:model="campaignEventCategory" class="form-select chosen-select">
-                        <option value=""></option>
-                        @foreach ($allEventCategories as $eventCategory)
-                            <option value="{{ $eventCategory->id }}">{{ $eventCategory->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div class="col-md-3 text-end">
-                    <button class="btn btn-sm btn-secondary mt-3" wire:click="resetFilters">
-                        Reset Filters
-                    </button>
-                </div>
-            </div>
-
-            <!-- CHART LEFT | VALUES RIGHT -->
-            <div class="row mt-3">
                 
-                <!-- LEFT: Pie Chart -->
+                <div class="col-md-6 mb-4">
+                    <div class="inner-wrapper">
+                        <div class="title-head">Nomination Vetting (State View) - {{ $this->phases->count() }} Phases</div>
+                        <div class="wrappper-bpdy">
+                            <div class="row">
+                                @foreach($this->phases as $key => $phase)
+                                    <div class="col-md-3">
+                                        <div class="inner-grid">
+                                            <div class="chrat-place phase-click"
+                                                data-url="{{ route('admin.phasewise.district', $phase->id) }}">
+                                                <canvas 
+                                                    id="phase{{ $key+1 }}" 
+                                                    width="100"
+                                                    data-chart='@json($chartData[$key]["data"])'
+                                                    data-phase="{{ $chartData[$key]["phase_name"] }}">
+                                                </canvas>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+
+                            <div class="color-label mb-5">
+                                <h6>Legend</h6>
+                                <div class="color-grid"><span style="background-color: #1BC976;"></span>Approved & Complete</div>
+                                <div class="color-grid"><span style="background-color: #f3a3a3;"></span>Document Yet To Be Received By Fox For Vetting</div>
+                                <div class="color-grid"><span style="background-color: #FDB747;"></span>Vetting in Progress at FOX</div>
+                                <div class="color-grid"><span style="background-color: #A7A7A7;"></span >Pending Acknowledgement Copy</div>
+                                <div class="color-grid"><span style="background-color: #F46674;"></span>Rejected (if any)</div>
+                            </div>
+                             <p class="btm-small blue-btm">Click on Phase to Check the Details View</p>
+                        </div>
+                    </div>
+                </div>
                 <div class="col-md-6">
-                    <div class="chart-container p-3 bg-info bg-opacity-10 rounded">
-                        <div id="campaignChart" style="width: 100%; height: 300px;"></div>
+                    <div class="inner-wrapper">
+                        <div class="title-head">
+                            MCC Complaints (State-view) - {{ $this->phases->count() }} Phases
+                        </div>
+
+                        <div class="wrappper-bpdy">
+                            <div class="row">
+                                @foreach($this->phases as $phase)
+                                    <div class="col-md-3 mb-4">
+                                        <div class="inner-grid">
+                                            <div class="chrat-place">
+                                                <canvas 
+                                                    id="mcc{{ $phase->id }}" 
+                                                    width="100"
+                                                    data-url="{{ route('admin.phasewise.mcc', $phase->id) }}"
+                                                    data-phase="{{ $phase->name }}"
+                                                    data-pending="{{ $phaseWiseStatus[$phase->id]['pending_to_processed'] ?? 0 }}"
+                                                    data-processed="{{ $phaseWiseStatus[$phase->id]['processed'] ?? 0 }}"
+                                                    data-resolved="{{ $phaseWiseStatus[$phase->id]['confirm_resolved'] ?? 0 }}"
+                                                >
+                                                </canvas>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+
+                            <div class="color-label mb-5">
+                                <h6>Legend</h6>
+                                <div class="color-grid">
+                                    <span style="background-color: #A7A7A7;"></span>Pending To Processed
+                                </div>
+                                <div class="color-grid">
+                                    <span style="background-color: #FDB747;"></span>Processed
+                                </div>
+                                <div class="color-grid">
+                                    <span style="background-color: #1BC976;"></span>Confirm Resolved
+                                </div>
+                            </div>
+
+                            <p class="btm-small blue-btm">
+                                Click on Phase to Check the Details View
+                            </p>
+                        </div>
                     </div>
-                     <!-- Chart Legend -->
-                    <div class="small text-muted d-none d-md-block text-center mt-2">
-                        <span class="me-3"><span class="legend-box bg-info"></span> Total</span>
-                        <span class="me-3"><span class="legend-box bg-warning"></span> Pending</span>
-                        <span><span class="legend-box bg-success"></span> Approved</span>
-                    </div>
-                </div>
-
-                <!-- RIGHT: Stats -->
-                <div class="col-md-6">
-                    <div class="py-4 px-3 bg-info bg-opacity-10 rounded mb-3 flex justify-content-between">
-                        <div class="stat-number text-info">{{ $totalCampaigns }}</div>
-                        <div class="fw-semibold">Total Campaigns</div>
-                    </div>
-
-                    <div class="py-4 px-3 bg-info bg-opacity-10 rounded mb-3 flex justify-content-between">
-                        <div class="stat-number text-info">{{ $pendingCampaigns }}</div>
-                        <div class="fw-semibold">Pending</div>
-                    </div>
-
-                    <div class="py-4 px-3 bg-info bg-opacity-10 rounded flex justify-content-between">
-                        <div class="stat-number text-info">{{ $approvedCampaigns }}</div>
-                        <div class="fw-semibold">Permission Received</div>
-                    </div>
-                </div>
-
-            </div>
-
-        </div>
-    </div>
-    <div class="row">
-
-        <!-- Phase Wise Assemblies -->
-        <div class="col-md-6">
-            <div class="card shadow-sm mb-4 border-0">
-                <div class="card-header bg-primary bg-opacity-25 fw-semibold">
-                    Phase Wise Assemblies
-                </div>
-                <div class="card-body">
-                    <div id="phaseAssemblyChart" style="width:100%; height:350px;"></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Zone Wise Assemblies -->
-        <div class="col-md-6">
-            <div class="card shadow-sm mb-4 border-0">
-                <div class="card-header bg-success bg-opacity-25 fw-semibold">
-                    Zone Wise Assemblies
-                </div>
-                <div class="card-body">
-                    <div id="zoneAssemblyChart" style="width:100%; height:350px;"></div>
                 </div>
             </div>
         </div>
+    </section>
 
-    </div>
-
-
-    <div class="loader-container" wire:loading wire:target="ChangeNominationField">
-        <div class="loader"></div>
-    </div>
     @push('scripts')
-
-    <!-- Google Charts Loader -->
-    <script src="https://www.gstatic.com/charts/loader.js"></script>
-
-    <script>
-        /* ------------------------------
-            Handle Livewire Events
-        ------------------------------ */
-        document.addEventListener("livewire:navigated", () => {
-            drawNominationChart();
-            drawCampaignChart();
-        });
-
-        document.addEventListener("livewire:update", () => {
-            drawNominationChart();
-            drawCampaignChart();
-        });
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+        <script>
+            var totalScheduled = @json($totalScheduled);
+            var pending = @json($pending);
+            var appliedAwaitingApproval = @json($appliedAwaitingApproval);
+            var approvedCopyReceived = @json($approvedCopyReceived);
+            var cancelledOrRescheduled = @json($cancelledOrRescheduled);
 
 
-        /* ------------------------------
-            NOMINATION CHART
-        ------------------------------ */
-        function drawNominationChart() {
-            google.charts.load("current", { packages: ["corechart"] });
+            var ctx = document.getElementById("myChart").getContext('2d');
+                const centerTextPluginMainChart = {
+                    id: 'centerTextMain',
+                    afterDraw(chart) {
+                        const ctx = chart.ctx;
+                        ctx.save();
 
-            google.charts.setOnLoadCallback(function () {
+                        const text = "Total Events : " + totalScheduled;
 
-                var data = google.visualization.arrayToDataTable([
-                    ["Status", "Count"],
-                    ["Received", {{ $nominationDocumentsReceived }}],
-                    ["Pending", {{ $documentsPending }}],
-                    ["Under Vetting", {{ $underVetting }}],
-                    ["Vetted Not Submitted", {{ $vettedButNotSubmitted }}],
-                ]);
+                        ctx.font = 'bold 16px Arial';
+                        ctx.fillStyle = '#333';
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        ctx.fillText(text, chart.width / 2, chart.height / 1.8);
 
-                var options = {
-                    pieHole: 0.45,
-                    chartArea: { width: "90%", height: "90%" },
-                    colors: ["#ffc107", "#0dcaf0", "#0d6efd", "#6c757d"],
-                    legend: { position: "bottom" }
+                        ctx.restore();
+                    }
                 };
 
-                var chart = new google.visualization.PieChart(
-                    document.getElementById("nominationChart")
-                );
 
-                chart.draw(data, options);
+            var myChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ["Pending Application","Applied-Awaiting Approval", "Approved-Copy Received" ,"Cancelled or Rescheduled"],
+                    datasets: [{    
+                        data: [pending,appliedAwaitingApproval,approvedCopyReceived,cancelledOrRescheduled],
+                        borderColor: ['#FDB747','#F46674','#1BC976', '#f3a3a3'], 
+                        backgroundColor: ['#FDB747','#F46674','#1BC976', '#f3a3a3'],
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                     cutout: "60%",
+                    plugins: {
+                        legend: { display: true }
+                    }
+                },
+                 plugins: [centerTextPluginMainChart]
             });
-        }
 
+            window.addEventListener('DOMContentLoaded', function () {
+                document.querySelectorAll("canvas[id^='phase']").forEach(canvas => {
+                    
+                    let counts = JSON.parse(canvas.dataset.chart);
+                    let phaseNumber = canvas.dataset.phase;
+                    phaseNumber = phaseNumber.replace(/\b\w/g, char => char.toUpperCase());
+                    let ctx = canvas.getContext('2d');
 
-        /* ------------------------------
-            CAMPAIGN PERMISSION CHART
-        ------------------------------ */
-        function drawCampaignChart() {
-            google.charts.load("current", { packages: ["corechart"] });
+                    new Chart(ctx, {
+                        type: 'doughnut',
+                        data: {
+                            datasets: [{
+                                data: counts,
+                                borderColor: ['#1BC976','#f3a3a3', '#FDB747', '#A7A7A7', '#F46674'],
+                                backgroundColor: ['#1BC976','#f3a3a3', '#FDB747', '#A7A7A7', '#F46674'],
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            cutout: '70%',
+                            plugins: {
+                                legend: { display: false }
+                            }
+                        },
+                        plugins: [{
+                            afterDraw(chart) {
+                                const ctx = chart.ctx;
+                                ctx.save();
+                                ctx.font = 'normal 13px Arial';
+                                ctx.fillStyle = '#333';
+                                ctx.textAlign = 'center';
+                                ctx.textBaseline = 'middle';
+                                // ctx.fillText('Phase', chart.width / 2, chart.height / 2);
+                                ctx.fillText(phaseNumber, chart.width / 2, chart.height / 2);
+                                ctx.restore();
+                            }
+                        }]
+                    });
+                });
+            });
+        </script>
+        
+        <script>
+            document.querySelectorAll('.phase-click').forEach(div => {
+                div.addEventListener('click', function () {
+                    window.location.href = this.dataset.url;
+                });
+            });
+        </script>
 
-            google.charts.setOnLoadCallback(function () {
+        <script>
+            var phaseStatus = @json($phaseWiseStatus);
+        </script>
+        <script>
+            function createAutoTotalDoughnutChart(chartId, chartData, chartOptions = {}) {
+                const ctx = document.getElementById(chartId).getContext('2d');
+                
+                if (!ctx) {
+                    console.error(`Element with id "${chartId}" not found`);
+                    return null;
+                }
+                
+                const total = chartData.datasets[0].data.reduce((a, b) => a + b, 0);
+                
+                const defaultOptions = {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '70%',
+                    plugins: {
+                        legend: {
+                            position: 'middle',
+                        },
+                        datalabels: {
+                            display: false
+                        }
+                    }
+                };
+                const options = { ...defaultOptions, ...chartOptions };
+                
+                return new Chart(ctx, {
+                    type: 'doughnut',
+                    data: chartData,
+                    options: options,
+                    plugins: [{
+                        afterDraw: function(chart) {
+                            const ctx = chart.ctx;
+                            const width = chart.width;
+                            const height = chart.height;
+                            const centerX = width / 2;
+                            const centerY = height / 2;
 
-                var data = google.visualization.arrayToDataTable([
-                    ["Status", "Count"],
-                    ["Total", {{ $totalCampaigns }}],
-                    ["Pending", {{ $pendingCampaigns }}],
-                    ["Approved", {{ $approvedCampaigns }}],
-                ]);
+                            const chartTotal = chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
 
-                var options = {
-                    pieHole: 0.40,
-                    chartArea: { width: "90%", height: "90%" },
-                    colors: ["#0dcaf0", "#ffc107", "#198754"],
-                    legend: { position: "bottom" },
+                            ctx.save();
+                            ctx.font = 'normal 13px Arial';
+                            ctx.fillStyle = '#333';
+                            ctx.textAlign = 'center';
+                            ctx.textBaseline = 'middle';
+                            if (chart.data.phaseName) {
+                                ctx.fillText(chart.data.phaseName, centerX, centerY);
+                            }
+
+                            ctx.restore();
+                        }
+                    }]
+                });
+            }
+        </script>
+
+        <script>
+            Object.keys(phaseStatus).forEach(function(phaseId, index) {
+
+                let chartId = 'mcc' + (index + 1);
+                let canvas = document.getElementById(chartId);
+                if (!canvas) return;
+                let data = phaseStatus[phaseId];
+                let redirectUrl = canvas.dataset.url;
+                let phaseName = "Phase " + (index + 1);
+
+                createAutoTotalDoughnutChart(chartId, {
+                    phaseName: phaseName,
+                    datasets: [{
+                        data: [
+                            data.pending_to_processed,
+                            data.processed,
+                            data.confirm_resolved
+                        ],
+                        backgroundColor: ['#A7A7A7', '#FDB747', '#1BC976'],
+                        borderColor: ['#A7A7A7', '#FDB747', '#1BC976'],
+                        borderWidth: 1
+                    }]
+                });
+
+                canvas.style.cursor = "pointer";
+
+                canvas.onclick = function () {
+                    window.location.href = redirectUrl;
                 };
 
-                var chart = new google.visualization.PieChart(
-                    document.getElementById("campaignChart")
-                );
-
-                chart.draw(data, options);
             });
-        }
-
-    </script>
-    <script>
-        google.charts.load('current', {packages: ['bar']});
-        google.charts.setOnLoadCallback(drawAllCharts);
-
-        function drawAllCharts() {
-            drawPhaseWiseAssemblyChart();
-            drawZoneWiseAssemblyChart();
-        }
-
-        /* ------------------------------------------
-            PHASE WISE ASSEMBLIES
-        -------------------------------------------*/
-        function drawPhaseWiseAssemblyChart() {
-
-            let phaseData = @json($phaseWiseAssemblies);
-
-            var data = new google.visualization.DataTable();
-            data.addColumn('string', 'Phase');
-            data.addColumn('number', 'Assemblies');
-
-            phaseData.forEach(row => {
-                data.addRow([
-                    `${row.phase_name} (${row.election_date})`,
-                    row.assemblies
-                ]);
-            });
-
-            var options = {
-                bars: 'horizontal',
-                height: 350,
-                legend: { position: 'none' },
-                colors: ['#3a1212'],
-                chartArea: { width: '70%' },
-                hAxis: {
-                    title: 'Number of Assemblies',
-                    minValue: 0
-                }
-            };
-
-            var chart = new google.charts.Bar(
-                document.getElementById('phaseAssemblyChart')
-            );
-
-            chart.draw(data, google.charts.Bar.convertOptions(options));
-        }
-
-        /* ------------------------------------------
-            ZONE WISE ASSEMBLIES
-        -------------------------------------------*/
-        function drawZoneWiseAssemblyChart() {
-
-            let zoneData = @json($zoneWiseAssemblies);
-
-            var data = new google.visualization.DataTable();
-            data.addColumn('string', 'Zone');
-            data.addColumn('number', 'Assemblies');
-
-            zoneData.forEach(row => {
-                data.addRow([
-                    row.zone_name,
-                    row.assemblies
-                ]);
-            });
-
-            var options = {
-                bars: 'horizontal',
-                height: 350,
-                legend: { position: 'none' },
-                colors: ['#198754'],
-                chartArea: { width: '70%' },
-                hAxis: {
-                    title: 'Number of Assemblies',
-                    minValue: 0
-                }
-            };
-
-            var chart = new google.charts.Bar(
-                document.getElementById('zoneAssemblyChart')
-            );
-
-            chart.draw(data, google.charts.Bar.convertOptions(options));
-        }
-
-    </script>
-
-
-    <link rel="stylesheet" href="{{ asset('assets/css/component-chosen.css') }}">
-    <script src="{{ asset('assets/js/chosen.jquery.js') }}"></script>
-    <script>
-        function initChosen() {
-            $('.chosen-select').chosen({
-                width: '100%',
-                no_results_text: "No result found",
-                placeholder_text_single: "Select option",
-                search_contains: true
-            })
-            .off('change')
-            .on('change', function (e) {
-                let model = $(this).attr('wire:model');
-                if (model) {
-                    @this.call('ChangeNominationField', model, $(this).val());
-                }
-            });
-
-            // Force chosen to show placeholder if empty
-            $('.chosen-select').each(function () {
-                if (!$(this).val() || $(this).val().length === 0) {
-                    $(this).next('.chosen-container')
-                        .find('.chosen-single span')
-                        .text('Select option');
-                }
-            });
-        }
-
-
-        document.addEventListener("livewire:navigated", () => {
-            initChosen();
-        });
-
-        // Livewire.hook('morph.updated', ({ el, component }) => {
-
-        //     initChosen();  // Reinitialize Chosen after DOM update
-
-        //     $('.chosen-select').each(function () {
-        //         const select = $(this);
-        //         const model = select.attr('wire:model');
-
-        //         if (!model) return;
-
-        //         let value = @this.get(model);
-
-        //         console.log(model + ": " + value);
-        //         if (value) {
-        //             // If Livewire has value, apply it
-        //             select.val(value).trigger('chosen:updated');
-        //         } else {
-        //             // If Livewire cleared the value, reset the Chosen UI
-        //             select.val('').trigger('chosen:updated');
-
-        //             // FIX placeholder text
-        //             select.next('.chosen-container')
-        //                 .find('.chosen-single span')
-        //                 .text('Select option');
-
-        //             select.next('.chosen-container')
-        //                 .find('.search-field input')
-        //                 .attr('placeholder', 'Select option');
-        //         }
-        //     });
-        // });
-
-
-        $(document).ready(function () {
-            initChosen();
-        });
-
-        // window.addEventListener('ResetForm', event => {
-        //     document.querySelectorAll('input').forEach(input => input.value = '');
-
-        //     const chosen = $('.chosen-select');
-        //     if (chosen.length) {
-        //         chosen.val('').trigger('chosen:updated');
-
-        //         // Update all placeholders
-        //         $('.chosen-single span').text('Select option');
-        //         $('.search-field input').attr('placeholder', 'Select option');
-        //     }
-        // });
-
-    </script>
+        </script>
     @endpush
 </div>
-

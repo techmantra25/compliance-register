@@ -25,4 +25,13 @@ class Assembly extends Model
     {
         return $this->hasOne(PhaseWiseAssembly::class, 'assembly_id','id');
     }
+
+    public function phase()
+    {
+        return $this->belongsTo(Phase::class, 'phase_id');
+    }
+    public function mcc()
+    {
+        return $this->hasMany(Mcc::class, 'assembly_id');
+    }
 }
