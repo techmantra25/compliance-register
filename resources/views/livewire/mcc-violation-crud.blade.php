@@ -131,7 +131,7 @@
                                             </div>
                                             @endif
                                         </td>
-                                        <td>
+                                        {{-- <td>
                                             <select class="form-select form-select-sm"
                                                 wire:change="changeStatus({{ $item->id }}, $event.target.value)"
                                                 @if($item->status == 'pending_to_process' || $item->status == 'confirm_resolved') disabled @endif >
@@ -163,7 +163,37 @@
                                             <div class="mt-1">
                                                 <small class="text-muted d-block">Remarks: {{ ucwords($item->remarks) ?? 'N/A' }}</small>
                                             </div>
+                                        </td> --}}
+                                        <td>
+                                            @if($item->status == 'processed')
+                                                <select class="form-select form-select-sm"
+                                                    wire:change="changeStatus({{ $item->id }}, $event.target.value)">
+
+                                                    <option value="processed" selected>
+                                                        Processed
+                                                    </option>
+
+                                                    <option value="confirm_resolved">
+                                                        Resolved
+                                                    </option>
+                                                </select>
+                                            @endif
+                                            <span class="badge 
+                                                @if($item->status == 'pending_to_process') bg-warning
+                                                @elseif($item->status == 'processed') bg-info
+                                                @elseif($item->status == 'confirm_resolved') bg-success
+                                                @else bg-secondary
+                                                @endif">
+                                                {{ ucwords(str_replace('_',' ', $item->status)) }}
+                                            </span>
+
+                                            <div class="mt-1">
+                                                <small class="text-muted d-block">
+                                                    Remarks: {{ $item->remarks ? ucwords($item->remarks) : 'N/A' }}
+                                                </small>
+                                            </div>
                                         </td>
+
                                         <td class="text-center">
                                             <div class="btn-group">
                                                 <!-- Edit -->
