@@ -236,12 +236,17 @@
                                             @endif
                                             @if(childUserAccess(Auth::guard('admin')->user()->id,'nomination_candidate_journey_timeline'))
                                             <a href="{{ route('admin.candidates.journey', $candidate->id) }}"
-                                                class="btn btn-sm btn-outline-primary"
+                                                class="btn btn-sm btn-outline-primary mt-1"
                                                 title="Candidate Journey Timeline">
                                             <i class="bi bi-person-lines-fill"></i>
                                             </a>
                                             @endif
-                                            
+
+                                            <a href="{{ route('admin.candidates.form5', $candidate->id) }}"
+                                                class="btn btn-sm btn-outline-primary mt-1"
+                                                title="Candidate Journey Timeline">
+                                                FORM 5
+                                            </a>
                                         @endif
                                     </td>
                                 </tr>

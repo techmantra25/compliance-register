@@ -17,6 +17,7 @@ use App\Livewire\{
     CandidateDocumentVetting,
     DiscrepancyReportCrud,
     CandidateJourney,
+    CandidateForm5Update,
     AgentCrud,
     AdminLogin,
     CampaignCrud,
@@ -104,6 +105,7 @@ Route::prefix('/admin')->middleware('auth:admin')->group(function () {
     
     Route::prefix('candidates')->group(function () {
         Route::get('/journey/{id}', CandidateJourney::class)->name('admin.candidates.journey');
+        Route::get('/form-5/{id}', CandidateForm5Update::class)->name('admin.candidates.form5');
         Route::get('/nominations', CandidateContactList::class)->name('admin.candidates.contacts');
         Route::get('/social-media', DiscrepancyReportCrud::class)->name('admin.candidates.discrepancies.report');
         // Route::get('/Candidate Discrepancy Reports', [CandidateController::class, 'nominations'])->name('admin.candidates.nominations');
