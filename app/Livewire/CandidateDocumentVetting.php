@@ -53,6 +53,50 @@ class CandidateDocumentVetting extends Component
         
     }
     
+    // public function FinalStatusUpdate(){
+    //     $required_documents = $this->getDocumentTypes();
+    //     $documentsData = CandidateDocument::with('uploadedBy')
+    //         ->where('candidate_id', $this->candidateId)
+    //         ->orderBy('id', 'desc')
+    //         ->get()
+    //         ->groupBy('type')
+    //         ->map(function ($group) {
+    //             $latest = $group->sortByDesc('id')->first(); // get latest document
+    //             return $latest->status; // only return the status
+    //         })
+    //         ->toArray();
+    //     $skipOption = CandidateDocument::with('uploadedBy')
+    //         ->where('candidate_id', $this->candidateId)
+    //         ->where('status', 'Skipped')
+    //         ->orderBy('id', 'desc')
+    //         ->get()
+    //         ->groupBy('type')->toArray();
+
+    //     if(count($required_documents) == count($documentsData)){
+    //         if($this->candidateData->document_collection_status=="verified_submitted_with_copy" || $this->candidateData->document_collection_status=="rejected"){
+    //             return true;
+    //         }
+    //         $approvedCount = count(array_filter($documentsData, fn($status)=> $status === "Approved")) + count($skipOption);
+    //         $pendingCount = count(array_filter($documentsData, fn($status)=> $status === "Pending"));
+
+    //         if(count($required_documents) == $approvedCount){
+    //             $this->candidateData->document_collection_status = "verified_pending_submission";
+    //             $this->candidateData->save();
+    //         }elseif(count($required_documents) == $pendingCount){
+    //             $this->candidateData->document_collection_status = "ready_for_vetting";
+    //             $this->candidateData->save();
+    //         }elseif(count($required_documents) !== $pendingCount){
+    //             $this->candidateData->document_collection_status = "vetting_in_progress";
+    //             $this->candidateData->save();
+    //         }
+
+    //     }else{
+    //         if(count($documentsData)>0){
+    //             $this->candidateData->document_collection_status = "incomplete_additional_required";
+    //             $this->candidateData->save();
+    //         }
+    //     }
+    // }
     public function FinalStatusUpdate(){
         $required_documents = $this->getDocumentTypes();
         $documentsData = CandidateDocument::with('uploadedBy')
@@ -61,8 +105,8 @@ class CandidateDocumentVetting extends Component
             ->get()
             ->groupBy('type')
             ->map(function ($group) {
-                $latest = $group->sortByDesc('id')->first(); // get latest document
-                return $latest->status; // only return the status
+                $latest = $group->sortByDesc('id')->first(); 
+                return $latest->status; 
             })
             ->toArray();
         $skipOption = CandidateDocument::with('uploadedBy')
@@ -71,22 +115,59 @@ class CandidateDocumentVetting extends Component
             ->orderBy('id', 'desc')
             ->get()
             ->groupBy('type')->toArray();
-
         if(count($required_documents) == count($documentsData)){
-            if($this->candidateData->document_collection_status=="verified_submitted_with_copy" || $this->candidateData->document_collection_status=="rejected"){
+            if($this->candidateData->document_collection_status=="verified_submitted_with_copy" ||$this->candidateData->document_collection_status=="rejected"){
                 return true;
             }
-            $approvedCount = count(array_filter($documentsData, fn($status)=> $status === "Approved")) + count($skipOption);
-            $pendingCount = count(array_filter($documentsData, fn($status)=> $status === "Pending"));
+            // $approvedCount = count(array_filter($documentsData, fn($status)=> $status === "Approved")) + count($skipOption);
+            // $pendingCount = count(array_filter($documentsData, fn($status)=> $status === "Pending"));
+            $approvedOnlyCount = count(array_filter(
+                $documentsData,
+                fn($status) => $status === "Approved"
+            ));
 
-            if(count($required_documents) == $approvedCount){
-                $this->candidateData->document_collection_status = "verified_pending_submission";
-                $this->candidateData->save();
-            }elseif(count($required_documents) == $pendingCount){
-                $this->candidateData->document_collection_status = "ready_for_vetting";
-                $this->candidateData->save();
-            }elseif(count($required_documents) !== $pendingCount){
-                $this->candidateData->document_collection_status = "vetting_in_progress";
+            $pendingOnlyCount = count(array_filter(
+                $documentsData,
+                fn($status) => $status === "Pending"
+            ));
+
+            $skippedCount = count(array_filter(
+                $documentsData,
+                fn($status) => $status === "Skipped"
+            ));
+
+            $totalRequired = count($required_documents);
+            // if (($approvedOnlyCount + $skippedCount) === $totalRequired) {
+
+            //     $this->candidateData->document_collection_status = "verified_pending_submission";
+
+            // }
+            // elseif (($pendingOnlyCount + $skippedCount) === $totalRequired && $approvedOnlyCount === 0) {
+
+            //     $this->candidateData->document_collection_status = "ready_for_vetting";
+
+            // }
+            // else {
+
+            //     $this->candidateData->document_collection_status = "vetting_in_progress";
+
+            // }
+
+            // $this->candidateData->save();
+            $newStatus = null;
+
+            if (($approvedOnlyCount + $skippedCount) === $totalRequired) {
+                $newStatus = "verified_pending_submission";
+            }
+            elseif (($pendingOnlyCount + $skippedCount) === $totalRequired && $approvedOnlyCount === 0) {
+                $newStatus = "ready_for_vetting";
+            }
+            else {
+                $newStatus = "vetting_in_progress";
+            }
+            
+            if ($this->candidateData->document_collection_status !== $newStatus) {
+                $this->candidateData->document_collection_status = $newStatus;
                 $this->candidateData->save();
             }
 

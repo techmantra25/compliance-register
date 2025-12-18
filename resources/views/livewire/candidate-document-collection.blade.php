@@ -89,7 +89,7 @@
                             </tr>
                             <tr>
                                 <th class="text-nowrap pe-3">Last Date of Submission of Nomination Form</th>
-                                <td>: {{ \Carbon\Carbon::parse($nomination_date)->format('d M Y, h:i A') }}</td>
+                                <td>: {{ \Carbon\Carbon::parse($nomination_date)->format('d M Y') }}</td>
                             </tr>
                             <tr>
                                 <th class="text-nowrap pe-3">Final Status</th>
@@ -314,8 +314,6 @@
                             </ul>
 
                             <div class="tab-content" id="ackTabsContent">
-
-                                <!-- ==================== TAB 1 : LATEST COPY ==================== -->
                                 <div class="tab-pane fade show active" id="ack-copy" role="tabpanel">
 
                                     @php
@@ -408,12 +406,11 @@
 
                                 </div>
 
-                                <!-- ==================== TAB 2 : HISTORY ==================== -->
                                 <div class="tab-pane fade" id="history" role="tabpanel">
 
 
                                     @php
-                                    $history = $acknowledgmentCopies->slice(1); // all except latest
+                                    $history = $acknowledgmentCopies->slice(1); 
                                     @endphp
 
                                     @if($history->count() > 0)

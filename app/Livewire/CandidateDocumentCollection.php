@@ -381,34 +381,40 @@ class CandidateDocumentCollection extends Component
             ));
 
             $totalRequired = count($required_documents);
+            // if (($approvedOnlyCount + $skippedCount) === $totalRequired) {
+
+            //     $this->candidateData->document_collection_status = "verified_pending_submission";
+
+            // }
+            // elseif (($pendingOnlyCount + $skippedCount) === $totalRequired && $approvedOnlyCount === 0) {
+
+            //     $this->candidateData->document_collection_status = "ready_for_vetting";
+
+            // }
+            // else {
+
+            //     $this->candidateData->document_collection_status = "vetting_in_progress";
+
+            // }
+
+            // $this->candidateData->save();
+            $newStatus = null;
+
             if (($approvedOnlyCount + $skippedCount) === $totalRequired) {
-
-                $this->candidateData->document_collection_status = "verified_pending_submission";
-
+                $newStatus = "verified_pending_submission";
             }
             elseif (($pendingOnlyCount + $skippedCount) === $totalRequired && $approvedOnlyCount === 0) {
-
-                $this->candidateData->document_collection_status = "ready_for_vetting";
-
+                $newStatus = "ready_for_vetting";
             }
             else {
-
-                $this->candidateData->document_collection_status = "vetting_in_progress";
-
+                $newStatus = "vetting_in_progress";
+            }
+            
+            if ($this->candidateData->document_collection_status !== $newStatus) {
+                $this->candidateData->document_collection_status = $newStatus;
+                $this->candidateData->save();
             }
 
-            $this->candidateData->save();
-            // dd($approvedCount);
-            // if(count($required_documents) == $approvedCount){
-            //     $this->candidateData->document_collection_status = "verified_pending_submission";
-            //     $this->candidateData->save();
-            // }elseif(count($required_documents) == $pendingCount){
-            //     $this->candidateData->document_collection_status = "ready_for_vetting";
-            //     $this->candidateData->save();
-            // }elseif(count($required_documents) !== $pendingCount){
-            //     $this->candidateData->document_collection_status = "vetting_in_progress";
-            //     $this->candidateData->save();
-            // }
         }else{
             if(count($documentsData)>0){
                 $this->candidateData->document_collection_status = "incomplete_additional_required";
