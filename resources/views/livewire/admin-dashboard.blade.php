@@ -477,37 +477,37 @@
             initChosen();
         });
 
-        Livewire.hook('morph.updated', ({ el, component }) => {
+        // Livewire.hook('morph.updated', ({ el, component }) => {
 
-            initChosen();  // Reinitialize Chosen after DOM update
+        //     initChosen();  // Reinitialize Chosen after DOM update
 
-            $('.chosen-select').each(function () {
-                const select = $(this);
-                const model = select.attr('wire:model');
+        //     $('.chosen-select').each(function () {
+        //         const select = $(this);
+        //         const model = select.attr('wire:model');
 
-                if (!model) return;
+        //         if (!model) return;
 
-                let value = @this.get(model);
+        //         let value = @this.get(model);
 
-                console.log(model + ": " + value);
-                if (value) {
-                    // If Livewire has value, apply it
-                    select.val(value).trigger('chosen:updated');
-                } else {
-                    // If Livewire cleared the value, reset the Chosen UI
-                    select.val('').trigger('chosen:updated');
+        //         console.log(model + ": " + value);
+        //         if (value) {
+        //             // If Livewire has value, apply it
+        //             select.val(value).trigger('chosen:updated');
+        //         } else {
+        //             // If Livewire cleared the value, reset the Chosen UI
+        //             select.val('').trigger('chosen:updated');
 
-                    // FIX placeholder text
-                    select.next('.chosen-container')
-                        .find('.chosen-single span')
-                        .text('Select option');
+        //             // FIX placeholder text
+        //             select.next('.chosen-container')
+        //                 .find('.chosen-single span')
+        //                 .text('Select option');
 
-                    select.next('.chosen-container')
-                        .find('.search-field input')
-                        .attr('placeholder', 'Select option');
-                }
-            });
-        });
+        //             select.next('.chosen-container')
+        //                 .find('.search-field input')
+        //                 .attr('placeholder', 'Select option');
+        //         }
+        //     });
+        // });
 
 
         $(document).ready(function () {
