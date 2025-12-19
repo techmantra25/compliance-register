@@ -89,7 +89,11 @@
                             </tr>
                             <tr>
                                 <th class="text-nowrap pe-3">Last Date of Submission of Nomination Form</th>
-                                <td>: {{ \Carbon\Carbon::parse($nomination_date)->format('d M Y') }}</td>
+                                <td>
+                                    : {{ $nomination_date
+                                        ? \Carbon\Carbon::parse($nomination_date)->format('d M Y')
+                                        : 'N/A' }}
+                                </td>
                             </tr>
                             <tr>
                                 <th class="text-nowrap pe-3">Final Status</th>

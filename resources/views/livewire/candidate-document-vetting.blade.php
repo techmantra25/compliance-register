@@ -56,7 +56,7 @@
                         <tr>
                             
                             <th class="text-nowrap pe-3">Candidate Name</th>
-                            <td>: {{ $candidateName ?? 'N/A' }}</td>
+                            <td>: {{ ucwords($candidateName) ?? 'N/A' }}</td>
                         </tr>
                         <tr>
                             <th class="text-nowrap pe-3">Assembly Name & No</th>
@@ -88,7 +88,11 @@
                         </tr>
                         <tr>
                             <th class="text-nowrap pe-3">Last Date of Submission of Nomination Form</th>
-                            <td>: {{ $nomination_date ?? 'N/A' }}</td>
+                            <td>
+                                : {{ $nomination_date
+                                    ? \Carbon\Carbon::parse($nomination_date)->format('d M Y')
+                                    : 'N/A' }}
+                            </td>
                         </tr>
                         <tr>
                             <th class="text-nowrap pe-3">Final Status</th>

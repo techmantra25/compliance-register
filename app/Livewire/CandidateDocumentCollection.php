@@ -37,7 +37,6 @@ class CandidateDocumentCollection extends Component
 
     public function mount(Request $request)
     {
-        
         // Get the candidate ID from the route
         $candidateId = $request->query('candidate');
         
@@ -73,11 +72,11 @@ class CandidateDocumentCollection extends Component
         ->documents
         ->where('status', 'Approved')
         ->load('vettedBy')
-        ->pluck('vettedBy.name')      // get name
-        ->filter()                    // remove null
-        ->unique()                    // unique names
-        ->values()                    // reset keys
-        ->implode(', ');              // convert to comma string
+        ->pluck('vettedBy.name')      
+        ->filter()                    
+        ->unique()                    
+        ->values()                   
+        ->implode(', ');             
 
     }
 

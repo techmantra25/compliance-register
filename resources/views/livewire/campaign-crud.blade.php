@@ -559,7 +559,14 @@
         });
         document.addEventListener('DOMContentLoaded', function () {
             $('#RescheduleModal').on('hidden.bs.modal', function () {
-                location.reload(); // reloads page without backend redirect
+                location.reload();
+            });
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            $('#campaignModal').on('hidden.bs.modal', function () {
+                location.reload();
             });
         });
     </script>
