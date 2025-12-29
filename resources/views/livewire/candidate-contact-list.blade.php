@@ -242,10 +242,15 @@
                                             </a>
                                             @endif
 
-                                            <a href="{{ route('admin.candidates.form5', $candidate->id) }}"
+                                            {{-- <a href="{{ route('admin.candidates.form5', $candidate->id) }}"
                                                 class="btn btn-sm btn-outline-primary mt-1"
                                                 title="Candidate Journey Timeline">
                                                 FORM 5
+                                            </a> --}}
+                                            <a href="{{ route('admin.candidates.form2B', $candidate->id) }}"
+                                                class="btn btn-sm btn-outline-primary mt-1"
+                                                title="Candidate Journey Timeline">
+                                                FORM 2B
                                             </a>
                                         @endif
                                     </td>
