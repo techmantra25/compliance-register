@@ -29,7 +29,24 @@ class NominationForm2B extends Model
         'relation_type',
         'language_name',
         'election_type',
-        'state_name'
+        'state_name',
+        'part_3a',
+        'convicted',
+        'case_no',
+        'police_station',
+        'district',
+        'state',
+        'sections',
+        'conviction_date',
+        'court',
+        'punishment',
+        'release_date',
+        'appeal_filed',
+        'appeal_details',   
+        'appeal_court',
+        'appeal_status',
+        'disposal_date',
+        'order_nature',
     ];
 
     public function assembly()

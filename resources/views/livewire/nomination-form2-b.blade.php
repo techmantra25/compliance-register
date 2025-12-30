@@ -285,9 +285,31 @@
 
                     <div style="font-size: 16px; line-height: 2;">
                         Candidate's name <input type="text" class="input-field input-field-large" wire:model="candidate_name" readonly style="width: 300px;">
-                        <span>Father's</span>/<span class="strike-out">mother's</span>/<span class="strike-out">husband's </span>name <input type="text" class="input-field input-field-medium" wire:model="relation_name" style="width: 400px;">  
-                        <span class="strike-out">His</span>/<span>Her</span> postal address<input type="text" class="input-field input-field-large" style="width: 428px;" wire:model="postal_address">
-                        <span class="strike-out">His</span>/<span>Her</span> name is entered at Sl. No<input type="text" class="input-field input-field-small" wire:model="candidate_sl_no"> in Part No. 
+                                <label>
+                                    <input type="radio" name="relation_type" wire:model="relation_type" value="father"> Father's
+                                </label>
+                                /
+                                <label>
+                                    <input type="radio" name="relation_type" wire:model="relation_type" value="mother"> Mother's
+                                </label>
+                                /
+                                <label>
+                                    <input type="radio" name="relation_type" wire:model="relation_type" value="husband"> Husband's
+                                </label>
+                           name <input type="text" class="input-field input-field-medium" wire:model="relation_name" style="width: 400px;">  
+                        <label>
+                            <input type="radio" name="pronoun" wire:model="pronoun" value="his"> His
+                        </label>
+                        <label>
+                            <input type="radio" name="pronoun" wire:model="pronoun" value="her"> Her
+                        </label>
+                        postal address<input type="text" class="input-field input-field-large" style="width: 428px;" wire:model="postal_address">
+                        <label>
+                            <input type="radio" name="pronoun" wire:model="pronoun" value="his"> His
+                        </label>
+                        <label>
+                            <input type="radio" name="pronoun" wire:model="pronoun" value="her"> Her
+                        </label> name is entered at Sl. No<input type="text" class="input-field input-field-small" wire:model="candidate_sl_no"> in Part No. 
                         <input type="text" class="input-field input-field-small" wire:model="candidate_part_no"> of the electoral roll for 
                         <input type="text" class="input-field input-field-medium" wire:model="assembly_name" style="width: 229px;"> Assembly constituency.
                     </div>
@@ -470,10 +492,10 @@
             <div style="margin-top: 10px;">
                 (c) (i) I am set up at this election by the <input type="text" class="input-field input-field-medium" wire:model="party_name" style="width: 283px;"> party, which is recognised     
             <label>
-                <input type="radio" wire:model="party_type" value="national"> National Party
+                <input type="radio" name="party_type" wire:model="party_type" value="national"> National Party
             </label>/
             <label>
-                <input type="radio" wire:model="party_type" value="state"> State Party
+                <input type="radio" name="party_type" wire:model="party_type" value="state"> State Party
             </label>
             in this State and that the symbol reserved for the above party be allotted to me.
                 <div style="margin: 10px 0 0; text-align: center;">OR</div>
@@ -487,7 +509,17 @@
                 </div>
             </div>
             <div style="margin-top: 3px;">
-                (d) my name and my <span>father's</span>/<span class="strike-out">mother's</span>/<span class="strike-out">husband's</span> name have been correctly spelt out above in 
+                (d) my name and my <label>
+                    <input type="radio" name="relation_type" wire:model="relation_type" value="father"> Father's
+                </label>
+                /
+                <label>
+                    <input type="radio" name="relation_type" wire:model="relation_type" value="mother"> Mother's
+                </label>
+                /
+                <label>
+                    <input type="radio" name="relation_type" wire:model="relation_type" value="husband"> Husband's
+                </label> name have been correctly spelt out above in 
                 <input type="text" class="input-field input-field-medium" wire:model="language_name"> (name of the language); and
             </div>
             <div style="margin-top: 3px;">
@@ -549,36 +581,40 @@
                         </div>
                         (ii) has been convicted for any other offence(s) for which he has been sentenced to imprisonment for two years or more.
                     </div>
-                        <label>
-                            <input type="radio" wire:model="convicted" value="yes"> Yes
-                        </label>
-                        <label>
-                            <input type="radio" wire:model="convicted" value="no"> No
-                        </label>
+                    <label>
+                        <input type="radio" name="convicted" wire:model="convicted" value="yes"> Yes
+                    </label>
+                    <label>
+                        <input type="radio" name="convicted" wire:model="convicted" value="no"> No
+                    </label>
                 </div>
             </div> 
-            <div style="margin-top: 25px;">
-                If the answer is "Yes", the candidate shall furnish the following information:
-            </div>
-            @if($convicted === 'yes')
-                <div style="margin-left: 20px; line-height: 1.21;">(i) Case/First information report No./Nos. <input type="text" class="input-field input-field-large" placeholder="NOT APPLICABLE" readonly></div>
-                <div style="margin-left: 20px; line-height: 1.21;">(ii) Police station(s) <input type="text" class="input-field" style="width: 139px;" readonly placeholder="NOT APPLICABLE"> District(s) <input type="text" class="input-field" style="width: 139px;" readonly placeholder="NOT APPLICABLE"> State(s) <input type="text" class="input-field" style="width: 139px;" readonly placeholder="NOT APPLICABLE"></div>
-                <div style="margin-left: 20px; line-height: 1.21;">(iii) Section(s) of the concerned Act(s) and brief description of the offence(s) for which he has been convicted <input type="text" class="input-field input-field-large" readonly placeholder="NOT APPLICABLE"></div>
-                <div style="margin-left: 20px; line-height: 1.21;">(iv) Date(s) of conviction(s) <input type="text" class="input-field input-field-medium" style="width: 139px;" readonly placeholder="NOT APPLICABLE"></div>
-                <div style="margin-left: 20px; line-height: 1.21;">(v) Court(s) which convicted the candidate <input type="text" class="input-field input-field-medium" style="width: 331px;" readonly placeholder="NOT APPLICABLE"></div>
-                <div style="margin-left: 20px; line-height: 1.21;">(vi) Punishment(s) imposed [indicate period of imprisonment(s) and/or quantum of fine(s)] <input type="text" class="input-field input-field-large" readonly placeholder="NOT APPLICABLE"></div>
-                <div style="margin-left: 20px; line-height: 1.21;">(vii) Date(s) of release from prison <input type="text" class="input-field input-field-medium" readonly placeholder="NOT APPLICABLE"></div>
-                <div style="margin-left: 20px; line-height: 1.21;">(viii) Was/were any appeal(s)/revision(s) filed against above conviction(s) <input type="text" class="input-field input-field-medium" style="width: 100px;"> <span class="strike-out">Yes</span>/<span>No</span></div>
-                <div style="margin-left: 20px; line-height: 1.21;">(ix) Date and particulars of the appeal(s)/application(s) for revision filed <input type="text" class="input-field input-field-large" style="width: 430px;" readonly placeholder="NOT APPLICABLE"></div>
-                <div style="margin-left: 20px; line-height: 1.21;">(x) Name of the court(s) before which the appeal(s)/application(s) for revision filed <input type="text" class="input-field input-field-medium" readonly placeholder="NOT APPLICABLE"></div>
-                <div style="margin-left: 20px; line-height: 1.21;">(xi) Whether the said appeal(s)/application(s) for revision has/have been disposed of or is/are pending <input type="text" class="input-field input-field-medium" readonly placeholder="NOT APPLICABLE"></div>
+            @if($convicted == 'yes')
+                <div style="margin-top: 25px;">
+                    If the answer is "Yes", the candidate shall furnish the following information:
+                </div>
+                <div style="margin-left: 20px; line-height: 1.21;">(i) Case/First information report No./Nos. <input type="text" class="input-field input-field-large" wire:model.defer="case_no"></div>
+                <div style="margin-left: 20px; line-height: 1.21;">(ii) Police station(s) <input type="text" class="input-field" style="width: 139px;" wire:model.defer="police_station"> District(s) <input type="text" class="input-field" style="width: 139px;" wire:model.defer="district"> State(s) <input type="text" class="input-field" style="width: 139px;" wire:model.defer="state"></div>
+                <div style="margin-left: 20px; line-height: 1.21;">(iii) Section(s) of the concerned Act(s) and brief description of the offence(s) for which he has been convicted <input type="text" class="input-field input-field-large" wire:model.defer="sections"></div>
+                <div style="margin-left: 20px; line-height: 1.21;">(iv) Date(s) of conviction(s) <input type="date" class="input-field input-field-medium" style="width: 139px;" wire:model.defer="conviction_date"></div>
+                <div style="margin-left: 20px; line-height: 1.21;">(v) Court(s) which convicted the candidate <input type="text" class="input-field input-field-medium" style="width: 331px;" wire:model.defer="court"></div>
+                <div style="margin-left: 20px; line-height: 1.21;">(vi) Punishment(s) imposed [indicate period of imprisonment(s) and/or quantum of fine(s)] <input type="text" class="input-field input-field-large" wire:model.defer="punishment"></div>
+                <div style="margin-left: 20px; line-height: 1.21;">(vii) Date(s) of release from prison <input type="date" class="input-field input-field-medium" wire:model.defer="release_date"></div>
+                <div style="margin-left: 20px; line-height: 1.21;">(viii) Was/were any appeal(s)/revision(s) filed against above conviction(s)
+                <label>
+                <input type="radio" name="appeal_filed" wire:model="appeal_filed" value="yes"> Yes
+                </label>
+                <label>
+                    <input type="radio" name="appeal_filed" wire:model="appeal_filed" value="no"> No
+                </label></div>
+                <div style="margin-left: 20px; line-height: 1.21;">(ix) Date and particulars of the appeal(s)/application(s) for revision filed <input type="text" class="input-field input-field-large" style="width: 430px;" wire:model.defer="appeal_details"></div>
+                <div style="margin-left: 20px; line-height: 1.21;">(x) Name of the court(s) before which the appeal(s)/application(s) for revision filed <input type="text" class="input-field input-field-medium"  wire:model.defer="appeal_court"></div>
+                <div style="margin-left: 20px; line-height: 1.21;">(xi) Whether the said appeal(s)/application(s) for revision has/have been disposed of or is/are pending <input type="text" class="input-field input-field-medium" wire:model.defer="appeal_status"></div>
                 <div style="margin-left: 20px; line-height: 1.21;">(xii) If the said appeal(s)/application(s) for revision has/have been disposed of—</div>
                 <div style="margin-left: 60px;">
-                    <div>(a) Date(s) of disposal <input type="text" class="input-field input-field-medium" readonly placeholder="NOT APPLICABLE"></div>
-                    <div>(b) Nature of order(s) passed <input type="text" class="input-field input-field-medium" readonly placeholder="NOT APPLICABLE"></div>
+                    <div>(a) Date(s) of disposal <input type="date" class="input-field input-field-medium" wire:model.defer="disposal_date"></div>
+                    <div>(b) Nature of order(s) passed <input type="text" class="input-field input-field-medium" wire:model.defer="order_nature"></div>
                 </div>
-            @else
-                <input type="text" readonly value="NOT APPLICABLE">
             @endif
         </div>
 

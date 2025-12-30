@@ -14,10 +14,12 @@ class NominationForm2B extends Component
     public $candidate_id;
     public $candidate;
 
-    // read-only fields
     public $assembly_name;
     public $candidate_name;
 
+    public $relation_type = 'father';
+    public $pronoun = 'his';
+    
     public $relation_name;
     public $postal_address;
     public $candidate_sl_no;
@@ -35,59 +37,34 @@ class NominationForm2B extends Component
 
     public $election_type = 'general'; 
     public $state_name = 'WEST BENGAL';
-    
-
     public $nomination_date;
-
     public $assemblies = [];
     public $candidates = [];
 
-    public $convicted = 'no';
-    public $conviction_details = [
-        'fir_no' => null,
-        'police_station' => null,
-        'district' => null,
-        'state' => null,
-        'sections' => null,
-        'conviction_dates' => null,
-        'courts' => null,
-        'punishment' => null,
-        'release_date' => null,
-        'appeal_filed' => 'no',
-        'appeal_details' => null,
-        'appeal_court' => null,
-        'appeal_status' => null,
-    ];
+    public $convicted = 'yes';
+    public $case_no;
+    public $police_station;
+    public $district;
+    public $state;
+    public $sections;
+    public $conviction_date;
+    public $court;
+    public $punishment;
+    public $release_date;
+    public $appeal_filed;
+    public $appeal_details;
+    public $appeal_court;
+    public $appeal_status;
+    public $disposal_date;
+    public $order_nature;
 
-    public $office_of_profit = 'no';
-    public $office_details;
-
-    public $insolvent = 'no';
-    public $insolvent_details;
-
-    public $foreign_allegiance = 'no';
-    public $foreign_details;
-
-    public $disqualified_president = 'no';
-    public $disqualified_period;
-
-    public $dismissed_for_corruption = 'no';
-    public $dismissed_date;
-
-    public $govt_contract = 'no';
-    public $govt_contract_details;
-
-    public $company_position = 'no';
-    public $company_details;
-
-    public $commission_disqualified = 'no';
-    public $commission_disqualified_date;
-
+   
     public $place;
     public $declaration_date;
 
 
     protected $rules = [
+        'relation_type' => 'required|in:father,mother,husband',
         'relation_name' => 'required',
         'postal_address' => 'required',
         'candidate_sl_no' => 'required',
@@ -102,7 +79,7 @@ class NominationForm2B extends Component
         'language_name' => 'required',
         'election_type' => 'required|in:general,bye',
         'state_name' => 'required',
-        
+        'convicted' => 'required|in:yes,no',
     ];
 
     
@@ -118,15 +95,46 @@ class NominationForm2B extends Component
         $this->assembly_name    = $candidate->assembly->assembly_name_en . ' (' . $candidate->assembly->assembly_code . ')';
     }
 
+    public function updatedConvicted()
+    {
+        if ($this->convicted === 'no') {
+            $this->reset([
+                'case_no',
+                'police_station',
+                'district',
+                'state',
+                'sections',
+                'conviction_date',
+                'court',
+                'punishment',
+                'release_date',
+                'appeal_filed',
+                'appeal_details',
+                'appeal_court',
+                'appeal_status',
+                'disposal_date',
+                'order_nature',
+            ]);
+        }
+    }
+
+
     public function save()
     {
-        dd($this->validate());
+        //dd($this->validate());
         $this->validate();
 
+        // dd($this->convicted, $this->case_no , $this->police_station, $this->district, $this->state, $this->sections, $this->conviction_date, $this->court, $this->punishment, $this->release_date,
+        // $this->appeal_filed, $this->appeal_details, $this->appeal_court, $this->appeal_status, $this->disposal_date, $this->order_nature);
+
+        logger()->info($this->only([
+            'convicted','case_no','police_station','district'
+        ]));
         NominationForm2BModel::create([
             'assembly_id' => $this->assembly_id,
             'candidate_id' => $this->candidate_id,
 
+            'relation_type' => $this->relation_type,
             'relation_name' => $this->relation_name,
             'postal_address' => $this->postal_address,
             'candidate_sl_no' => $this->candidate_sl_no,
@@ -142,36 +150,26 @@ class NominationForm2B extends Component
             'language_name' => $this->language_name,
             'election_type' => $this->election_type,
             'state_name' => $this->state_name,
-            'part_3a' => [
-                'convicted' => $this->convicted,
-                'conviction_details' => $this->conviction_details,
+            'convicted' => $this->convicted,
 
-                'office_of_profit' => $this->office_of_profit,
-                'office_details' => $this->office_details,
-
-                'insolvent' => $this->insolvent,
-                'insolvent_details' => $this->insolvent_details,
-
-                'foreign_allegiance' => $this->foreign_allegiance,
-                'foreign_details' => $this->foreign_details,
-
-                'disqualified_president' => $this->disqualified_president,
-                'disqualified_period' => $this->disqualified_period,
-
-                'dismissed_for_corruption' => $this->dismissed_for_corruption,
-                'dismissed_date' => $this->dismissed_date,
-
-                'govt_contract' => $this->govt_contract,
-                'govt_contract_details' => $this->govt_contract_details,
-
-                'company_position' => $this->company_position,
-                'company_details' => $this->company_details,
-
-                'commission_disqualified' => $this->commission_disqualified,
-                'commission_disqualified_date' => $this->commission_disqualified_date,
-            ],
-
+            'case_no'          => $this->case_no,
+            'police_station'   => $this->police_station,
+            'district'         => $this->district,
+            'state'            => $this->state,
+            'sections'         => $this->sections,
+            'conviction_date'  => $this->conviction_date,
+            'court'            => $this->court,
+            'punishment'       => $this->punishment,
+            'release_date'     => $this->release_date,
+            'appeal_filed'     => $this->appeal_filed,
+            'appeal_details'   => $this->appeal_details,
+            'appeal_court'     => $this->appeal_court,
+            'appeal_status'    => $this->appeal_status,
+            'disposal_date'    => $this->disposal_date,
+            'order_nature'     => $this->order_nature,
+           
         ]);
+        
 
         session()->flash('success', 'Nomination form submitted successfully');
         $this->reset();
