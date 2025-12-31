@@ -9,6 +9,7 @@ class NominationForm2B extends Model
     protected $table = 'nomination_forms_2_b';
 
     protected $fillable = [
+        'candidate_photo',
         'assembly_id',
         'candidate_id',
         'assembly_name',
@@ -47,6 +48,16 @@ class NominationForm2B extends Model
         'appeal_status',
         'disposal_date',
         'order_nature',
+        'office_of_profit',
+        'office_details',
+        'insolvent', 'insolvent_details', 
+        'foreign_allegiance', 
+        'foreign_details', 'disqualified_president', 
+        'disqualified_period', 'dismissed_for_corruption', 
+        'dismissed_date', 'govt_contract', 
+        'govt_contract_details', 'company_position', 
+        'company_details', 'commission_disqualified', 
+        'commission_disqualified_date'
     ];
 
     public function assembly()

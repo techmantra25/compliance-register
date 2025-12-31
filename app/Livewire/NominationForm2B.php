@@ -57,10 +57,24 @@ class NominationForm2B extends Component
     public $appeal_status;
     public $disposal_date;
     public $order_nature;
+    public $office_of_profit;
+    public $office_details;    
+    public $insolvent;    
+    public $insolvent_details;    
+    public $foreign_allegiance;    
+    public $foreign_details;     
+    public $disqualified_president;     
+    public $disqualified_period;     
+    public $dismissed_for_corruption;   
+    public $dismissed_date;   
+    public $govt_contract;   
+    public $govt_contract_details;   
+    public $company_position;   
+    public $company_details;   
+    public $commission_disqualified;   
+    public $commission_disqualified_date;   
 
-   
-    public $place;
-    public $declaration_date;
+    public $showPreview = false;
 
 
     protected $rules = [
@@ -118,18 +132,131 @@ class NominationForm2B extends Component
         }
     }
 
+    // public function upload_candidate_photo()
+    // {   
+    //         dd($this->candidate_photo);
+
+    //     try {
+    //         $extension = $this->candidate_photo->getClientOriginalExtension();
+    //         $fileName  = time() . '_' . uniqid() . '.' . $extension;
+            
+    //         $destinationPath = public_path('candidate_photos');
+
+    //         // Create folder if not exists
+    //         if (!file_exists($destinationPath)) {
+    //             mkdir($destinationPath, 0755, true);
+    //         }
+
+    //         // Move file to public folder
+    //         $this->candidate_photo->move($destinationPath, $fileName);
+
+    //         // Save relative path (for DB later)
+    //         $this->uploaded_photo_path = 'candidate_photos/' . $fileName;
+
+    //         session()->flash('success', 'Photo uploaded successfully');
+
+    //     } catch (\Throwable $e) {
+
+    //         logger()->error('Candidate photo upload failed', [
+    //             'error' => $e->getMessage()
+    //         ]);
+
+    //         session()->flash('error', 'Photo upload failed');
+    //     }
+    // }
+
+    public function preview()
+    {
+        $this->validate(); 
+        $this->showPreview = true;
+    }
+
+    public function closePreview()
+    {
+        $this->showPreview = false;
+    }
+
+    // public function saveAndGeneratePdf()
+    // {
+    //     $this->validate();
+    //     if ($this->office_of_profit !== 'yes') $this->office_details = null;
+    //     if ($this->insolvent !== 'yes') $this->insolvent_details = null;
+    //     if ($this->foreign_allegiance !== 'yes') $this->foreign_details = null;
+    //     if ($this->disqualified_president !== 'yes') $this->disqualified_period = null;
+    //     if ($this->dismissed_for_corruption !== 'yes') $this->dismissed_date = null;
+    //     if ($this->govt_contract !== 'yes') $this->govt_contract_details = null;
+    //     if ($this->company_position !== 'yes') $this->company_details = null;
+    //     if ($this->commission_disqualified !== 'yes') $this->commission_disqualified_date = null;
+
+    //     $record = NominationForm2BModel::create([
+    //         'assembly_id' => $this->assembly_id,
+    //         'candidate_id' => $this->candidate_id,
+
+    //         'relation_type' => $this->relation_type,
+    //         'relation_name' => $this->relation_name,
+    //         'postal_address' => $this->postal_address,
+
+    //         'office_of_profit' => $this->office_of_profit,
+    //         'office_details'   => $this->office_details,
+    //         'insolvent'        => $this->insolvent,
+    //         'insolvent_details'=> $this->insolvent_details,
+    //         'foreign_allegiance'=> $this->foreign_allegiance,
+    //         'foreign_details'  => $this->foreign_details,
+    //         'disqualified_president'=> $this->disqualified_president,
+    //         'disqualified_period'=> $this->disqualified_period,
+    //         'dismissed_for_corruption'=> $this->dismissed_for_corruption,
+    //         'dismissed_date'   => $this->dismissed_date,
+    //         'govt_contract'    => $this->govt_contract,
+    //         'govt_contract_details'=> $this->govt_contract_details,
+    //         'company_position' => $this->company_position,
+    //         'company_details'  => $this->company_details,
+    //         'commission_disqualified'=> $this->commission_disqualified,
+    //         'commission_disqualified_date'=> $this->commission_disqualified_date,
+    //     ]);
+
+    //     return redirect()->route('nomination.pdf', $record->id);
+    // }
 
     public function save()
     {
         //dd($this->validate());
         $this->validate();
 
-        // dd($this->convicted, $this->case_no , $this->police_station, $this->district, $this->state, $this->sections, $this->conviction_date, $this->court, $this->punishment, $this->release_date,
-        // $this->appeal_filed, $this->appeal_details, $this->appeal_court, $this->appeal_status, $this->disposal_date, $this->order_nature);
-
         logger()->info($this->only([
             'convicted','case_no','police_station','district'
         ]));
+
+        if ($this->office_of_profit !== 'yes') {
+            $this->office_details = null;
+        }
+
+        if ($this->insolvent !== 'yes') {
+            $this->insolvent_details = null;
+        }
+
+        if ($this->foreign_allegiance !== 'yes') {
+            $this->foreign_details = null;
+        }
+
+        if ($this->disqualified_president !== 'yes') {
+            $this->disqualified_period = null;
+        }
+
+        if ($this->dismissed_for_corruption !== 'yes') {
+            $this->dismissed_date = null;
+        }
+
+        if ($this->govt_contract !== 'yes') {
+            $this->govt_contract_details = null;
+        }
+
+        if ($this->company_position !== 'yes') {
+            $this->company_details = null;
+        }
+
+        if ($this->commission_disqualified !== 'yes') {
+            $this->commission_disqualified_date = null;
+        }
         NominationForm2BModel::create([
             'assembly_id' => $this->assembly_id,
             'candidate_id' => $this->candidate_id,
@@ -167,7 +294,22 @@ class NominationForm2B extends Component
             'appeal_status'    => $this->appeal_status,
             'disposal_date'    => $this->disposal_date,
             'order_nature'     => $this->order_nature,
-           
+            'office_of_profit' => $this->office_of_profit,
+            'office_details'   => $this->office_details,
+            'insolvent'        => $this->insolvent,
+            'insolvent_details'=> $this->insolvent_details,
+            'foreign_allegiance'=> $this->foreign_allegiance,
+            'foreign_details'  => $this->foreign_details,
+            'disqualified_president'=> $this->disqualified_president,   
+            'disqualified_period'=> $this->disqualified_period,
+            'dismissed_for_corruption'=> $this->dismissed_for_corruption,
+            'dismissed_date'   => $this->dismissed_date,
+            'govt_contract'    => $this->govt_contract,
+            'govt_contract_details'=> $this->govt_contract_details,
+            'company_position' => $this->company_position,
+            'company_details'  => $this->company_details,
+            'commission_disqualified'=> $this->commission_disqualified,
+            'commission_disqualified_date'=> $this->commission_disqualified_date,      
         ]);
         
 
