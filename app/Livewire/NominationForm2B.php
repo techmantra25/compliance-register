@@ -6,9 +6,14 @@ use Livewire\Component;
 use App\Models\Assembly;
 use App\Models\Candidate;
 use App\Models\NominationForm2B as NominationForm2BModel;
+use Livewire\WithFileUploads;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\DB;
+
 
 class NominationForm2B extends Component
 {
+    use WithFileUploads;
     public $candidateId;
     public $assembly_id;
     public $candidate_id;
@@ -72,12 +77,11 @@ class NominationForm2B extends Component
     public $company_position;   
     public $company_details;   
     public $commission_disqualified;   
-    public $commission_disqualified_date;   
-
-    public $showPreview = false;
-
+    public $commission_disqualified_date; 
+    public $candidate_photo;  
 
     protected $rules = [
+        'candidate_photo' => 'nullable|image|max:2048',
         'relation_type' => 'required|in:father,mother,husband',
         'relation_name' => 'required',
         'postal_address' => 'required',
@@ -134,7 +138,7 @@ class NominationForm2B extends Component
 
     // public function upload_candidate_photo()
     // {   
-    //         dd($this->candidate_photo);
+    //         //dd($this->candidate_photo);
 
     //     try {
     //         $extension = $this->candidate_photo->getClientOriginalExtension();
@@ -165,66 +169,9 @@ class NominationForm2B extends Component
     //     }
     // }
 
-    public function preview()
-    {
-        $this->validate(); 
-        $this->showPreview = true;
-    }
-
-    public function closePreview()
-    {
-        $this->showPreview = false;
-    }
-
-    // public function saveAndGeneratePdf()
-    // {
-    //     $this->validate();
-    //     if ($this->office_of_profit !== 'yes') $this->office_details = null;
-    //     if ($this->insolvent !== 'yes') $this->insolvent_details = null;
-    //     if ($this->foreign_allegiance !== 'yes') $this->foreign_details = null;
-    //     if ($this->disqualified_president !== 'yes') $this->disqualified_period = null;
-    //     if ($this->dismissed_for_corruption !== 'yes') $this->dismissed_date = null;
-    //     if ($this->govt_contract !== 'yes') $this->govt_contract_details = null;
-    //     if ($this->company_position !== 'yes') $this->company_details = null;
-    //     if ($this->commission_disqualified !== 'yes') $this->commission_disqualified_date = null;
-
-    //     $record = NominationForm2BModel::create([
-    //         'assembly_id' => $this->assembly_id,
-    //         'candidate_id' => $this->candidate_id,
-
-    //         'relation_type' => $this->relation_type,
-    //         'relation_name' => $this->relation_name,
-    //         'postal_address' => $this->postal_address,
-
-    //         'office_of_profit' => $this->office_of_profit,
-    //         'office_details'   => $this->office_details,
-    //         'insolvent'        => $this->insolvent,
-    //         'insolvent_details'=> $this->insolvent_details,
-    //         'foreign_allegiance'=> $this->foreign_allegiance,
-    //         'foreign_details'  => $this->foreign_details,
-    //         'disqualified_president'=> $this->disqualified_president,
-    //         'disqualified_period'=> $this->disqualified_period,
-    //         'dismissed_for_corruption'=> $this->dismissed_for_corruption,
-    //         'dismissed_date'   => $this->dismissed_date,
-    //         'govt_contract'    => $this->govt_contract,
-    //         'govt_contract_details'=> $this->govt_contract_details,
-    //         'company_position' => $this->company_position,
-    //         'company_details'  => $this->company_details,
-    //         'commission_disqualified'=> $this->commission_disqualified,
-    //         'commission_disqualified_date'=> $this->commission_disqualified_date,
-    //     ]);
-
-    //     return redirect()->route('nomination.pdf', $record->id);
-    // }
-
     public function save()
     {
-        //dd($this->validate());
         $this->validate();
-
-        logger()->info($this->only([
-            'convicted','case_no','police_station','district'
-        ]));
 
         if ($this->office_of_profit !== 'yes') {
             $this->office_details = null;
@@ -257,7 +204,8 @@ class NominationForm2B extends Component
         if ($this->commission_disqualified !== 'yes') {
             $this->commission_disqualified_date = null;
         }
-        NominationForm2BModel::create([
+
+       $nomination =  NominationForm2BModel::create([
             'assembly_id' => $this->assembly_id,
             'candidate_id' => $this->candidate_id,
 
@@ -311,12 +259,9 @@ class NominationForm2B extends Component
             'commission_disqualified'=> $this->commission_disqualified,
             'commission_disqualified_date'=> $this->commission_disqualified_date,      
         ]);
-        
 
-        session()->flash('success', 'Nomination form submitted successfully');
-        $this->reset();
+        return redirect()->route('admin.candidates.form2B.pdf', $nomination->id);
     }
-
 
     public function render()
     {

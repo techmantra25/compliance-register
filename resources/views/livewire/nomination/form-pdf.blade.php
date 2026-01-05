@@ -284,53 +284,53 @@
                 <div class="section-title" style="text-align: center; font-weight: normal; margin-bottom: 7px;"> (To be used by candidate set up by recognised political party)</div>
                 <div style="font-size: 16px; line-height: 2; text-align: justify;">
                     I nominate as a candidate for election to the Legislative Assembly from the 
-                    <input type="text" class="input-field input-field-large" wire:model="assembly_name" style="width:228px;" readonly> Assembly Constituency. 
+                    <input type="text" class="input-field input-field-large" value="{{ $data->assembly_name }}" style="width:228px;" readonly> Assembly Constituency. 
                     
                 </div>
 
                 <div style="font-size: 16px; line-height: 2;">
-                    Candidate's name <input type="text" class="input-field input-field-large" wire:model="candidate_name" readonly style="width: 300px;">
+                    Candidate's name <input type="text" class="input-field input-field-large" value="{{ $data->candidate_name }}" readonly style="width: 300px;">
                     <div wire:key="relation-type-1">
                         <label>
-                            <input type="radio" name="relation_type_main" wire:model="relation_type" value="father"> Father's
+                            <input type="radio" name="relation_type_main" value="{{ $data->relation_type }}" value="father"> Father's
                         </label>
                         /
                         <label>
-                            <input type="radio" name="relation_type_main" wire:model="relation_type" value="mother"> Mother's
+                            <input type="radio" name="relation_type_main" value="{{ $data->relation_type }}" value="mother"> Mother's
                         </label>
                         /
                         <label>
-                            <input type="radio" name="relation_type_main" wire:model="relation_type" value="husband"> Husband's
+                            <input type="radio" name="relation_type_main" value="{{ $data->relation_type }}" value="husband"> Husband's
                         </label>
                     </div>
-                    name <input type="text" class="input-field input-field-medium" wire:model="relation_name" style="width: 400px;"> 
+                    name <input type="text" class="input-field input-field-medium" value="{{ $data->relation_name }}" style="width: 400px;"> 
                     <div wire:key="pronoun-1">  
                         <label>
-                            <input type="radio" name="pronoun-main" wire:model="pronoun" value="his"> His
+                            <input type="radio" name="pronoun-main" value="{{ $data->pronoun }}" value="his"> His
                         </label>
                         <label>
-                            <input type="radio" name="pronoun-main" wire:model="pronoun" value="her"> Her
+                            <input type="radio" name="pronoun-main" value="{{ $data->pronoun }}" value="her"> Her
                         </label>
                     </div>
-                    postal address<input type="text" class="input-field input-field-large" style="width: 428px;" wire:model="postal_address">
+                    postal address<input type="text" class="input-field input-field-large" style="width: 428px;" value="{{ $data->postal_address }}">
                     <div wire:key="pronoun-2">
                         <label>
-                            <input type="radio" name="pronoun-copy" wire:model="pronoun" value="his"> His
+                            <input type="radio" name="pronoun-copy" value="{{ $data->pronoun }}" value="his"> His
                         </label>
                         <label>
-                            <input type="radio" name="pronoun-copy" wire:model="pronoun" value="her"> Her
+                            <input type="radio" name="pronoun-copy" value="{{ $data->pronoun }}" value="her"> Her
                         </label>
                     </div>
-                    name is entered at Sl. No<input type="text" class="input-field input-field-small" wire:model="candidate_sl_no"> in Part No. 
-                    <input type="text" class="input-field input-field-small" wire:model="candidate_part_no"> of the electoral roll for 
-                    <input type="text" class="input-field input-field-medium" wire:model="assembly_name" style="width: 229px;"> Assembly constituency.
+                    name is entered at Sl. No<input type="text" class="input-field input-field-small" value="{{ $data->candidate_sl_no }}"> in Part No. 
+                    <input type="text" class="input-field input-field-small" value="{{ $data->candidate_part_no }}"> of the electoral roll for 
+                    <input type="text" class="input-field input-field-medium" value="{{ $data->assembly_name }}" style="width: 229px;"> Assembly constituency.
                 </div>
                 
                 <div style=" font-size: 16px; line-height: 2;">
-                    My name is <input type="text" class="input-field input-field-large" wire:model="proposer_name"> and it is entered at Sl. No. 
-                    <input type="text" class="input-field input-field-small" wire:model="proposer_sl_no"> in Part No 
-                    <input type="text" class="input-field input-field-small" wire:model="proposer_part_no"> of the electoral roll for the 
-                    <input type="text" class="input-field input-field-medium" wire:model="proposer_constituency" style="width: 227px;"> Assembly constituency.
+                    My name is <input type="text" class="input-field input-field-large" value="{{ $data->proposer_name }}"> and it is entered at Sl. No. 
+                    <input type="text" class="input-field input-field-small" value="{{ $data->proposer_sl_no }}"> in Part No 
+                    <input type="text" class="input-field input-field-small" value="{{ $data->proposer_part_no }}"> of the electoral roll for the 
+                    <input type="text" class="input-field input-field-medium" value="{{ $data->proposer_constituency }}" style="width: 227px;"> Assembly constituency.
                 </div>
                 
                 <div style="margin-top: 37px; display: flex; justify-content: space-between;">
@@ -497,17 +497,17 @@
             <div class="section-title" style="text-align: center; margin-bottom: 0; margin-top: 40px;">PART III</div>
             <div>I, the candidate mentioned in <span>Part I</span>/<span>Part II</span> (Strike out which is not applicable) assent to this nomination and hereby declare that:</div>
             <div style="margin-top: 3px;">(a) I am a citizen of India and have not acquired the citizenship of any foreign State;</div>
-            <div style="margin-top: 2px;">(b) that I have completed <input type="number" class="input-field input-field-small" wire:model="candidate_age"> years of age;</div>
+            <div style="margin-top: 2px;">(b) that I have completed <input type="number" class="input-field input-field-small" value="{{ $data->candidate_age }}"> years of age;</div>
             <div class="strike-instruction" style="margin-top: 2px; text-align: center;">
                 [STRIKE OUT c(i) OR c(ii) BELOW WHICHEVER IS NOT APPLICABLE]
             </div>
             <div style="margin-top: 10px;">
-                (c) (i) I am set up at this election by the <input type="text" class="input-field input-field-medium" wire:model="party_name" style="width: 283px;"> party, which is recognised     
+                (c) (i) I am set up at this election by the <input type="text" class="input-field input-field-medium" value="{{ $data->party_name }}" style="width: 283px;"> party, which is recognised     
             <label>
-                <input type="radio" name="party_type" wire:model="party_type" value="national"> National Party
+                <input type="radio" name="party_type" value="{{ $data->party_type }}" value="national"> National Party
             </label>/
             <label>
-                <input type="radio" name="party_type" wire:model="party_type" value="state"> State Party
+                <input type="radio" name="party_type" value="{{ $data->party_type }}" value="state"> State Party
             </label>
             in this State and that the symbol reserved for the above party be allotted to me.
                 <div style="margin: 10px 0 0; text-align: center;">OR</div>
@@ -524,19 +524,19 @@
                 (d) my name and my 
                 <div wire:key="relation-type-2">
                     <label>
-                        <input type="radio" name="relation_type_copy" wire:model="relation_type" value="father"> Father's
+                        <input type="radio" name="relation_type_copy" value="{{ $data->relation_type }}" value="father"> Father's
                     </label>
                     /
                     <label>
-                        <input type="radio" name="relation_type_copy" wire:model="relation_type" value="mother"> Mother's
+                        <input type="radio" name="relation_type_copy" value="{{ $data->relation_type }}" value="mother"> Mother's
                     </label>
                     /
                     <label>
-                        <input type="radio" name="relation_type_copy" wire:model="relation_type" value="husband"> Husband's
+                        <input type="radio" name="relation_type_copy" value="{{ $data->relation_type }}" value="husband"> Husband's
                     </label> 
                 </div>
                 name have been correctly spelt out above in 
-                <input type="text" class="input-field input-field-medium" wire:model="language_name"> (name of the language); and
+                <input type="text" class="input-field input-field-medium" value="{{ $data->language_name }}"> (name of the language); and
             </div>
             <div style="margin-top: 3px;">
                 (e) That to the best of my knowledge and belief, I am qualified and not also disqualified for being chosen to fill the seat in the Legislative Assembly of this State.
@@ -559,15 +559,15 @@
         <div class="keep-together">
             <div style="margin-top: 15px; ">
                 I also declare that I have not been, and shall not be nominated as a candidate at the present general     <label>
-                    <input type="radio" wire:model="election_type" value="general">
+                    <input type="radio" value="{{ $data->relation_type }}" value="general">
                     General Election
                 </label>
 
                 <label style="margin-left: 15px;">
-                    <input type="radio" wire:model="election_type" value="bye">
+                    <input type="radio" value="{{ $data->relation_type }}" value="bye">
                     Bye-Election
                 </label> being held simultaneously, to the Legislative Assembly 
-                <input type="text" class="input-field input-field-medium" wire:model="state_name"> of (State) from more than two Assembly constituencies.
+                <input type="text" class="input-field input-field-medium" value="{{ $data->state_name }}"> of (State) from more than two Assembly constituencies.
             </div>
             <div style="margin-top: 37px; display: flex; justify-content: space-between; ">
                 <div>
@@ -598,38 +598,38 @@
                         (ii) has been convicted for any other offence(s) for which he has been sentenced to imprisonment for two years or more.
                     </div>
                     <label>
-                        <input type="radio" name="convicted" wire:model="convicted" value="yes"> Yes
+                        <input type="radio" name="convicted" value="{{ $data->convicted }}" value="yes"> Yes
                     </label>
                     <label>
-                        <input type="radio" name="convicted" wire:model="convicted" value="no"> No
+                        <input type="radio" name="convicted" value="{{ $data->convicted }}" value="no"> No
                     </label>
                 </div>
             </div> 
-            @if($convicted == 'yes')
+            @if($data->convicted === 'yes')
                 <div style="margin-top: 25px;">
                     If the answer is "Yes", the candidate shall furnish the following information:
                 </div>
-                <div style="margin-left: 20px; line-height: 1.21;">(i) Case/First information report No./Nos. <input type="text" class="input-field input-field-large" wire:model.defer="case_no"></div>
-                <div style="margin-left: 20px; line-height: 1.21;">(ii) Police station(s) <input type="text" class="input-field" style="width: 139px;" wire:model.defer="police_station"> District(s) <input type="text" class="input-field" style="width: 139px;" wire:model.defer="district"> State(s) <input type="text" class="input-field" style="width: 139px;" wire:model.defer="state"></div>
-                <div style="margin-left: 20px; line-height: 1.21;">(iii) Section(s) of the concerned Act(s) and brief description of the offence(s) for which he has been convicted <input type="text" class="input-field input-field-large" wire:model.defer="sections"></div>
-                <div style="margin-left: 20px; line-height: 1.21;">(iv) Date(s) of conviction(s) <input type="date" class="input-field input-field-medium" style="width: 139px;" wire:model.defer="conviction_date"></div>
-                <div style="margin-left: 20px; line-height: 1.21;">(v) Court(s) which convicted the candidate <input type="text" class="input-field input-field-medium" style="width: 331px;" wire:model.defer="court"></div>
-                <div style="margin-left: 20px; line-height: 1.21;">(vi) Punishment(s) imposed [indicate period of imprisonment(s) and/or quantum of fine(s)] <input type="text" class="input-field input-field-large" wire:model.defer="punishment"></div>
-                <div style="margin-left: 20px; line-height: 1.21;">(vii) Date(s) of release from prison <input type="date" class="input-field input-field-medium" wire:model.defer="release_date"></div>
+                <div style="margin-left: 20px; line-height: 1.21;">(i) Case/First information report No./Nos. <input type="text" class="input-field input-field-large" value="{{ $data->case_no }}"></div>
+                <div style="margin-left: 20px; line-height: 1.21;">(ii) Police station(s) <input type="text" class="input-field" style="width: 139px;" value="{{ $data->police_station }}"> District(s) <input type="text" class="input-field" style="width: 139px;" value="{{ $data->district }}"> State(s) <input type="text" class="input-field" style="width: 139px;" value="{{ $data->state }}"></div>
+                <div style="margin-left: 20px; line-height: 1.21;">(iii) Section(s) of the concerned Act(s) and brief description of the offence(s) for which he has been convicted <input type="text" class="input-field input-field-large" value="{{ $data->sections }}"></div>
+                <div style="margin-left: 20px; line-height: 1.21;">(iv) Date(s) of conviction(s) <input type="date" class="input-field input-field-medium" style="width: 139px;" value="{{ $data->conviction_date }}"></div>
+                <div style="margin-left: 20px; line-height: 1.21;">(v) Court(s) which convicted the candidate <input type="text" class="input-field input-field-medium" style="width: 331px;" value="{{ $data->court }}"></div>
+                <div style="margin-left: 20px; line-height: 1.21;">(vi) Punishment(s) imposed [indicate period of imprisonment(s) and/or quantum of fine(s)] <input type="text" class="input-field input-field-large" value="{{ $data->punishment }}"></div>
+                <div style="margin-left: 20px; line-height: 1.21;">(vii) Date(s) of release from prison <input type="date" class="input-field input-field-medium" value="{{ $data->release_date }}"></div>
                 <div style="margin-left: 20px; line-height: 1.21;">(viii) Was/were any appeal(s)/revision(s) filed against above conviction(s)
                 <label>
-                <input type="radio" name="appeal_filed" wire:model="appeal_filed" value="yes"> Yes
+                <input type="radio" name="appeal_filed" value="{{ $data->appeal_filed }}" value="yes"> Yes
                 </label>
                 <label>
-                    <input type="radio" name="appeal_filed" wire:model="appeal_filed" value="no"> No
+                    <input type="radio" name="appeal_filed" value="{{ $data->appeal_filed }}" value="no"> No
                 </label></div>
-                <div style="margin-left: 20px; line-height: 1.21;">(ix) Date and particulars of the appeal(s)/application(s) for revision filed <input type="text" class="input-field input-field-large" style="width: 430px;" wire:model.defer="appeal_details"></div>
-                <div style="margin-left: 20px; line-height: 1.21;">(x) Name of the court(s) before which the appeal(s)/application(s) for revision filed <input type="text" class="input-field input-field-medium"  wire:model.defer="appeal_court"></div>
-                <div style="margin-left: 20px; line-height: 1.21;">(xi) Whether the said appeal(s)/application(s) for revision has/have been disposed of or is/are pending <input type="text" class="input-field input-field-medium" wire:model.defer="appeal_status"></div>
+                <div style="margin-left: 20px; line-height: 1.21;">(ix) Date and particulars of the appeal(s)/application(s) for revision filed <input type="text" class="input-field input-field-large" style="width: 430px;" value="{{ $data->appeal_details }}"></div>
+                <div style="margin-left: 20px; line-height: 1.21;">(x) Name of the court(s) before which the appeal(s)/application(s) for revision filed <input type="text" class="input-field input-field-medium"  value="{{ $data->appeal_court }}"></div>
+                <div style="margin-left: 20px; line-height: 1.21;">(xi) Whether the said appeal(s)/application(s) for revision has/have been disposed of or is/are pending <input type="text" class="input-field input-field-medium" value="{{ $data->appeal_status }}"></div>
                 <div style="margin-left: 20px; line-height: 1.21;">(xii) If the said appeal(s)/application(s) for revision has/have been disposed of—</div>
                 <div style="margin-left: 60px;">
-                    <div>(a) Date(s) of disposal <input type="date" class="input-field input-field-medium" wire:model.defer="disposal_date"></div>
-                    <div>(b) Nature of order(s) passed <input type="text" class="input-field input-field-medium" wire:model.defer="order_nature"></div>
+                    <div>(a) Date(s) of disposal <input type="date" class="input-field input-field-medium" value="{{ $data->disposal_date }}"></div>
+                    <div>(b) Nature of order(s) passed <input type="text" class="input-field input-field-medium" value="{{ $data->order_nature }}"></div>
                 </div>
             @endif
         </div>
@@ -645,18 +645,18 @@
                     (2) Whether the candidate is holding any office of profit under the Government of India or State Government?
                     
                     <label>
-                        <input type="radio" name="office_of_profit" wire:model="office_of_profit" value="yes"> Yes
+                        <input type="radio" name="office_of_profit" value="{{ $data->office_of_profit }}" value="yes"> Yes
                     </label>
                     /
                     <label>
-                        <input type="radio" name="office_of_profit" wire:model="office_of_profit" value="no"> No
+                        <input type="radio" name="office_of_profit" value="{{ $data->office_of_profit }}" value="no"> No
                     </label>
                 </div>
                 <div style="margin-top: 10px;">
                     - If Yes, details of the office held
                     <input type="text"
                         class="input-field input-field-large"
-                        wire:model="office_details">
+                        value="{{ $data->office_details }}">
                 </div>
             </div>
                 
@@ -665,11 +665,11 @@
                     (3) Whether the candidate has been declared insolvent by any Court?
 
                     <label>
-                        <input type="radio" name="insolvent" wire:model="insolvent" value="yes"> Yes
+                        <input type="radio" name="insolvent" value="{{ $data->insolvent }}" value="yes"> Yes
                     </label>
                     /
                     <label>
-                        <input type="radio" name="insolvent" wire:model="insolvent" value="no"> No
+                        <input type="radio" name="insolvent" value="{{ $data->insolvent }}" value="no"> No
                     </label>
                 </div>
 
@@ -677,7 +677,7 @@
                     - If Yes, has he been discharged from insolvency
                     <input type="text"
                         class="input-field input-field-medium"
-                        wire:model="insolvent_details">
+                        value="{{ $data->insolvent_details }}">
                 </div>
             </div>
                 
@@ -686,18 +686,18 @@
                     (4) Whether the candidate is under allegiance or adherence to any foreign country?
 
                     <label>
-                        <input type="radio" name="foreign_allegiance" wire:model="foreign_allegiance" value="yes"> Yes
+                        <input type="radio" name="foreign_allegiance" value="{{ $data->foreign_allegiance }}" value="yes"> Yes
                     </label>
                     /
                     <label>
-                        <input type="radio" name="foreign_allegiance" wire:model="foreign_allegiance" value="no"> No
+                        <input type="radio" name="foreign_allegiance" value="{{ $data->foreign_allegiance }}" value="no"> No
                     </label>
                 </div>
                 <div style="margin-top: 10px;">
                     - If Yes, give details
                     <input type="text"
                         class="input-field input-field-large"
-                        wire:model="foreign_details">
+                        value="{{ $data->foreign_allegiance_details }}">
                 </div>
             </div>
                 
@@ -706,11 +706,11 @@
                     (5) Whether the candidate has been disqualified under section 8A of the said Act by an order of the President?
 
                     <label>
-                        <input type="radio" name="disqualified_president" wire:model="disqualified_president" value="yes"> Yes
+                        <input type="radio" name="disqualified_president" value="{{ $data->disqualified_president }}" value="yes"> Yes
                     </label>
                     /
                     <label>
-                        <input type="radio" name="disqualified_president" wire:model="disqualified_president" value="no"> No
+                        <input type="radio" name="disqualified_president" value="{{ $data->disqualified_president }}" value="no"> No
                     </label>
                 </div>
 
@@ -718,7 +718,7 @@
                     - If Yes, the period for which disqualified
                     <input type="text"
                         class="input-field input-field-medium"
-                        wire:model="disqualified_period">
+                        value="{{ $data->disqualified_period }}">
                 </div>
             </div>
 
@@ -728,18 +728,18 @@
                     (6) Whether the candidate was dismissed for corruption or for disloyalty while holding office under the Government of India or the Government of any State?
 
                     <label>
-                        <input type="radio" name="dismissed_for_corruption" wire:model="dismissed_for_corruption" value="yes"> Yes
+                        <input type="radio" name="dismissed_for_corruption" value="{{ $data->dismissed_for_corruption }}" value="yes"> Yes
                     </label>
                     /
                     <label>
-                        <input type="radio" name="dismissed_for_corruption" wire:model="dismissed_for_corruption" value="no"> No
+                        <input type="radio" name="dismissed_for_corruption" value="{{ $data->dismissed_for_corruption }}" value="no"> No
                     </label>
                 </div>
                 <div style="margin-top: 5px;">
                     - If Yes, the date of such dismissal
                     <input type="date"
                         class="input-field input-field-medium"
-                        wire:model="dismissed_date">
+                        value="{{ $data->dismissed_date }}">
                 </div>
             </div>
 
@@ -749,11 +749,11 @@
                     (7) Whether the candidate has any subsisting contract(s) with the Government?
 
                     <label>
-                        <input type="radio" name="govt_contract" wire:model="govt_contract" value="yes"> Yes
+                        <input type="radio" name="govt_contract" value="{{ $data->govt_contract }}" value="yes"> Yes
                     </label>
                     /
                     <label>
-                        <input type="radio" name="govt_contract" wire:model="govt_contract" value="no"> No
+                        <input type="radio" name="govt_contract" value="{{ $data->govt_contract }}" value="no"> No
                     </label>
                 </div>
 
@@ -761,7 +761,7 @@
                     - If Yes, with which Government and details of subsisting contract(s)
                     <input type="text"
                         class="input-field input-field-large"
-                        wire:model="govt_contract_details">
+                        value="{{ $data->govt_contract_details }}">
                 </div>
             </div>
 
@@ -771,11 +771,11 @@
                     (8) Whether the candidate is a managing agent, manager or Secretary of any company or Corporation?
 
                     <label>
-                        <input type="radio" name="company_position" wire:model="company_position" value="yes"> Yes
+                        <input type="radio" name="company_position" value="{{ $data->company_position }}" value="yes"> Yes
                     </label>
                     /
                     <label>
-                        <input type="radio" name="company_position" wire:model="company_position" value="no"> No
+                        <input type="radio" name="company_position" value="{{ $data->company_position }}" value="no"> No
                     </label>
                 </div>
 
@@ -783,7 +783,7 @@
                     - If Yes, with which Government and the details thereof
                     <input type="text"
                         class="input-field input-field-large"
-                        wire:model="company_details">
+                        value="{{ $data->company_details }}">
                 </div>
             </div>
 
@@ -793,11 +793,11 @@
                     (9) Whether the candidate has been disqualified by the Commission under section 10A of the said Act?
 
                     <label>
-                        <input type="radio" name="commission_disqualified" wire:model="commission_disqualified" value="yes"> Yes
+                        <input type="radio" name="commission_disqualified" value="{{ $data->commission_disqualified }}" value="yes"> Yes
                     </label>
                     /
                     <label>
-                        <input type="radio" name="commission_disqualified" wire:model="commission_disqualified" value="no"> No
+                        <input type="radio" name="commission_disqualified" value="{{ $data->commission_disqualified }}" value="no"> No
                     </label>
                 </div>
 
@@ -805,7 +805,7 @@
                     - If Yes, the date of disqualification
                     <input type="date"
                         class="input-field input-field-medium"
-                        wire:model="commission_disqualified_date">
+                        value="{{ $data->commission_disqualified_date }}">
                 </div>
             </div>
 
