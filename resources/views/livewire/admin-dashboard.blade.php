@@ -2,11 +2,11 @@
     <section class="dash-wrapper">
         <div class="container">
             <div class="row mb-4">
-                <div class="col-md-6 mb-4">
+                <div class="col-md-12 mb-4">
                     <div class="inner-wrapper">
                         <div class="title-head">Event Permission (State View)</div>
                         <div class="wrappper-bpdy">
-                            <div class="chrat-place">
+                            <div class="chrat-place mb-5">
                                 <canvas width="300" id="myChart"></canvas>
                             </div>
                              <a href="{{route('admin.eventwise.district')}}" class="btm-small blue-btm">Click for District View</a> 
@@ -19,7 +19,6 @@
                         <div class="title-head">Nomination Vetting (State View) - {{ $this->phases->count() }} Phases</div>
                         <div class="wrappper-bpdy">
                             <div class="row">
-                                {{-- @dd($this->phases) --}}
                                 @foreach($this->phases as $key => $phase)
                                     <div class="col-md-3">
                                         <div class="inner-grid">
@@ -120,11 +119,11 @@
 
                         const text = "Total Events : " + totalScheduled;
 
-                        ctx.font = 'bold 18px Arial';
+                        ctx.font = 'bold 16px Arial';
                         ctx.fillStyle = '#333';
                         ctx.textAlign = 'center';
                         ctx.textBaseline = 'middle';
-                        ctx.fillText(text, chart.width / 2, chart.height / 2);
+                        ctx.fillText(text, chart.width / 2, chart.height / 1.8);
 
                         ctx.restore();
                     }
@@ -224,7 +223,7 @@
                     cutout: '70%',
                     plugins: {
                         legend: {
-                            position: 'top',
+                            position: 'middle',
                         },
                         datalabels: {
                             display: false
@@ -297,53 +296,3 @@
         </script>
     @endpush
 </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

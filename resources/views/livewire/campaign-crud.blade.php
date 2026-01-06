@@ -376,7 +376,7 @@
                                     <select class="form-control" wire:model="campaigner_id">
                                         <option value="">Select Campaigner</option>
                                         @foreach($campaigners as $camp)
-                                            <option value="{{ $camp->id }}">{{ $camp->name }}({{$camp->mobile}})</option>
+                                            <option value="{{ $camp->id }}">{{ ucwords($camp->name) }}({{$camp->mobile}})</option>
                                         @endforeach
                                     </select>
                                     @error('campaigner_id') <small class="text-danger">{{ $message }}</small> @enderror
@@ -559,7 +559,14 @@
         });
         document.addEventListener('DOMContentLoaded', function () {
             $('#RescheduleModal').on('hidden.bs.modal', function () {
-                location.reload(); // reloads page without backend redirect
+                location.reload();
+            });
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            $('#campaignModal').on('hidden.bs.modal', function () {
+                location.reload();
             });
         });
     </script>

@@ -27,7 +27,7 @@ class EmployeeCrud extends Component
     ];
     public function resetInputFields()
     {
-        $this->reset(['name', 'email', 'mobile', 'role', 'password','zone_id']);
+        $this->reset(['name', 'email', 'mobile', 'role', 'password','zone_id','search']);
         $this->admin_id = null;
         $this->isEdit = false;
         $this->dispatch('ResetForm');

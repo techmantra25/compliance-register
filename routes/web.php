@@ -17,6 +17,7 @@ use App\Livewire\{
     CandidateDocumentVetting,
     DiscrepancyReportCrud,
     CandidateJourney,
+    CandidateForm5Update,
     AgentCrud,
     AdminLogin,
     CampaignCrud,
@@ -28,8 +29,10 @@ use App\Livewire\{
     EventWiseDistrict,
     MccViolationCrud,
     MccLogDetails,
-    PhaseWiseMcc
+    PhaseWiseMcc,
+    NominationForm2B
 };
+use App\Http\Controllers\NominationPdfController;
 use App\Livewire\Candidate\DocumentComments;
 use App\Http\Controllers\CandidateController;
 
@@ -81,7 +84,7 @@ Route::get('/forget/password',ForgetPassword::class)->name('forget.password');
 | text is displayed in the selected language.
 */
 Route::prefix('/admin')->middleware('auth:admin')->group(function () {
-    Route::get('/dashboard', AdminDashboard::class)->name('admin.dashboard');
+    Route::get('/dashboard', AdminDashboard::class)->name('admin.dashboard')->middleware('employee.permission:view_dashboard');
     Route::get('/update/profile', UpdateProfile::class)->name('admin.update.profile');
     Route::get('phase/{phaseId}/district', PhaseWiseDistrict::class)->name('admin.phasewise.district');
     Route::get('phase/{phaseId}/mcc', PhaseWiseMcc::class)->name('admin.phasewise.mcc');
@@ -104,6 +107,9 @@ Route::prefix('/admin')->middleware('auth:admin')->group(function () {
     
     Route::prefix('candidates')->group(function () {
         Route::get('/journey/{id}', CandidateJourney::class)->name('admin.candidates.journey');
+       // Route::get('/form-5/{id}', CandidateForm5Update::class)->name('admin.candidates.form5');
+        Route::get('/form-2B/{id}', NominationForm2B::class)->name('admin.candidates.form2B');
+        Route::get('/form-2B/pdf/{id}', [NominationPdfController::class, 'form2B'])->name('admin.candidates.form2B.pdf');
         Route::get('/nominations', CandidateContactList::class)->name('admin.candidates.contacts');
         Route::get('/social-media', DiscrepancyReportCrud::class)->name('admin.candidates.discrepancies.report');
         // Route::get('/Candidate Discrepancy Reports', [CandidateController::class, 'nominations'])->name('admin.candidates.nominations');
@@ -112,6 +118,7 @@ Route::prefix('/admin')->middleware('auth:admin')->group(function () {
         Route::get('/documents', CandidateDocumentCollection::class)->name('admin.candidates.documents');
         Route::get('/documents/comments/{document}', DocumentComments::class)->name('admin.candidates.documents.comments');
         Route::get('/documents/vetting/{document}', CandidateDocumentVetting::class)->name('admin.candidates.documents.vetting');
+
     });
 
 
@@ -122,7 +129,7 @@ Route::prefix('/admin')->middleware('auth:admin')->group(function () {
     });
 
     Route::prefix('mcc-violation')->group(function (){
-        Route::get('/', MccViolationCrud::class)->name('admin.mcc_violation');
+        Route::get('/', MccViolationCrud::class)->name('admin.mcc_violation')->middleware('employee.permission:mcc_view_mcc');
         Route::get('/log-details/{id}', MccLogDetails::class)->name('admin.mcc_log_details');
     });
 });

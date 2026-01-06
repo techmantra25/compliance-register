@@ -32,16 +32,16 @@
                 </ol>
             </div>
             <div>
-                {{-- @if(childUserAccess(Auth::guard('admin')->user()->id,'campaign_import_campaigner')) --}}
+                @if(childUserAccess(Auth::guard('admin')->user()->id,'mcc_import_mcc'))
                 <button class="btn btn-secondary btn-sm me-2" data-bs-toggle="modal" data-bs-target="#importMccModal">
                     <i class="bi bi-upload me-1"></i> Import MCC
                 </button>
-                {{-- @endif --}}
-                {{-- @if(childUserAccess(Auth::guard('admin')->user()->id,'campaign_add_campaign')) --}}
+                @endif
+                @if(childUserAccess(Auth::guard('admin')->user()->id,'mcc_add_mcc'))
                 <button class="btn btn-primary btn-sm" wire:click="openMccModal">
                     <i class="bi bi-plus-circle me-1"></i> Add MCC
                 </button>
-                {{-- @endif --}}
+                @endif
             </div>
         </div>
 
@@ -101,7 +101,7 @@
                                         <td>{{ $mccList->firstItem() + $key }}</td>
                                         <td class="text-start">
                                             <div class="fw-semibold">{{ ucwords(optional($item->assembly)->assembly_name_en ?? '_') }}</div>
-                                            <div class="text-muted small">District: {{ $item->assembly->district->name_en }}</div>
+                                            <div class="text-muted small">District: {{ optional(optional($item->assembly)->district)->name_en }}</div>
                                             <div class="small text-primary">
                                                 {{ ucwords(optional(optional(optional($item->assembly)->assemblyPhase)->phase)->name ?? 'N/A') }}
                                             </div>
@@ -113,6 +113,7 @@
                                         <td>{{ ucwords($item->complainer_description) }}</td>
                                         <td>{{ $item->created_at->format('d-m-Y h:i A') }}</td>
                                         <td class="text-center">
+                                            @if(childUserAccess(Auth::guard('admin')->user()->id,'mcc_action_taken_and_status'))
                                             <div class="btn-group">
                                                 @if(empty($item->action_taken))
                                                     <button class="btn btn-sm btn-outline-primary"
@@ -128,8 +129,9 @@
                                                     </button>
                                                 @endif
                                             </div>
+                                            @endif
                                         </td>
-                                        <td>
+                                        {{-- <td>
                                             <select class="form-select form-select-sm"
                                                 wire:change="changeStatus({{ $item->id }}, $event.target.value)"
                                                 @if($item->status == 'pending_to_process' || $item->status == 'confirm_resolved') disabled @endif >
@@ -159,20 +161,59 @@
                                                 {{ ucwords(str_replace('_',' ', $item->status)) }}
                                             </span>
                                             <div class="mt-1">
-                                                <small class="text-muted d-block">Remarks: {{ $item->remarks ?? 'N/A' }}</small>
+                                                <small class="text-muted d-block">Remarks: {{ ucwords($item->remarks) ?? 'N/A' }}</small>
+                                            </div>
+                                        </td> --}}
+                                        <td>
+                                            @if($item->status == 'processed')
+                                                <select class="form-select form-select-sm"
+                                                    wire:change="changeStatus({{ $item->id }}, $event.target.value)">
+
+                                                    <option value="processed" selected>
+                                                        Processed
+                                                    </option>
+
+                                                    <option value="confirm_resolved">
+                                                        Resolved
+                                                    </option>
+                                                </select>
+                                            @endif
+                                            <span class="badge 
+                                                @if($item->status == 'pending_to_process') bg-warning
+                                                @elseif($item->status == 'processed') bg-info
+                                                @elseif($item->status == 'confirm_resolved') bg-success
+                                                @else bg-secondary
+                                                @endif">
+                                                {{ ucwords(str_replace('_',' ', $item->status)) }}
+                                            </span>
+
+                                            <div class="mt-1">
+                                                <small class="text-muted d-block">
+                                                    Remarks: {{ $item->remarks ? ucwords($item->remarks) : 'N/A' }}
+                                                </small>
                                             </div>
                                         </td>
+
                                         <td class="text-center">
                                             <div class="btn-group">
                                                 <!-- Edit -->
-                                                {{-- @if(childUserAccess(Auth::guard('admin')->user()->id,'campaign_update_campaign')) --}}
+                                                @if(childUserAccess(Auth::guard('admin')->user()->id,'mcc_update_mcc'))
                                                 <button class="btn btn-sm btn-outline-primary"
                                                     title="Edit Campaign"
                                                     wire:click="edit({{ $item->id }})">
                                                     <i class="bi bi-pencil"></i>
                                                 </button>
-                                                {{-- @endif --}}
+                                                @endif
                                             </div>
+                                            @if(childUserAccess(Auth::guard('admin')->user()->id,'mcc_view_mcc_log'))
+                                            <div class="btn group">
+                                                <a href="{{ route('admin.mcc_log_details', $item->id) }}"
+                                                    class="btn btn-sm btn-outline-primary"
+                                                    title="Mcc Log">
+                                                    <i class="bi bi-person-lines-fill"></i>
+                                                </a>
+                                            </div>
+                                            @endif
                                         </td>
                                     </tr>
                                 @empty
@@ -273,7 +314,7 @@
             </div>
         </div>
 
-        <div wire:ignore.self class="modal fade" id="escalationModal" tabindex="-1" aria-labelledby="actionTakenModalLabel"
+        <div wire:ignore class="modal fade" id="escalationModal" tabindex="-1" aria-labelledby="actionTakenModalLabel"
             aria-hidden="true">
             <div class="modal-dialog modal-l"> 
                 <div class="modal-content">
@@ -296,7 +337,7 @@
             </div>
         </div>
 
-        <div wire:ignore.self class="modal fade" id="importMccModal" tabindex="-1"
+        <div wire:ignore class="modal fade" id="importMccModal" tabindex="-1"
             aria-labelledby="importMccModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-lg modal-dialog-centered">
                 <div class="modal-content border-0 shadow-lg rounded-3">
@@ -357,7 +398,7 @@
                 </div>
             </div>
         </div>
-        <div wire:ignore.self class="modal fade" id="resolveModal" tabindex="-1">
+        <div wire:ignore class="modal fade" id="resolveModal" tabindex="-1">
             <div class="modal-dialog modal-md">
                 <div class="modal-content">
 
@@ -381,8 +422,6 @@
                 </div>
             </div>
         </div>
-
-
 
     <div class="loader-container" wire:loading wire:target="save,openCampaignModal">
         <div class="loader"></div>
@@ -494,11 +533,8 @@
         window.addEventListener('closeModal', event => {
             var modal = bootstrap.Modal.getInstance(document.getElementById(event.detail.id));
             modal.hide();
-
-            // Fix leftover backdrop
-            document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
-            document.body.classList.remove('modal-open');
-            document.body.style = "";
+            location.reload();
+           
         });
     </script>
 

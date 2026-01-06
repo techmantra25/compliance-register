@@ -16,7 +16,17 @@
             <div class="card shadow-sm border-0 p-3">
                 <div class="card-header bg-white d-flex justify-content-between align-items-center">
                     <h5 class="fw-bold mb-0">Phases</h5>
-                    <input type="text" wire:model="search" class="form-control form-control-sm w-auto" wire:keyup="filterData($event.target.value)" placeholder="Search...">
+                    <div class="d-flex align-items-center gap-2">
+                        <input type="text" 
+                            wire:model="search" 
+                            wire:keyup="filterData($event.target.value)"
+                            class="form-control form-control-sm" 
+                            placeholder="Search...">
+
+                        <button class="btn btn-sm btn-danger" wire:click="resetInputFields">
+                            <i class="bi bi-arrow-clockwise"></i>
+                        </button>
+                    </div>
                 </div>
 
                 <div class="card-body p-2">

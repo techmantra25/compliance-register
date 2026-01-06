@@ -32,12 +32,14 @@
         </div>
 
         <ul class="nav flex-column px-2">
-            <li class="nav-item mb-2">
-                <a href="{{ route('admin.dashboard') }}"
-                   class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
-                    <i class="bi bi-house me-2"></i> {{ __('admin/sidebar.dashboard') }}
-                </a>
-            </li>
+            @if(userAccess(Auth::guard('admin')->user()->id,'dashboard'))
+                <li class="nav-item mb-2">
+                    <a href="{{ route('admin.dashboard') }}"
+                    class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+                        <i class="bi bi-house me-2"></i> {{ __('admin/sidebar.dashboard') }}
+                    </a>
+                </li>
+            @endif
             <!-- Master Data Dropdown -->
             @if(userAccess(Auth::guard('admin')->user()->id,'master_management'))
                 <li class="nav-item mb-2">
@@ -213,7 +215,7 @@
 
     {{-- Main Content --}}
     <div class="flex-grow-1">
-        <header class="topbar d-flex justify-content-between align-items-center px-3">
+        <header class="topbar d-flex justify-content-between align-items-center px-3 d-print-none">
             <div class="d-flex align-items-center gap-3">
                 <button class="menu-toggle btn btn-link p-0" id="menu-toggle">
                     <i class="bi bi-list fs-5"></i>
