@@ -12,6 +12,6 @@ class NominationPdfController extends Controller
     {
         $nominationForm = NominationForm2B::findOrFail($id);
         $pdf = Pdf::loadView('livewire.nomination.form-pdf', ['data' => $nominationForm]);
-        return $pdf->download('Nomination_Form_2B_'.$nominationForm->candidate_name.'.pdf');
+        return $pdf->stream('Nomination_Form_2B_'.$nominationForm->candidate_name.'.pdf');
     }
 }

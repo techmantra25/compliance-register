@@ -19,6 +19,7 @@ class NominationForm2B extends Component
     public $candidate_id;
     public $candidate;
 
+    public $election_state = 'WEST BENGAL';
     public $assembly_name;
     public $candidate_name;
 
@@ -205,10 +206,11 @@ class NominationForm2B extends Component
             $this->commission_disqualified_date = null;
         }
 
-       $nomination =  NominationForm2BModel::create([
+        $nomination =  NominationForm2BModel::create([
             'assembly_id' => $this->assembly_id,
             'candidate_id' => $this->candidate_id,
 
+            'election_state' => $this->election_state,
             'relation_type' => $this->relation_type,
             'relation_name' => $this->relation_name,
             'postal_address' => $this->postal_address,

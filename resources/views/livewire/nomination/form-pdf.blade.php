@@ -243,18 +243,19 @@
 <body>
     <div class="form-container">
         <!---keep togathor start-->
+    <form wire:submit.prevent="save" enctype="multipart/form-data">
         <div class="keep-together">
             <div class="form-header">
                 <div class="form-title">FORM 2B</div>
                 <div class=".form-title">(See rule 4)</div>
                 <div class="form-title">NOMINATION PAPER</div>
                 <div style="font-style: italic; font-size: 16px; line-height: 1.21;">Election to the Legislative Assembly of 
-                    <input type="text" class="input-field input-field-large" placeholder="WEST BENGAL" readonly style="width:125px;">(State)
+                    <input type="text" class="input-field input-field-large" value="{{ $data->election_state }}" style="width:125px;">(State)
                 </div>
 
             </div>
 
-        <form wire:submit.prevent="save" enctype="multipart/form-data">
+        
 
             <div style="text-align: right; overflow: auto; margin-bottom: 16px;">
                 <div style="font-size: 12px; line-height:1.35; font-style: italic; text-align: justify; border:1px solid #000; width:114px; height: 145px; padding:5px; font-weight: bold; float: right; display: flex; align-items:center; justify-content: center;">
