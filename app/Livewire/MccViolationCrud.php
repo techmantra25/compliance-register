@@ -6,7 +6,7 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\WithFileUploads;
 use App\Models\Assembly;
-use App\Models\MCC;
+use App\Models\Mcc;
 use App\Models\ChangeLog;
 
 class MccViolationCrud extends Component
