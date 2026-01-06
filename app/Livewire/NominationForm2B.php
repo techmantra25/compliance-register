@@ -137,43 +137,10 @@ class NominationForm2B extends Component
         }
     }
 
-    // public function upload_candidate_photo()
-    // {   
-    //         //dd($this->candidate_photo);
-
-    //     try {
-    //         $extension = $this->candidate_photo->getClientOriginalExtension();
-    //         $fileName  = time() . '_' . uniqid() . '.' . $extension;
-            
-    //         $destinationPath = public_path('candidate_photos');
-
-    //         // Create folder if not exists
-    //         if (!file_exists($destinationPath)) {
-    //             mkdir($destinationPath, 0755, true);
-    //         }
-
-    //         // Move file to public folder
-    //         $this->candidate_photo->move($destinationPath, $fileName);
-
-    //         // Save relative path (for DB later)
-    //         $this->uploaded_photo_path = 'candidate_photos/' . $fileName;
-
-    //         session()->flash('success', 'Photo uploaded successfully');
-
-    //     } catch (\Throwable $e) {
-
-    //         logger()->error('Candidate photo upload failed', [
-    //             'error' => $e->getMessage()
-    //         ]);
-
-    //         session()->flash('error', 'Photo upload failed');
-    //     }
-    // }
-
     public function save()
     {
         $this->validate();
-
+        try{
         if ($this->office_of_profit !== 'yes') {
             $this->office_details = null;
         }
@@ -206,6 +173,11 @@ class NominationForm2B extends Component
             $this->commission_disqualified_date = null;
         }
 
+        $filePath = null;
+        if ($this->candidate_photo) {
+            $filePath = $this->candidate_photo->store('nomination_forms', 'public');
+        }
+
         $nomination =  NominationForm2BModel::create([
             'assembly_id' => $this->assembly_id,
             'candidate_id' => $this->candidate_id,
@@ -228,7 +200,7 @@ class NominationForm2B extends Component
             'election_type' => $this->election_type,
             'state_name' => $this->state_name,
             'convicted' => $this->convicted,
-
+            'candidate_photo' =>  $filePath ,
             'case_no'          => $this->case_no,
             'police_station'   => $this->police_station,
             'district'         => $this->district,
@@ -263,6 +235,14 @@ class NominationForm2B extends Component
         ]);
 
         return redirect()->route('admin.candidates.form2B.pdf', $nomination->id);
+      
+        } catch (\Exception $e) {
+            dd($e->getMessage());
+            // Any other errors
+            session()->flash('error', 'Something went wrong: ' . $e->getMessage());
+            // Optional: log the error for debugging
+            \Log::error('Nomination Save Error: ' . $e->getMessage());
+        }
     }
 
     public function render()
