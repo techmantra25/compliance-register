@@ -172,6 +172,8 @@ class NominationForm2B extends Component
 
     public function save()
     {
+        try{
+
         $this->validate();
 
         if ($this->office_of_profit !== 'yes') {
@@ -206,6 +208,12 @@ class NominationForm2B extends Component
             $this->commission_disqualified_date = null;
         }
 
+        $filePath = null;
+        if ($this->candidate_photo) {
+            // store file in storage/app/public/nomination_forms
+            $filePath = $this->candidate_photo->store('nomination_forms', 'public');
+        }
+
         $nomination =  NominationForm2BModel::create([
             'assembly_id' => $this->assembly_id,
             'candidate_id' => $this->candidate_id,
@@ -228,7 +236,7 @@ class NominationForm2B extends Component
             'election_type' => $this->election_type,
             'state_name' => $this->state_name,
             'convicted' => $this->convicted,
-
+            'candidate_photo' =>  $filePath ,
             'case_no'          => $this->case_no,
             'police_station'   => $this->police_station,
             'district'         => $this->district,
@@ -263,6 +271,14 @@ class NominationForm2B extends Component
         ]);
 
         return redirect()->route('admin.candidates.form2B.pdf', $nomination->id);
+      
+        } catch (\Exception $e) {
+            dd($e->getMessage());
+            // Any other errors
+            session()->flash('error', 'Something went wrong: ' . $e->getMessage());
+            // Optional: log the error for debugging
+            \Log::error('Nomination Save Error: ' . $e->getMessage());
+        }
     }
 
     public function render()
