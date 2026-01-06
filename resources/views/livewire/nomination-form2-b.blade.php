@@ -551,7 +551,6 @@
                     <input type="text" class="input-field input-field-medium" readonly> (area) in that State.
                 </div>
             </div>
-
         </div>
 
         <!---keep togathor start-->
