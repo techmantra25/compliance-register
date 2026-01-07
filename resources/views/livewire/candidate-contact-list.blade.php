@@ -247,13 +247,49 @@
                                                 title="Candidate Journey Timeline">
                                                 FORM 5
                                             </a> --}}
-                                            <a href="{{ route('admin.candidates.form2B', $candidate->id) }}"
+                                            <button
                                                 class="btn btn-sm btn-outline-primary mt-1"
-                                                title="Candidate Journey Timeline">
-                                                FORM 2B
-                                            </a>
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#formModal-{{ $candidate->id }}"
+                                                title="Forms">
+                                                <i class="bi bi-file-earmark-text"></i> FORM
+                                            </button>
                                         @endif
                                     </td>
+
+                                    <!-- modal -->
+                                     <div class="modal fade" id="formModal-{{ $candidate->id }}" tabindex="-1"
+                                        aria-labelledby="formModalLabel-{{ $candidate->id }}" aria-hidden="true">
+                                        <div class="modal-dialog modal-dialog-centered">
+                                            <div class="modal-content border-0 shadow">
+
+                                                <!-- Modal Header -->
+                                                <div class="modal-header bg-primary text-white">
+                                                    <h5 class="modal-title" id="formModalLabel-{{ $candidate->id }}">
+                                                        <i class="bi bi-file-earmark-text me-1"></i> Candidate Forms
+                                                    </h5>
+                                                    <button type="button" class="btn-close btn-close-white"
+                                                            data-bs-dismiss="modal"></button>
+                                                </div>
+
+                                                <!-- Modal Body -->
+                                                <div class="modal-body text-center">
+
+                                                    <a href="{{ route('admin.candidates.form2B', $candidate->id) }}"
+                                                    class="btn btn-outline-primary w-100 mb-2">
+                                                        <i class="bi bi-file-earmark"></i> FORM 2B
+                                                    </a>
+
+                                                    <a href="{{ route('admin.candidates.form26', $candidate->id) }}"
+                                                    class="btn btn-outline-primary w-100">
+                                                        <i class="bi bi-file-earmark"></i> FORM 26
+                                                    </a>
+
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
                                 </tr>
                                 @empty
                                 <tr>
