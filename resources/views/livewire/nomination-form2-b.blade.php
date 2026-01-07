@@ -258,7 +258,6 @@
                         <input type="text" class="input-field input-field-large" wire:model="election_state"
                             style="width:125px;">(State)
                     </div>
-
                 </div>
 
                 <div style="text-align: right; overflow: auto; margin-bottom: 16px;">
@@ -276,7 +275,6 @@
                         @enderror
 
                     </div>
-
                 </div>
 
                 <div class="strike-instruction"
@@ -396,7 +394,6 @@
 
             <!---keep togathor start-->
             <div class="keep-together">
-
                 <div class="full-strike2">
                     <div style="margin-top: 15px; line-height:1.8; text-align: justify;">
                         We declare that we are electors of this Assembly constituency and our names are entered in the
@@ -406,7 +403,8 @@
 
                     <div class="section-title"
                         style="text-align: center; font-size: 16px; font-weight: bold; margin-top: 20px; margin-bottom: 0;">
-                        Particulars of the proposers and their signatures</div>
+                        Particulars of the proposers and their signatures
+                    </div>
 
                     <table style="margin-top: 0;">
                         <thead>
@@ -538,9 +536,6 @@
                         N.B. - There should be ten electors of the constituency as proposers.
                     </div>
                 </div>
-
-
-
                 <div class="section-title" style="text-align: center; margin-bottom: 0; margin-top: 40px;">PART III
                 </div>
                 <div>I, the candidate mentioned in <span>Part I</span>/<span>Part II</span> (Strike out which is not
@@ -614,7 +609,6 @@
                         <input type="text" class="input-field input-field-medium" readonly> (area) in that State.
                     </div>
                 </div>
-
             </div>
 
             <!---keep togathor start-->
