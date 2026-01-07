@@ -258,7 +258,7 @@
                                     </td>
 
                                     <!-- modal -->
-                                     <div class="modal fade" id="formModal-{{ $candidate->id }}" tabindex="-1"
+                                    <div class="modal fade" id="formModal-{{ $candidate->id }}" tabindex="-1"
                                         aria-labelledby="formModalLabel-{{ $candidate->id }}" aria-hidden="true">
                                         <div class="modal-dialog modal-dialog-centered">
                                             <div class="modal-content border-0 shadow">
@@ -274,19 +274,16 @@
 
                                                 <!-- Modal Body -->
                                                 <div class="modal-body text-center">
-
                                                     <a href="{{ route('admin.candidates.form2B', $candidate->id) }}"
-                                                    class="btn btn-outline-primary w-100 mb-2">
+                                                        class="btn btn-outline-primary w-100 mb-2">
                                                         <i class="bi bi-file-earmark"></i> FORM 2B
                                                     </a>
 
                                                     <a href="{{ route('admin.candidates.form26', $candidate->id) }}"
-                                                    class="btn btn-outline-primary w-100">
+                                                        class="btn btn-outline-primary w-100">
                                                         <i class="bi bi-file-earmark"></i> FORM 26
                                                     </a>
-
                                                 </div>
-
                                             </div>
                                         </div>
                                     </div>
