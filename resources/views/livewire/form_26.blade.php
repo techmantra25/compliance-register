@@ -224,98 +224,34 @@
                     @endforeach
 
                     <button type="button"
-                        class="btn btn-sm btn-success"
+                        class="btn btn-sm btn-primary"
                         wire:click="addPanRow">
-                        + Add
+                        + Add PAN
                     </button>
                     </div>
 
                     <h5 class="text-primary mt-4">Movable Assets</h5>
 
-                    <div class="col-md-12">
-                    @foreach ($movable_assets as $index => $row)
+                        @foreach ($asset_holders as $hIndex => $holderBlock)
 
-                    <div class="border rounded p-3 mb-3 bg-light position-relative">
+                        <div class="card mb-4 shadow-sm position-relative">
+                            <div class="card-body">
 
-                        @if ($index > 0)
-                            <button type="button"
-                                class="btn btn-sm btn-danger position-absolute top-0 end-0 m-2"
-                                wire:click="removeMovableAsset({{ $index }})">
-                                <i class="bi bi-x-lg"></i>
-                            </button>
-                        @endif
+                                {{-- REMOVE HOLDER --}}
+                                @if($hIndex > 0)
+                                    <button type="button"
+                                        class="btn btn-sm btn-outline-danger position-absolute top-0 end-0 m-2"
+                                        wire:click="removeAssetHolder({{ $hIndex }})">
+                                        <i class="bi bi-x-lg"></i>
+                                    </button>
+                                @endif
 
-                        <div class="row g-2">
-
-                            <div class="col-md-3">
-                                <label class="form-label">Asset Type</label>
-                                <select class="form-select"
-                                    wire:model="movable_assets.{{ $index }}.type">
-                                    <option value="">Select</option>
-                                    <option value="cash">Cash in Hand</option>
-                                    <option value="bank">Bank Deposit</option>
-                                    <option value="investment">Investment</option>
-                                    <option value="jewellery">Jewellery</option>
-                                    <option value="other">Other</option>
-                                </select>
-                            </div>
-
-                            <div class="col-md-2">
-                                <label class="form-label">Holder</label>
-                                <select class="form-select"
-                                    wire:model="movable_assets.{{ $index }}.holder">
-                                    <option value="">Select</option>
-                                    <option value="self">Self</option>
-                                    <option value="spouse">Spouse</option>
-                                    <option value="huf">HUF</option>
-                                    <option value="dependent">Dependent</option>
-                                </select>
-                            </div>
-
-                            <div class="col-md-4">
-                                <label class="form-label">Description</label>
-                                <input type="text"
-                                    class="form-control"
-                                    placeholder="Bank name / Jewellery details / etc"
-                                    wire:model="movable_assets.{{ $index }}.description">
-                            </div>
-
-                            <div class="col-md-3">
-                                <label class="form-label">Amount (₹)</label>
-                                <input type="number"
-                                    class="form-control"
-                                    wire:model="movable_assets.{{ $index }}.amount">
-                            </div>
-
-                        </div>
-                    </div>
-
-                    @endforeach
-
-                    <button type="button"
-                        class="btn btn-sm btn-success"
-                        wire:click="addMovableAsset">
-                        + Add Movable Asset
-                    </button>
-                    </div>
-
-                    <h5 class="text-primary mt-4">Immovable Assets – Agricultural Land</h5>
-
-                        @foreach ($immovable_assets['agricultural_land'] as $i => $row)
-                        <div class="border p-3 mb-3 bg-light position-relative">
-
-                            @if($i > 0)
-                            <button type="button"
-                                class="btn btn-sm btn-danger position-absolute top-0 end-0"
-                                wire:click="removeLand({{ $i }})">
-                                ✕
-                            </button>
-                            @endif
-
-                            <div class="row g-2">
-                                <div class="col-md-2">
+                                {{-- HOLDER --}}
+                                <div class="mb-3 col-md-4">
+                                    <label class="form-label">Holder</label>
                                     <select class="form-select"
-                                        wire:model="assets.immovable.agricultural_land.{{ $i }}.holder">
+                                        wire:model="asset_holders.{{ $hIndex }}.holder">
+                                        <option value="">Select</option>
                                         <option value="self">Self</option>
                                         <option value="spouse">Spouse</option>
                                         <option value="huf">HUF</option>
@@ -323,37 +259,254 @@
                                     </select>
                                 </div>
 
-                                <div class="col-md-3">
-                                    <input class="form-control" placeholder="Location"
-                                        wire:model="assets.immovable.agricultural_land.{{ $i }}.location">
+                                {{-- ASSETS --}}
+                                @foreach ($holderBlock['assets'] as $aIndex => $asset)
+
+                                <div class="border rounded p-3 mb-3 bg-white shadow-sm">
+
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="badge bg-secondary">
+                                            Asset {{ $aIndex + 1 }}
+                                        </span>
+
+                                        @if($aIndex > 0)
+                                            <button type="button"
+                                                class="btn btn-sm btn-outline-danger"
+                                                wire:click="removeAssetRow({{ $hIndex }}, {{ $aIndex }})">
+                                                <i class="bi bi-x-lg"></i>
+                                            </button>
+                                        @endif
+                                    </div>
+
+                                    <div class="row g-2">
+                                        <div class="col-md-4">
+                                            <label class="form-label">Asset Type</label>
+                                            <select class="form-select"
+                                                wire:model="asset_holders.{{ $hIndex }}.assets.{{ $aIndex }}.type">
+                                                <option value="">Select</option>
+                                                <option value="cash">Cash</option>
+                                                <option value="bank_deposit">Bank Deposit</option>
+                                                <option value="securities">Securities</option>
+                                                <option value="postal_investment">Postal / Insurance</option>
+                                                <option value="loan_given">Loan Given</option>
+                                                <option value="vehicle">Vehicle</option>
+                                                <option value="jewellery">Jewellery</option>
+                                                <option value="other">Other</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="col-md-5">
+                                            <label class="form-label">Description</label>
+                                            <textarea class="form-control"
+                                                wire:model="asset_holders.{{ $hIndex }}.assets.{{ $aIndex }}.description"></textarea>
+                                        </div>
+
+                                        <div class="col-md-3">
+                                            <label class="form-label">Amount (₹)</label>
+                                            <input type="number" class="form-control"
+                                                wire:model="asset_holders.{{ $hIndex }}.assets.{{ $aIndex }}.amount">
+                                        </div>
+                                    </div>
+
+                                </div>
+                                @endforeach
+
+                                {{-- ADD ASSET --}}
+                                <div class="text-end">
+                                    <button type="button"
+                                        class="btn btn-outline-success btn-sm"
+                                        wire:click="addAssetRow({{ $hIndex }})">
+                                        <i class="bi bi-plus-circle"></i> Add Asset
+                                    </button>
                                 </div>
 
-                                <div class="col-md-2">
-                                    <input class="form-control" placeholder="Area"
-                                        wire:model="assets.immovable.agricultural_land.{{ $i }}.area">
-                                </div>
-
-                                <div class="col-md-2">
-                                    <select class="form-select"
-                                        wire:model="assets.immovable.agricultural_land.{{ $i }}.inherited">
-                                        <option value="">Inherited?</option>
-                                        <option value="Yes">Yes</option>
-                                        <option value="No">No</option>
-                                    </select>
-                                </div>
-
-                                <div class="col-md-3">
-                                    <input class="form-control" placeholder="Current Value"
-                                        wire:model="assets.immovable.agricultural_land.{{ $i }}.current_value">
-                                </div>
                             </div>
                         </div>
+
                         @endforeach
 
-                        <button class="btn btn-sm btn-success" wire:click="addLand">
-                            + Add Land
-                        </button>
+                        {{-- ADD HOLDER --}}
+                        <div class="text-center mb-4">
+                            <button type="button"
+                                class="btn btn-outline-primary btn-sm px-4"
+                                wire:click="addAssetHolder">
+                                <i class="bi bi-person-plus"></i> Add Holder
+                            </button>
+                        </div>
 
+
+                   <h5 class="mt-4 text-primary">Immovable Assets</h5>
+
+                        @foreach($immovable_assets as $hIndex => $holderBlock)
+
+                        <div class="card mb-4 shadow-sm">
+                            <div class="card-body">
+
+                                {{-- HOLDER --}}
+                                <div class="mb-3">
+                                    <div class="col-md-3">
+                                        <label class="form-label">Holder</label>
+                                        <select class="form-select"
+                                            wire:model="immovable_assets.{{ $hIndex }}.holder">
+                                            <option value="">Select</option>
+                                            <option value="self">Self</option>
+                                            <option value="spouse">Spouse</option>
+                                            <option value="huf">HUF</option>
+                                            <option value="dependent">Dependent</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                {{-- AFTER HOLDER --}}
+                                    @foreach($holderBlock['groups'] as $gIndex => $group)
+
+                                    <div class="border rounded p-3 mb-3 bg-white shadow-sm">
+
+                                        {{-- AGRICULTURAL --}}
+                                        <strong>Agricultural Land</strong>
+                                        <div class="row g-2 mt-1 mb-3">
+
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <span class="badge bg-secondary">
+                                                    Asset {{ $gIndex + 1 }}
+                                                </span>
+                                            </div>
+                                            
+                                            <div class="col-md-3">
+                                                <input class="form-control" placeholder="Location"
+                                                    wire:model="immovable_assets.{{ $hIndex }}.groups.{{ $gIndex }}.agricultural.location">
+                                            </div>
+                                            <div class="col-md-2">
+                                                <input class="form-control" placeholder="Survey No"
+                                                    wire:model="immovable_assets.{{ $hIndex }}.groups.{{ $gIndex }}.agricultural.survey_no">
+                                            </div>
+                                            <div class="col-md-2">
+                                                <input class="form-control" placeholder="Area"
+                                                    wire:model="immovable_assets.{{ $hIndex }}.groups.{{ $gIndex }}.agricultural.area">
+                                            </div>
+                                            <div class="col-md-2">
+                                                <select class="form-select"
+                                                    wire:model="immovable_assets.{{ $hIndex }}.groups.{{ $gIndex }}.agricultural.inherited">
+                                                    <option value="">Inherited?</option>
+                                                    <option value="Yes">Yes</option>
+                                                    <option value="No">No</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <input class="form-control" placeholder="Current Value"
+                                                    wire:model="immovable_assets.{{ $hIndex }}.groups.{{ $gIndex }}.agricultural.current_value">
+                                            </div>
+                                        </div>
+
+                                        {{-- NON AGRICULTURAL --}}
+                                        <strong>Non-Agricultural Land</strong>
+                                        <div class="row g-2 mt-1 mb-3">
+                                            <div class="col-md-3">
+                                                <input class="form-control" placeholder="Location"
+                                                    wire:model="immovable_assets.{{ $hIndex }}.groups.{{ $gIndex }}.non_agricultural.location">
+                                            </div>
+                                            <div class="col-md-2">
+                                                <input class="form-control" placeholder="Survey No"
+                                                    wire:model="immovable_assets.{{ $hIndex }}.groups.{{ $gIndex }}.non_agricultural.survey_no">
+                                            </div>
+                                            <div class="col-md-2">
+                                                <input class="form-control" placeholder="Area"
+                                                    wire:model="immovable_assets.{{ $hIndex }}.groups.{{ $gIndex }}.non_agricultural.area">
+                                            </div>
+                                            <div class="col-md-2">
+                                                <select class="form-select"
+                                                    wire:model="immovable_assets.{{ $hIndex }}.groups.{{ $gIndex }}.non_agricultural.inherited">
+                                                    <option value="">Inherited?</option>
+                                                    <option value="Yes">Yes</option>
+                                                    <option value="No">No</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <input class="form-control" placeholder="Current Value"
+                                                    wire:model="immovable_assets.{{ $hIndex }}.groups.{{ $gIndex }}.non_agricultural.current_value">
+                                            </div>
+                                        </div>
+
+                                        {{-- COMMERCIAL --}}
+                                        <strong>Commercial Buildings</strong>
+                                        <div class="row g-2 mt-1 mb-3">
+                                            <div class="col-md-3">
+                                                <input class="form-control" placeholder="Location"
+                                                    wire:model="immovable_assets.{{ $hIndex }}.groups.{{ $gIndex }}.commercial.location">
+                                            </div>
+                                            <div class="col-md-2">
+                                                <input class="form-control" placeholder="Survey No"
+                                                    wire:model="immovable_assets.{{ $hIndex }}.groups.{{ $gIndex }}.commercial.survey_no">
+                                            </div>
+                                            <div class="col-md-2">
+                                                <input class="form-control" placeholder="Area"
+                                                    wire:model="immovable_assets.{{ $hIndex }}.groups.{{ $gIndex }}.commercial.area">
+                                            </div>
+                                            <div class="col-md-2">
+                                                <select class="form-select"
+                                                    wire:model="immovable_assets.{{ $hIndex }}.groups.{{ $gIndex }}.commercial.inherited">
+                                                    <option value="">Inherited?</option>
+                                                    <option value="Yes">Yes</option>
+                                                    <option value="No">No</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <input class="form-control" placeholder="Current Value"
+                                                    wire:model="immovable_assets.{{ $hIndex }}.groups.{{ $gIndex }}.commercial.current_value">
+                                            </div>
+                                        </div>
+
+                                        {{-- RESIDENTIAL --}}
+                                        <strong>Residential Buildings</strong>
+                                        <div class="row g-2 mt-1">
+                                            <div class="col-md-3">
+                                                <input class="form-control" placeholder="Location"
+                                                    wire:model="immovable_assets.{{ $hIndex }}.groups.{{ $gIndex }}.residential.location">
+                                            </div>
+                                            <div class="col-md-2">
+                                                <input class="form-control" placeholder="Survey No"
+                                                    wire:model="immovable_assets.{{ $hIndex }}.groups.{{ $gIndex }}.residential.survey_no">
+                                            </div>
+                                            <div class="col-md-2">
+                                                <input class="form-control" placeholder="Area"
+                                                    wire:model="immovable_assets.{{ $hIndex }}.groups.{{ $gIndex }}.residential.area">
+                                            </div>
+                                            <div class="col-md-2">
+                                                <select class="form-select"
+                                                    wire:model="immovable_assets.{{ $hIndex }}.groups.{{ $gIndex }}.residential.inherited">
+                                                    <option value="">Inherited?</option>
+                                                    <option value="Yes">Yes</option>
+                                                    <option value="No">No</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <input class="form-control" placeholder="Current Value"
+                                                    wire:model="immovable_assets.{{ $hIndex }}.groups.{{ $gIndex }}.residential.current_value">
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                    @endforeach
+
+                                    <div class="text-end mt-2">
+                                        <button type="button"
+                                            class="btn btn-outline-success btn-sm"
+                                            wire:click="addImmovableGroup({{ $hIndex }})">
+                                            <i class="bi bi-plus-circle"></i> Add Asset
+                                        </button>
+                                    </div>
+                            </div>
+
+                            @endforeach
+
+                            <div class="text-center mt-3">
+                                <button type="button"
+                                    class="btn btn-outline-primary btn-sm px-4"
+                                    wire:click="addImmovableHolder">
+                                    <i class="bi bi-person-plus"></i> Add Holder
+                                </button>
+                            </div>
+                        </div>
 
 
                     <div class="col-md-6">
