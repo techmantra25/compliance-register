@@ -82,7 +82,6 @@ class NominationForm2B extends Component
     public $candidate_photo;  
 
     protected $rules = [
-        'candidate_photo' => 'nullable|image|max:2048',
         'relation_type' => 'required|in:father,mother,husband',
         'relation_name' => 'required',
         'postal_address' => 'required',
@@ -92,50 +91,87 @@ class NominationForm2B extends Component
         'proposer_name' => 'required',
         'proposer_sl_no' => 'required',
         'proposer_part_no' => 'required',
-        'candidate_age' => 'required|integer|min:25',
-        'party_name' => 'required',
-        'party_type' => 'required|in:national,state',
-        'language_name' => 'required',
-        'election_type' => 'required|in:general,bye',
-        'state_name' => 'required',
         'convicted' => 'required|in:yes,no',
     ];
 
     
+    // public function mount($id)
+    // {
+    //     $candidate = Candidate::with('assembly')->findOrFail($id);
+
+    //     $this->candidateId      = $candidate->id;
+    //     $this->candidate_id     = $candidate->id;
+    //     $this->assembly_id      = $candidate->assembly->id;
+
+    //     $this->candidate_name   = $candidate->name;
+    //     $this->assembly_name    = $candidate->assembly->assembly_name_en . ' (' . $candidate->assembly->assembly_code . ')';
+    // }
+
     public function mount($id)
     {
-        $candidate = Candidate::with('assembly')->findOrFail($id);
+        $this->candidate = Candidate::with('assembly')->findOrFail($id);
 
-        $this->candidateId      = $candidate->id;
-        $this->candidate_id     = $candidate->id;
-        $this->assembly_id      = $candidate->assembly->id;
+        $this->candidateId    = $this->candidate->id;
+        $this->candidate_id   = $this->candidate->id;
+        $this->assembly_id    = $this->candidate->assembly->id;
 
-        $this->candidate_name   = $candidate->name;
-        $this->assembly_name    = $candidate->assembly->assembly_name_en . ' (' . $candidate->assembly->assembly_code . ')';
+        $form = NominationForm2BModel::where('candidate_id', $this->candidate_id)->first();
+
+        if ($form) {
+            $this->fill($form->toArray());
+        } 
+
+        $this->candidate_name = $this->candidate->name;
+        $this->assembly_name  =
+            $this->candidate->assembly->assembly_name_en
+            . ' (' . $this->candidate->assembly->assembly_code . ')';
+
+  
     }
 
-    public function updatedConvicted()
+    // public function updatedConvicted()
+    // {
+    //     if ($this->convicted === 'no') {
+    //         $this->reset([
+    //             'case_no',
+    //             'police_station',
+    //             'district',
+    //             'state',
+    //             'sections',
+    //             'conviction_date',
+    //             'court',
+    //             'punishment',
+    //             'release_date',
+    //             'appeal_filed',
+    //             'appeal_details',
+    //             'appeal_court',
+    //             'appeal_status',
+    //             'disposal_date',
+    //             'order_nature',
+    //         ]);
+    //     }
+    // }
+    public function updatedConvicted($value)
     {
-        if ($this->convicted === 'no') {
-            $this->reset([
-                'case_no',
-                'police_station',
-                'district',
-                'state',
-                'sections',
-                'conviction_date',
-                'court',
-                'punishment',
-                'release_date',
-                'appeal_filed',
-                'appeal_details',
-                'appeal_court',
-                'appeal_status',
-                'disposal_date',
-                'order_nature',
-            ]);
+        if ($value === 'no') {
+            $this->case_no = null;
+            $this->police_station = null;
+            $this->district = null;
+            $this->state = null;
+            $this->sections = null;
+            $this->conviction_date = null;
+            $this->court = null;
+            $this->punishment = null;
+            $this->release_date = null;
+            $this->appeal_filed = null;
+            $this->appeal_details = null;
+            $this->appeal_court = null;
+            $this->appeal_status = null;
+            $this->disposal_date = null;
+            $this->order_nature = null;
         }
     }
+
 
     public function save()
     {
@@ -178,69 +214,100 @@ class NominationForm2B extends Component
             $filePath = $this->candidate_photo->store('nomination_forms', 'public');
         }
 
-        $nomination =  NominationForm2BModel::create([
-            'assembly_id' => $this->assembly_id,
-            'candidate_id' => $this->candidate_id,
+        // $nomination =  NominationForm2BModel::create([
+        //     'assembly_id' => $this->assembly_id,
+        //     'candidate_id' => $this->candidate_id,
 
-            'election_state' => $this->election_state,
-            'relation_type' => $this->relation_type,
-            'relation_name' => $this->relation_name,
-            'postal_address' => $this->postal_address,
-            'candidate_sl_no' => $this->candidate_sl_no,
-            'candidate_part_no' => $this->candidate_part_no,
+        //     //'election_state' => $this->election_state,
+        //     'relation_type' => $this->relation_type,
+        //     'relation_name' => $this->relation_name,
+        //     'postal_address' => $this->postal_address,
+        //     'candidate_sl_no' => $this->candidate_sl_no,
+        //     'candidate_part_no' => $this->candidate_part_no,
 
-            'proposer_name' => $this->proposer_name,
-            'proposer_sl_no' => $this->proposer_sl_no,
-            'proposer_part_no' => $this->proposer_part_no,
-            'proposer_constituency' => $this->proposer_constituency,
-            'candidate_age' => $this->candidate_age,
-            'party_name' => $this->party_name,
-            'party_type' => $this->party_type,
-            'language_name' => $this->language_name,
-            'election_type' => $this->election_type,
-            'state_name' => $this->state_name,
-            'convicted' => $this->convicted,
-            'candidate_photo' =>  $filePath ,
-            'case_no'          => $this->case_no,
-            'police_station'   => $this->police_station,
-            'district'         => $this->district,
-            'state'            => $this->state,
-            'sections'         => $this->sections,
-            'conviction_date'  => $this->conviction_date,
-            'court'            => $this->court,
-            'punishment'       => $this->punishment,
-            'release_date'     => $this->release_date,
-            'appeal_filed'     => $this->appeal_filed,
-            'appeal_details'   => $this->appeal_details,
-            'appeal_court'     => $this->appeal_court,
-            'appeal_status'    => $this->appeal_status,
-            'disposal_date'    => $this->disposal_date,
-            'order_nature'     => $this->order_nature,
-            'office_of_profit' => $this->office_of_profit,
-            'office_details'   => $this->office_details,
-            'insolvent'        => $this->insolvent,
-            'insolvent_details'=> $this->insolvent_details,
-            'foreign_allegiance'=> $this->foreign_allegiance,
-            'foreign_details'  => $this->foreign_details,
-            'disqualified_president'=> $this->disqualified_president,   
-            'disqualified_period'=> $this->disqualified_period,
-            'dismissed_for_corruption'=> $this->dismissed_for_corruption,
-            'dismissed_date'   => $this->dismissed_date,
-            'govt_contract'    => $this->govt_contract,
-            'govt_contract_details'=> $this->govt_contract_details,
-            'company_position' => $this->company_position,
-            'company_details'  => $this->company_details,
-            'commission_disqualified'=> $this->commission_disqualified,
-            'commission_disqualified_date'=> $this->commission_disqualified_date,      
-        ]);
+        //     'proposer_name' => $this->proposer_name,
+        //     'proposer_sl_no' => $this->proposer_sl_no,
+        //     'proposer_part_no' => $this->proposer_part_no,
+        //     'proposer_constituency' => $this->proposer_constituency,
+        //    // 'candidate_age' => $this->candidate_age,
+        //     //'party_name' => $this->party_name,
+        //     //'party_type' => $this->party_type,
+        //     //'language_name' => $this->language_name,
+        //     //'election_type' => $this->election_type,
+        //     //'state_name' => $this->state_name,
+        //     'convicted' => $this->convicted,
+        //     //'candidate_photo' =>  $filePath ,
+        //     'case_no'          => $this->case_no,
+        //     'police_station'   => $this->police_station,
+        //     'district'         => $this->district,
+        //     'state'            => $this->state,
+        //     'sections'         => $this->sections,
+        //     'conviction_date'  => $this->conviction_date,
+        //     'court'            => $this->court,
+        //     'punishment'       => $this->punishment,
+        //     'release_date'     => $this->release_date,
+        //     'appeal_filed'     => $this->appeal_filed,
+        //     'appeal_details'   => $this->appeal_details,
+        //     'appeal_court'     => $this->appeal_court,
+        //     'appeal_status'    => $this->appeal_status,
+        //     'disposal_date'    => $this->disposal_date,
+        //     'order_nature'     => $this->order_nature,
+        //     // 'office_of_profit' => $this->office_of_profit,
+        //     // 'office_details'   => $this->office_details,
+        //     // 'insolvent'        => $this->insolvent,
+        //     // 'insolvent_details'=> $this->insolvent_details,
+        //     // 'foreign_allegiance'=> $this->foreign_allegiance,
+        //     // 'foreign_details'  => $this->foreign_details,
+        //     // 'disqualified_president'=> $this->disqualified_president,   
+        //     // 'disqualified_period'=> $this->disqualified_period,
+        //     // 'dismissed_for_corruption'=> $this->dismissed_for_corruption,
+        //     // 'dismissed_date'   => $this->dismissed_date,
+        //     // 'govt_contract'    => $this->govt_contract,
+        //     // 'govt_contract_details'=> $this->govt_contract_details,
+        //     // 'company_position' => $this->company_position,
+        //     // 'company_details'  => $this->company_details,
+        //     // 'commission_disqualified'=> $this->commission_disqualified,
+        //     // 'commission_disqualified_date'=> $this->commission_disqualified_date,      
+        // ]);
+
+        $nomination = NominationForm2BModel::updateOrCreate(
+            ['candidate_id' => $this->candidate_id],
+            [
+                'assembly_id' => $this->assembly_id,
+                'relation_name' => $this->relation_name,
+                'postal_address' => $this->postal_address,
+                'candidate_sl_no' => $this->candidate_sl_no,
+                'candidate_part_no' => $this->candidate_part_no,
+
+                'proposer_name' => $this->proposer_name,
+                'proposer_sl_no' => $this->proposer_sl_no,
+                'proposer_part_no' => $this->proposer_part_no,
+                'proposer_constituency' => $this->proposer_constituency,
+                'convicted' => $this->convicted,
+                'case_no' => $this->case_no,
+                'police_station' => $this->police_station,
+                'district' => $this->district,
+                'state' => $this->state,
+                'sections' => $this->sections,
+                'conviction_date' => $this->conviction_date,
+                'court' => $this->court,
+                'punishment' => $this->punishment,
+                'release_date' => $this->release_date,
+                'appeal_filed' => $this->appeal_filed,
+                'appeal_details' => $this->appeal_details,
+                'appeal_court' => $this->appeal_court,
+                'appeal_status' => $this->appeal_status,
+                'disposal_date' => $this->disposal_date,
+                'order_nature' => $this->order_nature,
+            ]
+        );
+
 
         return redirect()->route('admin.candidates.form2B.pdf', $nomination->id);
       
         } catch (\Exception $e) {
             dd($e->getMessage());
-            // Any other errors
             session()->flash('error', 'Something went wrong: ' . $e->getMessage());
-            // Optional: log the error for debugging
             \Log::error('Nomination Save Error: ' . $e->getMessage());
         }
     }
