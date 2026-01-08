@@ -725,13 +725,6 @@
             <!---keep togathor start-->
             <div class="keep-together">
                 <div style="margin-top: 20px;">
-                    {{-- <div>(2) Whether the candidate is holding any office of profit under the Government of India or
-                        State Government? <input type="text" class="input-field input-field-medium" style="width:90px;"
-                            wire:model="office_of_profit"> <span class="strike-out">Yes</span>/<span>No</span></div>
-                    <div style="margin-top: 10px;">
-                        - If Yes, details of the office held <input type="text" class="input-field input-field-large"
-                            wire:model="office_details">
-                    </div> --}}
                     <div>
                         (2) Whether the candidate is holding any office of profit under the Government of India or State
                         Government?

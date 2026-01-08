@@ -12,13 +12,14 @@ class NominationForm extends Model
             'candidate_id',
             'form_type',
             'assembly_id',
+            'state',
             'candidate_serial_no',
             'candidate_part_no',
             'relation_type',
             'relation_name',
             'age',
             'postal_address',
-            'contituency_where_enrolled',
+            'constituency_where_enrolled',
             'political_party_name',
             'recognized_political_party',
             'language_of_name',
@@ -28,7 +29,7 @@ class NominationForm extends Model
             'proposer_name',
             'proposer_part_no',
             'proposer_serial_no',
-            'proposer_contituency',
+            'proposer_constituency',
             'more_proposer_details',
             'convicted',
             'convicted_details',
@@ -54,6 +55,11 @@ class NominationForm extends Model
             'source_of_incomes',
             'highest_educational_qualification',
         ];
+
+        protected $casts = [
+            'convicted_details' => 'array',
+        ];
+
 
     public function assembly()
     {
