@@ -301,8 +301,6 @@ class NominationForm2B extends Component
                 'order_nature' => $this->order_nature,
             ]
         );
-
-
         return redirect()->route('admin.candidates.form2B.pdf', $nomination->id);
       
         } catch (\Exception $e) {
