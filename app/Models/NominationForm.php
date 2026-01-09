@@ -46,7 +46,7 @@ class NominationForm extends Model
             'email_id',
             'social_media_accounts',
             'pan_details',
-            'last_5_year_incomes',
+            'last_five_year_incomes',
             'movable_assets',
             'immovable_assets',
             'loans_and_govt_dues',

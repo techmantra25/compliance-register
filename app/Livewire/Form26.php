@@ -4,7 +4,7 @@ namespace App\Livewire;
 
 use Livewire\Component;
 use App\Models\Candidate;
-use App\Models\NominationForm26;
+use App\Models\NominationForm;
 use Livewire\WithFileUploads;
 
 class Form26 extends Component
@@ -20,7 +20,6 @@ class Form26 extends Component
     public $phone_no;
     public $alternative_phone_no;
     public $candidate_epic_no;
-    public $photograph;
     public $caste_tribe_details;
     public $proposer_epic;
     public $email_id;
@@ -28,38 +27,14 @@ class Form26 extends Component
     public $facebook_account;
     public $twitter_account;
     public $pan_details = [];
-    public $last_5_yrs_income;
     public $loans_govt_dues;
     public $occupation;
     public $sources_of_income;
     public $highest_educational_qualification;
+    public $asset_holders = [];
+    public $immovable_assets = [];
 
-    public $movable_assets = [
-        [
-            'type' => '',
-            'holder' => '',
-            'description' => '',
-            'amount' => '',
-        ]
-    ];
-
-    public $immovable_assets = [
-        'agricultural_land' => [
-            [
-                'holder' => 'self',
-                'location' => '',
-                'area' => '',
-                'inherited' => '',
-                'purchase_date' => '',
-                'cost' => '',
-                'current_value' => '',
-            ]
-        ]
-    ];
-
-
-
-   public function mount($id)
+    public function mount($id)
     {
         $this->candidate = Candidate::findOrFail($id);
 
@@ -78,6 +53,26 @@ class Form26 extends Component
                 ],
             ]
         ];
+
+        $this->asset_holders = [
+            [
+                'holder' => '',
+                'assets' => [
+                    [
+                        'type' => '',
+                        'description' => '',
+                        'amount' => '',
+                    ]
+                ],
+            ]
+        ];
+
+        $this->immovable_assets = [
+            [
+                'holder' => '',
+                'groups' => [$this->emptyGroup()],
+            ],
+        ];
         
     }
 
@@ -95,15 +90,47 @@ class Form26 extends Component
         'whatsapp_no' => 'nullable||digits_between:10,15',
         'facebook_account' => 'nullable|string',
         'twitter_account' => 'nullable|string',
-        'last_5_yrs_income' => 'required|string',
-        'movable_assets.*.type' => 'required',
-        'movable_assets.*.holder' => 'required|in:self,spouse,huf,dependent',
-        'movable_assets.*.amount' => 'nullable|numeric',
+        'asset_holders' => 'required|array',
+        'asset_holders.*.holder' => 'required|in:self,spouse,huf,dependent',
+        'asset_holders.*.assets' => 'required|array',
+        'asset_holders.*.assets.*.type' => 'required|string',
+        'asset_holders.*.assets.*.description' => 'nullable|string',
+        'asset_holders.*.assets.*.amount' => 'nullable|numeric',
         'loans_govt_dues' => 'required|string',
         'occupation' => 'required|string',
         'sources_of_income' => 'required|string',
         'highest_educational_qualification' => 'required|string',
     ];
+
+    public function addAssetHolder()
+    {                                           
+        $this->asset_holders[] = [
+            'holder' => '',
+            'assets' => [
+                [
+                    'type' => '',
+                    'description' => '',
+                    'amount' => '',
+                ]
+            ],
+        ];
+    }   
+    public function addAssetRow($holderIndex)
+    {
+        $this->asset_holders[$holderIndex]['assets'][] = [
+            'type' => '',
+            'description' => '',
+            'amount' => '',
+        ];
+    }
+
+    public function removeAssetRow($holderIndex, $assetIndex)
+    {
+        unset($this->asset_holders[$holderIndex]['assets'][$assetIndex]);
+        $this->asset_holders[$holderIndex]['assets']
+            = array_values($this->asset_holders[$holderIndex]['assets']);
+    }
+
 
     public function addPanRow()
     {
@@ -112,6 +139,7 @@ class Form26 extends Component
             'name' => '',
             'pan' => '',
             'last_filed_year' => '',
+
             'income' => [
                 '2019-20' => '',
                 '2018-19' => '',
@@ -128,76 +156,86 @@ class Form26 extends Component
         $this->pan_details = array_values($this->pan_details);
     }
 
-    public function addMovableAsset()
+    public function addImmovableHolder()
     {
-        $this->movable_assets[] = [
-            'type' => '',
+        $this->immovable_assets[] = [
             'holder' => '',
-            'description' => '',
-            'amount' => '',
+            'groups' => [$this->emptyGroup()],
         ];
     }
 
-    public function removeMovableAsset($index)
+    public function addImmovableGroup($hIndex)
     {
-        unset($this->movable_assets[$index]);
-        $this->movable_assets = array_values($this->movable_assets);
+        $this->immovable_assets[$hIndex]['groups'][] = $this->emptyGroup();
     }
 
-    public function addLand()
+    private function emptyGroup()
     {
-        $this->immovable_assets['agricultural_land'][] = [
-            'holder' => 'self',
+        return [
+            'agricultural' => $this->emptyRow(),
+            'non_agricultural' => $this->emptyRow(),
+            'commercial' => $this->emptyRow(),
+            'residential' => $this->emptyRow(),
+        ];
+    }
+
+    private function emptyRow()
+    {
+        return [
             'location' => '',
+            'survey_no' => '',
             'area' => '',
             'inherited' => '',
-            'purchase_date' => '',
-            'cost' => '',
             'current_value' => '',
         ];
-    }
-
-    public function removeLand($index)
-    {
-        unset($this->immovable_assets['agricultural_land'][$index]);
-        $this->immovable_assets['agricultural_land'] = array_values(
-            $this->immovable_assets['agricultural_land']
-        );
     }
 
     public function save()
     {
         $this->validate();
+        $panOnly = [];
+        $incomeOnly = [];
 
-        $photoPath = $this->photograph->store('form26', 'public');
+        foreach ($this->pan_details as $pan) {
 
-        NominationForm26::create([
+            $incomeOnly[] = [
+                'type'   => $pan['type'] ?? null,
+                'name'   => $pan['name'] ?? null,
+                'income' => $pan['income'] ?? [],
+            ];
+
+            $panOnly[] = [
+                'type'            => $pan['type'] ?? null,
+                'name'            => $pan['name'] ?? null,
+                'pan'             => $pan['pan'] ?? null,
+                'last_filed_year' => $pan['last_filed_year'] ?? null,
+            ];
+        }
+        NominationForm::create([
+            'candidate_id' => $this->candidate->id,
             'relation_type' => $this->relation_type,
             'relation_name' => $this->relation_name,
-            'candidate_id' => $this->candidate->id,
-            'address' => $this->address,
-            'assembly_constituency_no' => $this->candidate->assembly->assembly_number ?? null,
-            'assembly_constituency_serial_no' => $this->assembly_constituency_serial_no,
-            'assembly_constituency_part_no' => $this->assembly_constituency_part_no,
-            'phone_no' => $this->phone_no,
-            'alternative_phone_no' => $this->alternative_phone_no,
-            'candidate_epic_no' => $this->candidate_epic_no,
-            'photograph' => $photoPath,
-            'caste_tribe_details' => $this->caste_tribe_details,
-            'proposer_epic' => $this->proposer_epic,
+            'postal_address' => $this->address,
+            'candidate_serial_no' => $this->assembly_constituency_serial_no,
+            'candidate_part_no' => $this->assembly_constituency_part_no,
+            'contact_phone_nos' => json_encode([
+                'primary' => $this->phone_no,
+                'alternate' => $this->alternative_phone_no,
+            ]),
+
             'email_id' => $this->email_id,
             'social_media_accounts' => json_encode([
                                             'whatsapp_no' => $this->whatsapp_no,
                                             'facebook_account' => $this->facebook_account,
                                             'twitter_account' => $this->twitter_account,
                                         ]),
-            'pan_and_itr_details' => json_encode($this->pan_details),
-            'last_5_yrs_income' => $this->last_5_yrs_income,
-            'movable_assets' => json_encode($this->movable_assets),
+            'pan_details' => json_encode($panOnly),
+            'last_5_year_incomes' => json_encode($incomeOnly),
+            'movable_assets' => json_encode($this->asset_holders),
             'immovable_assets' => json_encode($this->immovable_assets),
-            'loans_govt_dues' => $this->loans_govt_dues,
-            'occupation' => $this->occupation,
-            'sources_of_income' => $this->sources_of_income,
+            'loans_and_govt_dues' => $this->loans_govt_dues,
+            'candidate_occupation' => $this->occupation,
+            'source_of_incomes' => $this->sources_of_income,
             'highest_educational_qualification' => $this->highest_educational_qualification,
         ]);
 
