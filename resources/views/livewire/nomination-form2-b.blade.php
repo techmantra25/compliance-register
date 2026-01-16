@@ -1,4 +1,18 @@
 <div>
+    <style>
+        label{
+            cursor: pointer;
+        }
+    </style>
+    @if ($errors->any())
+        <div class="alert alert-danger">
+            <ul class="mb-0">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h4 class="mb-0 text-primary">
             <i class="bi bi-person-circle me-2"></i>
@@ -37,10 +51,9 @@
                 <div class="row mb-3">
                     <label class="col-md-3 col-form-label fw-semibold">Age</label>
                     <div class="col-md-9">
-                        <input type="text"
+                        <input type="number"
                             class="form-control"
-                            wire:model.defer="age"
-                            value="age">
+                            wire:model.defer="age">
                     </div>
                 </div>
 
@@ -74,6 +87,9 @@
                             <label class="form-check-label">Husband</label>
                         </div>
                     </div>
+                    @error('relation_type')
+                        <small class="text-danger d-block">{{ $message }}</small>
+                    @enderror
                 </div>
 
                 <div class="row mb-3">
@@ -82,6 +98,9 @@
                         <input type="text"
                             class="form-control"
                             wire:model.defer="relation_name">
+                            @error('relation_name')
+                                <small class="text-danger d-block">{{ $message }}</small>
+                            @enderror
                     </div>
                 </div>
 
@@ -114,6 +133,9 @@
                         <input type="text"
                             class="form-control"
                             wire:model.defer="postal_address">
+                        @error('postal_address')
+                            <small class="text-danger d-block">{{ $message }}</small>
+                        @enderror
                     </div>
                 </div>
 
@@ -124,12 +146,18 @@
                             class="form-control"
                             placeholder="Sl. No."
                             wire:model.defer="candidate_serial_no">
+                        @error('candidate_serial_no')
+                            <small class="text-danger d-block">{{ $message }}</small>
+                        @enderror
                     </div>
                     <div class="col-md-3">
                         <input type="text"
                             class="form-control"
                             placeholder="Part No."
                             wire:model.defer="candidate_part_no">
+                        @error('candidate_part_no')
+                            <small class="text-danger d-block">{{ $message }}</small>
+                        @enderror
                     </div>
                     <div class="col-md-3">
                         <input type="text"
@@ -159,6 +187,9 @@
                         <input type="text"
                             class="form-control"
                             wire:model.defer="proposer_name">
+                        @error('proposer_name')
+                            <small class="text-danger d-block">{{ $message }}</small>
+                        @enderror
                     </div>
                 </div>
 
@@ -169,12 +200,18 @@
                             class="form-control"
                             placeholder="Sl. No."
                             wire:model.defer="proposer_serial_no">
+                        @error('proposer_serial_no')
+                            <small class="text-danger d-block">{{ $message }}</small>
+                        @enderror
                     </div>
                     <div class="col-md-3">
                         <input type="text"
                             class="form-control"
                             placeholder="Part No."
                             wire:model.defer="proposer_part_no">
+                        @error('proposer_part_no')
+                            <small class="text-danger d-block">{{ $message }}</small>
+                        @enderror
                     </div>
                     <div class="col-md-3">
                         <input type="text"
@@ -199,24 +236,29 @@
                         <div class="form-check form-check-inline">
                             <input class="form-check-input"
                                 type="radio"
+                                id="convicted_yes"
                                 name="convicted"
-                                wire:model.live="convicted"
-                                value="yes">
-                            <label class="form-check-label">Yes</label>
+                                wire:model="convicted"
+                                value="Yes" wire:change="toggleConvicted('Yes')">
+                            <label class="form-check-label" for="convicted_yes">Yes</label>
                         </div>
 
                         <div class="form-check form-check-inline">
                             <input class="form-check-input"
                                 type="radio"
+                                id="convicted_no"
                                 name="convicted"
-                                wire:model.live="convicted"
-                                value="no">
-                            <label class="form-check-label">No</label>
+                                wire:model="convicted"
+                                value="No" wire:change="toggleConvicted('No')">
+                            <label class="form-check-label" for="convicted_no">No</label>
                         </div>
+                        @error('convicted')
+                            <small class="text-danger d-block">{{ $message }}</small>
+                        @enderror
                     </div>
                 </div>
 
-                @if($convicted === 'yes')
+                @if($convicted === "Yes")
                 <hr>
                 <h6 class="text-danger fw-semibold mb-3">
                     Details of Conviction
@@ -225,9 +267,9 @@
                 <div class="row mb-3">
                     <label class="col-md-4 col-form-label">Case / FIR Number</label>
                     <div class="col-md-8">
-                        <input type="text"
+                        <input type="number"
                             class="form-control"
-                            wire:model.defer="case_no">
+                            wire:model.defer="convicted_details.case_no">
                     </div>
                 </div>
 
@@ -235,7 +277,7 @@
                     <label class="col-md-4 col-form-label">Police Station</label>
                     <div class="col-md-8">
                         <input type="text" class="form-control"
-                            wire:model.defer="police_station">
+                         wire:model.defer="convicted_details.police_station">
                     </div>
                 </div>
 
@@ -243,7 +285,7 @@
                     <label class="col-md-4 col-form-label">District</label>
                     <div class="col-md-8">
                         <input type="text" class="form-control"
-                            wire:model.defer="district">
+                            wire:model.defer="convicted_details.district">
                     </div>
                 </div>
 
@@ -251,7 +293,7 @@
                     <label class="col-md-4 col-form-label">State</label>
                     <div class="col-md-8">
                         <input type="text" class="form-control"
-                            wire:model.defer="state">
+                            wire:model.defer="convicted_details.state">
                     </div>
                 </div>
 
@@ -262,7 +304,8 @@
                     <div class="col-md-8">
                         <textarea class="form-control"
                                 rows="2"
-                                wire:model.defer="sections"></textarea>
+                                wire:model.defer="convicted_details.sections">
+                        </textarea>
                     </div>
                 </div>
 
@@ -271,7 +314,7 @@
                     <div class="col-md-4">
                         <input type="date"
                             class="form-control"
-                            wire:model.defer="conviction_date">
+                            wire:model.defer="convicted_details.conviction_date">
                     </div>
                 </div>
 
@@ -280,7 +323,7 @@
                     <div class="col-md-8">
                         <input type="text"
                             class="form-control"
-                            wire:model.defer="court">
+                            wire:model.defer="convicted_details.court">
                     </div>
                 </div>
 
@@ -289,7 +332,7 @@
                     <div class="col-md-8">
                         <textarea class="form-control"
                                 rows="2"
-                                wire:model.defer="punishment"></textarea>
+                                wire:model.defer="convicted_details.punishment"></textarea>
                     </div>
                 </div>
 
@@ -298,7 +341,7 @@
                     <div class="col-md-4">
                         <input type="date"
                             class="form-control"
-                            wire:model.defer="release_date">
+                            wire:model.defer="convicted_details.release_date">
                     </div>
                 </div>
 
@@ -309,8 +352,8 @@
                             <input class="form-check-input"
                                 type="radio"
                                 name="appeal_filed"
-                                wire:model="appeal_filed"
-                                value="yes">
+                                wire:model.defer="convicted_details.appeal_filed"
+                                value="Yes">
                             <label class="form-check-label">Yes</label>
                         </div>
 
@@ -318,8 +361,8 @@
                             <input class="form-check-input"
                                 type="radio"
                                 name="appeal_filed"
-                                wire:model="appeal_filed"
-                                value="no">
+                                wire:model.defer="convicted_details.appeal_filed"
+                                value="No">
                             <label class="form-check-label">No</label>
                         </div>
                     </div>
@@ -330,7 +373,7 @@
                     <div class="col-md-8">
                         <input type="text"
                             class="form-control"
-                            wire:model.defer="appeal_details">
+                            wire:model.defer="convicted_details.appeal_details">
                     </div>
                 </div>
 
@@ -339,7 +382,7 @@
                     <div class="col-md-8">
                         <input type="text"
                             class="form-control"
-                            wire:model.defer="appeal_court">
+                            wire:model.defer="convicted_details.appeal_court">
                     </div>
                 </div>
 
@@ -348,7 +391,7 @@
                     <div class="col-md-8">
                         <input type="text"
                             class="form-control"
-                            wire:model.defer="appeal_status">
+                            wire:model.defer="convicted_details.appeal_status">
                     </div>
                 </div>
 
@@ -357,7 +400,7 @@
                     <div class="col-md-4">
                         <input type="date"
                             class="form-control"
-                            wire:model.defer="disposal_date">
+                            wire:model.defer="convicted_details.disposal_date">
                     </div>
                 </div>
 
@@ -366,7 +409,7 @@
                     <div class="col-md-8">
                         <input type="text"
                             class="form-control"
-                            wire:model.defer="order_nature">
+                            wire:model.defer="convicted_details.order_nature">
                     </div>
                 </div>
 
@@ -380,21 +423,21 @@
                     </label>
                     <div class="col-md-8">
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="office_of_profit" wire:model="office_of_profit" value="yes">
-                            <label class="form-check-label">Yes</label>
+                            <input class="form-check-input" type="radio" id="office_of_profit_yes" name="office_of_profit" wire:model="office_of_profit" value="Yes">
+                            <label class="form-check-label" for="office_of_profit_yes">Yes</label>
                         </div>
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="office_of_profit" wire:model="office_of_profit" value="no">
-                            <label class="form-check-label">No</label>
+                            <input class="form-check-input" type="radio" id="office_of_profit_no" name="office_of_profit" wire:model="office_of_profit" value="No">
+                            <label class="form-check-label" for="office_of_profit_no">No</label>
                         </div>
                     </div>
                 </div>
 
-                {{-- @if($office_of_profit === 'yes') --}}
+                {{-- @if($office_of_profit === "Yes") --}}
                 <div class="row mb-3">
                     <label class="col-md-4 col-form-label">Details of office held</label>
                     <div class="col-md-8">
-                        <input type="text" class="form-control" wire:model.defer="office_details">
+                        <input type="text" class="form-control" wire:model.defer="holding_office_of_profit">
                     </div>
                 </div>
                 {{-- @endif --}}
@@ -405,21 +448,21 @@
                     </label>
                     <div class="col-md-8">
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="insolvent" wire:model="insolvent" value="yes">
-                            <label class="form-check-label">Yes</label>
+                            <input class="form-check-input" type="radio" id="insolvent_yes" name="insolvent" wire:model="insolvent" value="Yes">
+                            <label class="form-check-label" for="insolvent_yes">Yes</label>
                         </div>
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="insolvent" wire:model="insolvent" value="no">
-                            <label class="form-check-label">No</label>
+                            <input class="form-check-input" type="radio" id="insolvent_no" name="insolvent" wire:model="insolvent" value="No">
+                            <label class="form-check-label" for="insolvent_no">No</label>
                         </div>
                     </div>
                 </div>
 
-                {{-- @if($insolvent === 'yes') --}}
+                {{-- @if($insolvent === "Yes") --}}
                 <div class="row mb-3">
                     <label class="col-md-4 col-form-label">Insolvency details</label>
                     <div class="col-md-8">
-                        <input type="text" class="form-control" wire:model.defer="insolvent_details">
+                        <input type="text" class="form-control" wire:model.defer="declared_insolvent">
                     </div>
                 </div>
                 {{-- @endif --}}
@@ -430,21 +473,21 @@
                     </label>
                     <div class="col-md-8">
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="foreign_allegiance" wire:model="foreign_allegiance" value="yes">
-                            <label class="form-check-label">Yes</label>
+                            <input class="form-check-input" type="radio" id="foreign_allegiance_yes" name="foreign_allegiance" wire:model="foreign_allegiance" value="Yes">
+                            <label class="form-check-label" for="foreign_allegiance_yes">Yes</label>
                         </div>
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="foreign_allegiance" wire:model="foreign_allegiance" value="no">
-                            <label class="form-check-label">No</label>
+                            <input class="form-check-input" type="radio" id="foreign_allegiance_no" name="foreign_allegiance" wire:model="foreign_allegiance" value="No">
+                            <label class="form-check-label" for="foreign_allegiance_no">No</label> 
                         </div>
                     </div>
                 </div>
 
-                {{-- @if($foreign_allegiance === 'yes') --}}
+                {{-- @if($foreign_allegiance === "Yes") --}}
                 <div class="row mb-3">
                     <label class="col-md-4 col-form-label">Details</label>
                     <div class="col-md-8">
-                        <input type="text" class="form-control" wire:model.defer="foreign_details">
+                        <input type="text" class="form-control" wire:model.defer="allegiance_to_foreign_country">
                     </div>
                 </div>
                 {{-- @endif --}}
@@ -457,21 +500,21 @@
                     </label>
                     <div class="col-md-8">
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="disqualified_president" wire:model="disqualified_president" value="yes">
-                            <label class="form-check-label">Yes</label>
+                            <input class="form-check-input" type="radio" id="disqualified_president_yes" name="disqualified_president" wire:model="disqualified_president" value="Yes">
+                            <label class="form-check-label" for="disqualified_president_yes">Yes</label>
                         </div>
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="disqualified_president" wire:model="disqualified_president" value="no">
-                            <label class="form-check-label">No</label>
+                            <input class="form-check-input" type="radio" id="disqualified_president_no" name="disqualified_president" wire:model="disqualified_president" value="No">
+                            <label class="form-check-label" for="disqualified_president_no">No</label>
                         </div>
                     </div>
                 </div>
 
-                {{-- @if($disqualified_president === 'yes') --}}
+                {{-- @if($disqualified_president === "Yes") --}}
                 <div class="row mb-3">
                     <label class="col-md-4 col-form-label">If Yes, the period for which disqualified</label>
                     <div class="col-md-8">
-                        <input type="text" class="form-control" wire:model.defer="disqualified_period">
+                        <input type="text" class="form-control" wire:model.defer="disqualified_by_president">
                     </div>
                 </div>
                 {{-- @endif --}}
@@ -483,23 +526,23 @@
                     </label>
                     <div class="col-md-8">
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="dismissed_for_corruptions"
-                                wire:model="dismissed_for_corruptions" value="yes">
-                            <label class="form-check-label">Yes</label>
+                            <input class="form-check-input" type="radio" id="dismissed_for_corruptions_yes" name="dismissed_for_corruptions"
+                                wire:model="dismissed_for_corruptions" value="Yes">
+                            <label class="form-check-label" for="dismissed_for_corruptions_yes">Yes</label>
                         </div>
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="dismissed_for_corruptions"
-                                wire:model="dismissed_for_corruptions" value="no">
-                            <label class="form-check-label">No</label>
+                            <input class="form-check-input" type="radio" id="dismissed_for_corruptions_no" name="dismissed_for_corruptions"
+                                wire:model="dismissed_for_corruptions" value="No">
+                            <label class="form-check-label" for="dismissed_for_corruptions_no">No</label>
                         </div>
                     </div>
                 </div>
 
-                {{-- @if($dismissed_for_corruptions === 'yes') --}}
+                {{-- @if($dismissed_for_corruptions === "Yes") --}}
                 <div class="row mb-3">
                     <label class="col-md-4 col-form-label">Date of dismissal</label>
                     <div class="col-md-4">
-                        <input type="date" class="form-control" wire:model.defer="dismissed_date">
+                        <input type="date" class="form-control" wire:model.defer="dismissed_for_corruption">
                     </div>
                 </div>
                 {{-- @endif --}}
@@ -511,19 +554,19 @@
                     </label>
                     <div class="col-md-8">
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="govt_contract"
-                                wire:model="govt_contract" value="yes">
-                            <label class="form-check-label">Yes</label>
+                            <input class="form-check-input" type="radio" id="govt_contract_yes" name="govt_contract"
+                                wire:model="govt_contract" value="Yes">
+                            <label class="form-check-label" for="govt_contract_yes">Yes</label>
                         </div>
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="govt_contract"
-                                wire:model="govt_contract" value="no">
-                            <label class="form-check-label">No</label>
+                            <input class="form-check-input" type="radio" id="govt_contract_no" name="govt_contract"
+                                wire:model="govt_contract" value="No">
+                            <label class="form-check-label" for="govt_contract_no">No</label>
                         </div>
                     </div>
                 </div>
 
-                {{-- @if($govt_contract === 'yes') --}}
+                {{-- @if($govt_contract === "Yes") --}}
                 <div class="row mb-3">
                     <label class="col-md-4 col-form-label">
                         With which Government and details of subsisting contract(s)
@@ -531,7 +574,7 @@
                     <div class="col-md-8">
                         <input type="text"
                             class="form-control"
-                            wire:model.defer="govt_contract_details">
+                            wire:model.defer="subsisting_govt_contract">
                     </div>
                 </div>
                 {{-- @endif --}}
@@ -543,19 +586,19 @@
                     </label>
                     <div class="col-md-8">
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="company_position"
-                                wire:model="company_position" value="yes">
-                            <label class="form-check-label">Yes</label>
+                            <input class="form-check-input" type="radio" id="company_position_yes" name="company_position"
+                                wire:model="company_position" value="Yes">
+                            <label class="form-check-label" for="company_position_yes">Yes</label>
                         </div>
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="company_position"
-                                wire:model="company_position" value="no">
-                            <label class="form-check-label">No</label>
+                            <input class="form-check-input" type="radio" id="company_position_no" name="company_position"
+                                wire:model="company_position" value="No">
+                            <label class="form-check-label" for="company_position_no">No</label>
                         </div>
                     </div>
                 </div>
 
-                {{-- @if($company_position === 'yes') --}}
+                {{-- @if($company_position === "Yes") --}}
                 <div class="row mb-3">
                     <label class="col-md-4 col-form-label">
                         Details thereof
@@ -563,7 +606,7 @@
                     <div class="col-md-8">
                         <input type="text"
                             class="form-control"
-                            wire:model.defer="company_details">
+                            wire:model.defer="managing_agent_role">
                     </div>
                 </div>
                 {{-- @endif --}}
@@ -575,19 +618,19 @@
                     </label>
                     <div class="col-md-8">
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="commission_disqualified"
-                                wire:model="commission_disqualified" value="yes">
-                            <label class="form-check-label">Yes</label>
+                            <input class="form-check-input" type="radio" id="commission_disqualified_yes" name="disqualified_by_commission"
+                                wire:model="commission_disqualified" value="Yes">
+                            <label class="form-check-label" for="commission_disqualified_yes">Yes</label>
                         </div>
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="commission_disqualified"
-                                wire:model="commission_disqualified" value="no">
-                            <label class="form-check-label">No</label>
+                            <input class="form-check-input" type="radio" id="commission_disqualified_no" name="disqualified_by_commission"
+                                wire:model="commission_disqualified" value="No">
+                            <label class="form-check-label" for="commission_disqualified_no">No</label>
                         </div>
                     </div>
                 </div>
 
-                {{-- @if($commission_disqualified === 'yes') --}}
+                {{-- @if($commission_disqualified === "Yes") --}}
                 <div class="row mb-3">
                     <label class="col-md-4 col-form-label">
                         Date of disqualification
@@ -595,7 +638,7 @@
                     <div class="col-md-4">
                         <input type="date"
                             class="form-control"
-                            wire:model.defer="commission_disqualified_date">
+                            wire:model.defer="date_of_disqualification">
                     </div>
                 </div>
                 {{-- @endif --}}

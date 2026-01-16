@@ -31,7 +31,8 @@ use App\Livewire\{
     MccLogDetails,
     PhaseWiseMcc,
     NominationForm2B,
-    Form26
+    Form26,
+    NominationForm2BPreview
 };
 use App\Http\Controllers\NominationPdfController;
 use App\Livewire\Candidate\DocumentComments;
@@ -110,8 +111,9 @@ Route::prefix('/admin')->middleware('auth:admin')->group(function () {
         Route::get('/journey/{id}', CandidateJourney::class)->name('admin.candidates.journey');
        // Route::get('/form-5/{id}', CandidateForm5Update::class)->name('admin.candidates.form5');
         Route::get('/form-2B/{id}', NominationForm2B::class)->name('admin.candidates.form2B');
+        Route::get('/form-2B/{id}/preview', NominationForm2BPreview::class)->name('admin.candidates.form2B.preview');
         Route::get('/form-26/{id}', Form26::class)->name('admin.candidates.form26');
-        Route::get('/form-2B/pdf/{id}', [NominationPdfController::class, 'form2B'])->name('admin.candidates.form2B.pdf');
+        Route::get('/form-2B/pdf/{id}', [NominationPdfController::class, 'download'])->name('admin.candidates.form2B.pdf');
         Route::get('/nominations', CandidateContactList::class)->name('admin.candidates.contacts');
         Route::get('/social-media', DiscrepancyReportCrud::class)->name('admin.candidates.discrepancies.report');
         // Route::get('/Candidate Discrepancy Reports', [CandidateController::class, 'nominations'])->name('admin.candidates.nominations');

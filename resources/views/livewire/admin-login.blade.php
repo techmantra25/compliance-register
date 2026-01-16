@@ -9,7 +9,7 @@
                         <div class="col-md-6 p-5 bg-white">
                             <div class="text-center mb-4">
                                 <img src="{{ asset('assets/img/logo.png') }}" alt="Logo" height="50">
-                                <h3 class="mt-3 fw-semibold">Welcome Back!</h3>
+                                <h3 class="mt-3 fw-semibold" style="color: #F97D09;">Welcome Back!</h3>
                                 <p class="text-muted">Sign in to continue to us.</p>
                             </div>
 
@@ -43,7 +43,7 @@
                                     <a href="{{route('forget.password')}}" class="text-decoration-none text-muted small">Forgot your password?</a>
                                 </div>
 
-                                <button type="submit" class="btn w-100 text-white py-2" style="background-color: #3A1212;">
+                                <button type="submit" class="btn w-100 text-white py-2 btn btn-danger">
                                     Log In
                                 </button>
                             </form>

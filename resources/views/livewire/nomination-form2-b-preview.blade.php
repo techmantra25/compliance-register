@@ -1,9 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FORM 2B - Nomination Paper</title>
+<div>
     <style>
         * {
             font-family: 'Times New Roman', Times, serif;
@@ -313,7 +308,13 @@
                                     value="husband"> Husband's
                             </label>
                         </div>
-                        name <span class="input-field input-field-medium" style="width: 400px;">{{$nomination->relation_name}}</span>
+                            {{ match($nomination->relation_type) {
+                                'father' => "Father's",
+                                'mother' => "Mother's",
+                                'husband' => "Husband's",
+                                default => 'Not Selected',
+                            } }}
+                        name <span class="input-field input-field-medium" style="width: 400px;">{{ucwords($nomination->relation_name)}}</span>
                         <div wire:key="pronoun-1">
                             <label>
                                 <input type="radio" name="pronoun-main" wire:model="pronoun" value="his"> His
@@ -322,7 +323,7 @@
                                 <input type="radio" name="pronoun-main" wire:model="pronoun" value="her"> Her
                             </label>
                         </div>
-                        postal address<span class="input-field input-field-large" style="width: 428px;">{{$nomination->postal_address}}</span>
+                        postal address<span class="input-field input-field-large" style="width: 428px;">{{ucwords($nomination->postal_address)}}</span>
                         <div wire:key="pronoun-2">
                             <label>
                                 <input type="radio" name="pronoun-copy" wire:model="pronoun" value="his"> His
@@ -335,17 +336,17 @@
                         <span class="input-field input-field-small">{{$nomination->candidate_part_no}}</span>of the
                         electoral roll for
                         <span class="input-field input-field-medium"
-                            style="width: 229px;">{{$nomination->constituency_where_enrolled}}
+                            style="width: 229px;">{{ucwords($nomination->constituency_where_enrolled)}}
                         </span> Assembly constituency.
                     </div>
 
                     <div style=" font-size: 16px; line-height: 2;">
-                        My name is <span class="input-field input-field-large">{{$nomination->proposer_name}}</span>
+                        My name is <span class="input-field input-field-large">{{ucwords($nomination->proposer_name)}}</span>
                         and it is entered at Sl. No.
                         <span class="input-field input-field-small">{{$nomination->proposer_part_no}}</span>in Part No
                         <span class="input-field input-field-small">{{$nomination->proposer_serial_no}}</span>of the
                         electoral roll for the
-                        <span class="input-field input-field-medium" style="width: 227px;">{{$nomination->proposer_constituency}}</span>Assembly constituency.
+                        <span class="input-field input-field-medium" style="width: 227px;">{{ucwords($nomination->proposer_constituency)}}</span>Assembly constituency.
                     </div>
 
                     <div style="margin-top: 37px; display: flex; justify-content: space-between;">
@@ -721,7 +722,7 @@
                     <div style="margin-left: 20px; line-height: 1.21;">
                         (viii) Whether any appeal(s)/revision(s) filed
                         <strong>
-                            {{ ucfirst($nomination->convicted_details['appeal_filed'] ?? '-') }}
+                            {{ ucfirst($convicted_details['appeal_filed'] ?? '-') }}
                         </strong>
                     </div>
 
@@ -859,7 +860,7 @@
                     <div style="margin-top: 10px;">
                         - If Yes, details of the office held
                         <span class="input-field input-field-large">
-                            {{ $nomination->holding_office_of_profit ?? 'Not Applicable' }}
+                            {{ ucwords($nomination->holding_office_of_profit ?? 'Not Applicable') }}
                         </span>
                     </div>
                 </div>
@@ -874,7 +875,7 @@
                     <div style="margin-top: 10px;">
                         - If Yes, has he been discharged from insolvency
                         <span class="input-field input-field-medium">
-                            {{ $nomination->declared_insolvent ?? 'Not Applicable' }}
+                            {{ ucwords($nomination->declared_insolvent ?? 'Not Applicable') }}
                         </span>
                     </div>
                 </div>
@@ -888,7 +889,7 @@
                     <div style="margin-top: 10px;">
                         - If Yes, give details
                         <span class="input-field input-field-large">
-                            {{ $nomination->allegiance_to_foreign_country ?? 'Not Applicable' }}
+                            {{ ucwords($nomination->allegiance_to_foreign_country ?? 'Not Applicable') }}
                         </span>
                     </div>
                 </div>
@@ -902,7 +903,7 @@
                     <div style="margin-top: 10px;">
                         - If Yes, the period for which disqualified
                         <span class="input-field input-field-medium">
-                            {{ $nomination->disqualified_by_president ?? 'Not Applicable' }}
+                            {{ ucwords($nomination->disqualified_by_president ?? 'Not Applicable') }}
                         </span>
                     </div>
                 </div>
@@ -916,7 +917,7 @@
                     <div style="margin-top: 5px;">
                         - If Yes, the date of such dismissal
                         <span class="input-field input-field-medium">
-                            {{ $nomination->dismissed_for_corruption ?? 'Not Applicable' }}
+                            {{ ucwords($nomination->dismissed_for_corruption ?? 'Not Applicable') }}
                         </span>
                     </div>
                 </div>
@@ -930,7 +931,7 @@
                     <div style="line-height: 1.8;">
                         - If Yes, details
                         <span class="input-field input-field-large">
-                            {{ $nomination->subsisting_govt_contract ?? 'Not Applicable' }}
+                            {{ ucwords($nomination->subsisting_govt_contract ?? 'Not Applicable') }}
                         </span>
                     </div>
                 </div>
@@ -944,7 +945,7 @@
                     <div style="line-height: 1.8;">
                         - If Yes, details thereof
                         <span class="input-field input-field-large">
-                            {{ $nomination->managing_agent_role ?? 'Not Applicable' }}
+                            {{ ucwords($nomination->managing_agent_role ?? 'Not Applicable') }}
                         </span>
                     </div>
                 </div>
@@ -959,7 +960,7 @@
                     <div style="line-height: 1.8;">
                         - If Yes, the date of disqualification
                         <span class="input-field input-field-medium">
-                            {{ $nomination->date_of_disqualification ?? 'Not Applicable' }}
+                            {{ ucwords($nomination->date_of_disqualification ?? 'Not Applicable') }}
                         </span>
                     </div>
                 </div>
@@ -1052,8 +1053,8 @@
 
                     <div style="margin-top: 10px; text-align: justify;">
                         The nomination paper of <input type="text" class="input-field input-field-medium"
-                            placeholder="MAMATA BANERJEE"> a candidate for election from the
-                        <input type="text" class="input-field input-field-medium" placeholder="210 NANDIGRAM"> Assembly
+                            placeholder=""> a candidate for election from the
+                        <input type="text" class="input-field input-field-medium"> Assembly
                         constituency was delivered to me at my office at
                         <input type="text" class="input-field input-field-small" placeholder="">(hour) on
                         <input type="text" class="input-field input-field-medium" style="width: 136px;"> (date) by the
@@ -1085,7 +1086,16 @@
             </div> -->
             </div>
 
+            <div class="text-end mt-4">
+                <a href="{{ route('admin.candidates.form2B.pdf', ['id' => $nomination->id]) }}"
+                class="btn btn-success">
+                    Download PDF
+                </a>
+
+                <a href="{{ url()->previous() }}" class="btn btn-secondary">
+                    Back to Edit
+                </a>
+            </div>
+
         </form>
     </div>
-</body>
-</html>

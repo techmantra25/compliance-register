@@ -70,5 +70,4 @@ class NominationForm2B extends Model
     {
         return $this->belongsTo(Candidate::class);
     }
-    
 }

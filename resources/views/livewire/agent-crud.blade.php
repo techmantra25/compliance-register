@@ -137,7 +137,7 @@
                                                     </p>
                                                     <p><strong>Comments:</strong> {{ $agent->comments ?? '-' }}</p>
                                                 </div>
-                                                @elseif($agent->type === 'CAMAC')
+                                               {{-- @elseif($agent->type === 'CAMAC')
                                                 <div class="col-md-6">
                                                     <p><strong>Name:</strong> {{ $agent->name ?? '-' }}</p>
                                                     <p><strong>Mobile No:</strong> {{ $agent->contact_number ?? '-' }}
@@ -166,6 +166,7 @@
                                                     <p><strong>Email:</strong> {{ $agent->email ?? '-' }}</p>
                                                     <p><strong>Comments:</strong> {{ $agent->comments ?? '-' }}</p>
                                                 </div>
+                                                @endif --}}
                                                 @endif
                                             </div>
                                         </div>
@@ -213,7 +214,7 @@
                                 <option value="">-- Select Category --</option>
                                 <option value="bureaucrat">Bureaucrat</option>
                                 <option value="political">Political</option>
-                                <option value="CAMAC">CAMAC</option>
+                                {{-- <option value="CAMAC">CAMAC</option> --}}
                                 <option value="other">Other</option>
                             </select>
                             @error('agent_type') <small class="text-danger">{{ $message }}</small> @enderror
@@ -338,7 +339,7 @@
                         </div>
 
                         <!-- CAMAC Form -->
-                        <div id="camac_fields" class="d-none">
+                       {{-- <div id="camac_fields" class="d-none">
                             <div class="row">
                                 <div class="col-md-6 mb-3">
                                     <label>Name *</label>
@@ -383,7 +384,7 @@
                                     @error('comments') <small class="text-danger">{{ $message }}</small> @enderror
                                 </div>
                             </div>
-                        </div>
+                        </div> --}}
 
                         <!-- Other Form -->
                         <div id="other_fields" class="d-none">
@@ -463,7 +464,7 @@
                             <option value="">-- Select Category --</option>
                             <option value="bureaucrat">Bureaucrat</option>
                             <option value="political">Political</option>
-                            <option value="CAMAC">CAMAC</option>
+                            {{-- <option value="CAMAC">CAMAC</option> --}}
                             <option value="other">Other</option>
                         </select>
                          @error('importCategory') <small class="text-danger">{{ $message }}</small> @enderror

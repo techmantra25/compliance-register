@@ -48,25 +48,24 @@ class NominationForm2B extends Component
     public $assemblies = [];
     public $candidates = [];
 
-    public $convicted = 'no';
-    public $convicted_details = [];
-    public $case_no;
-    public $police_station;
-    public $district;
-    public $sections;
-    public $conviction_date;
-    public $court;
-    public $punishment;
-    public $release_date;
-
-    public $appeal_filed;
-    public $appeal_details;
-    public $appeal_court;
-    public $appeal_status;
-    public $disposal_date;
-    public $order_nature;
-
-
+    public $convicted = 'No';
+    public $convicted_details = [
+        'case_no' => null,
+        'police_station' => null,
+        'district' => null,
+        'state' => null,
+        'sections' => null,
+        'conviction_date' => null,
+        'court' => null,
+        'punishment' => null,
+        'release_date' => null,
+        'appeal_filed' => null,
+        'appeal_details' => null,
+        'appeal_court' => null,
+        'appeal_status' => null,
+        'disposal_date' => null,
+        'order_nature' => null,
+    ];
 
     public $holding_office_of_profit;
     public $declared_insolvent;
@@ -113,14 +112,9 @@ class NominationForm2B extends Component
         'proposer_name' => 'required',
         'proposer_serial_no' => 'required',
         'proposer_part_no' => 'required',
-        'convicted' => 'required|in:yes,no',
-
-        'office_of_profit' => 'required|in:yes,no',
-        'office_details' => 'required_if:office_of_profit,yes',
-
-        'insolvent' => 'required|in:yes,no',
-        'insolvent_details' => 'required_if:insolvent,yes',
+        'convicted' => 'required|in:Yes,No',
     ];
+    
 
     public function mount($id)
     {
@@ -134,35 +128,73 @@ class NominationForm2B extends Component
 
         if ($form) {
             $this->fill($form->toArray());
+               
+                $this->convicted = $form->convicted ?? 'No';
+                $this->office_of_profit = $form->office_of_profit ?? 'No';
+                $this->insolvent = $form->insolvent ?? 'No';
+                $this->foreign_allegiance = $form->foreign_allegiance ?? 'No';
+                $this->disqualified_president = $form->disqualified_president ?? 'No';
+                $this->dismissed_for_corruptions = $form->dismissed_for_corruptions ?? 'No';
+                $this->govt_contract = $form->govt_contract ?? 'No';
+                $this->company_position = $form->company_position ?? 'No';
+                $this->commission_disqualified = $form->commission_disqualified ?? 'No';
         } 
+
+         // Office of profit
+        $this->office_of_profit = $form?->holding_office_of_profit ? 'Yes' : 'No';
+        $this->holding_office_of_profit = $form?->holding_office_of_profit;
+
+        // Insolvent
+        $this->insolvent = $form?->declared_insolvent ? 'Yes' : 'No';
+        $this->declared_insolvent = $form?->declared_insolvent;
+
+        // Foreign allegiance
+        $this->foreign_allegiance = $form?->allegiance_to_foreign_country ? 'Yes' : 'No';
+        $this->allegiance_to_foreign_country = $form?->allegiance_to_foreign_country;
+
+        // Disqualified by president
+        $this->disqualified_president = $form?->disqualified_by_president ? 'Yes' : 'No';
+        $this->disqualified_by_president = $form?->disqualified_by_president;
+
+        // Dismissed
+        $this->dismissed_for_corruptions = $form?->dismissed_for_corruption ? 'Yes' : 'No';
+        $this->dismissed_for_corruption = $form?->dismissed_for_corruption;
+
+        // Govt contract
+        $this->govt_contract = $form?->subsisting_govt_contract ? 'Yes' : 'No';
+        $this->subsisting_govt_contract = $form?->subsisting_govt_contract;
+
+        // Company position
+        $this->company_position = $form?->managing_agent_role ? 'Yes' : 'No';
+        $this->managing_agent_role = $form?->managing_agent_role;
+
+        // Commission disqualified
+        $this->commission_disqualified = $form?->date_of_disqualification ? 'Yes' : 'No';
+        $this->date_of_disqualification = $form?->date_of_disqualification;
 
         $this->candidate_name = $this->candidate->name;
         $this->assembly_name  =
             $this->candidate->assembly->assembly_name_en
             . ' (' . $this->candidate->assembly->assembly_code . ')';
-
     }
 
     public function updatedConvicted($value)
     {
-        if ($value === 'no') {
-            $this->case_no = null;
-            $this->police_station = null;
-            $this->district = null;
-            $this->state = null;
-            $this->sections = null;
-            $this->conviction_date = null;
-            $this->court = null;
-            $this->punishment = null;
-            $this->release_date = null;
-            $this->appeal_filed = null;
-            $this->appeal_details = null;
-            $this->appeal_court = null;
-            $this->appeal_status = null;
-            $this->disposal_date = null;
-            $this->order_nature = null;
+        if ($value === 'No') {
+            $this->resetConvictionFields();
         }
     }
+
+    private function resetConvictionFields()
+    {
+        if (!is_array($this->convicted_details)) {
+            return;
+        }
+      foreach ($this->convicted_details as $key => $value) {
+            $this->convicted_details[$key] = null;
+        }
+    }
+
 
     public function save()
     {
@@ -173,69 +205,53 @@ class NominationForm2B extends Component
                 'convicted' => $this->convicted,
             ];
 
-            if ($this->convicted === 'yes') {
-                $data['convicted_details'] = [
-                    'case_no'          => $this->case_no,
-                    'police_station'   => $this->police_station,
-                    'district'         => $this->district,
-                    'state'            => $this->state,
-                    'sections'         => $this->sections,
-                    'conviction_date'  => $this->conviction_date,
-                    'court'            => $this->court,
-                    'punishment'       => $this->punishment,
-                    'release_date'     => $this->release_date,
-                    'appeal_filed'     => $this->appeal_filed,
-                    'appeal_details'   => $this->appeal_details,
-                    'appeal_court'     => $this->appeal_court,
-                    'appeal_status'    => $this->appeal_status,
-                    'disposal_date'    => $this->disposal_date,
-                    'order_nature'     => $this->order_nature,
-                ];
+            if ($this->convicted === 'Yes') {
+                $data['convicted_details'] = $this->convicted_details;
             } else {
                 $data['convicted_details'] = null;
             }
 
             $holdingOfficeOfProfit = null;
 
-            if ($this->office_of_profit === 'yes') {
-                $holdingOfficeOfProfit = $this->office_details;
+            if ($this->office_of_profit === 'Yes') {
+                $holdingOfficeOfProfit = $this->holding_office_of_profit;
             }
 
             $insolventDetails = null;
 
-            if ($this->insolvent === 'yes') {
-                $insolventDetails = $this->insolvent_details;
+            if ($this->insolvent === 'Yes') {
+                $insolventDetails = $this->declared_insolvent;
             }
 
             $foreignDetails = null;
-            if ($this->foreign_allegiance === 'yes') {
-                $foreignDetails = $this->foreign_details;
+            if ($this->foreign_allegiance === 'Yes') {
+                $foreignDetails = $this->allegiance_to_foreign_country;
             }
 
             $disqualifiedPresident = null;
-            if ($this->disqualified_president === 'yes') {
-                $disqualifiedPresident = $this->disqualified_period;
+            if ($this->disqualified_president === 'Yes') {
+                $disqualifiedPresident = $this->disqualified_by_president;
             }
 
             $dismissedForCorruption = null;
-            if ($this->dismissed_for_corruptions === 'yes') {
-                $dismissedForCorruption = $this->dismissed_date;
+            if ($this->dismissed_for_corruptions === 'Yes') {
+                $dismissedForCorruption = $this->dismissed_for_corruption;
             }
 
 
             $govtContract = null;
-            if ($this->govt_contract === 'yes') {
-                $govtContract = $this->govt_contract_details;
+            if ($this->govt_contract === 'Yes') {
+                $govtContract = $this->subsisting_govt_contract;
             }
 
             $manageAgentRole = null;
-            if ($this->company_position === 'yes') {
-                $manageAgentRole = $this->company_details;
+            if ($this->company_position === 'Yes') {
+                $manageAgentRole = $this->managing_agent_role;
             }
 
             $commisionDisqualifiedDate = null;
-            if ($this->commission_disqualified === 'yes') {
-                $commisionDisqualifiedDate = $this->commission_disqualified_date;
+            if ($this->commission_disqualified === 'Yes') {
+                $commisionDisqualifiedDate = $this->date_of_disqualification;
             }
 
             $nomination = NominationForm::updateOrCreate(
@@ -278,7 +294,7 @@ class NominationForm2B extends Component
                 ])
             );
 
-            return redirect()->route('admin.candidates.form2B.pdf', $nomination->id);
+            return redirect()->route('admin.candidates.form2B.preview', $nomination->id);
 
         } catch (\Exception $e) {
             dd($e->getMessage());
@@ -286,9 +302,13 @@ class NominationForm2B extends Component
             session()->flash('error', 'Something went wrong');
         }
     }
+    public function toggleConvicted($value){
+        $this->convicted = $value;
+    }
 
     public function render()
     {
+        // dd($this->all());
         return view('livewire.nomination-form2-b')->layout('layouts.admin');
     }
 }

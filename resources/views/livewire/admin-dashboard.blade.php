@@ -4,19 +4,19 @@
             <div class="row mb-4">
                 <div class="col-md-12 mb-4">
                     <div class="inner-wrapper">
-                        <div class="title-head">Event Permission (State View)</div>
+                        <div class="title-head" style="color: #F97D09;">Event Permission (State View)</div>
                         <div class="wrappper-bpdy">
                             <div class="chrat-place mb-5">
                                 <canvas width="300" id="myChart"></canvas>
                             </div>
-                             <a href="{{route('admin.eventwise.district')}}" class="btm-small blue-btm">Click for District View</a> 
+                             <a href="{{route('admin.eventwise.district')}}" class="btm-small" style="color: #278D27;">Click for District View</a> 
                         </div>
                     </div>
                 </div>
                 
                 <div class="col-md-6 mb-4">
                     <div class="inner-wrapper">
-                        <div class="title-head">Nomination Vetting (State View) - {{ $this->phases->count() }} Phases</div>
+                        <div class="title-head" style="color: #F97D09;">Nomination Vetting (State View) - {{ $this->phases->count() }} Phases</div>
                         <div class="wrappper-bpdy">
                             <div class="row">
                                 @foreach($this->phases as $key => $phase)
@@ -44,13 +44,13 @@
                                 <div class="color-grid"><span style="background-color: #A7A7A7;"></span >Pending Acknowledgement Copy</div>
                                 <div class="color-grid"><span style="background-color: #F46674;"></span>Rejected (if any)</div>
                             </div>
-                             <p class="btm-small blue-btm">Click on Phase to Check the Details View</p>
+                             <p class="btm-small" style="color: #278D27;">Click on Phase to Check the Details View</p>
                         </div>
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="inner-wrapper">
-                        <div class="title-head">
+                        <div class="title-head" style="color: #F97D09;">
                             MCC Complaints (State-view) - {{ $this->phases->count() }} Phases
                         </div>
 
@@ -89,7 +89,7 @@
                                 </div>
                             </div>
 
-                            <p class="btm-small blue-btm">
+                            <p class="btm-small" style="color: #278D27;">
                                 Click on Phase to Check the Details View
                             </p>
                         </div>
