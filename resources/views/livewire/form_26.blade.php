@@ -143,101 +143,98 @@
 
                     <h5 class="text-primary mt-4">PAN and ITR Details</h5>
 
-                    <div class="col-md-12">
-                    @foreach ($pan_details as $index => $row)
+                        @foreach ($pan_details as $index => $row)
+                            <div class="card mb-2 shadow-sm position-relative">
+                                <div class="card-body">
 
-                        <div class="border rounded p-3 mb-3 bg-light position-relative">
+                                    @if ($index > 0)
+                                        <button type="button"
+                                            class="btn btn-sm btn-outline-danger position-absolute top-0 end-0 m-2"
+                                            wire:click="removePanRow({{ $index }})">
+                                            <i class="bi bi-x-lg"></i>
+                                        </button>
+                                    @endif
 
-                            @if ($index > 0)
-                                <button type="button"
-                                    class="btn btn-sm btn-danger position-absolute top-0 end-0 m-2"
-                                    wire:click="removePanRow({{ $index }})"
-                                    title="Remove PAN">
-                                    <i class="bi bi-x-lg"></i>
-                                </button>
-                            @endif
+                                    <span class="badge bg-secondary mb-3">
+                                        PAN {{ $index + 1 }}
+                                    </span>
 
-                            <div class="row g-2 mb-2">
-                                <div class="col-md-2">
-                                    <label class="form-label">Holder</label>
-                                    <select class="form-select"
-                                        wire:model="pan_details.{{ $index }}.type">
-                                        <option value="">Select</option>
-                                        <option value="self">Self</option>
-                                        <option value="spouse">Spouse</option>
-                                        <option value="huf">HUF</option>
-                                        <option value="dependent">Dependent</option>
-                                    </select>
-                                </div>
+                                    <div class="row g-2 mb-3">
+                                        <div class="col-md-2">
+                                            <label class="form-label">Holder</label>
+                                            <select class="form-select"
+                                                wire:model="pan_details.{{ $index }}.type">
+                                                <option value="">Select</option>
+                                                <option value="self">Self</option>
+                                                <option value="spouse">Spouse</option>
+                                                <option value="huf">HUF</option>
+                                                <option value="dependent">Dependent</option>
+                                            </select>
+                                        </div>
 
-                                <div class="col-md-3">
-                                    <label class="form-label">Name</label>
-                                    <input type="text"
-                                        class="form-control"
-                                        wire:model="pan_details.{{ $index }}.name">
-                                </div>
+                                        <div class="col-md-3">
+                                            <label class="form-label">Name</label>
+                                            <input type="text"
+                                                class="form-control"
+                                                wire:model="pan_details.{{ $index }}.name">
+                                        </div>
 
-                                <div class="col-md-3">
-                                    <label class="form-label">PAN</label>
-                                    <input type="text"
-                                        class="form-control text-uppercase"
-                                        wire:model="pan_details.{{ $index }}.pan">
-                                </div>
+                                        <div class="col-md-3">
+                                            <label class="form-label">PAN</label>
+                                            <input type="text"
+                                                class="form-control text-uppercase"
+                                                wire:model="pan_details.{{ $index }}.pan">
+                                        </div>
 
-                                <div class="col-md-3">
-                                    <label class="form-label">
-                                        Last ITR Filed (Financial Year)
-                                    </label>
-                                    <select class="form-select"
-                                        wire:model="pan_details.{{ $index }}.last_filed_year">
-                                        <option value="">Select</option>
-                                        <option value="2019-20">2019-20</option>
-                                        <option value="2018-19">2018-19</option>
-                                        <option value="2017-18">2017-18</option>
-                                        <option value="2016-17">2016-17</option>
-                                        <option value="2015-16">2015-16</option>
-                                    </select>
-                                </div>
-
-                               
-                            </div>
-
-                            <label class="form-label">
-                                Income Declared in ITR (Last 5 Financial Years)
-                            </label>
-
-                            <div class="row g-2">
-                                @foreach ($row['income'] as $year => $value)
-                                    <div class="col-md-2">
-                                        <label class="fw-semibold small text-muted mb-1">
-                                            {{ $year }}
-                                        </label>
-                                        <input type="number"
-                                            class="form-control"
-                                            wire:model="pan_details.{{ $index }}.income.{{ $year }}">
+                                        <div class="col-md-4">
+                                            <label class="form-label">Last ITR Filed (FY)</label>
+                                            <select class="form-select"
+                                                wire:model="pan_details.{{ $index }}.last_filed_year">
+                                                <option value="">Select</option>
+                                                <option value="2019-20">2019-20</option>
+                                                <option value="2018-19">2018-19</option>
+                                                <option value="2017-18">2017-18</option>
+                                                <option value="2016-17">2016-17</option>
+                                                <option value="2015-16">2015-16</option>
+                                            </select>
+                                        </div>
                                     </div>
-                                @endforeach
+
+                                    <label class="form-label fw-semibold">
+                                        Income Declared (Last 5 Financial Years)
+                                    </label>
+
+                                    <div class="row g-2">
+                                        @foreach ($row['income'] as $year => $value)
+                                            <div class="col-md-2">
+                                                <label class="small text-muted">{{ $year }}</label>
+                                                <input type="number"
+                                                    class="form-control"
+                                                    wire:model="pan_details.{{ $index }}.income.{{ $year }}">
+                                            </div>
+                                        @endforeach
+                                    </div>
+
+                                </div>
                             </div>
 
+                        @endforeach
+
+                        <div class="text-center mb-2">
+                            <button type="button"
+                                class="btn btn-outline-primary btn-sm px-4"
+                                wire:click="addPanRow">
+                                <i class="bi bi-plus-circle"></i> Add PAN
+                            </button>
                         </div>
 
-                    @endforeach
-
-                    <button type="button"
-                        class="btn btn-sm btn-primary"
-                        wire:click="addPanRow">
-                        + Add PAN
-                    </button>
-                    </div>
 
                     <h5 class="text-primary mt-4">Movable Assets</h5>
 
                         @foreach ($asset_holders as $hIndex => $holderBlock)
-
-                        <div class="card mb-4 shadow-sm position-relative">
+                        <div class="card mb-1 shadow-sm position-relative">
                             <div class="card-body">
 
-                                {{-- REMOVE HOLDER --}}
                                 @if($hIndex > 0)
                                     <button type="button"
                                         class="btn btn-sm btn-outline-danger position-absolute top-0 end-0 m-2"
@@ -246,7 +243,6 @@
                                     </button>
                                 @endif
 
-                                {{-- HOLDER --}}
                                 <div class="mb-3 col-md-4">
                                     <label class="form-label">Holder</label>
                                     <select class="form-select"
@@ -259,7 +255,6 @@
                                     </select>
                                 </div>
 
-                                {{-- ASSETS --}}
                                 @foreach ($holderBlock['assets'] as $aIndex => $asset)
 
                                 <div class="border rounded p-3 mb-3 bg-white shadow-sm">
@@ -311,7 +306,6 @@
                                 </div>
                                 @endforeach
 
-                                {{-- ADD ASSET --}}
                                 <div class="text-end">
                                     <button type="button"
                                         class="btn btn-outline-success btn-sm"
@@ -322,11 +316,9 @@
 
                             </div>
                         </div>
-
                         @endforeach
 
-                        {{-- ADD HOLDER --}}
-                        <div class="text-center mb-4">
+                        <div class="text-center mb-2">
                             <button type="button"
                                 class="btn btn-outline-primary btn-sm px-4"
                                 wire:click="addAssetHolder">
@@ -338,11 +330,9 @@
                    <h5 class="mt-4 text-primary">Immovable Assets</h5>
 
                         @foreach($immovable_assets as $hIndex => $holderBlock)
-
-                        <div class="card mb-4 shadow-sm">
+                        <div class="card mb-1 shadow-sm">
                             <div class="card-body">
 
-                                {{-- HOLDER --}}
                                 <div class="mb-3">
                                     <div class="col-md-3">
                                         <label class="form-label">Holder</label>
@@ -357,31 +347,25 @@
                                     </div>
                                 </div>
 
-                                {{-- AFTER HOLDER --}}
                                     @foreach($holderBlock['groups'] as $gIndex => $group)
 
                                     <div class="border rounded p-3 mb-3 bg-white shadow-sm">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <span class="badge bg-secondary">
+                                                Asset {{ $gIndex + 1 }}
+                                            </span>
+                                        </div>
 
-                                        {{-- AGRICULTURAL --}}
-                                        <strong>Agricultural Land</strong>
-                                        <div class="row g-2 mt-1 mb-3">
+                                            <strong>Agricultural Land</strong>
+                                            <div class="row g-2 mt-1 mb-3">
 
-                                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                                <span class="badge bg-secondary">
-                                                    Asset {{ $gIndex + 1 }}
-                                                </span>
-                                            </div>
-                                            
                                             <div class="col-md-3">
-                                                <input class="form-control" placeholder="Location"
+                                                <input class="form-control" placeholder="Location / Survey No."
                                                     wire:model="immovable_assets.{{ $hIndex }}.groups.{{ $gIndex }}.agricultural.location">
                                             </div>
+                                            
                                             <div class="col-md-2">
-                                                <input class="form-control" placeholder="Survey No"
-                                                    wire:model="immovable_assets.{{ $hIndex }}.groups.{{ $gIndex }}.agricultural.survey_no">
-                                            </div>
-                                            <div class="col-md-2">
-                                                <input class="form-control" placeholder="Area"
+                                                <input class="form-control" placeholder="Area (Acres)"
                                                     wire:model="immovable_assets.{{ $hIndex }}.groups.{{ $gIndex }}.agricultural.area">
                                             </div>
                                             <div class="col-md-2">
@@ -392,27 +376,37 @@
                                                     <option value="No">No</option>
                                                 </select>
                                             </div>
+                                            <div class="col-md-2">
+                                               <input type="date" class="form-control"
+                                                     wire:model="immovable_assets.{{ $hIndex }}.groups.{{ $gIndex }}.agricultural.purchase_date">
+                                            </div>
+                                            <div class="col-md-2">
+                                                <input type="number" class="form-control" placeholder="Purchase Cost"
+                                                    wire:model="immovable_assets.{{ $hIndex }}.groups.{{ $gIndex }}.agricultural.purchase_cost">
+                                            </div>
+                                            <div class="col-md-2">
+                                                <input class="form-control" placeholder="Investment Made"
+                                                    wire:model="immovable_assets.{{ $hIndex }}.groups.{{ $gIndex }}.agricultural.investment_made">
+                                            </div>
                                             <div class="col-md-3">
-                                                <input class="form-control" placeholder="Current Value"
+                                                <input class="form-control" placeholder="Current Market Value"
                                                     wire:model="immovable_assets.{{ $hIndex }}.groups.{{ $gIndex }}.agricultural.current_value">
                                             </div>
                                         </div>
 
-                                        {{-- NON AGRICULTURAL --}}
                                         <strong>Non-Agricultural Land</strong>
                                         <div class="row g-2 mt-1 mb-3">
+
                                             <div class="col-md-3">
-                                                <input class="form-control" placeholder="Location"
+                                                <input class="form-control" placeholder="Location / Survey No."
                                                     wire:model="immovable_assets.{{ $hIndex }}.groups.{{ $gIndex }}.non_agricultural.location">
                                             </div>
+
                                             <div class="col-md-2">
-                                                <input class="form-control" placeholder="Survey No"
-                                                    wire:model="immovable_assets.{{ $hIndex }}.groups.{{ $gIndex }}.non_agricultural.survey_no">
-                                            </div>
-                                            <div class="col-md-2">
-                                                <input class="form-control" placeholder="Area"
+                                                <input class="form-control" placeholder="Area (Acres)"
                                                     wire:model="immovable_assets.{{ $hIndex }}.groups.{{ $gIndex }}.non_agricultural.area">
                                             </div>
+
                                             <div class="col-md-2">
                                                 <select class="form-select"
                                                     wire:model="immovable_assets.{{ $hIndex }}.groups.{{ $gIndex }}.non_agricultural.inherited">
@@ -421,27 +415,44 @@
                                                     <option value="No">No</option>
                                                 </select>
                                             </div>
+
+                                            <div class="col-md-2">
+                                                <input type="date" class="form-control"
+                                                    wire:model="immovable_assets.{{ $hIndex }}.groups.{{ $gIndex }}.non_agricultural.purchase_date">
+                                            </div>
+
+                                            <div class="col-md-2">
+                                                <input type="number" class="form-control" placeholder="Purchase Cost"
+                                                    wire:model="immovable_assets.{{ $hIndex }}.groups.{{ $gIndex }}.non_agricultural.purchase_cost">
+                                            </div>
+
+                                            <div class="col-md-2">
+                                                <input class="form-control" placeholder="Investment Made"
+                                                    wire:model="immovable_assets.{{ $hIndex }}.groups.{{ $gIndex }}.non_agricultural.investment_made">
+                                            </div>
+
                                             <div class="col-md-3">
-                                                <input class="form-control" placeholder="Current Value"
+                                                <input class="form-control" placeholder="Current Market Value"
                                                     wire:model="immovable_assets.{{ $hIndex }}.groups.{{ $gIndex }}.non_agricultural.current_value">
                                             </div>
+
                                         </div>
 
+
                                         {{-- COMMERCIAL --}}
-                                        <strong>Commercial Buildings</strong>
+                                      <strong>Commercial Buildings</strong>
                                         <div class="row g-2 mt-1 mb-3">
+
                                             <div class="col-md-3">
-                                                <input class="form-control" placeholder="Location"
+                                                <input class="form-control" placeholder="Location / Survey No."
                                                     wire:model="immovable_assets.{{ $hIndex }}.groups.{{ $gIndex }}.commercial.location">
                                             </div>
+
                                             <div class="col-md-2">
-                                                <input class="form-control" placeholder="Survey No"
-                                                    wire:model="immovable_assets.{{ $hIndex }}.groups.{{ $gIndex }}.commercial.survey_no">
-                                            </div>
-                                            <div class="col-md-2">
-                                                <input class="form-control" placeholder="Area"
+                                                <input class="form-control" placeholder="Area (Sq.Ft / Acres)"
                                                     wire:model="immovable_assets.{{ $hIndex }}.groups.{{ $gIndex }}.commercial.area">
                                             </div>
+
                                             <div class="col-md-2">
                                                 <select class="form-select"
                                                     wire:model="immovable_assets.{{ $hIndex }}.groups.{{ $gIndex }}.commercial.inherited">
@@ -450,40 +461,93 @@
                                                     <option value="No">No</option>
                                                 </select>
                                             </div>
+
+                                            <div class="col-md-2">
+                                                <input type="date" class="form-control"
+                                                    wire:model="immovable_assets.{{ $hIndex }}.groups.{{ $gIndex }}.commercial.purchase_date">
+                                            </div>
+
+                                            <div class="col-md-2">
+                                                <input type="number" class="form-control" placeholder="Purchase Cost"
+                                                    wire:model="immovable_assets.{{ $hIndex }}.groups.{{ $gIndex }}.commercial.purchase_cost">
+                                            </div>
+
+                                            <div class="col-md-2">
+                                                <input class="form-control" placeholder="Investment Made"
+                                                    wire:model="immovable_assets.{{ $hIndex }}.groups.{{ $gIndex }}.commercial.investment_made">
+                                            </div>
+
                                             <div class="col-md-3">
-                                                <input class="form-control" placeholder="Current Value"
+                                                <input class="form-control" placeholder="Current Market Value"
                                                     wire:model="immovable_assets.{{ $hIndex }}.groups.{{ $gIndex }}.commercial.current_value">
                                             </div>
+
                                         </div>
+
 
                                         {{-- RESIDENTIAL --}}
                                         <strong>Residential Buildings</strong>
-                                        <div class="row g-2 mt-1">
-                                            <div class="col-md-3">
-                                                <input class="form-control" placeholder="Location"
-                                                    wire:model="immovable_assets.{{ $hIndex }}.groups.{{ $gIndex }}.residential.location">
+                                            <div class="row g-2 mt-1 mb-3">
+
+                                                <div class="col-md-3">
+                                                    <input class="form-control" placeholder="Location / Survey No."
+                                                        wire:model="immovable_assets.{{ $hIndex }}.groups.{{ $gIndex }}.residential.location">
+                                                </div>
+
+                                                <div class="col-md-2">
+                                                    <input class="form-control" placeholder="Area (Sq.Ft)"
+                                                        wire:model="immovable_assets.{{ $hIndex }}.groups.{{ $gIndex }}.residential.area">
+                                                </div>
+
+                                                <div class="col-md-2">
+                                                    <select class="form-select"
+                                                        wire:model="immovable_assets.{{ $hIndex }}.groups.{{ $gIndex }}.residential.inherited">
+                                                        <option value="">Inherited?</option>
+                                                        <option value="Yes">Yes</option>
+                                                        <option value="No">No</option>
+                                                    </select>
+                                                </div>
+
+                                                <div class="col-md-2">
+                                                    <input type="date" class="form-control"
+                                                        wire:model="immovable_assets.{{ $hIndex }}.groups.{{ $gIndex }}.residential.purchase_date">
+                                                </div>
+
+                                                <div class="col-md-2">
+                                                    <input type="number" class="form-control" placeholder="Purchase Cost"
+                                                        wire:model="immovable_assets.{{ $hIndex }}.groups.{{ $gIndex }}.residential.purchase_cost">
+                                                </div>
+
+                                                <div class="col-md-2">
+                                                    <input class="form-control" placeholder="Investment Made"
+                                                        wire:model="immovable_assets.{{ $hIndex }}.groups.{{ $gIndex }}.residential.investment_made">
+                                                </div>
+
+                                                <div class="col-md-3">
+                                                    <input class="form-control" placeholder="Current Market Value"
+                                                        wire:model="immovable_assets.{{ $hIndex }}.groups.{{ $gIndex }}.residential.current_value">
+                                                </div>
+
                                             </div>
-                                            <div class="col-md-2">
-                                                <input class="form-control" placeholder="Survey No"
-                                                    wire:model="immovable_assets.{{ $hIndex }}.groups.{{ $gIndex }}.residential.survey_no">
+
+                                         <strong>Others (such as interest in property)</strong>
+                                            <div class="row g-2 mt-1 mb-3">
+                                                <div class="col-md-6">
+                                                   <textarea
+                                                        class="form-control"
+                                                        placeholder="Description"
+                                                        rows="2"
+                                                        wire:model="immovable_assets.{{ $hIndex }}.groups.{{ $gIndex }}.others.desc">
+                                                    </textarea>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <input type="number"
+                                                        class="form-control"
+                                                        placeholder="Cost"
+                                                        wire:model="immovable_assets.{{ $hIndex }}.groups.{{ $gIndex }}.others.cost">
+                                                </div>
+                                                
                                             </div>
-                                            <div class="col-md-2">
-                                                <input class="form-control" placeholder="Area"
-                                                    wire:model="immovable_assets.{{ $hIndex }}.groups.{{ $gIndex }}.residential.area">
-                                            </div>
-                                            <div class="col-md-2">
-                                                <select class="form-select"
-                                                    wire:model="immovable_assets.{{ $hIndex }}.groups.{{ $gIndex }}.residential.inherited">
-                                                    <option value="">Inherited?</option>
-                                                    <option value="Yes">Yes</option>
-                                                    <option value="No">No</option>
-                                                </select>
-                                            </div>
-                                            <div class="col-md-3">
-                                                <input class="form-control" placeholder="Current Value"
-                                                    wire:model="immovable_assets.{{ $hIndex }}.groups.{{ $gIndex }}.residential.current_value">
-                                            </div>
-                                        </div>
 
                                     </div>
                                     @endforeach
@@ -496,38 +560,229 @@
                                         </button>
                                     </div>
                             </div>
-
-                            @endforeach
-
-                            <div class="text-center mt-3">
-                                <button type="button"
-                                    class="btn btn-outline-primary btn-sm px-4"
-                                    wire:click="addImmovableHolder">
-                                    <i class="bi bi-person-plus"></i> Add Holder
-                                </button>
-                            </div>
                         </div>
 
+                        @endforeach
+                        <div class="text-center mb-2">
+                            <button type="button"
+                                class="btn btn-outline-primary btn-sm px-4"
+                                wire:click="addImmovableHolder">
+                                <i class="bi bi-person-plus"></i> Add Holder
+                            </button>
+                        </div>
 
-                    <div class="col-md-6">
-                        <label class="form-label">Occupation</label>
-                        <input type="text" class="form-control" wire:model="occupation">
+                        <h5 class="text-primary mt-2">Loans / Liabilities</h5>
+
+                        @foreach($loan_holders as $hIndex => $holder)
+                        <div class="card mb-1 shadow-sm position-relative">
+                            <div class="card-body">
+
+                                @if($hIndex > 0)
+                                    <button class="btn btn-sm btn-outline-danger position-absolute top-0 end-0 m-2"
+                                        wire:click="removeLoanHolder({{ $hIndex }})">
+                                        <i class="bi bi-x-lg"></i>
+                                    </button>
+                                @endif
+
+                                <div class="mb-3 col-md-4">
+                                    <label class="form-label">Holder</label>
+                                    <select class="form-select"
+                                        wire:model="loan_holders.{{ $hIndex }}.holder">
+                                        <option value="">Select</option>
+                                        <option value="self">Self</option>
+                                        <option value="spouse">Spouse</option>
+                                        <option value="huf">HUF</option>
+                                        <option value="dependent">Dependent</option>
+                                    </select>
+                                </div>
+
+                                @foreach($holder['loans'] as $lIndex => $loan)
+                                <div class="border rounded p-3 mb-3 shadow-sm">
+
+                                    <div class="d-flex justify-content-between">
+                                        <span class="badge bg-secondary">Loan {{ $lIndex + 1 }}</span>
+
+                                        @if($lIndex > 0)
+                                            <button class="btn btn-sm btn-outline-danger"
+                                                wire:click="removeLoanRow({{ $hIndex }}, {{ $lIndex }})">
+                                                <i class="bi bi-x-lg"></i>
+                                            </button>
+                                        @endif
+                                    </div>
+
+                                    <div class="row g-2 mt-2">
+                                        <div class="col-md-3">
+                                            <select class="form-select"
+                                                wire:model="loan_holders.{{ $hIndex }}.loans.{{ $lIndex }}.type">
+                                                <option value="">Loan Type</option>
+                                                <option value="bank">Bank</option>
+                                                <option value="individual">Individual</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="col-md-3">
+                                            <input class="form-control" placeholder="Name"
+                                                wire:model="loan_holders.{{ $hIndex }}.loans.{{ $lIndex }}.name">
+                                        </div>
+
+                                        <div class="col-md-3">
+                                            <input class="form-control" type="number" placeholder="Amount"
+                                                wire:model="loan_holders.{{ $hIndex }}.loans.{{ $lIndex }}.amount">
+                                        </div>
+
+                                        <div class="col-md-3">
+                                            <input class="form-control" placeholder="Nature"
+                                                wire:model="loan_holders.{{ $hIndex }}.loans.{{ $lIndex }}.nature">
+                                        </div>
+                                    </div>
+                                </div>
+                                @endforeach
+                                <div class="text-end">
+                                    <button class="btn btn-outline-success btn-sm"
+                                        wire:click="addLoanRow({{ $hIndex }})">
+                                        <i class="bi bi-plus-circle"></i> Add Loan
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        @endforeach
+                        <div class="text-center mb-2">
+                            <button type="button"
+                                class="btn btn-outline-primary btn-sm px-4"
+                                wire:click="addLoanHolder">
+                                <i class="bi bi-person-plus"></i> Add Holder
+                            </button>
+                        </div>
+
+                    <h5 class="text-primary mt-2">Government Dues</h5>
+
+                    @foreach($government_dues as $gIndex => $due)
+                    <div class="card mb-1 shadow-sm position-relative">
+                        <div class="card-body">
+
+                            @if($gIndex > 0)
+                                <button class="btn btn-sm btn-outline-danger position-absolute top-0 end-0 m-2"
+                                    wire:click="removeGovernmentDue({{ $gIndex }})">
+                                    <i class="bi bi-x-lg"></i>
+                                </button>
+                            @endif
+
+                            <div class="mb-3 col-md-4">
+                                <label class="form-label">Holder</label>
+                                <select class="form-select"
+                                    wire:model="government_dues.{{ $gIndex }}.holder">
+                                    <option value="">Select</option>
+                                    <option value="self">Self</option>
+                                    <option value="spouse">Spouse</option>
+                                    <option value="huf">HUF</option>
+                                    <option value="dependent">Dependent</option>
+                                </select>
+                            </div>
+
+                            <div class="row g-2">
+                                <div class="col-md-3">
+                                    <input class="form-control" type="number" placeholder="Income Tax"
+                                        wire:model="government_dues.{{ $gIndex }}.income_tax">
+                                </div>
+                                <div class="col-md-3">
+                                    <input class="form-control" type="number" placeholder="GST"
+                                        wire:model="government_dues.{{ $gIndex }}.gst">
+                                </div>
+                                <div class="col-md-3">
+                                    <input class="form-control" type="number" placeholder="Property Tax"
+                                        wire:model="government_dues.{{ $gIndex }}.property_tax">
+                                </div>
+                                <div class="col-md-3">
+                                    <input class="form-control" type="number" placeholder="Other Dues"
+                                        wire:model="government_dues.{{ $gIndex }}.other_dues">
+                                </div>
+                                <div class="col-md-12">
+                                    <textarea class="form-control mt-2"
+                                        placeholder="Dispute Details"
+                                        wire:model="government_dues.{{ $gIndex }}.dispute_details"></textarea>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                    @endforeach
+
+                    <div class="text-center mb-2">
+                            <button type="button"
+                                class="btn btn-outline-primary btn-sm px-4"
+                                wire:click="addGovernmentDue">
+                                <i class="bi bi-plus-circle"></i> Add Holder
+                            </button>
                     </div>
 
                     <div class="col-md-12">
-                        <label class="form-label">Loans / Govt Dues</label>
-                        <textarea class="form-control" wire:model="loans_govt_dues"></textarea>
+                        <h6 class="fw-bold">Details of profession or occupation:</h6>
+
+                        <div class="ms-3">
+                            <div class="mb-2">
+                                <label class="form-label">(a) Self</label>
+                                <input type="text"
+                                    class="form-control"
+                                    placeholder="e.g. Social Work & Politics"
+                                    wire:model="occupation">
+                            </div>
+
+                            <div class="mb-2">
+                                <label class="form-label">(b) Spouse</label>
+                                <input type="text"
+                                    class="form-control"
+                                    readonly>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="col-md-12">
-                        <label class="form-label">Sources of Income</label>
-                        <textarea class="form-control" wire:model="sources_of_income"></textarea>
+
+                    <div class="col-md-12 mt-3">
+                        <h6 class="fw-bold">Details of source(s) of income:</h6>
+
+                        <div class="ms-3">
+                            <div class="mb-2">
+                                <label class="form-label">(a) Self</label>
+                                <input type="text"
+                                    class="form-control"
+                                    placeholder="e.g. Royalty, Bank Interest, Others"
+                                    wire:model="sources_of_income">
+                            </div>
+
+                            <div class="mb-2">
+                                <label class="form-label">(b) Spouse</label>
+                                <input type="text"
+                                    class="form-control"
+                                    readonly>
+                            </div>
+
+                            <div class="mb-2">
+                                <label class="form-label">(c) Dependents</label>
+                                <input type="text"
+                                    class="form-control"
+                                    value="Not Applicable"
+                                    readonly>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="col-md-12">
-                        <label class="form-label">Highest Educational Qualification</label>
-                        <textarea class="form-control" wire:model="highest_educational_qualification"></textarea>
+                    <div class="col-md-12 mt-3">
+                    <h6 class="fw-bold">My educational qualification is as under:</h6>
+
+                    <div class="ms-3">
+                        <textarea
+                            class="form-control"
+                            rows="5"
+                            placeholder="(a) Passed Secondary Examination from ...&#10;(b) Graduation (B.A.) from ...&#10;(c) M.A. from ...&#10;(d) LL.B from ..."
+                            wire:model="highest_educational_qualification">
+                        </textarea>
+
+                        <small class="text-muted">
+                            (Give details of highest School / University education mentioning full course name,
+                            institution and year of completion)
+                        </small>
                     </div>
+                </div>
 
                 </div>
 

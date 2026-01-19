@@ -14,9 +14,9 @@ class Form26 extends Component
     public $candidate;
     public $relation_type;
     public $relation_name;
-    public $address;
     public $assembly_constituency_serial_no;
     public $assembly_constituency_part_no;
+    public $address;
     public $phone_no;
     public $alternative_phone_no;
     public $candidate_epic_no;
@@ -27,13 +27,37 @@ class Form26 extends Component
     public $facebook_account;
     public $twitter_account;
     public $pan_details = [];
-    public $loans_govt_dues;
     public $occupation;
     public $sources_of_income;
     public $highest_educational_qualification;
     public $asset_holders = [];
     public $immovable_assets = [];
 
+    public $loan_holders = [
+        [
+            'holder' => '',
+            'loans' => [
+                [
+                    'type' => '',
+                    'name' => '',
+                    'amount' => '',
+                    'nature' => '',
+                ],
+            ],
+        ],
+    ];
+
+
+    public $government_dues = [
+        [
+            'holder' => '',
+            'income_tax' => '',
+            'gst' => '',
+            'property_tax' => '',
+            'other_dues' => '',
+            'dispute_details' => '',
+        ],
+    ];
     public function mount($id)
     {
         $this->candidate = Candidate::findOrFail($id);
@@ -76,6 +100,7 @@ class Form26 extends Component
         
     }
 
+
     protected $rules = [
         'relation_type' => 'required|in:son,daughter,wife',
         'relation_name' => 'required|string|max:255',
@@ -83,11 +108,10 @@ class Form26 extends Component
         'phone_no' => 'required|digits_between:10,15',
         'alternative_phone_no' => 'nullable|digits_between:10,15',
         'candidate_epic_no' => 'required|string',
-        'photograph' => 'required|image|max:2048',
         'caste_tribe_details' => 'required|string',
         'proposer_epic' => 'required|string',
         'email_id' => 'required|email',
-        'whatsapp_no' => 'nullable||digits_between:10,15',
+        'whatsapp_no' => 'nullable|digits_between:10,15',
         'facebook_account' => 'nullable|string',
         'twitter_account' => 'nullable|string',
         'asset_holders' => 'required|array',
@@ -96,7 +120,6 @@ class Form26 extends Component
         'asset_holders.*.assets.*.type' => 'required|string',
         'asset_holders.*.assets.*.description' => 'nullable|string',
         'asset_holders.*.assets.*.amount' => 'nullable|numeric',
-        'loans_govt_dues' => 'required|string',
         'occupation' => 'required|string',
         'sources_of_income' => 'required|string',
         'highest_educational_qualification' => 'required|string',
@@ -129,6 +152,62 @@ class Form26 extends Component
         unset($this->asset_holders[$holderIndex]['assets'][$assetIndex]);
         $this->asset_holders[$holderIndex]['assets']
             = array_values($this->asset_holders[$holderIndex]['assets']);
+    }
+
+    public function addLoanHolder()
+    {
+        $this->loan_holders[] = [
+            'holder' => '',
+            'loans' => [
+                [
+                    'type' => '',
+                    'name' => '',
+                    'amount' => '',
+                    'nature' => '',
+                ],
+            ],
+        ];
+    }
+
+    public function addLoanRow($hIndex)
+    {
+        $this->loan_holders[$hIndex]['loans'][] = [
+            'type' => '',
+            'name' => '',
+            'amount' => '',
+            'nature' => '',
+        ];
+    }
+
+    public function removeLoanRow($hIndex, $lIndex)
+    {
+        unset($this->loan_holders[$hIndex]['loans'][$lIndex]);
+        $this->loan_holders[$hIndex]['loans'] =
+            array_values($this->loan_holders[$hIndex]['loans']);
+    }
+
+    public function removeLoanHolder($index)
+    {
+        unset($this->loan_holders[$index]);
+        $this->loan_holders = array_values($this->loan_holders);
+    }
+
+    public function addGovernmentDue()
+    {
+        $this->government_dues[] = [
+            'holder' => '',
+            'income_tax' => '',
+            'gst' => '',
+            'property_tax' => '',
+            'other_dues' => '',
+            'dispute_details' => '',
+        ];
+    }
+
+    public function removeGovernmentDue($index)
+    {
+        unset($this->government_dues[$index]);
+        $this->government_dues = array_values($this->government_dues);
     }
 
 
@@ -172,20 +251,26 @@ class Form26 extends Component
     private function emptyGroup()
     {
         return [
-            'agricultural' => $this->emptyRow(),
-            'non_agricultural' => $this->emptyRow(),
-            'commercial' => $this->emptyRow(),
-            'residential' => $this->emptyRow(),
+            'agricultural' => $this->emptyImmovableRow(),
+            'non_agricultural' => $this->emptyImmovableRow(),
+            'commercial' => $this->emptyImmovableRow(),
+            'residential' => $this->emptyImmovableRow(),
+            'others' => [
+                'desc' => '',
+                'cost' => '',
+            ],
         ];
     }
 
-    private function emptyRow()
+    private function emptyImmovableRow()
     {
         return [
             'location' => '',
-            'survey_no' => '',
             'area' => '',
             'inherited' => '',
+            'purchase_date' => '',
+            'purchase_cost' => '',
+            'investment_made' => '',
             'current_value' => '',
         ];
     }
