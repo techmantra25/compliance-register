@@ -9,6 +9,7 @@ class NominationForm2B extends Model
     protected $table = 'nomination_forms_2_b';
 
     protected $fillable = [
+        'election_state',
         'candidate_photo',
         'assembly_id',
         'candidate_id',
@@ -69,5 +70,4 @@ class NominationForm2B extends Model
     {
         return $this->belongsTo(Candidate::class);
     }
-    
 }

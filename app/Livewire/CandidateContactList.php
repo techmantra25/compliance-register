@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 use App\Models\CandidateAgent;
 use App\Models\CandidateDocumentType;
+use App\Models\NominationLog;
 
 class CandidateContactList extends Component
 {
@@ -30,6 +31,7 @@ class CandidateContactList extends Component
     public $authUser;
     public $agentsList = [];
     public $filter_by_assembly, $filter_by_district, $filter_by_phase;
+    public $form2bLogs = [];
 
     public $candidateFile, $csvError = null;
     
@@ -622,6 +624,15 @@ class CandidateContactList extends Component
         return response()->stream($callback, 200, $headers);
     }
 
+    public function openFormModal($candidateId)
+    {
+        $this->candidateId = $candidateId;
 
-
+        $this->form2bLogs = NominationLog::whereHas(
+            'nomination',
+            fn ($q) => $q->where('candidate_id', $candidateId)
+        )
+        ->latest()
+        ->get();
+    }
 }

@@ -1,6 +1,5 @@
 <div>
     <div class="row g-4">
-        <!-- 🧭 Page Header -->
         <div class="d-flex flex-wrap justify-content-between align-items-center">
             <div>
                 <h4 class="fw-bold mb-1 text-dark">
@@ -103,8 +102,84 @@
                                             class="btn btn-sm btn-outline-primary">
                                             Document Collections
                                             </a>
-                                        </td>
-                                    </tr>
+                                            {{-- @endif --}}
+                                            @if(childUserAccess(Auth::guard('admin')->user()->id,'nomination_candidate_journey_timeline'))
+                                            <a href="{{ route('admin.candidates.journey', $candidate->id) }}"
+                                                class="btn btn-sm btn-outline-primary mt-1"
+                                                title="Candidate Journey Timeline">
+                                            <i class="bi bi-person-lines-fill"></i>
+                                            </a>
+                                            @endif
+
+                                            {{-- <a href="{{ route('admin.candidates.form5', $candidate->id) }}"
+                                                class="btn btn-sm btn-outline-primary mt-1"
+                                                title="Candidate Journey Timeline">
+                                                FORM 5
+                                            </a> --}}
+                                            <button
+                                                class="btn btn-sm btn-outline-primary mt-1"
+                                                wire:click="openFormModal({{ $candidate->id }})"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#formModal-{{ $candidate->id }}"
+                                                title="Forms">
+                                                <i class="bi bi-file-earmark-text"></i> FORM
+                                            </button>
+                                        {{-- @endif --}}
+                                    </td>
+
+                                    <!-- modal -->
+                                    <div class="modal fade" id="formModal-{{ $candidate->id }}" tabindex="-1"
+                                        aria-labelledby="formModalLabel-{{ $candidate->id }}" aria-hidden="true" wire:ignore.self>
+                                        <div class="modal-dialog modal-dialog-centered">
+                                            <div class="modal-content border-0 shadow">
+
+                                                <!-- Modal Header -->
+                                                <div class="modal-header bg-primary text-white">
+                                                    <h5 class="modal-title" id="formModalLabel-{{ $candidate->id }}">
+                                                        <i class="bi bi-file-earmark-text me-1"></i> Candidate Forms
+                                                    </h5>
+                                                    <button type="button" class="btn-close btn-close-white"
+                                                            data-bs-dismiss="modal"></button>
+                                                </div>
+
+                                                <!-- Modal Body -->
+                                                <div class="modal-body">
+                                                    <a href="{{ route('admin.candidates.form2B', $candidate->id) }}"
+                                                    class="btn btn-outline-primary w-100 mb-3">
+                                                        <i class="bi bi-file-earmark"></i> FORM 2B
+                                                    </a>
+
+                                                    <div class="text-start">
+                                                        <h6 class="fw-bold mb-2">Generated Form 2B PDF</h6>
+                                                        @forelse($form2bLogs as $log)
+                                                            <div class="d-flex justify-content-between align-items-center border rounded p-2 mb-2">
+                                                                <div>
+                                                                    <i class="bi bi-file-pdf text-danger me-1"></i>
+                                                                    <small class="text-muted">
+                                                                        {{ $log->created_at->format('d M Y, h:i A') }}
+                                                                    </small>
+                                                                </div>
+
+                                                                <a href="{{ route('admin.candidates.log.pdf', $log->id) }}"
+                                                                class="btn btn-sm btn-outline-success">
+                                                                    Download
+                                                                </a>
+                                                            </div>
+                                                        @empty
+                                                            <p class="text-muted small">No Form 2B generated yet.</p>
+                                                        @endforelse
+                                                    </div>
+
+                                                    <a href="{{ route('admin.candidates.form26', $candidate->id) }}"
+                                                    class="btn btn-outline-primary w-100 mt-3">
+                                                        <i class="bi bi-file-earmark"></i> FORM 26
+                                                    </a>
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </tr>
                                 @empty
                                     <tr>
                                         <td colspan="3" class="text-center text-muted py-3">
@@ -231,9 +306,9 @@
                             <div wire:ignore>
                                 <select wire:model="agent_id" class="form-select chosen-select">
                                     <option value="">Select one</option>
-                                    @foreach ($agents as $agent)
+                                    {{-- @foreach ($agents as $agent)
                                         <option value="{{ $agent->id }}">{{ $agent->name }}</option>
-                                    @endforeach
+                                    @endforeach --}}
                                 </select>
                             </div>
                             @error('agent_id') <small class="text-danger">{{ $message }}</small> @enderror
@@ -265,8 +340,6 @@
                     </button>
                 </div>
             </form>
-
-
             </div>
         </div>
     </div>
@@ -323,7 +396,7 @@
                 initChosen();
             });
         </script>
-         <script>
+        <script>
             // document.addEventListener('livewire:load', () => {
                 window.addEventListener('close-upload-modal', () => {
                     const modalEl = document.getElementById('uploadcandidateModal');

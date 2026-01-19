@@ -5,7 +5,11 @@ namespace App\Livewire;
 use Livewire\Component;
 use App\Models\Assembly;
 use App\Models\Candidate;
-use App\Models\NominationForm2B as NominationForm2BModel;
+use App\Models\NominationForm;
+use Livewire\WithFileUploads;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\DB;
+
 
 class NominationForm2B extends Component
 {
@@ -14,312 +18,349 @@ class NominationForm2B extends Component
     public $candidate_id;
     public $candidate;
 
-    public $assembly_name;
     public $candidate_name;
-
+    public $assembly_name;
+    public $state = 'WEST BENGAL';
     public $relation_type = 'father';
     public $pronoun = 'his';
     
     public $relation_name;
+    public $age;
     public $postal_address;
-    public $candidate_sl_no;
+    public $candidate_serial_no;
     public $candidate_part_no;
+    public $constituency_where_enrolled;
+    public $political_party_name = 'AITC';
+    public $recognized_political_party = 'AITC';
+    public $language_of_name = 'ENGLISH';
 
     public $proposer_name;
-    public $proposer_sl_no;
+    public $proposer_serial_no;
     public $proposer_part_no;
     public $proposer_constituency;
 
     public $candidate_age;
-    public $party_name;
-    public $party_type = 'national';
+    public $party_name = '';
     public $language_name = 'ENGLISH';
 
     public $election_type = 'general'; 
-    public $state_name = 'WEST BENGAL';
     public $nomination_date;
     public $assemblies = [];
     public $candidates = [];
 
-    public $convicted = 'yes';
-    public $case_no;
-    public $police_station;
-    public $district;
-    public $state;
-    public $sections;
-    public $conviction_date;
-    public $court;
-    public $punishment;
-    public $release_date;
-    public $appeal_filed;
-    public $appeal_details;
-    public $appeal_court;
-    public $appeal_status;
-    public $disposal_date;
-    public $order_nature;
-    public $office_of_profit;
-    public $office_details;    
-    public $insolvent;    
-    public $insolvent_details;    
-    public $foreign_allegiance;    
-    public $foreign_details;     
-    public $disqualified_president;     
-    public $disqualified_period;     
-    public $dismissed_for_corruption;   
-    public $dismissed_date;   
-    public $govt_contract;   
-    public $govt_contract_details;   
-    public $company_position;   
-    public $company_details;   
-    public $commission_disqualified;   
-    public $commission_disqualified_date;   
+    public $convicted = 'No';
+    public $convicted_details = [
+        'case_no' => null,
+        'police_station' => null,
+        'district' => null,
+        'state' => null,
+        'sections' => null,
+        'conviction_date' => null,
+        'court' => null,
+        'punishment' => null,
+        'release_date' => null,
+        'appeal_filed' => null,
+        'appeal_details' => null,
+        'appeal_court' => null,
+        'appeal_status' => null,
+        'disposal_date' => null,
+        'order_nature' => null,
+    ];
 
-    public $showPreview = false;
+    public $holding_office_of_profit;
+    public $declared_insolvent;
+    public $allegiance_to_foreign_country;
+    public $disqualified_by_president;
+    public $dismissed_for_corruption;
+    public $subsisting_govt_contract;
+    public $managing_agent_role;
+    public $disqualified_by_commission;
+    public $date_of_disqualification;
 
+    public $office_of_profit; 
+    public $office_details; 
+
+    public $insolvent;
+    public $insolvent_details;
+
+    public $foreign_allegiance;
+    public $foreign_details;
+
+    public $disqualified_president;
+    public $disqualified_period;
+
+    public $dismissed_for_corruptions;
+    public $dismissed_date;
+
+    public $govt_contract;
+    public $govt_contract_details;
+
+    public $company_position;
+    public $company_details;
+
+    public $commission_disqualified;
+    public $commission_disqualified_date;
+   
 
     protected $rules = [
         'relation_type' => 'required|in:father,mother,husband',
         'relation_name' => 'required',
         'postal_address' => 'required',
-        'candidate_sl_no' => 'required',
+        'candidate_serial_no' => 'required',
         'candidate_part_no' => 'required',
 
         'proposer_name' => 'required',
-        'proposer_sl_no' => 'required',
+        'proposer_serial_no' => 'required',
         'proposer_part_no' => 'required',
-        'candidate_age' => 'required|integer|min:25',
-        'party_name' => 'required',
-        'party_type' => 'required|in:national,state',
-        'language_name' => 'required',
-        'election_type' => 'required|in:general,bye',
-        'state_name' => 'required',
-        'convicted' => 'required|in:yes,no',
+        'convicted' => 'required|in:Yes,No',
     ];
 
-    
-    public function mount($id)
+    private function titleCase($value)
     {
-        $candidate = Candidate::with('assembly')->findOrFail($id);
-
-        $this->candidateId      = $candidate->id;
-        $this->candidate_id     = $candidate->id;
-        $this->assembly_id      = $candidate->assembly->id;
-
-        $this->candidate_name   = $candidate->name;
-        $this->assembly_name    = $candidate->assembly->assembly_name_en . ' (' . $candidate->assembly->assembly_code . ')';
+        return is_string($value) ? ucwords(strtolower($value)) : $value;
     }
 
-    public function updatedConvicted()
+    public function mount($id)
     {
-        if ($this->convicted === 'no') {
-            $this->reset([
-                'case_no',
-                'police_station',
-                'district',
-                'state',
-                'sections',
-                'conviction_date',
-                'court',
-                'punishment',
-                'release_date',
-                'appeal_filed',
-                'appeal_details',
-                'appeal_court',
-                'appeal_status',
-                'disposal_date',
-                'order_nature',
-            ]);
+        $this->candidate = Candidate::with('assembly')->findOrFail($id);
+
+        $this->candidateId    = $this->candidate->id;
+        $this->candidate_id   = $this->candidate->id;
+        $this->assembly_id    = $this->candidate->assembly->id;
+
+        $form = NominationForm::where('candidate_id', $this->candidate_id)->first();
+
+        if ($form) {
+            $this->fill($form->toArray());
+
+            $this->candidate_name               = $this->titleCase($this->candidate_name);
+            $this->relation_name                = $this->titleCase($this->relation_name);
+            $this->postal_address               = $this->titleCase($this->postal_address);
+            $this->constituency_where_enrolled  = $this->titleCase($this->constituency_where_enrolled);
+            $this->proposer_name                = $this->titleCase($this->proposer_name);
+            $this->proposer_constituency        = $this->titleCase($this->proposer_constituency);
+            $this->holding_office_of_profit     = $this->titleCase($this->holding_office_of_profit);
+            $this->declared_insolvent           = $this->titleCase($this->declared_insolvent);
+            $this->allegiance_to_foreign_country= $this->titleCase($this->allegiance_to_foreign_country);
+            $this->managing_agent_role          = $this->titleCase($this->managing_agent_role);
+
+            if (is_array($form->convicted_details)) {
+                $this->convicted_details = $form->convicted_details;
+            } else {
+                $this->convicted_details = [
+                    'case_no' => null,
+                    'police_station' => null,
+                    'district' => null,
+                    'state' => null,
+                    'sections' => null,
+                    'conviction_date' => null,
+                    'court' => null,
+                    'punishment' => null,
+                    'release_date' => null,
+                    'appeal_filed' => null,
+                    'appeal_details' => null,
+                    'appeal_court' => null,
+                    'appeal_status' => null,
+                    'disposal_date' => null,
+                    'order_nature' => null,
+                ];
+            }
+
+            if (is_array($this->convicted_details)) {
+                foreach ($this->convicted_details as $key => $value) {
+                    $this->convicted_details[$key] = $this->titleCase($value);
+                }
+            }
+
+            $this->convicted = $form->convicted ?? 'No';
+            $this->office_of_profit = $form->office_of_profit ?? 'No';
+            $this->insolvent = $form->insolvent ?? 'No';
+            $this->foreign_allegiance = $form->foreign_allegiance ?? 'No';
+            $this->disqualified_president = $form->disqualified_president ?? 'No';
+            $this->dismissed_for_corruptions = $form->dismissed_for_corruptions ?? 'No';
+            $this->govt_contract = $form->govt_contract ?? 'No';
+            $this->company_position = $form->company_position ?? 'No';
+            $this->commission_disqualified = $form->commission_disqualified ?? 'No';
+        } 
+
+         // Office of profit
+        $this->office_of_profit = $form?->holding_office_of_profit ? 'Yes' : 'No';
+        $this->holding_office_of_profit = $form?->holding_office_of_profit;
+
+        // Insolvent
+        $this->insolvent = $form?->declared_insolvent ? 'Yes' : 'No';
+        $this->declared_insolvent = $form?->declared_insolvent;
+
+        // Foreign allegiance
+        $this->foreign_allegiance = $form?->allegiance_to_foreign_country ? 'Yes' : 'No';
+        $this->allegiance_to_foreign_country = $form?->allegiance_to_foreign_country;
+
+        // Disqualified by president
+        $this->disqualified_president = $form?->disqualified_by_president ? 'Yes' : 'No';
+        $this->disqualified_by_president = $form?->disqualified_by_president;
+
+        // Dismissed
+        $this->dismissed_for_corruptions = $form?->dismissed_for_corruption ? 'Yes' : 'No';
+        $this->dismissed_for_corruption = $form?->dismissed_for_corruption;
+
+        // Govt contract
+        $this->govt_contract = $form?->subsisting_govt_contract ? 'Yes' : 'No';
+        $this->subsisting_govt_contract = $form?->subsisting_govt_contract;
+
+        // Company position
+        $this->company_position = $form?->managing_agent_role ? 'Yes' : 'No';
+        $this->managing_agent_role = $form?->managing_agent_role;
+
+        // Commission disqualified
+        $this->commission_disqualified = $form?->date_of_disqualification ? 'Yes' : 'No';
+        $this->date_of_disqualification = $form?->date_of_disqualification;
+
+        $this->candidate_name = $this->titleCase($this->candidate->name);
+        $this->assembly_name  =
+            $this->candidate->assembly->assembly_name_en
+            . ' (' . $this->candidate->assembly->assembly_number . ')';
+
+        $this->holding_office_of_profit      = $this->titleCase($this->holding_office_of_profit);
+        $this->declared_insolvent            = $this->titleCase($this->declared_insolvent);
+        $this->allegiance_to_foreign_country = $this->titleCase($this->allegiance_to_foreign_country);
+        $this->disqualified_by_president = $this->titleCase($this->disqualified_by_president);
+        $this->subsisting_govt_contract = $this->titleCase($this->subsisting_govt_contract);
+        $this->managing_agent_role = $this->titleCase($this->managing_agent_role);
+
+    }
+
+    public function updatedConvicted($value)
+    {
+        if ($value === 'No') {
+            $this->resetConvictionFields();
         }
     }
 
-    // public function upload_candidate_photo()
-    // {   
-    //         dd($this->candidate_photo);
-
-    //     try {
-    //         $extension = $this->candidate_photo->getClientOriginalExtension();
-    //         $fileName  = time() . '_' . uniqid() . '.' . $extension;
-            
-    //         $destinationPath = public_path('candidate_photos');
-
-    //         // Create folder if not exists
-    //         if (!file_exists($destinationPath)) {
-    //             mkdir($destinationPath, 0755, true);
-    //         }
-
-    //         // Move file to public folder
-    //         $this->candidate_photo->move($destinationPath, $fileName);
-
-    //         // Save relative path (for DB later)
-    //         $this->uploaded_photo_path = 'candidate_photos/' . $fileName;
-
-    //         session()->flash('success', 'Photo uploaded successfully');
-
-    //     } catch (\Throwable $e) {
-
-    //         logger()->error('Candidate photo upload failed', [
-    //             'error' => $e->getMessage()
-    //         ]);
-
-    //         session()->flash('error', 'Photo upload failed');
-    //     }
-    // }
-
-    public function preview()
+    private function resetConvictionFields()
     {
-        $this->validate(); 
-        $this->showPreview = true;
+        if (!is_array($this->convicted_details)) {
+            return;
+        }
+      foreach ($this->convicted_details as $key => $value) {
+            $this->convicted_details[$key] = null;
+        }
     }
 
-    public function closePreview()
-    {
-        $this->showPreview = false;
-    }
-
-    // public function saveAndGeneratePdf()
-    // {
-    //     $this->validate();
-    //     if ($this->office_of_profit !== 'yes') $this->office_details = null;
-    //     if ($this->insolvent !== 'yes') $this->insolvent_details = null;
-    //     if ($this->foreign_allegiance !== 'yes') $this->foreign_details = null;
-    //     if ($this->disqualified_president !== 'yes') $this->disqualified_period = null;
-    //     if ($this->dismissed_for_corruption !== 'yes') $this->dismissed_date = null;
-    //     if ($this->govt_contract !== 'yes') $this->govt_contract_details = null;
-    //     if ($this->company_position !== 'yes') $this->company_details = null;
-    //     if ($this->commission_disqualified !== 'yes') $this->commission_disqualified_date = null;
-
-    //     $record = NominationForm2BModel::create([
-    //         'assembly_id' => $this->assembly_id,
-    //         'candidate_id' => $this->candidate_id,
-
-    //         'relation_type' => $this->relation_type,
-    //         'relation_name' => $this->relation_name,
-    //         'postal_address' => $this->postal_address,
-
-    //         'office_of_profit' => $this->office_of_profit,
-    //         'office_details'   => $this->office_details,
-    //         'insolvent'        => $this->insolvent,
-    //         'insolvent_details'=> $this->insolvent_details,
-    //         'foreign_allegiance'=> $this->foreign_allegiance,
-    //         'foreign_details'  => $this->foreign_details,
-    //         'disqualified_president'=> $this->disqualified_president,
-    //         'disqualified_period'=> $this->disqualified_period,
-    //         'dismissed_for_corruption'=> $this->dismissed_for_corruption,
-    //         'dismissed_date'   => $this->dismissed_date,
-    //         'govt_contract'    => $this->govt_contract,
-    //         'govt_contract_details'=> $this->govt_contract_details,
-    //         'company_position' => $this->company_position,
-    //         'company_details'  => $this->company_details,
-    //         'commission_disqualified'=> $this->commission_disqualified,
-    //         'commission_disqualified_date'=> $this->commission_disqualified_date,
-    //     ]);
-
-    //     return redirect()->route('nomination.pdf', $record->id);
-    // }
 
     public function save()
     {
-        //dd($this->validate());
         $this->validate();
 
-        logger()->info($this->only([
-            'convicted','case_no','police_station','district'
-        ]));
+        try {
+            $data = [
+                'convicted' => $this->convicted,
+            ];
 
-        if ($this->office_of_profit !== 'yes') {
-            $this->office_details = null;
+            if ($this->convicted === 'Yes') {
+                $data['convicted_details'] = $this->convicted_details;
+            } else {
+                $data['convicted_details'] = null;
+            }
+
+            $holdingOfficeOfProfit = null;
+
+            if ($this->office_of_profit === 'Yes') {
+                $holdingOfficeOfProfit = $this->holding_office_of_profit;
+            }
+
+            $insolventDetails = null;
+
+            if ($this->insolvent === 'Yes') {
+                $insolventDetails = $this->declared_insolvent;
+            }
+
+            $foreignDetails = null;
+            if ($this->foreign_allegiance === 'Yes') {
+                $foreignDetails = $this->allegiance_to_foreign_country;
+            }
+
+            $disqualifiedPresident = null;
+            if ($this->disqualified_president === 'Yes') {
+                $disqualifiedPresident = $this->disqualified_by_president;
+            }
+
+            $dismissedForCorruption = null;
+            if ($this->dismissed_for_corruptions === 'Yes') {
+                $dismissedForCorruption = $this->dismissed_for_corruption;
+            }
+
+
+            $govtContract = null;
+            if ($this->govt_contract === 'Yes') {
+                $govtContract = $this->subsisting_govt_contract;
+            }
+
+            $manageAgentRole = null;
+            if ($this->company_position === 'Yes') {
+                $manageAgentRole = $this->managing_agent_role;
+            }
+
+            $commisionDisqualifiedDate = null;
+            if ($this->commission_disqualified === 'Yes') {
+                $commisionDisqualifiedDate = $this->date_of_disqualification;
+            }
+
+            $nomination = NominationForm::updateOrCreate(
+                ['candidate_id' => $this->candidate_id],
+                array_merge($data, [
+                    'assembly_id' => $this->assembly_id,
+                    'state' => $this->state,
+                    'form_type' => 'form_2b',
+                    'age' => $this->age,
+                    'relation_type' => $this->relation_type,
+                    'relation_name' => $this->relation_name,
+                    'postal_address' => $this->postal_address,
+                    'candidate_serial_no' => $this->candidate_serial_no,
+                    'candidate_part_no' => $this->candidate_part_no,
+                    'constituency_where_enrolled' => $this->constituency_where_enrolled,
+                    'political_party_name' => $this->political_party_name,
+                    'recognized_political_party' => $this->recognized_political_party,
+                    'language_of_name' => $this->language_of_name,
+                    'proposer_name' => $this->proposer_name,
+                    'proposer_serial_no' => $this->proposer_serial_no,
+                    'proposer_part_no' => $this->proposer_part_no,
+                    'proposer_constituency' => $this->proposer_constituency,
+                    'declared_insolvent' => $this->declared_insolvent,
+                    'allegiance_to_foreign_country' => $this->allegiance_to_foreign_country,
+                    'disqualified_by_president' => $this->disqualified_by_president,
+                    'dismissed_for_corruption' => $this->dismissed_for_corruption,
+                    'subsisting_govt_contract' => $this->subsisting_govt_contract,
+                    'managing_agent_role' => $this->managing_agent_role,
+                    'disqualified_by_commission' => $this->disqualified_by_commission,
+                    'date_of_disqualification' => $this->date_of_disqualification,
+                    'holding_office_of_profit' => $holdingOfficeOfProfit,
+                    'declared_insolvent' => $insolventDetails,
+                    'allegiance_to_foreign_country' => $foreignDetails,
+                    'disqualified_by_president' => $disqualifiedPresident,
+                    'dismissed_for_corruption' => $dismissedForCorruption,
+                    'subsisting_govt_contract' => $govtContract,
+                    'managing_agent_role' => $manageAgentRole,
+                    'disqualified_by_commission' => $this->commission_disqualified,
+                    'date_of_disqualification' => $commisionDisqualifiedDate,
+                ])
+            );
+
+            return redirect()->route('admin.candidates.form2B.preview', $nomination->id);
+
+        } catch (\Exception $e) {
+            dd($e->getMessage());
+            \Log::error('Nomination Save Error: '.$e->getMessage());
+            session()->flash('error', 'Something went wrong');
         }
-
-        if ($this->insolvent !== 'yes') {
-            $this->insolvent_details = null;
-        }
-
-        if ($this->foreign_allegiance !== 'yes') {
-            $this->foreign_details = null;
-        }
-
-        if ($this->disqualified_president !== 'yes') {
-            $this->disqualified_period = null;
-        }
-
-        if ($this->dismissed_for_corruption !== 'yes') {
-            $this->dismissed_date = null;
-        }
-
-        if ($this->govt_contract !== 'yes') {
-            $this->govt_contract_details = null;
-        }
-
-        if ($this->company_position !== 'yes') {
-            $this->company_details = null;
-        }
-
-        if ($this->commission_disqualified !== 'yes') {
-            $this->commission_disqualified_date = null;
-        }
-        NominationForm2BModel::create([
-            'assembly_id' => $this->assembly_id,
-            'candidate_id' => $this->candidate_id,
-
-            'relation_type' => $this->relation_type,
-            'relation_name' => $this->relation_name,
-            'postal_address' => $this->postal_address,
-            'candidate_sl_no' => $this->candidate_sl_no,
-            'candidate_part_no' => $this->candidate_part_no,
-
-            'proposer_name' => $this->proposer_name,
-            'proposer_sl_no' => $this->proposer_sl_no,
-            'proposer_part_no' => $this->proposer_part_no,
-            'proposer_constituency' => $this->proposer_constituency,
-            'candidate_age' => $this->candidate_age,
-            'party_name' => $this->party_name,
-            'party_type' => $this->party_type,
-            'language_name' => $this->language_name,
-            'election_type' => $this->election_type,
-            'state_name' => $this->state_name,
-            'convicted' => $this->convicted,
-
-            'case_no'          => $this->case_no,
-            'police_station'   => $this->police_station,
-            'district'         => $this->district,
-            'state'            => $this->state,
-            'sections'         => $this->sections,
-            'conviction_date'  => $this->conviction_date,
-            'court'            => $this->court,
-            'punishment'       => $this->punishment,
-            'release_date'     => $this->release_date,
-            'appeal_filed'     => $this->appeal_filed,
-            'appeal_details'   => $this->appeal_details,
-            'appeal_court'     => $this->appeal_court,
-            'appeal_status'    => $this->appeal_status,
-            'disposal_date'    => $this->disposal_date,
-            'order_nature'     => $this->order_nature,
-            'office_of_profit' => $this->office_of_profit,
-            'office_details'   => $this->office_details,
-            'insolvent'        => $this->insolvent,
-            'insolvent_details'=> $this->insolvent_details,
-            'foreign_allegiance'=> $this->foreign_allegiance,
-            'foreign_details'  => $this->foreign_details,
-            'disqualified_president'=> $this->disqualified_president,   
-            'disqualified_period'=> $this->disqualified_period,
-            'dismissed_for_corruption'=> $this->dismissed_for_corruption,
-            'dismissed_date'   => $this->dismissed_date,
-            'govt_contract'    => $this->govt_contract,
-            'govt_contract_details'=> $this->govt_contract_details,
-            'company_position' => $this->company_position,
-            'company_details'  => $this->company_details,
-            'commission_disqualified'=> $this->commission_disqualified,
-            'commission_disqualified_date'=> $this->commission_disqualified_date,      
-        ]);
-        
-
-        session()->flash('success', 'Nomination form submitted successfully');
-        $this->reset();
     }
 
+    public function toggleConvicted($value){
+        $this->convicted = $value;
+    }
 
     public function render()
     {
+       // dd($this->all());
         return view('livewire.nomination-form2-b')->layout('layouts.admin');
     }
 }

@@ -6,7 +6,7 @@
                     <div class="row">
                         <div class="col-md-12 mb-4">
                     <div class="inner-wrapper">
-                        <div class="title-head">Nomination Vetting {{ $phaseName }} District View</div>
+                        <div class="title-head" style="color: #F97D09;">Nomination Vetting {{ $phaseName }} District View</div>
                         <div class="wrappper-bpdy">
                             <div class="bar-chirt-option">
                                 @foreach ($districtChart as $index => $row)
@@ -74,7 +74,7 @@
                                 <div class="color-grid"><span style="background-color: #F46674;"></span>Rejected</div>
 
                             </div>
-                            <a href="{{route('admin.dashboard')}}" class="btm-small blue-btm">Back to State
+                            <a href="{{route('admin.dashboard')}}" class="btm-small" style="color: #278D27;">Back to State
                                 Dashboard
                             </a>
                         </div>
