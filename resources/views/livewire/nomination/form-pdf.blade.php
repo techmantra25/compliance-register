@@ -290,13 +290,13 @@
                     <div style="font-size: 16px; line-height: 2; text-align: justify;">
                         I nominate as a candidate for election to the Legislative Assembly from the
                         <span class="input-field input-field-large"
-                            style="width:228px;" readonly>{{ $nomination->assembly->assembly_name_en }}({{$nomination->assembly->assembly_code}})
+                            style="width:228px;" readonly>{{ $nomination->assembly->assembly_name_en }}-{{$nomination->assembly->assembly_number}}
                         </span>
                     </div>
 
                     <div style="font-size: 16px; line-height: 2;">
                         Candidate's name <span class="input-field input-field-large"
-                        readonly style="width: 300px;">{{$nomination->candidate->name}}</span>
+                        readonly style="width: 300px;">{{ucwords($nomination->candidate->name)}}</span>
                         <div wire:key="relation-type-1">
                             <label>
                                 <input type="radio" name="relation_type_main" wire:model="relation_type" value="father">
@@ -313,7 +313,7 @@
                                     value="husband"> Husband's
                             </label>
                         </div>
-                        name <span class="input-field input-field-medium" style="width: 400px;">{{$nomination->relation_name}}</span>
+                        name <span class="input-field input-field-medium" style="width: 400px;">{{ucwords($nomination->relation_name)}}</span>
                         <div wire:key="pronoun-1">
                             <label>
                                 <input type="radio" name="pronoun-main" wire:model="pronoun" value="his"> His
@@ -322,7 +322,7 @@
                                 <input type="radio" name="pronoun-main" wire:model="pronoun" value="her"> Her
                             </label>
                         </div>
-                        postal address<span class="input-field input-field-large" style="width: 428px;">{{$nomination->postal_address}}</span>
+                        postal address<span class="input-field input-field-large" style="width: 428px;">{{ucwords($nomination->postal_address)}}</span>
                         <div wire:key="pronoun-2">
                             <label>
                                 <input type="radio" name="pronoun-copy" wire:model="pronoun" value="his"> His
@@ -335,17 +335,17 @@
                         <span class="input-field input-field-small">{{$nomination->candidate_part_no}}</span>of the
                         electoral roll for
                         <span class="input-field input-field-medium"
-                            style="width: 229px;">{{$nomination->constituency_where_enrolled}}
+                            style="width: 229px;">{{ucwords($nomination->constituency_where_enrolled)}}
                         </span> Assembly constituency.
                     </div>
 
                     <div style=" font-size: 16px; line-height: 2;">
-                        My name is <span class="input-field input-field-large">{{$nomination->proposer_name}}</span>
+                        My name is <span class="input-field input-field-large">{{ucwords($nomination->proposer_name)}}</span>
                         and it is entered at Sl. No.
                         <span class="input-field input-field-small">{{$nomination->proposer_part_no}}</span>in Part No
                         <span class="input-field input-field-small">{{$nomination->proposer_serial_no}}</span>of the
                         electoral roll for the
-                        <span class="input-field input-field-medium" style="width: 227px;">{{$nomination->proposer_constituency}}</span>Assembly constituency.
+                        <span class="input-field input-field-medium" style="width: 227px;">{{ucwords($nomination->proposer_constituency)}}</span>Assembly constituency.
                     </div>
 
                     <div style="margin-top: 37px; display: flex; justify-content: space-between;">
