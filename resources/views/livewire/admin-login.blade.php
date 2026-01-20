@@ -36,10 +36,10 @@
                                 </div>
 
                                 <div class="d-flex justify-content-between align-items-center mb-4">
-                                    <div class="form-check">
+                                    {{-- <div class="form-check">
                                         <input wire:model="remember" type="checkbox" class="form-check-input" id="remember">
                                         <label class="form-check-label" for="remember">Remember me</label>
-                                    </div>
+                                    </div> --}}
                                     <a href="{{route('forget.password')}}" class="text-decoration-none text-muted small">Forgot your password?</a>
                                 </div>
 

@@ -114,6 +114,7 @@ Route::prefix('/admin')->middleware('auth:admin')->group(function () {
         Route::get('/form-2B/{id}/preview', NominationForm2BPreview::class)->name('admin.candidates.form2B.preview');
         Route::get('/form-26/{id}', Form26::class)->name('admin.candidates.form26');
         Route::get('/form-2B/pdf/{id}', [NominationPdfController::class, 'download'])->name('admin.candidates.form2B.pdf');
+        Route::get('/nomination-log/pdf/{log}',[NominationPdfController::class, 'downloadFromLog'])->name('admin.candidates.log.pdf');
         Route::get('/nominations', CandidateContactList::class)->name('admin.candidates.contacts');
         Route::get('/social-media', DiscrepancyReportCrud::class)->name('admin.candidates.discrepancies.report');
         // Route::get('/Candidate Discrepancy Reports', [CandidateController::class, 'nominations'])->name('admin.candidates.nominations');

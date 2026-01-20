@@ -70,4 +70,9 @@ class NominationForm extends Model
     {
         return $this->belongsTo(Candidate::class);
     }
+
+    public function logs()
+    {
+        return $this->hasMany(NominationLog::class, 'nomination_id');
+    }
 }
