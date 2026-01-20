@@ -1,6 +1,5 @@
 <div>
     <div class="row g-4">
-        <!--  Page Header -->
         <div class="d-flex flex-wrap justify-content-between align-items-center">
             <div>
                 <h4 class="fw-bold mb-1 text-dark">
@@ -37,7 +36,7 @@
                 </button>
                 @endif
             </div>
-        </div>
+        </div> 
 
         <!--  Main Content -->
         <div class="col-lg-12">
@@ -51,7 +50,7 @@
                                 <option value="">Filter by Assembly</option>
                                 @foreach ($assemblies as $assembly)
                                 <option value="{{ $assembly->id }}">
-                                    {{ $assembly->assembly_name_en }} ({{ $assembly->assembly_code }})
+                                    {{ $assembly->assembly_name_en }} -{{ $assembly->assembly_number }}
                                 </option>
                                 @endforeach
                             </select>
@@ -143,7 +142,7 @@
                                     </td>
                                     <td>
                                         <span> {{ $candidate->assembly->assembly_name_en ?? 'N/A' }}
-                                            ({{ $candidate->assembly->assembly_code ?? '-' }})
+                                            -{{ $candidate->assembly->assembly_number ?? '-' }}
                                         </span>
                                     </td>
                                     <td>
@@ -305,7 +304,6 @@
                                                     class="btn btn-outline-primary w-100 mt-3">
                                                         <i class="bi bi-file-earmark"></i> FORM 26
                                                     </a>
-
                                                 </div>
                                             </div>
                                         </div>
@@ -460,7 +458,7 @@
                                         <option value="{{ $assembly->id }}"  data-code="{{ $assembly->assembly_code }}"
                                            data-name="{{ $assembly->assembly_name_en }}"
                                            data-number="{{ $assembly->assembly_number }}">
-                                            {{ $assembly->assembly_name_en }} ({{ $assembly->assembly_code }})
+                                            {{ $assembly->assembly_name_en }} -{{ $assembly->assembly_number }}
                                         </option>
                                         @endforeach
                                     </select>
