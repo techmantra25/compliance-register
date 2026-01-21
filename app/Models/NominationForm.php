@@ -58,8 +58,9 @@ class NominationForm extends Model
 
         protected $casts = [
             'convicted_details' => 'array',
+            'contact_phone_nos' => 'array',
+            'social_media_accounts' => 'array',
         ];
-
 
     public function assembly()
     {

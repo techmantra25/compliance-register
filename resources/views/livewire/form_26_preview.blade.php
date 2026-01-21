@@ -235,18 +235,18 @@
                 <div style="text-align: justify; font-weight: bold;">
                     AFFIDAVIT TO BE FILED BY THE CANDIDATE ALONGWITH NOMINATION PAPER BEFORE THE RETURNING OFFICER FOR ELECTION TO 
                     <span class="flex-input"  contenteditable="true" style="min-width:250px; text-transform: uppercase;">THE LEGISLATIVE ASSEMBLY</span>
-                    (NAME OF THE HOUSE) FORM <span class="flex-input"  contenteditable="true" style="min-width:250px; text-transform: uppercase;">210 -NANDIGRAM ASSEMBLY</span>
+                    (NAME OF THE HOUSE) FORM <span class="flex-input"  contenteditable="true" style="min-width:250px; text-transform: uppercase;">{{ optional($form->assembly)->assembly_name_en }}-{{ optional($form->assembly)->assembly_number }}</span>
                     CONSTITUENCY (NAME OF THE CONSTITUENCY)
                 </div>
 
                 <div style="text-align: center; font-weight:bold; margin-top: 20px; text-decoration: underline;">PART A</div>
 
                 <p>
-                    I<span class="flex-input"  contenteditable="true" style="padding: 0 30px;">MAMATA BANERJEE</span> 
-                    **<span>son</span>/<span>daughter</span>/<span>wife</span> of 
-                    <span class="flex-input"  contenteditable="true" style="padding: 0 30px;">Late PROMILESWAR BANERJEE</span>,
-                    Aged <span class="flex-input"  contenteditable="true" style="padding: 0 30px;">66</span> years,
-                    resident of <span class="flex-input"  contenteditable="true" style="padding: 0 30px;"> 30B, Harish Chatterjee Street, P.S-Kalighat, Kolkata 700026</span> 
+                    I<span class="flex-input"  contenteditable="true" style="padding: 0 30px;">{{ucwords($form->candidate->name)}}</span> 
+                    **<span>{{ucwords($form->relation_type)}}</span> of 
+                    <span class="flex-input"  contenteditable="true" style="padding: 0 30px;">{{ucwords($form->relation_name)}}</span>,
+                    Aged <span class="flex-input"  contenteditable="true" style="padding: 0 30px;">{{$form->age}}</span> years,
+                    resident of <span class="flex-input"  contenteditable="true" style="padding: 0 30px;"> {{ucwords($form->postal_address)}}</span> 
                     (mention full postal address), a candidate at the above election, do hereby solemnly affirm and state on oath as under:-
                 </p>
 
@@ -256,7 +256,7 @@
 
             <p>
                 <strong>(1)</strong> I am a candidate set up by 
-                <span class="flex-input"  contenteditable="true" style="padding: 0 30px;">ALL INDIA TRINAMOOL CONGRESS</span> 
+                <span class="flex-input"  contenteditable="true" style="padding: 0 30px;">{{$form->political_party_name}}</span> 
             </p>
             <p>
                 <span>(**name of the political party)</span> / <span class="strike-out">**am contesting as an Independent candidate.</span>
@@ -267,20 +267,23 @@
 
             <p>
                 <strong>(2)</strong> My name is enrolled in 
-                <span class="flex-input"  contenteditable="true" style="padding: 0 30px;"> 159-BHABANIPUR ASSEMBLY CONSTITUENCY and State WEST BENGAL</span> 
-                (Name of the Constituency and the state) at Serial No <span class="flex-input"  contenteditable="true" style="padding: 0 30px;">367</span>
-                in Part No. <span class="flex-input"  contenteditable="true" style="padding: 0 30px;">209</span>
+                <span class="flex-input"  contenteditable="true" style="padding: 0 30px;"> {{$form->constituency_where_enrolled}} and State {{$form->state}}</span> 
+                (Name of the Constituency and the state) at Serial No <span class="flex-input"  contenteditable="true" style="padding: 0 30px;">{{$form->candidate_serial_no}}</span>
+                in Part No. <span class="flex-input"  contenteditable="true" style="padding: 0 30px;">{{$form->candidate_part_no}}</span>
             </p>
 
             <p>
                 <strong>(3)</strong> My contact telephone number(s) <span>is</span>/<span>are</span>
-                <span class="flex-input"  contenteditable="true" style="padding: 0 30px;">033-2454-0881/62922-35555</span>
-                and my e-mail id (if any) is <span class="flex-input"  contenteditable="true" style="padding: 0 30px;">210nandigram@gmail.com</span>
+                <span class="flex-input" contenteditable="true" style="padding: 0 30px;">
+                    {{ $phones['primary'] ?? '' }}/{{ $phones['alternate'] ?? '' }}
+                </span>
+
+                and my e-mail id (if any) is <span class="flex-input"  contenteditable="true" style="padding: 0 30px;">{{ $form->email_id }}</span>
                 and my social media account(s) (if any) <span>is</span>/<span>are</span>
             </p>
-            <p>(i)<span class="flex-input"  contenteditable="true" style="padding: 0 30px;">WhatsApp No:- 62922-35555 </span></p>
-            <p>(ii)<span class="flex-input"  contenteditable="true" style="padding: 0 30px;">Facebook A/c - @MamataBanerjeeOfficial</span></p>
-            <p>(iii)<span class="flex-input"  contenteditable="true" style="padding: 0 30px;">Twitter A/c -  @MamataOfficial</span></p>
+            <p>(i)<span class="flex-input"  contenteditable="true" style="padding: 0 30px;">WhatsApp No:- {{ $social['whatsapp_no'] ?? '' }} </span></p>
+            <p>(ii)<span class="flex-input"  contenteditable="true" style="padding: 0 30px;">Facebook A/c - {{ $social['facebook_account'] ?? '' }}</span></p>
+            <p>(iii)<span class="flex-input"  contenteditable="true" style="padding: 0 30px;">Twitter A/c - {{ $social['twitter_account'] ?? '' }}</span></p>
 
         </div>
 
@@ -295,227 +298,68 @@
                 <th style="text-align: justify; width:120px;">The financial year for which the last Incometax return has been filed</th>
                 <th style="text-align: justify; width: 250px;">Total income shown in Income Tax Return(in Rupees) <span style="color: #e31111;">for the last five Financial Years completed (as on 31st March)</span></th>
             </tr>
-            <tr>
-                <td></td>
-                <td style="text-align: center;">Self - <strong>Mamata Banerjee</strong></td>
-                <td style="text-align: center;">AHCPB8207F</td>
-                <td style="text-align: center;">2019-2020</td>
-                <td style="padding: 0;">
-                    <table style="border: none; margin: 0;">
-                        <tr>
-                            <td style="width: 16px; border-top:0; border-left:0;">(i)</td>
-                            <td style="border-top:0; border-left:0; border-right:0; padding: 0;">
-                            <table style="border: none; margin: 0;">
-                                    <tr>
-                                        <td style="border: none; border-right: 1px solid #000; width:90px; text-align: center;">(2019-20)</td>
-                                        <td style="border: none;">Rs.10,34,370.00</td>
-                                    </tr>
-                            </table>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="width: 16px; border-top:0; border-left:0;">(ii)</td>
-                            <td style="border-top:0; border-left:0; border-right: 0; padding: 0;">
-                                <table style="border: none; margin: 0;">
-                                    <tr>
-                                        <td style="border: none; border-right: 1px solid #000; width: 90px; text-align: center;">(2018-19)</td>
-                                        <td style="border: none;">Rs.20,71,010.00</td>
-                                    </tr>
-                            </table>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="width: 16px; border-top:0; border-left:0;">(iii)</td>
-                            <td style="border-top:0; border-left:0; border-right: 0; padding: 0;">
-                                <table style="border: none; margin: 0;">
-                                    <tr>
-                                        <td style="border: none; border-right: 1px solid #000; width: 90px; text-align: center;">(2017-18)</td>
-                                        <td style="border: none;">Rs.835,300.00</td>
-                                    </tr>
-                            </table>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="width: 16px; border-top:0; border-left:0;">(iv)</td>
-                            <td style="border-top:0; border-left:0; border-right: 0; padding: 0;">
-                                <table style="border: none; margin: 0;">
-                                    <tr>
-                                        <td style="border: none; border-right: 1px solid #000; width: 90px; text-align: center;">(2016-17)</td>
-                                        <td style="border: none;">Rs.918,300.00</td>
-                                    </tr>
-                            </table>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="width: 16px; border-top:0; border-left:0; border-bottom: 0;">(v)</td>
-                            <td style="border-top:0; border-left:0; border-right: 0; border-bottom: 0; padding: 0;">
-                                <table style="border: none; margin: 0;">
-                                    <tr>
-                                        <td style="border: none; border-right: 1px solid #000; width: 90px; text-align: center;">(2015-16)</td>
-                                        <td style="border: none;">Rs.172,910.00</td>
-                                    </tr>
-                            </table>
-                            </td>
-                        </tr>
-                    </table>
-                </td>
-            </tr>
+                @foreach ($panDetails as $index => $pan)
+                <tr>
+                    <td>{{ $index + 1 }}</td>
 
-            <tr>
-                <td>2</td>
-                <td style="text-align: center;">Spouse</td>
-                <td style="text-align: center;">Not Applicable</td>
-                <td style="text-align: center;">Not Applicable</td>
-                <td style="padding: 0;">
-                    <table style="border: none; margin: 0;">
-                        <tr>
-                            <td style="width: 16px; border-top:0; border-left:0;">(i)</td>
-                            <td style="border-top:0; border-left:0; border-right: 0; text-align: center;">Not Applicable</td>
-                        </tr>
-                        <tr>
-                            <td style="width: 16px; border-top:0; border-left:0;">(ii)</td>
-                            <td style="border-top:0; border-left:0; border-right: 0; text-align: center;">Not Applicable</td>
-                        </tr>
-                        <tr>
-                            <td style="width: 16px; border-top:0; border-left:0;">(iii)</td>
-                            <td style="border-top:0; border-left:0; border-right: 0; text-align: center;">Not Applicable</td>
-                        </tr>
-                        <tr>
-                            <td style="width: 16px; border-top:0; border-left:0;">(iv)</td>
-                            <td style="border-top:0; border-left:0; border-right: 0; text-align: center;">Not Applicable</td>
-                        </tr>
-                        <tr>
-                            <td style="width: 16px; border-top:0; border-left:0; border-bottom: 0;">(v)</td>
-                            <td style="border-top:0; border-left:0; border-right: 0; border-bottom: 0; text-align: center;">Not Applicable</td>
-                        </tr>
-                    </table>
-                </td>
-            </tr>
+                    <td style="text-align:center;">
+                        {{ ucfirst($pan['type'] ?? '') }}
+                        @if(($pan['type'] ?? '') === 'self')
+                        @endif
+                    </td>
 
-            <tr>
-                <td>3</td>
-                <td style="text-align: center;">HUF (If Candidate is Karta/Coparcener) </td>
-                <td style="text-align: center;">Not Applicable</td>
-                <td style="text-align: center;">Not Applicable</td>
-                <td style="padding: 0;">
-                    <table style="border: none; margin: 0;">
-                        <tr>
-                            <td style="width: 16px; border-top:0; border-left:0;">(i)</td>
-                            <td style="border-top:0; border-left:0; border-right: 0; text-align: center;">Not Applicable</td>
-                        </tr>
-                        <tr>
-                            <td style="width: 16px; border-top:0; border-left:0;">(ii)</td>
-                            <td style="border-top:0; border-left:0; border-right: 0; text-align: center;">Not Applicable</td>
-                        </tr>
-                        <tr>
-                            <td style="width: 16px; border-top:0; border-left:0;">(iii)</td>
-                            <td style="border-top:0; border-left:0; border-right: 0; text-align: center;">Not Applicable</td>
-                        </tr>
-                        <tr>
-                            <td style="width: 16px; border-top:0; border-left:0;">(iv)</td>
-                            <td style="border-top:0; border-left:0; border-right: 0; text-align: center;">Not Applicable</td>
-                        </tr>
-                        <tr>
-                            <td style="width: 16px; border-top:0; border-left:0; border-bottom: 0;">(v)</td>
-                            <td style="border-top:0; border-left:0; border-right: 0; border-bottom: 0; text-align: center;">Not Applicable</td>
-                        </tr>
-                    </table>
-                </td>
-            </tr>
+                    <td style="text-align:center;">
+                        {{ $pan['pan'] ?? 'Not Applicable' }}
+                    </td>
 
-            <tr >
-                <td>4</td>
-                <td style="text-align: center;">Dependent 1</td>
-                <td style="text-align: center;">Not Applicable</td>
-                <td style="text-align: center;">Not Applicable</td>
-                <td style="padding: 0;">
-                    <table style="border: none; margin: 0;">
-                        <tr>
-                            <td style="width: 16px; border-top:0; border-left:0;">(i)</td>
-                            <td style="border-top:0; border-left:0; border-right: 0; text-align: center;">Not Applicable</td>
-                        </tr>
-                        <tr>
-                            <td style="width: 16px; border-top:0; border-left:0;">(ii)</td>
-                            <td style="border-top:0; border-left:0; border-right: 0; text-align: center;">Not Applicable</td>
-                        </tr>
-                        <tr>
-                            <td style="width: 16px; border-top:0; border-left:0;">(iii)</td>
-                            <td style="border-top:0; border-left:0; border-right: 0; text-align: center;">Not Applicable</td>
-                        </tr>
-                        <tr>
-                            <td style="width: 16px; border-top:0; border-left:0;">(iv)</td>
-                            <td style="border-top:0; border-left:0; border-right: 0; text-align: center;">Not Applicable</td>
-                        </tr>
-                        <tr>
-                            <td style="width: 16px; border-top:0; border-left:0; border-bottom: 0;">(v)</td>
-                            <td style="border-top:0; border-left:0; border-right: 0; border-bottom: 0; text-align: center;">Not Applicable</td>
-                        </tr>
-                    </table>
-                </td>
-            </tr>
+                    <td style="text-align:center;">
+                        {{ $pan['last_filed_year'] ?? 'Not Applicable' }}
+                    </td>
 
-            <tr class="page-break" style="page-break-before: always;">
-                <td>5</td>
-                <td style="text-align: center;">Dependent 2</td>
-                <td style="text-align: center;">Not Applicable</td>
-                <td style="text-align: center;">Not Applicable</td>
-                <td style="padding: 0;">
-                    <table style="border: none; margin: 0;">
-                        <tr>
-                            <td style="width: 16px; border-top:0; border-left:0;">(i)</td>
-                            <td style="border-top:0; border-left:0; border-right: 0; text-align: center;">Not Applicable</td>
-                        </tr>
-                        <tr>
-                            <td style="width: 16px; border-top:0; border-left:0;">(ii)</td>
-                            <td style="border-top:0; border-left:0; border-right: 0; text-align: center;">Not Applicable</td>
-                        </tr>
-                        <tr>
-                            <td style="width: 16px; border-top:0; border-left:0;">(iii)</td>
-                            <td style="border-top:0; border-left:0; border-right: 0; text-align: center;">Not Applicable</td>
-                        </tr>
-                        <tr>
-                            <td style="width: 16px; border-top:0; border-left:0;">(iv)</td>
-                            <td style="border-top:0; border-left:0; border-right: 0; text-align: center;">Not Applicable</td>
-                        </tr>
-                        <tr>
-                            <td style="width: 16px; border-top:0; border-left:0; border-bottom: 0;">(v)</td>
-                            <td style="border-top:0; border-left:0; border-right: 0; border-bottom: 0; text-align: center;">Not Applicable</td>
-                        </tr>
-                    </table>
-                </td>
-            </tr>
+                    {{-- Income column --}}
+                    <td style="padding:0;">
+                        <table style="border:none; margin:0; width:100%;">
+                            @php
+                                $incomeRow = collect($incomes)
+                                    ->firstWhere('type', $pan['type']);
+                                $yearlyIncome = $incomeRow['income'] ?? [];
+                                $i = 1;
+                            @endphp
 
-            <tr>
-                <td>6</td>
-                <td style="text-align: center;">Dependent 3</td>
-                <td style="text-align: center;">Not Applicable</td>
-                <td style="text-align: center;">Not Applicable</td>
-                <td style="padding: 0;">
-                    <table style="border: none; margin: 0;">
-                        <tr>
-                            <td style="width: 16px; border-top:0; border-left:0;">(i)</td>
-                            <td style="border-top:0; border-left:0; border-right: 0; text-align: center;">Not Applicable</td>
-                        </tr>
-                        <tr>
-                            <td style="width: 16px; border-top:0; border-left:0;">(ii)</td>
-                            <td style="border-top:0; border-left:0; border-right: 0; text-align: center;">Not Applicable</td>
-                        </tr>
-                        <tr>
-                            <td style="width: 16px; border-top:0; border-left:0;">(iii)</td>
-                            <td style="border-top:0; border-left:0; border-right: 0; text-align: center;">Not Applicable</td>
-                        </tr>
-                        <tr>
-                            <td style="width: 16px; border-top:0; border-left:0;">(iv)</td>
-                            <td style="border-top:0; border-left:0; border-right: 0; text-align: center;">Not Applicable</td>
-                        </tr>
-                        <tr>
-                            <td style="width: 16px; border-top:0; border-left:0; border-bottom: 0;">(v)</td>
-                            <td style="border-top:0; border-left:0; border-right: 0; border-bottom: 0; text-align: center;">Not Applicable</td>
-                        </tr>
-                    </table>
-                </td>
-            </tr>
-
+                            @forelse ($yearlyIncome as $year => $amount)
+                                <tr>
+                                    <td style="width:16px; border-top:0; border-left:0;">
+                                        ({{ ['i','ii','iii','iv','v'][$i-1] ?? $i }})
+                                    </td>
+                                    <td style="border-top:0; border-left:0; border-right:0; padding:0;">
+                                        <table style="border:none; margin:0; width:100%;">
+                                            <tr>
+                                                <td style="border:none; border-right:1px solid #000; width:90px; text-align:center;">
+                                                    ({{ $year }})
+                                                </td>
+                                                <td style="border:none;">
+                                                    Rs. {{
+                                                        is_numeric(str_replace(',', '', $amount))
+                                                            ? number_format((float) str_replace(',', '', $amount), 2)
+                                                            : 'Not Applicable'
+                                                    }}
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                                @php $i++; @endphp
+                            @empty
+                                <tr>
+                                    <td colspan="2" style="text-align:center;">
+                                        Not Applicable
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </table>
+                    </td>
+                </tr>
+                @endforeach
         </table>
 
         <p style="color: #e31111;">
@@ -830,199 +674,50 @@
                 <th style="font-weight: bold;">Dependent-2</th>
                 <th style="font-weight: bold;">Dependent-3</th>
             </tr>
+
+            @php
+                $holders = ['self', 'spouse', 'huf', 'dependent_1', 'dependent_2', 'dependent_3'];
+                $sno = 1;
+                $grossTotal = [];
+            @endphp
+
+            @foreach($movableAssets as $holderData)
+                @foreach($holderData['assets'] as $asset)
+                    <tr>
+                        <td>({{ $sno++ }})</td>
+                        <td>{{ $asset['description'] }}</td>
+
+                        @foreach($holders as $holder)
+                            @php
+                                $amount = ($holderData['holder'] == $holder) 
+                                            ? $asset['amount'] 
+                                            : 'Not Applicable';
+                                
+                                // Add to gross total for that holder
+                                if(is_numeric($amount)) {
+                                    $grossTotal[$holder] = ($grossTotal[$holder] ?? 0) + (float) $amount;
+                                }
+                            @endphp
+                            <td>
+                                {{ is_numeric($amount) ? number_format((float)$amount, 2) : 'Not Applicable' }}
+                            </td>
+                        @endforeach
+                    </tr>
+                @endforeach
+            @endforeach
+
+            <!-- Gross Total Row -->
             <tr>
-                <td>(i)</td>
-                <td>
-                    Cash in hand
-                    (As on Date)
-                </td>
-                <td>69,255.00</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
+                <td style="font-weight: bold;">(ix)</td>
+                <td style="font-weight: bold;">Gross Total Value</td>
+                @foreach($holders as $holder)
+                    <td style="font-weight: bold;">
+                        {{ isset($grossTotal[$holder]) ? number_format($grossTotal[$holder],2) : 'Not Applicable' }}
+                    </td>
+                @endforeach
             </tr>
-
-            <tr>
-                <td >(ii)</td>
-                <td>
-                    Details of deposit in Bank
-                    accounts (FDRs, Term
-                    Deposits and all other types
-                    of deposits including
-                    saving accounts), Deposits
-                    with Financial Institutions,
-                    Non-Banking Financial
-                    Companies and
-                    Cooperative societies and
-                    the amount in each such
-                    deposit
-                </td>
-                <td>
-                    Indian Bank (Previously Allahabad Bank) <br> Br. H.M.Road Saving A/с No.20790470930 Rs. 12,02,356.71 <br> Election Expenses
-                    Acccount INDIAN BANK <br> Br. H.M.ROAD Account No. 6992897574 <br> Rs. 151,000.00 Total Balance Bank (As on Date)
-                    Rs. 13,53,356.71
-                </td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-
-            </tr>
-
-            <tr>
-                <td >(iii)</td>
-                <td>
-                    Details of investment in
-                    Bonds, Debentures /shares land units in companies /Mutual
-                    funds and others and the amount
-                </td>
-                <td>
-                    Not Applicable
-                </td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-
-            </tr>
-
-            <tr>
-                <td >(iv)</td>
-                <td>
-                    Details of
-                    investment in NSS,
-                    Postal Saving,
-                    Insurance policies
-                    and investment in
-                    any Financial
-                    instruments in Post office or Insurance
-                    Company and the
-                    amount
-                </td>
-                <td>
-                    National Saving Certificate
-                    Rs.18,490.00
-                </td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-
-            </tr>
-
-            <tr class="page-break" style="page-break-before: always;">
-                <td >(v)</td>
-                <td>
-                    Personal loans/
-                    advance given to
-                    any person or
-                    entity including
-                    firm, company,
-                    Trust etc., and
-                    other receivables
-                    from debtors and
-                    the amount
-                </td>
-                <td>
-                    Security Deposit
-                    (BSNL)
-                    Rs. 500
-                    Royalty Receivable
-                    Rs. 930.00
-                    TDS Receivable
-                    (F.Y-2019-20)
-                    RS. 1,85,984.00
-                </td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-
-            </tr>
-
-            <tr>
-                <td >(vi)</td>
-                <td>
-                    Motor Vehicles/
-                    Aircrafts/Yachts
-                    /Ships (Details of
-                    Make, registration
-                    number etc. year of
-                    purchase and
-                    amount)
-                </td>
-                <td>
-                    Not Applicable
-                </td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-            </tr>
-
-            <tr>
-                <td >(vii)</td>
-                <td>
-                    Jewellery, bullion
-                    and valuable
-                    thing(s) (give
-                    Details
-                    of weight
-                    value)
-                </td>
-                <td>
-                    9gm. 750 mg.
-                    <strong>Rs. 43,837.00</strong>
-                    (As per Mkt. Value
-                    Approx)
-                </td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-            </tr>
-
-            <tr>
-                <td >(viii)</td>
-                <td>
-                    Any other assets
-                    such as value of
-                    claims/interest
-                </td>
-                <td>
-                    Not Applicable
-                </td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-            </tr>
-
-            <tr>
-                <td style="font-weight: bold;" >(ix)</td>
-                <td style="font-weight: bold;">
-                    Gross Total Value
-                </td>
-                <td style="font-weight: bold;">
-                    16,72,352.71
-                </td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-            </tr>
-
         </table>
+
 
         <p style="font-weight: bold; text-decoration: underline; margin-top: 35px;">
         B. Details of Immovable assets:
@@ -1041,6 +736,20 @@
         </p>
 
 
+        @php
+            $holders = ['self', 'spouse', 'huf', 'dependent_1', 'dependent_2', 'dependent_3'];
+            $types = ['agricultural','non_agricultural','commercial','residential','others'];
+            $type_labels = [
+                'agricultural' => 'Agricultural Land',
+                'non_agricultural' => 'Non-Agricultural Land',
+                'commercial' => 'Commercial Buildings',
+                'residential' => 'Residential Buildings',
+                'others' => 'Others (such as interest in property)'
+            ];
+            $sno = 1;
+            $grossTotal = [];
+        @endphp
+
         <table style="table-layout: fixed; margin-top: 35px;">
             <tr>
                 <th style="width: 50px; font-weight: bold;">S. No.</th>
@@ -1052,415 +761,152 @@
                 <th style="font-weight: bold;">Dependent-2</th>
                 <th style="font-weight: bold;">Dependent-3</th>
             </tr>
-            <tr>
-                <td style="border-bottom: 1px solid #fff;">(i)</td>
-                <td>
-                    <strong style="text-decoration: underline;">Agricultural Land</strong> <br>
-                    Location(s)
-                    Survey number(s)
 
-                </td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-            </tr>
-            <tr>
-                <td style="border-bottom: 1px solid #fff;"></td>
-                <td >
-                    Area (total measurement in acres)
-                </td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-            </tr>
-            <tr class="page-break">
-                <td style="border-bottom: 1px solid #fff;"></td>
-                <td >
-                    Whether inherited
-                    property (Yes or No)
-                </td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-            </tr> 
-            <tr>
-                <td style="border-bottom: 1px solid #fff;"></td>
-                <td>
-                    Date of purchase in case
-                    of self - acquired property
-                </td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-            </tr>
-            <tr>
-                <td style="border-bottom: 1px solid #fff;"></td>
-                <td>
-                    Cost of Land (in case of
-                    purchase) at the time of purchase
-                </td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-            </tr>
-            <tr>
-                <td style="border-bottom: 1px solid #fff;"></td>
-                <td>
-                    Any Invest ment on the
-                    land by way of develop
-                    ment, construction
-                    etc.
-                </td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-            </tr>
-            <tr>
-                <td></td>
-                <td>
-                    Approxi mate Current
-                    market value
-                </td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-            </tr>
-            <tr>
-                <td style="border-bottom: 1px solid #fff;">(ii)</td>
-                <td>
-                    <strong style="text-decoration: underline;">Non-Agricultural Land</strong> <br>
-                    Location(s)
-                    Survey number(s)
+            @foreach($types as $type)
+                @php
+                    $label = $type_labels[$type];
+                @endphp
 
-                </td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-            </tr>
-            <tr>
-                <td style="border-bottom: 1px solid #fff;"></td>
-                <td>
-                    Area (total measurement in sq. ft.)
-                </td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-            </tr>
-            <tr>
-                <td style="border-bottom: 1px solid #fff;"></td>
-                <td>
-                    Whether inherited
-                    property
-                    (Yes or No)
-                </td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-            </tr>
-            <tr>
-                <td style="border-bottom: 1px solid #fff;"></td>
-                <td>
-                    Date of purchase in case
-                    of self-acquired property
-                </td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-            </tr>
-            <tr>
-                <td style="border-bottom: 1px solid #fff;"></td>
-                <td>
-                    Cost of Land (in case of
-                    purchase) at the time of
-                    purchase
-                </td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-            </tr>
-            <tr>
-                <td style="border-bottom: 1px solid #fff;"></td>
-                <td>
-                    Any Investment on the
-                    land by way of develop
-                    ment, construction
-                    etc.
-                </td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-            </tr>
-            <tr>
-                <td></td>
-                <td>
-                    Approximate
-                    current market value
-                </td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-            </tr>
-            <tr>
-                <td style="border-bottom: 1px solid #fff;">(iii)</td>
-                <td>
-                    <strong style="text-decoration: underline;">Commercial Buildings</strong> <br>
-                    (including apartments)
-                    -Location(s)<br>
-                    -Survey number(s)<br>
-                    10 Area (total
-                    measurement in sq. ft.)
-                </td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-            </tr>
-            <tr>
-                <td style="border-bottom: 1px solid #fff;"></td>
-                <td>
-                    Built-up Area (total
-                    measurement in sq.ft.)
+                @foreach($immovableAssets as $holderData)
+                    @foreach($holderData['groups'] as $group)
+                        @php
+                            $data = $group[$type] ?? null;
+                        @endphp
 
-                </td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-            </tr>
-            <tr>
-                <td style="border-bottom: 1px solid #fff;"></td>
-                <td>
-                    Whether inherited
-                    property (Yes or No)
-                </td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-            </tr>
-            <tr>
-                <td style="border-bottom: 1px solid #fff;"></td>
-                <td>
-                    Date of purchase in case of self-acquired property
-                </td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-            </tr>
-            <tr>
-                <td style="border-bottom: 1px solid #fff;"></td>
-                <td>
-                    Cost of property (in case of purchase) at the time of purchase
-                </td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-            </tr>
-            <tr>
-                <td style="border-bottom: 1px solid #fff;"></td>
-                <td>
-                    Any Investment on the property by way of
-                    development, construction
-                    etc.
-                </td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-            </tr>
-            <tr>
-                <td></td>
-                <td>
-                    Approximate current market value
-                </td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-            </tr>
-            <tr>
-                <td style="border-bottom: 1px solid #fff;">(iv)</td>
-                <td>
-                    <strong style="text-decoration: underline;">Residential Buildings</strong> <br>
-                    (including apartments): -Location (s) -Survey number(s)
-                </td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-            </tr>
-            <tr>
-                <td style="border-bottom: 1px solid #fff;"></td>
-                <td>
-                    Area (Total measurement in sq. ft) 
-                </td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-            </tr>
-            <tr>
-                <td style="border-bottom: 1px solid #fff;"></td>
-                <td>
-                    Built up Area (Total measurement in sq. ft.)
-                </td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-            </tr>
-            <tr>
-                <td style="border-bottom: 1px solid #fff;"></td>
-                <td>
-                    Whether inherited property (Yes or No)
-                </td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-            </tr>
-            <tr>
-                <td style="border-bottom: 1px solid #fff;"></td>
-                <td>
-                    Date of purchase in case of self–acquired property
-                </td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-            </tr>
-            <tr>
-                <td style="border-bottom: 1px solid #fff;"></td>
-                <td>
-                    Cost of property (in case of purchase) at the time of purchase
-                </td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-            </tr>
-            <tr>
-                <td style="border-bottom: 1px solid #fff;"></td>
-                <td>
-                    Any Investment on the
-                    land by way of develop
-                    ment, construction etc.
-                </td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-            </tr>
-            <tr>
-                <td ></td>
-                <td>
-                    Approximate current market value
-                </td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-            </tr>
-            <tr class="page-break">
-                <td>(v)</td>
-                <td>
-                    Others (such as interest in property)
-                </td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-            </tr>
+                        @if($data)
+                            {{-- Main row for type --}}
+                            <tr>
+                                <td>({{ $sno++ }})</td>
+                                <td>
+                                    <strong style="text-decoration: underline;">{{ $label }}</strong> <br>
+                                    Location(s) / Survey number(s)
+                                </td>
+                                @foreach($holders as $holder)
+                                    <td>
+                                        {{
+                                            ($holderData['holder'] === $holder)
+                                                ? ($data['location'] ?? 'Not Applicable')
+                                                : 'Not Applicable'
+                                        }}
+                                    </td>
+                                @endforeach
+                            </tr>
+
+                            {{-- Area --}}
+                            <tr>
+                                <td style="border-bottom: 1px solid #fff;"></td>
+                                <td>
+                                    Area (total measurement)
+                                </td>
+                                @foreach($holders as $holder)
+                                    <td>
+                                        {{
+                                            ($holderData['holder'] === $holder)
+                                                ? ($data['area'] ?? 'Not Applicable')
+                                                : 'Not Applicable'
+                                        }}
+                                    </td>
+                                @endforeach
+                            </tr>
+
+                            {{-- Inherited --}}
+                            <tr>
+                                <td style="border-bottom: 1px solid #fff;"></td>
+                                <td>Whether inherited property (Yes or No)</td>
+                                @foreach($holders as $holder)
+                                    @php
+                                        $val = ($holderData['holder'] == $holder && $data['inherited']) 
+                                                ? $data['inherited'] 
+                                                : 'Not Applicable';
+                                    @endphp
+                                    <td>{{ $val }}</td>
+                                @endforeach
+                            </tr>
+
+                            {{-- Purchase date --}}
+                            <tr>
+                                <td style="border-bottom: 1px solid #fff;"></td>
+                                <td>Date of purchase (if self-acquired)</td>
+                                @foreach($holders as $holder)
+                                    @php
+                                        $val = ($holderData['holder'] == $holder && $data['purchase_date']) 
+                                                ? $data['purchase_date'] 
+                                                : 'Not Applicable';
+                                    @endphp
+                                    <td>{{ $val }}</td>
+                                @endforeach
+                            </tr>
+
+                            {{-- Purchase cost --}}
+                            <tr>
+                                <td style="border-bottom: 1px solid #fff;"></td>
+                                <td>Cost at time of purchase</td>
+                                @foreach($holders as $holder)
+                                    @php
+                                        $val = ($holderData['holder'] == $holder && $data['purchase_cost']) 
+                                                ? $data['purchase_cost'] 
+                                                : 'Not Applicable';
+                                        if(is_numeric($val)) {
+                                            $grossTotal[$holder] = ($grossTotal[$holder] ?? 0) + (float)$val;
+                                            $val = number_format((float)$val,2);
+                                        }
+                                    @endphp
+                                    <td>{{ $val }}</td>
+                                @endforeach
+                            </tr>
+
+                            {{-- Investment made --}}
+                            <tr>
+                                <td style="border-bottom: 1px solid #fff;"></td>
+                                <td>Any Investment on property (development/construction etc.)</td>
+                                @foreach($holders as $holder)
+                                    @php
+                                        $val = ($holderData['holder'] == $holder && $data['investment_made']) 
+                                                ? $data['investment_made'] 
+                                                : 'Not Applicable';
+                                        if(is_numeric($val)) {
+                                            $grossTotal[$holder] = ($grossTotal[$holder] ?? 0) + (float)$val;
+                                            $val = number_format((float)$val,2);
+                                        }
+                                    @endphp
+                                    <td>{{ $val }}</td>
+                                @endforeach
+                            </tr>
+
+                            {{-- Current Value --}}
+                            <tr>
+                                <td></td>
+                                <td>Approximate Current Market Value</td>
+                                @foreach($holders as $holder)
+                                    @php
+                                        $val = ($holderData['holder'] == $holder && $data['current_value']) 
+                                                ? $data['current_value'] 
+                                                : 'Not Applicable';
+                                        if(is_numeric($val)) {
+                                            $grossTotal[$holder] = ($grossTotal[$holder] ?? 0) + (float)$val;
+                                            $val = number_format((float)$val,2);
+                                        }
+                                    @endphp
+                                    <td>{{ $val }}</td>
+                                @endforeach
+                            </tr>
+
+                        @endif
+                    @endforeach
+                @endforeach
+
+            @endforeach
+
+            {{-- Gross Total --}}
             <tr>
                 <td>(vi)</td>
-                <td>
-                    Total of current market value of (i) to (v) above
-                </td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
-                <td>Not Applicable</td>
+                <td>Total of current market value of (i) to (v) above</td>
+                @foreach($holders as $holder)
+                    <td>{{ isset($grossTotal[$holder]) ? number_format($grossTotal[$holder],2) : 'Not Applicable' }}</td>
+                @endforeach
             </tr>
-
         </table>
+
         <div style="page-break-before: always;"></div>
         <p>
             <strong>(8)</strong> I give herein below the details of liabilities/dues to public financial institutions and government:-

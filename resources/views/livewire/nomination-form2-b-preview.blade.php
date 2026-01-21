@@ -285,7 +285,7 @@
                     <div style="font-size: 16px; line-height: 2; text-align: justify;">
                         I nominate as a candidate for election to the Legislative Assembly from the
                         <span class="input-field input-field-large"
-                            style="width:228px;" readonly>{{ $nomination->assembly->assembly_name_en }}-{{$nomination->assembly->assembly_number}}
+                            style="width:228px;" readonly>{{ optional($nomination->assembly)->assembly_name_en }}-{{ optional($nomination->assembly)->assembly_number }}
                         </span>
                     </div>
 

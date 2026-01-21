@@ -11,6 +11,8 @@ class Form26 extends Component
 {
     use WithFileUploads;
 
+    public $state = 'WEST BENGAL';
+    public $assembly_id;
     public $candidate;
     public $relation_type;
     public $relation_name;
@@ -30,6 +32,7 @@ class Form26 extends Component
     public $sources_of_income;
     public $asset_holders = [];
     public $immovable_assets = [];
+    public $political_party_name = 'AITC';
 
     public $loan_holders = [
         [
@@ -149,6 +152,7 @@ class Form26 extends Component
     public function mount($id)
     {
         $this->candidate = Candidate::findOrFail($id);
+        $this->assembly_id    = $this->candidate->assembly->id;
 
         $this->existingForm = NominationForm::where('candidate_id', $id)
             ->where('form_type', 'form_26')
@@ -444,13 +448,16 @@ class Form26 extends Component
         $form = NominationForm::updateOrCreate(
             [
                 'candidate_id' => $this->candidate->id,
+                'assembly_id' => $this->assembly_id,
                 'form_type' => 'form_26',
             ],
             [
+                'state' => $this->state,
                 'relation_type' => $this->relation_type,
                 'relation_name' => $this->relation_name,
                 'age' => $this->age,
                 'postal_address' => $this->address,
+                'political_party_name' => $this->political_party_name,
 
                 'constituency_where_enrolled' => $this->enrolled_constituency_name,
                 'candidate_serial_no' => $this->constituency_serial_no,
