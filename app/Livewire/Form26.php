@@ -193,49 +193,75 @@ class Form26 extends Component
                 json_decode($this->existingForm->highest_educational_qualification, true)
                 ?? $this->educational_qualifications;
         }
+
+        // PAN
+        if (empty($this->pan_details)) {
+            $this->addPanRow();
+        }
+
+        // Movable Assets
+        if (empty($this->asset_holders)) {
+            $this->addAssetHolder();
+        }
+
+        // Immovable Assets
+        if (empty($this->immovable_assets)) {
+            $this->addImmovableHolder();
+        }
+
     }
 
     protected $rules = [
-        'relation_type' => 'required|in:son,daughter,wife',
-        'relation_name' => 'required|string|max:255',
-        'address' => 'required|string|max:255',
-        'age' => 'required|integer|min:18|max:120',
-        'enrolled_constituency_name' => 'required|string|max:255',
-        'constituency_serial_no' => 'required|string|max:255',
-        'constituency_part_no' => 'required|string|max:255',
-        'phone_no' => 'required|digits_between:10,15',
+
+        'relation_type' => 'nullable|in:son,daughter,wife',
+        'relation_name' => 'nullable|string|max:255',
+        'address' => 'nullable|string|max:255',
+        'age' => 'nullable|integer|min:18|max:120',
+
+        'enrolled_constituency_name' => 'nullable|string|max:255',
+        'constituency_serial_no' => 'nullable|string|max:255',
+        'constituency_part_no' => 'nullable|string|max:255',
+
+        'phone_no' => 'nullable|digits_between:10,15',
         'alternative_phone_no' => 'nullable|digits_between:10,15',
-        'email_id' => 'required|email',
+        'email_id' => 'nullable|email',
+
         'whatsapp_no' => 'nullable|digits_between:10,15',
         'facebook_account' => 'nullable|string',
         'twitter_account' => 'nullable|string',
-        'pan_details' => 'required|array',
-        'pan_details.*.type' => 'required|string',
-        'pan_details.*.name' => 'required|string',
-        'pan_details.*.pan' => 'nullable|string|size:10',
-        'asset_holders' => 'required|array',
-        'asset_holders.*.holder' => 'required|in:self,spouse,huf,dependent',
-        'asset_holders.*.assets' => 'required|array',
-        'asset_holders.*.assets.*.type' => 'required|string',
+
+        'pan_details' => 'nullable|array',
+        'pan_details.*.type' => 'nullable|string',
+        'pan_details.*.name' => 'nullable|string',
+        'pan_details.*.pan' => 'nullable|alpha_num|size:10',
+
+        'asset_holders' => 'nullable|array',
+        'asset_holders.*.holder' => 'nullable|in:self,spouse,huf,dependent',
+        'asset_holders.*.assets' => 'nullable|array',
+        'asset_holders.*.assets.*.type' => 'nullable|string',
         'asset_holders.*.assets.*.description' => 'nullable|string',
         'asset_holders.*.assets.*.amount' => 'nullable|numeric',
-        'loan_holders' => 'required|array',
-        'loan_holders.*.holder' => 'required|string',
-        'loan_holders.*.loans' => 'required|array',
-        'loan_holders.*.loans.*.type' => 'required|string',
-        'loan_holders.*.loans.*.name' => 'required|string',
-        'loan_holders.*.loans.*.amount' => 'required|numeric',
-        'government_dues' => 'required|array',
-        'government_dues.*.holder' => 'required|string',
-        'occupation' => 'required|string',
-        'sources_of_income' => 'required|string',
-        'educational_qualifications' => 'required|array',
-        'educational_qualifications.*.level' => 'required|string',
+
+        'loan_holders' => 'nullable|array',
+        'loan_holders.*.holder' => 'nullable|string',
+        'loan_holders.*.loans' => 'nullable|array',
+        'loan_holders.*.loans.*.type' => 'nullable|string',
+        'loan_holders.*.loans.*.name' => 'nullable|string',
+        'loan_holders.*.loans.*.amount' => 'nullable|numeric',
+
+        'government_dues' => 'nullable|array',
+        'government_dues.*.holder' => 'nullable|string',
+
+        'occupation' => 'nullable|string',
+        'sources_of_income' => 'nullable|string',
+
+        'educational_qualifications' => 'nullable|array',
+        'educational_qualifications.*.level' => 'nullable|string',
         'educational_qualifications.*.degree' => 'nullable|string|max:255',
         'educational_qualifications.*.university' => 'nullable|string|max:255',
         'educational_qualifications.*.year' => 'nullable|digits:4',
-
     ];
+
 
     public function addAssetHolder()
     {                                           
@@ -415,7 +441,7 @@ class Form26 extends Component
             ];
         }
 
-        NominationForm::updateOrCreate(
+        $form = NominationForm::updateOrCreate(
             [
                 'candidate_id' => $this->candidate->id,
                 'form_type' => 'form_26',
@@ -463,6 +489,11 @@ class Form26 extends Component
         );
 
         session()->flash('success', 'FORM 26 saved successfully.');
+
+        return redirect()->route(
+            'admin.candidates.form26.preview',
+            $form->id 
+        );
     }
 
     public function render()
