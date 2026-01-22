@@ -28,16 +28,12 @@ class Form26 extends Component
     public $facebook_account;
     public $twitter_account;
     public $pan_details = [];
-    public $occupation;
+    public $candidate_occupation;
     public $spouse_occupation;
     public $asset_holders = [];
     public $immovable_assets = [];
     public $political_party_name = 'AITC';
-    public $source_of_incomes = [
-        'self' => null,
-        'spouse' => null,
-        'dependents' => null,
-    ];
+    public $source_of_incomes = []; 
 
 
     public $loan_holders = [
@@ -103,38 +99,37 @@ class Form26 extends Component
         $this->constituency_serial_no = $form->candidate_serial_no;
         $this->constituency_part_no = $form->candidate_part_no;
 
-        $phones = json_decode($form->contact_phone_nos, true) ?? [];
-        $this->phone_no = $phones['primary'] ?? '';
-        $this->alternative_phone_no = $phones['alternate'] ?? '';
-
+        $phones = $this->decode($form->contact_phone_nos);
+        $this->phone_no = $phones['primary'] ?? null;
+        $this->alternative_phone_no = $phones['alternate'] ?? null;
         $this->email_id = $form->email_id;
 
-        $social = json_decode($form->social_media_accounts, true) ?? [];
-        $this->whatsapp_no = $social['whatsapp_no'] ?? '';
-        $this->facebook_account = $social['facebook_account'] ?? '';
-        $this->twitter_account = $social['twitter_account'] ?? '';
+        $social = $this->decode($form->social_media_accounts);
+        $this->whatsapp_no = $social['whatsapp_no'] ?? null;
+        $this->facebook_account = $social['facebook_account'] ?? null;
+        $this->twitter_account = $social['twitter_account'] ?? null;
 
-        // PAN + Income
         $this->pan_details = $this->mergePanAndIncome(
-            json_decode($form->pan_details, true),
-            json_decode($form->last_five_year_incomes, true)
+            $this->decode($form->pan_details),
+            $this->decode($form->last_five_year_incomes)
         );
 
-        // Assets
-        $this->asset_holders = json_decode($form->movable_assets, true) ?? [];
+        $this->asset_holders = $this->decode($form->movable_assets);
+        $this->immovable_assets = $this->decode($form->immovable_assets);
 
-        $this->immovable_assets = json_decode($form->immovable_assets, true) ?? [];
-
-        $loans = json_decode($form->loans_and_govt_dues, true) ?? [];
+        $loans = $this->decode($form->loans_and_govt_dues);
         $this->loan_holders = $loans['loans'] ?? [];
         $this->government_dues = $loans['government_dues'] ?? [];
 
-        $this->occupation = $form->candidate_occupation;
-        $this->sources_of_income = $form->source_of_incomes;
-
+        $this->candidate_occupation = $form->candidate_occupation;
+        $this->spouse_occupation = $form->spouse_occupation;
         $this->educational_qualifications =
-            json_decode($form->highest_educational_qualification, true)
-            ?? $this->educational_qualifications;
+            $this->decode($form->highest_educational_qualification)
+            ?: $this->educational_qualifications;
+
+        $this->source_of_incomes =
+            $this->decode($form->source_of_incomes)
+            ?: $this->source_of_incomes;
     }
 
     private function mergePanAndIncome($panOnly, $incomeOnly)
@@ -158,50 +153,15 @@ class Form26 extends Component
     public function mount($id)
     {
         $this->candidate = Candidate::findOrFail($id);
-        $this->assembly_id    = $this->candidate->assembly->id;
+        $this->assembly_id = $this->candidate->assembly->id;
 
         $this->existingForm = NominationForm::where('candidate_id', $id)
             ->where('form_type', 'form_26')
-            ->first();
-
-        if (!$this->existingForm) {
-            $this->existingForm = NominationForm::where('candidate_id', $id)->first();
-        }
+            ->first()
+            ?? NominationForm::where('candidate_id', $id)->first();
 
         if ($this->existingForm) {
-
-            $this->relation_type = $this->existingForm->relation_type;
-            $this->relation_name = $this->existingForm->relation_name;
-            $this->age = $this->existingForm->age;
-            $this->address = $this->existingForm->postal_address;
-
-            $this->enrolled_constituency_name = $this->existingForm->constituency_where_enrolled;
-            $this->constituency_serial_no = $this->existingForm->candidate_serial_no;
-            $this->constituency_part_no = $this->existingForm->candidate_part_no;
-
-            $phones = json_decode($this->existingForm->contact_phone_nos, true);
-            $this->phone_no = $phones['primary'] ?? null;
-            $this->alternative_phone_no = $phones['alternate'] ?? null;
-
-            $social = json_decode($this->existingForm->social_media_accounts, true);
-            $this->whatsapp_no = $social['whatsapp_no'] ?? null;
-            $this->facebook_account = $social['facebook_account'] ?? null;
-            $this->twitter_account = $social['twitter_account'] ?? null;
-
-            $this->pan_details = json_decode($this->existingForm->pan_details, true) ?? $this->pan_details;
-            $this->asset_holders = json_decode($this->existingForm->movable_assets, true) ?? $this->asset_holders;
-            $this->immovable_assets = json_decode($this->existingForm->immovable_assets, true) ?? $this->immovable_assets;
-
-            $loansAndDues = json_decode($this->existingForm->loans_and_govt_dues, true);
-            $this->loan_holders = $loansAndDues['loans'] ?? $this->loan_holders;
-            $this->government_dues = $loansAndDues['government_dues'] ?? $this->government_dues;
-
-            $this->occupation = $this->existingForm->candidate_occupation;
-            $this->sources_of_incomes = $this->existingForm->source_of_incomes;
-
-            $this->educational_qualifications =
-                json_decode($this->existingForm->highest_educational_qualification, true)
-                ?? $this->educational_qualifications;
+            $this->hydrateFromForm($this->existingForm);
         }
 
         // PAN
@@ -219,6 +179,15 @@ class Form26 extends Component
             $this->addImmovableHolder();
         }
 
+        // Loans
+        if (empty($this->loan_holders)) {
+            $this->addLoanHolder();
+        }
+
+        // Government dues
+        if (empty($this->government_dues)) {
+            $this->addGovernmentDue();
+        }
     }
 
     protected $rules = [
@@ -262,8 +231,11 @@ class Form26 extends Component
         'government_dues' => 'nullable|array',
         'government_dues.*.holder' => 'nullable|string',
 
-        'occupation' => 'nullable|string',
-        'sources_of_incomes' => 'nullable|string',
+        'candidate_occupation' => 'nullable|string',
+        'spouse_occupation' => 'nullable|string',
+        'source_of_incomes.self' => 'nullable|string',
+        'source_of_incomes.spouse' => 'nullable|string',
+        'source_of_incomes.dependents' => 'nullable|string',
 
         'educational_qualifications' => 'nullable|array',
         'educational_qualifications.*.level' => 'nullable|string',
@@ -271,6 +243,13 @@ class Form26 extends Component
         'educational_qualifications.*.university' => 'nullable|string|max:255',
         'educational_qualifications.*.year' => 'nullable|digits:4',
     ];
+
+    private function decode($value)
+    {
+        if (is_array($value)) return $value;
+        if (is_string($value)) return json_decode($value, true) ?? [];
+        return [];
+    }
 
 
     public function addAssetHolder()
@@ -493,11 +472,11 @@ class Form26 extends Component
                     'government_dues' => $this->government_dues,
                 ]),
 
-                'candidate_occupation' => $this->occupation,
+                'candidate_occupation' => $this->candidate_occupation,
                 'spouse_occupation' => $this->spouse_occupation,
                 'source_of_incomes' => json_encode(
-                    is_array($this->source_of_income)
-                        ? array_filter($this->source_of_income)
+                    is_array($this->source_of_incomes)
+                        ? array_filter($this->source_of_incomes)
                         : []
                 ),
 

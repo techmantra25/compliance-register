@@ -712,7 +712,7 @@
                                 <label class="form-label">Self</label>
                                 <input type="text"
                                     class="form-control"
-                                    wire:model.defer="occupation">
+                                    wire:model.defer="candidate_occupation">
                             </div>
 
                             <div class="mb-2">
