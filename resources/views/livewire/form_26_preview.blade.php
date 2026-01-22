@@ -813,84 +813,97 @@
                             <tr>
                                 <td style="border-bottom: 1px solid #fff;"></td>
                                 <td>Whether inherited property (Yes or No)</td>
+
                                 @foreach($holders as $holder)
-                                    @php
-                                        $val = ($holderData['holder'] == $holder && $data['inherited']) 
-                                                ? $data['inherited'] 
-                                                : 'Not Applicable';
-                                    @endphp
-                                    <td>{{ $val }}</td>
+                                    <td>
+                                        {{
+                                            ($holderData['holder'] === $holder)
+                                                ? ($data['inherited'] ?? 'Not Applicable')
+                                                : 'Not Applicable'
+                                        }}
+                                    </td>
                                 @endforeach
                             </tr>
+
 
                             {{-- Purchase date --}}
                             <tr>
                                 <td style="border-bottom: 1px solid #fff;"></td>
                                 <td>Date of purchase (if self-acquired)</td>
+
                                 @foreach($holders as $holder)
-                                    @php
-                                        $val = ($holderData['holder'] == $holder && $data['purchase_date']) 
-                                                ? $data['purchase_date'] 
-                                                : 'Not Applicable';
-                                    @endphp
-                                    <td>{{ $val }}</td>
+                                    <td>
+                                        {{
+                                            ($holderData['holder'] === $holder)
+                                                ? ($data['purchase_date'] ?? 'Not Applicable')
+                                                : 'Not Applicable'
+                                        }}
+                                    </td>
                                 @endforeach
                             </tr>
+
 
                             {{-- Purchase cost --}}
                             <tr>
                                 <td style="border-bottom: 1px solid #fff;"></td>
                                 <td>Cost at time of purchase</td>
+
                                 @foreach($holders as $holder)
                                     @php
-                                        $val = ($holderData['holder'] == $holder && $data['purchase_cost']) 
-                                                ? $data['purchase_cost'] 
+                                        $val = ($holderData['holder'] === $holder)
+                                                ? ($data['purchase_cost'] ?? 'Not Applicable')
                                                 : 'Not Applicable';
-                                        if(is_numeric($val)) {
+
+                                        if (is_numeric($val)) {
                                             $grossTotal[$holder] = ($grossTotal[$holder] ?? 0) + (float)$val;
-                                            $val = number_format((float)$val,2);
+                                            $val = number_format((float)$val, 2);
                                         }
                                     @endphp
                                     <td>{{ $val }}</td>
                                 @endforeach
                             </tr>
+
 
                             {{-- Investment made --}}
                             <tr>
                                 <td style="border-bottom: 1px solid #fff;"></td>
                                 <td>Any Investment on property (development/construction etc.)</td>
+
                                 @foreach($holders as $holder)
                                     @php
-                                        $val = ($holderData['holder'] == $holder && $data['investment_made']) 
-                                                ? $data['investment_made'] 
+                                        $val = ($holderData['holder'] === $holder)
+                                                ? ($data['investment_made'] ?? 'Not Applicable')
                                                 : 'Not Applicable';
-                                        if(is_numeric($val)) {
+
+                                        if (is_numeric($val)) {
                                             $grossTotal[$holder] = ($grossTotal[$holder] ?? 0) + (float)$val;
-                                            $val = number_format((float)$val,2);
+                                            $val = number_format((float)$val, 2);
                                         }
                                     @endphp
                                     <td>{{ $val }}</td>
                                 @endforeach
                             </tr>
+
 
                             {{-- Current Value --}}
                             <tr>
                                 <td></td>
                                 <td>Approximate Current Market Value</td>
+
                                 @foreach($holders as $holder)
                                     @php
-                                        $val = ($holderData['holder'] == $holder && $data['current_value']) 
-                                                ? $data['current_value'] 
+                                        $val = ($holderData['holder'] === $holder)
+                                                ? ($data['current_value'] ?? 'Not Applicable')
                                                 : 'Not Applicable';
-                                        if(is_numeric($val)) {
+
+                                        if (is_numeric($val)) {
                                             $grossTotal[$holder] = ($grossTotal[$holder] ?? 0) + (float)$val;
-                                            $val = number_format((float)$val,2);
+                                            $val = number_format((float)$val, 2);
                                         }
                                     @endphp
                                     <td>{{ $val }}</td>
                                 @endforeach
                             </tr>
-
                         @endif
                     @endforeach
                 @endforeach
@@ -1209,74 +1222,103 @@
             </tr>
         </table>
 
-
         <p class="indent-para">
-            <span style="font-weight: bold;">(9)</span><strong> Details of profession or occupation:</strong>
+            <span style="font-weight: bold;">(9)</span>
+            <strong> Details of profession or occupation:</strong>
+
             <p style="padding: 0 23px;">
-            (a) Self <span class="flex-input" contenteditable="true" style="min-width:200px; text-align: center;">Social Work & Politics</span>
+                (a) Self
+                <span class="flex-input" contenteditable="true" style="min-width:200px; text-align:center;">
+                    {{ ucwords($form->candidate_occupation ?? 'Not Applicable') }}
+                </span>
             </p>
+
             <p style="padding: 0 23px;">
-            (b) Spouse <span class="flex-input" contenteditable="true" style="min-width:200px; text-align: center;">Not Applicable</span>
+                (b) Spouse
+                <span class="flex-input" contenteditable="true" style="min-width:200px; text-align:center;">
+                    {{ ucwords($form->spouse_occupation ?? 'Not Applicable') }}
+                </span>
             </p>
         </p>
 
         <p class="indent-para">
             <span>(9A)</span> Details of source(s) of income:
+
             <p style="padding: 0 23px;">
-            (a) Self <span class="flex-input" contenteditable="true" style="min-width:200px; text-align: center;">Royalty and Bank Interst and others.</span>
+                (a) Self
+                <span class="flex-input" contenteditable="true" style="min-width:200px; text-align:center;">
+                    {{ $source_of_incomes['self'] ?? 'Not Applicable' }}
+                </span>
             </p>
+
             <p style="padding: 0 23px;">
-            (b) Spouse <span class="flex-input" contenteditable="true" style="min-width:200px; text-align: center;">Not Applicable</span>
+                (b) Spouse
+                <span class="flex-input" contenteditable="true" style="min-width:200px; text-align:center;">
+                    {{ $source_of_incomes['spouse'] ?? 'Not Applicable' }}
+                </span>
             </p>
+
             <p style="padding: 0 23px;">
-            (c) Source of income, if any, of dependents, <span class="flex-input" contenteditable="true" style="min-width:200px; text-align: center;">Not Applicable</span>
+                (c) Source of income, if any, of dependents,
+                <span class="flex-input" contenteditable="true" style="min-width:200px; text-align:center;">
+                    {{ $source_of_incomes['dependents'] ?? 'Not Applicable' }}
+                </span>
             </p>
         </p>
 
         <p class="indent-para">
             <span>(9B)</span> Contracts with appropriate Government and any public company or companies
-            <p style="padding: 0 23px;">
-            (a) details of contracts entered by the candidate <span class="flex-input" contenteditable="true" style="min-width:200px; text-align: center;">Not Applicable</span>
+
+            @php
+                $na = 'Not Applicable';
+            @endphp
+
+            <p style="padding: 0 23px;">(a) details of contracts entered by the candidate
+                <span class="flex-input" contenteditable="true" style="min-width:200px; text-align:center;">{{ $na }}</span>
             </p>
-            <p style="padding: 0 23px;">
-            (b) details of contracts entered into by spouse <span class="flex-input" contenteditable="true" style="min-width:200px; text-align: center;">Not Applicable</span>
+
+            <p style="padding: 0 23px;">(b) details of contracts entered into by spouse
+                <span class="flex-input" contenteditable="true" style="min-width:200px; text-align:center;">{{ $na }}</span>
             </p>
-            <p style="padding: 0 23px;">
-            (c) details of contracts entered into by dependents <span class="flex-input" contenteditable="true" style="min-width:200px; text-align: center;">Not Applicable</span>
+
+            <p style="padding: 0 23px;">(c) details of contracts entered into by dependents
+                <span class="flex-input" contenteditable="true" style="min-width:200px; text-align:center;">{{ $na }}</span>
             </p>
-            
-            <p style="padding: 0 23px;">
-            (d) details of contracts entered into by Hindu Undivided Family or trust in which the
-            
-            candidate or spouse or dependents have interest <span class="flex-input" contenteditable="true" style="min-width:200px; text-align: center;">Not Applicable</span>
+
+            <p style="padding: 0 23px;">(d) details of contracts entered into by HUF / trust
+                <span class="flex-input" contenteditable="true" style="min-width:200px; text-align:center;">{{ $na }}</span>
             </p>
+
             <div class="page-break"></div>
-            <p style="padding: 0 23px;">
-            (e) details of contracts, entered into by Partnership Firms in which candidate or
-                spouse or dependents are partners <span class="flex-input" contenteditable="true" style="min-width:200px; text-align: center;">Not Applicable</span>
+
+            <p style="padding: 0 23px;">(e) details of contracts entered into by Partnership Firms
+                <span class="flex-input" contenteditable="true" style="min-width:200px; text-align:center;">{{ $na }}</span>
             </p>
-            <p style="padding: 0 23px;">
-            (f) details of contracts, entered into by private companies in which candidate or
-                spouse or dependents have share <span class="flex-input" contenteditable="true" style="min-width:200px; text-align: center;">Not Applicable</span>
-            </p>
-        </p>
-        <p class="indent-para">
-            <span style="font-weight: bold;">(10)</span><strong> My educational qualification is as under:</strong>
-            <p style="padding: 0 23px;">
-            <span class="flex-input" contenteditable="true" style="min-width:400px; text-align: center;">(a) Passed Secondary Examination from Deshbandhu Sishu Sikshlaya in the year 1970</span>
-            </p>
-            <p style="padding: 0 23px;">
-            <span class="flex-input" contenteditable="true" style="min-width:400px; text-align: center;">(b) Graduation (B.A.) from Jogamaya Devi College (Calcutta University) In the year 1974</span>
-            </p>
-            <p style="padding: 0 23px;">
-            <span class="flex-input" contenteditable="true" style="min-width:400px; text-align: center;"> (c) M.A. from Calcutta University in the year 1977 (Examination held in the year 1979).</span>
-            </p>
-            <p style="padding: 0 23px;">
-            <span class="flex-input" contenteditable="true" style="min-width:400px; text-align: center;"> (d) LLB from Jogesh Chandra Chaudhury College of Law under the Calcutta University in the year 1982</span>
+
+            <p style="padding: 0 23px;">(f) details of contracts entered into by private companies
+                <span class="flex-input" contenteditable="true" style="min-width:200px; text-align:center;">{{ $na }}</span>
             </p>
         </p>
 
-        
+        <p class="indent-para">
+            <span style="font-weight: bold;">(10)</span>
+            <strong> My educational qualification is as under:</strong>
+
+            @foreach($education as $index => $edu)
+                <p style="padding: 0 23px;">
+                    <span class="flex-input"
+                        contenteditable="true"
+                        style="min-width:400px; text-align:center;">
+                        ({{ chr(97 + $index) }})
+                        {{ $edu['level'] ?? '' }}
+                        ({{ strtoupper($edu['degree'] ?? '') }})
+                        from {{ $edu['university'] ?? '' }}
+                        in the year {{ $edu['year'] ?? '' }}
+                    </span>
+                </p>
+            @endforeach
+        </p>
+
         <p>
             (Give details of highest School / University education mentioning the full form of the
             certificate/ diploma/ degree course, name of the School /College/ University and the year
@@ -1300,7 +1342,7 @@
                 </td>
                 <td style="text-align: center; font-weight: bold; vertical-align: middle;">
                     <span class="strike-out">Sh</span>/<span>Smt.</span>/<span class="strike-out">Kum</span>
-                    MAMATA BANERJEE
+                    {{ strtoupper($candidate->name) }}
                 </td>
             </tr>
             <tr>
@@ -1309,7 +1351,7 @@
                     Full postal address
                 </td>
                 <td style="text-align: center; font-weight: bold; vertical-align: middle;">
-                    30B, HARISH CHATTERJEE STREET,P.S-KALIGHAT, KOLKATA 700 026
+                    {{ strtoupper($form->postal_address ?? 'Not Applicable') }}
                 </td>
             </tr>
             <tr>
@@ -1319,8 +1361,8 @@
                     of
                 </td>
                 <td style="text-align: center; font-weight: bold; vertical-align: middle;">
-                    159-BHABANIPUR ASSEMBLY
-                        CONSTITUENCY WEST BENGAL
+                   {{ strtoupper($form->assembly->assembly_name_en ?? '') }}
+                    ASSEMBLY CONSTITUENCY {{ strtoupper($form->state ?? '') }}
                 </td>
             </tr>
             <tr>
@@ -1329,7 +1371,7 @@
                     Name of the political party which set up the candidate (otherwise write' Independent')
                 </td>
                 <td style="text-align: center; font-weight: bold; vertical-align: middle;">
-                    ALL INDIA TRINAMOOL CONGRESS
+                    {{ strtoupper($form->political_party_name ?? 'Independent') }}
                 </td>
             </tr>
             <tr>
@@ -1368,13 +1410,20 @@
                                 Total Income Shown
                             </th>
                         </tr>
+                        @php
+                            $candidatePan = collect($panDetails)->firstWhere('type','candidate');
+                            $candidateIncome = collect($incomes)->firstWhere('type','candidate');
+                        @endphp
 
                         <tr>
                             <td style="border:1px solid #fff; width:60px; border-right-color: #000;"></td>
                             <td>(a) Candidate</td>
-                            <td style="text-align: center; font-weight: bold; vertical-align: middle;">AHCPB8207F</td>
-                            <td style="text-align: center; font-weight: bold; vertical-align: middle;">F.Y-19-20</td>
-                            <td style="text-align: center; font-weight: bold; vertical-align: middle; border-right: 0;">RS. 10,34,370.00</td>
+                            <td style="text-align: center; font-weight: bold; vertical-align: middle;"><td>{{ $candidatePan['pan'] ?? 'Not Applicable' }}</td></td>
+                            <td style="text-align: center; font-weight: bold; vertical-align: middle;"><td>{{ $candidatePan['last_filed_year'] ?? 'Not Applicable' }}</td></td>
+                            <td style="text-align: center; font-weight: bold; vertical-align: middle; border-right: 0;">{{ isset($candidateIncome['income']) 
+                                ? number_format(array_sum($candidateIncome['income']), 2)
+                                : 'Not Applicable'
+                            }}</td>
                         </tr>
 
                         <tr>

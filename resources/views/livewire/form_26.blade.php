@@ -719,11 +719,10 @@
                                 <label class="form-label">Spouse</label>
                                 <input type="text"
                                     class="form-control"
-                                    readonly>
+                                    wire:model.defer="spouse_occupation">
                             </div>
                         </div>
                     </div>
-
 
                     <div class="col-md-12 mt-3">
                         <h6 class="fw-bold">Source(s) of Income</h6>
@@ -733,24 +732,25 @@
                                 <label class="form-label">Self</label>
                                 <input type="text"
                                     class="form-control"
-                                    wire:model.defer="sources_of_income">
+                                    wire:model.defer="source_of_incomes.self">
                             </div>
 
                             <div class="mb-2">
                                 <label class="form-label">Spouse</label>
                                 <input type="text"
                                     class="form-control"
-                                    readonly>
+                                    wire:model.defer="source_of_incomes.spouse">
                             </div>
 
                             <div class="mb-2">
                                 <label class="form-label">Dependents</label>
                                 <input type="text"
                                     class="form-control"
-                                    readonly>
+                                    wire:model.defer="source_of_incomes.dependents">
                             </div>
                         </div>
                     </div>
+
 
                     <div class="col-md-12 mt-3">
                         <h6 class="fw-bold">Educational Qualifications</h6>

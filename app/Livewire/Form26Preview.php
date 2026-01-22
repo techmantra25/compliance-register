@@ -20,6 +20,7 @@ class Form26Preview extends Component
     public $loans = [];
     public $governmentDues = [];
     public $education = [];
+    public $source_of_incomes = [];
 
     public function mount($id)
     {
@@ -44,6 +45,11 @@ class Form26Preview extends Component
         $loansAndDues = json_decode($this->form->loans_and_govt_dues, true) ?? [];
         $this->loans = $loansAndDues['loans'] ?? [];
         $this->governmentDues = $loansAndDues['government_dues'] ?? [];
+
+        $this->source_of_incomes = json_decode(
+            $this->form->source_of_incomes,
+            true
+        ) ?? [];
 
         $this->education = json_decode(
             $this->form->highest_educational_qualification,

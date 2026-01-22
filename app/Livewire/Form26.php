@@ -29,10 +29,16 @@ class Form26 extends Component
     public $twitter_account;
     public $pan_details = [];
     public $occupation;
-    public $sources_of_income;
+    public $spouse_occupation;
     public $asset_holders = [];
     public $immovable_assets = [];
     public $political_party_name = 'AITC';
+    public $source_of_incomes = [
+        'self' => null,
+        'spouse' => null,
+        'dependents' => null,
+    ];
+
 
     public $loan_holders = [
         [
@@ -191,7 +197,7 @@ class Form26 extends Component
             $this->government_dues = $loansAndDues['government_dues'] ?? $this->government_dues;
 
             $this->occupation = $this->existingForm->candidate_occupation;
-            $this->sources_of_income = $this->existingForm->source_of_incomes;
+            $this->sources_of_incomes = $this->existingForm->source_of_incomes;
 
             $this->educational_qualifications =
                 json_decode($this->existingForm->highest_educational_qualification, true)
@@ -488,7 +494,12 @@ class Form26 extends Component
                 ]),
 
                 'candidate_occupation' => $this->occupation,
-                'source_of_incomes' => $this->sources_of_income,
+                'spouse_occupation' => $this->spouse_occupation,
+                'source_of_incomes' => json_encode(
+                    is_array($this->source_of_income)
+                        ? array_filter($this->source_of_income)
+                        : []
+                ),
 
                 'highest_educational_qualification'
                     => json_encode($this->educational_qualifications),
