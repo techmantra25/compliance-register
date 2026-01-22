@@ -263,7 +263,7 @@ class Form26 extends Component
         'government_dues.*.holder' => 'nullable|string',
 
         'occupation' => 'nullable|string',
-        'sources_of_income' => 'nullable|string',
+        'sources_of_incomes' => 'nullable|string',
 
         'educational_qualifications' => 'nullable|array',
         'educational_qualifications.*.level' => 'nullable|string',

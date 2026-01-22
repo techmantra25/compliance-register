@@ -28,7 +28,7 @@ class NominationForm26 extends Model
     'movable_and_immovable_assets',
     'loans_govt_dues',
     'occupation',
-    'sources_of_income',
+    'sources_of_incomes',
     'highest_educational_qualification',
 ];
     
