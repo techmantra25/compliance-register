@@ -217,7 +217,6 @@
  }
 </style>
     <div class="form-container">
-        <form>
             <div class="keep-together">
                 <div class="pagenumber">
                     <div style="text-align: center; font-weight:bold;">Form 26</div>
@@ -1918,23 +1917,6 @@
         Magistrate before whom the Affidavit is sworn. 
             </p>
         </div>
-
-        <div class="text-end mt-4">
-            <button
-                type="button"
-                wire:click="downloadPdf"
-                class="btn btn-success"
-            >
-                <span wire:loading.remove>Download PDF</span>
-                <span wire:loading>Generating PDF...</span>
-            </button>
-
-            <a href="{{ url()->previous() }}" class="btn btn-secondary">
-                Back to Edit
-            </a>
-        </div>
-
-    </form>
 
 </div>
 
