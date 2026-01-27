@@ -32,6 +32,7 @@ class CandidateContactList extends Component
     public $agentsList = [];
     public $filter_by_assembly, $filter_by_district, $filter_by_phase;
     public $form2bLogs = [];
+    public $form26Logs = [];
 
     public $candidateFile, $csvError = null;
     
@@ -628,11 +629,18 @@ class CandidateContactList extends Component
     {
         $this->candidateId = $candidateId;
 
-        $this->form2bLogs = NominationLog::whereHas(
-            'nomination',
-            fn ($q) => $q->where('candidate_id', $candidateId)
-        )
+        $this->form2bLogs = NominationLog::whereHas('nomination', function ($q) use ($candidateId) {
+            $q->where('candidate_id', $candidateId)
+            ->where('form_type', 'form_2b');
+        })
         ->latest()
         ->get();
-    }
+
+        $this->form26Logs = NominationLog::whereHas('nomination', function ($q) use ($candidateId) {
+            $q->where('candidate_id', $candidateId)
+            ->where('form_type', 'form_26');
+        })
+        ->latest()
+        ->get();
+        }
 }

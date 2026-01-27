@@ -305,8 +305,8 @@
                                                         <i class="bi bi-file-earmark"></i> FORM 26
                                                     </a>
                                                     <div class="text-start">
-                                                        <h6 class="fw-bold mb-2">Generated Form 2B PDF</h6>
-                                                        @forelse($form2bLogs as $log)
+                                                        <h6 class="fw-bold mb-2">Generated Form 26 PDF</h6>
+                                                        @forelse($form26Logs as $log)
                                                             <div class="d-flex justify-content-between align-items-center border rounded p-2 mb-2">
                                                                 <div>
                                                                     <i class="bi bi-file-pdf text-danger me-1"></i>
@@ -321,7 +321,7 @@
                                                                 </a>
                                                             </div>
                                                         @empty
-                                                            <p class="text-muted small">No Form 2B generated yet.</p>
+                                                            <p class="text-muted small">No Form 26 generated yet.</p>
                                                         @endforelse
                                                     </div>
                                                 </div>
