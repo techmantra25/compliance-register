@@ -284,13 +284,13 @@
                     <div style="font-size: 16px; line-height: 2; text-align: justify;">
                         I nominate as a candidate for election to the Legislative Assembly from the
                         <span class="input-field input-field-large"
-                            style="width:228px;" readonly>{{ $nomination->assembly->assembly_name_en }}({{$nomination->assembly->assembly_code}})
+                            style="width:228px;" readonly>{{ optional($nomination->assembly)->assembly_name_en }}-{{ optional($nomination->assembly)->assembly_number }}
                         </span>
                     </div>
 
                     <div style="font-size: 16px; line-height: 2;">
                         Candidate's name <span class="input-field input-field-large"
-                        readonly style="width: 300px;">{{$nomination->candidate->name}}</span>
+                        readonly style="width: 300px;">{{ucwords($nomination->candidate->name)}}</span>
                         <div wire:key="relation-type-1">
                             <label>
                                 <input type="radio" name="relation_type_main" wire:model="relation_type" value="father">
