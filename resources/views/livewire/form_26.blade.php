@@ -195,14 +195,14 @@
                                     </label>
 
                                     <div class="row g-2">
-                                        {{-- @foreach ($row['income'] as $year => $value)
+                                        @foreach ($row['income'] as $year => $value)
                                             <div class="col-md-2">
                                                 <label class="small text-muted">{{ $year }}</label>
                                                 <input type="number"
                                                     class="form-control"
                                                     wire:model.defer="pan_details.{{ $index }}.income.{{ $year }}">
                                             </div>
-                                        @endforeach --}}
+                                        @endforeach
                                     </div>
                                 </div>
                             </div>
@@ -712,7 +712,7 @@
                                 <label class="form-label">Self</label>
                                 <input type="text"
                                     class="form-control"
-                                    wire:model.defer="occupation">
+                                    wire:model.defer="candidate_occupation">
                             </div>
 
                             <div class="mb-2">

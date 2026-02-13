@@ -304,6 +304,26 @@
                                                     class="btn btn-outline-primary w-100 mt-3">
                                                         <i class="bi bi-file-earmark"></i> FORM 26
                                                     </a>
+                                                    <div class="text-start">
+                                                        <h6 class="fw-bold mb-2">Generated Form 26 PDF</h6>
+                                                        @forelse($form26Logs as $log)
+                                                            <div class="d-flex justify-content-between align-items-center border rounded p-2 mb-2">
+                                                                <div>
+                                                                    <i class="bi bi-file-pdf text-danger me-1"></i>
+                                                                    <small class="text-muted">
+                                                                        {{ $log->created_at->format('d M Y, h:i A') }}
+                                                                    </small>
+                                                                </div>
+
+                                                                <a href="{{ route('admin.candidates.log.pdf', $log->id) }}"
+                                                                class="btn btn-sm btn-outline-success">
+                                                                    Download
+                                                                </a>
+                                                            </div>
+                                                        @empty
+                                                            <p class="text-muted small">No Form 26 generated yet.</p>
+                                                        @endforelse
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
