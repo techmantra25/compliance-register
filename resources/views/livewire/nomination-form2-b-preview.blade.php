@@ -244,7 +244,6 @@
         }
     </style>
     <div class="form-container">
-        <!---keep togathor start-->
         <form wire:submit.prevent="save" enctype="multipart/form-data">
             <div class="keep-together">
                 <div class="form-header">
