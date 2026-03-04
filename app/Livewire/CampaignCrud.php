@@ -229,6 +229,7 @@ class CampaignCrud extends Component
            $this->saveCampaignStatus();
         }
     }
+
     public function resetSelectField(){
         return redirect()->route('admin.campaigns');
     }
@@ -294,6 +295,77 @@ class CampaignCrud extends Component
 
         $this->dispatch('close-reschedule-modal');
         $this->dispatch('toastr:success', message: "Campaign status updated successfully!");
+    }
+
+    public function saveCampaigner()
+    {
+        try {
+            $this->validate($this->campaignerRules);
+            } catch (\Exception $e) {
+                session()->flash('error', "Validation failed: " . $e->getMessage());
+                return;
+            }
+
+        try {
+            $filePath = $this->campaignerFile->getRealPath();
+            $file = fopen($filePath, 'r');
+
+            if (!$file) {
+                session()->flash('error', "Unable to open CSV file.");
+                return;
+            }
+
+            $header = fgetcsv($file);
+            $errors = [];
+            $rowNumber = 1;
+
+            while (($row = fgetcsv($file)) !== false) {
+                $rowNumber++;
+
+                try {
+                    $name   = $row[0] ?? null;
+                    $mobile = $row[1] ?? null;
+                    $extra  = $row[2] ?? null;
+
+                    if (!preg_match('/^[0-9]{10}$/', $mobile)) {
+                        $errors[] = "Row $rowNumber: Mobile number '$mobile' must be exactly 10 digits.";
+                        continue;
+                    }
+
+                    // Check duplicate mobile
+                    if (Campaigner::where('mobile', $mobile)->exists()) {
+                        $errors[] = "Row $rowNumber: Mobile number '$mobile' already exists.";
+                        continue;
+                    }
+
+                    Campaigner::create([
+                        'name'          => $name,
+                        'mobile'        => $mobile,
+                        'extra_details' => $extra,
+                    ]);
+
+                } catch (\Exception $e) {
+                    $errors[] = "Row $rowNumber: Database error - " . $e->getMessage();
+                    continue;
+                }
+            }
+
+            fclose($file);
+
+        } catch (\Exception $e) {
+            session()->flash('error', "File processing failed: " . $e->getMessage());
+            return;
+        }
+
+        if (!empty($errors)) {
+            session()->flash('error', implode("<br>", $errors));
+            return;
+        }
+
+        $this->reset('campaignerFile');
+        session()->flash('success', 'Campaigners Imported Successfully!');
+
+        $this->dispatch('close-modal', ['modalId' => 'uploadcampaignerModal']);
     }
 
 

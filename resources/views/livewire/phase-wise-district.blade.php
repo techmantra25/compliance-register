@@ -74,7 +74,7 @@
                                 <div class="color-grid"><span style="background-color: #F46674;"></span>Rejected</div>
 
                             </div>
-                            <a href="{{route('admin.dashboard')}}" class="btm-small blue-btm">Back to State
+                            <a href="{{route('admin.dashboard')}}" class="btm-small">Back to State
                                 Dashboard
                             </a>
                         </div>

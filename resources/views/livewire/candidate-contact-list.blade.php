@@ -1,6 +1,5 @@
 <div>
     <div class="row g-4">
-        <!--  Page Header -->
         <div class="d-flex flex-wrap justify-content-between align-items-center">
             <div>
                 <h4 class="fw-bold mb-1 text-dark">
@@ -37,7 +36,7 @@
                 </button>
                 @endif
             </div>
-        </div>
+        </div> 
 
         <!--  Main Content -->
         <div class="col-lg-12">
@@ -51,7 +50,7 @@
                                 <option value="">Filter by Assembly</option>
                                 @foreach ($assemblies as $assembly)
                                 <option value="{{ $assembly->id }}">
-                                    {{ $assembly->assembly_name_en }} ({{ $assembly->assembly_code }})
+                                    {{ $assembly->assembly_name_en }} -{{ $assembly->assembly_number }}
                                 </option>
                                 @endforeach
                             </select>
@@ -143,7 +142,7 @@
                                     </td>
                                     <td>
                                         <span> {{ $candidate->assembly->assembly_name_en ?? 'N/A' }}
-                                            ({{ $candidate->assembly->assembly_code ?? '-' }})
+                                            -{{ $candidate->assembly->assembly_number ?? '-' }}
                                         </span>
                                     </td>
                                     <td>
@@ -242,13 +241,93 @@
                                             </a>
                                             @endif
 
-                                            <a href="{{ route('admin.candidates.form5', $candidate->id) }}"
+                                            {{-- <a href="{{ route('admin.candidates.form5', $candidate->id) }}"
                                                 class="btn btn-sm btn-outline-primary mt-1"
                                                 title="Candidate Journey Timeline">
                                                 FORM 5
-                                            </a>
+                                            </a> --}}
+                                            <button
+                                                class="btn btn-sm btn-outline-primary mt-1"
+                                                wire:click="openFormModal({{ $candidate->id }})"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#formModal-{{ $candidate->id }}"
+                                                title="Forms">
+                                                <i class="bi bi-file-earmark-text"></i> FORM
+                                            </button>
                                         @endif
                                     </td>
+
+                                    <!-- modal -->
+                                    <div class="modal fade" id="formModal-{{ $candidate->id }}" tabindex="-1"
+                                        aria-labelledby="formModalLabel-{{ $candidate->id }}" aria-hidden="true" wire:ignore.self>
+                                        <div class="modal-dialog modal-dialog-centered">
+                                            <div class="modal-content border-0 shadow">
+
+                                                <!-- Modal Header -->
+                                                <div class="modal-header bg-primary text-white">
+                                                    <h5 class="modal-title" id="formModalLabel-{{ $candidate->id }}">
+                                                        <i class="bi bi-file-earmark-text me-1"></i> Candidate Forms
+                                                    </h5>
+                                                    <button type="button" class="btn-close btn-close-white"
+                                                            data-bs-dismiss="modal"></button>
+                                                </div>
+
+                                                <!-- Modal Body -->
+                                                <div class="modal-body">
+                                                    <a href="{{ route('admin.candidates.form2B', $candidate->id) }}"
+                                                    class="btn btn-outline-primary w-100 mb-3">
+                                                        <i class="bi bi-file-earmark"></i> FORM 2B
+                                                    </a>
+
+                                                    <div class="text-start">
+                                                        <h6 class="fw-bold mb-2">Generated Form 2B PDF</h6>
+                                                        @forelse($form2bLogs as $log)
+                                                            <div class="d-flex justify-content-between align-items-center border rounded p-2 mb-2">
+                                                                <div>
+                                                                    <i class="bi bi-file-pdf text-danger me-1"></i>
+                                                                    <small class="text-muted">
+                                                                        {{ $log->created_at->format('d M Y, h:i A') }}
+                                                                    </small>
+                                                                </div>
+
+                                                                <a href="{{ route('admin.candidates.log.pdf', $log->id) }}"
+                                                                class="btn btn-sm btn-outline-success">
+                                                                    Download
+                                                                </a>
+                                                            </div>
+                                                        @empty
+                                                            <p class="text-muted small">No Form 2B generated yet.</p>
+                                                        @endforelse
+                                                    </div>
+
+                                                    <a href="{{ route('admin.candidates.form26', $candidate->id) }}"
+                                                    class="btn btn-outline-primary w-100 mt-3">
+                                                        <i class="bi bi-file-earmark"></i> FORM 26
+                                                    </a>
+                                                    <div class="text-start">
+                                                        <h6 class="fw-bold mb-2">Generated Form 26 PDF</h6>
+                                                        @forelse($form26Logs as $log)
+                                                            <div class="d-flex justify-content-between align-items-center border rounded p-2 mb-2">
+                                                                <div>
+                                                                    <i class="bi bi-file-pdf text-danger me-1"></i>
+                                                                    <small class="text-muted">
+                                                                        {{ $log->created_at->format('d M Y, h:i A') }}
+                                                                    </small>
+                                                                </div>
+
+                                                                <a href="{{ route('admin.candidates.log.pdf', $log->id) }}"
+                                                                class="btn btn-sm btn-outline-success">
+                                                                    Download
+                                                                </a>
+                                                            </div>
+                                                        @empty
+                                                            <p class="text-muted small">No Form 26 generated yet.</p>
+                                                        @endforelse
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </tr>
                                 @empty
                                 <tr>
@@ -258,7 +337,6 @@
                                 </tr>
                                 @endforelse
                             </tbody>
-
                         </table>
                     </div>
 
@@ -330,8 +408,6 @@
                         <i class="bi bi-upload me-1"></i>Upload
                     </button>
                 </div>
-
-
             </div>
         </div>
     </div>
@@ -353,35 +429,35 @@
                     wire:key="agent-form-{{ $editId ?? 'new' }}">
                     <div class="modal-body">
                         <div class="row">
-                            {{-- 🔹 Agent Name --}}
+                            {{-- ðŸ”¹ Agent Name --}}
                             <div class="mb-3 col-md-6">
                                 <label class="form-label">Name <span class="text-danger">*</span></label>
                                 <input type="text" wire:model="name" class="form-control">
                                 @error('name') <small class="text-danger">{{ $message }}</small> @enderror
                             </div>
 
-                            {{-- 🔹 Designation --}}
+                            {{-- ðŸ”¹ Designation --}}
                             {{-- <div class="mb-3 col-md-6">
                                 <label class="form-label">Designation</label>
                                 <input type="text" wire:model="designation" class="form-control">
                                 @error('designation') <small class="text-danger">{{ $message }}</small> @enderror
                             </div> --}}
 
-                            {{-- 🔹 Email --}}
+                            {{-- ðŸ”¹ Email --}}
                             <div class="mb-3 col-md-6">
                                 <label class="form-label">Email</label>
                                 <input type="email" wire:model="email" class="form-control">
                                 @error('email') <small class="text-danger">{{ $message }}</small> @enderror
                             </div>
 
-                            {{-- 🔹 Contact Number --}}
+                            {{-- ðŸ”¹ Contact Number --}}
                             <div class="mb-3 col-md-6">
                                 <label class="form-label">Contact Number <span class="text-danger">*</span></label>
                                 <input type="text" wire:model="contact_number" class="form-control">
                                 @error('contact_number') <small class="text-danger">{{ $message }}</small> @enderror
                             </div>
 
-                            {{-- 🔹 Alt Contact Number --}}
+                            {{-- ðŸ”¹ Alt Contact Number --}}
                             <div class="mb-3 col-md-6">
                                 <label class="form-label">Alt Contact Number</label>
                                 <input type="text" wire:model="contact_number_alt_1" class="form-control">
@@ -389,7 +465,7 @@
                                 @enderror
                             </div>
 
-                            {{-- 🔹 Agent --}}
+                            {{-- ðŸ”¹ Agent --}}
                             <div class="mb-3 col-md-12">
                                 <label class="form-label">Assemblies <span class="text-danger">*</span></label>
                                 <div wire:ignore>
@@ -399,7 +475,7 @@
                                         <option value="{{ $assembly->id }}"  data-code="{{ $assembly->assembly_code }}"
                                            data-name="{{ $assembly->assembly_name_en }}"
                                            data-number="{{ $assembly->assembly_number }}">
-                                            {{ $assembly->assembly_name_en }} ({{ $assembly->assembly_code }})
+                                            {{ $assembly->assembly_name_en }} -{{ $assembly->assembly_number }}
                                         </option>
                                         @endforeach
                                     </select>

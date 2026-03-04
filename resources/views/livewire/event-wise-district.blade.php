@@ -84,7 +84,7 @@
                                 <div class="color-grid"><span style="background-color: #1BC976;"></span>Approved Copy
                                     Received</div>
                             </div>
-                            <a href="{{route('admin.dashboard')}}" class="btm-small blue-btm">Back to State Dashboard</a>
+                            <a href="{{route('admin.dashboard')}}" class="btm-small">Back to State Dashboard</a>
                         </div>
                     </div>
                 </div>

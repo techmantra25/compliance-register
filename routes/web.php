@@ -29,8 +29,13 @@ use App\Livewire\{
     EventWiseDistrict,
     MccViolationCrud,
     MccLogDetails,
-    PhaseWiseMcc
+    PhaseWiseMcc,
+    NominationForm2B,
+    NominationForm2BPreview,
+    Form26,
+    Form26Preview
 };
+use App\Http\Controllers\NominationPdfController;
 use App\Livewire\Candidate\DocumentComments;
 use App\Http\Controllers\CandidateController;
 
@@ -105,7 +110,14 @@ Route::prefix('/admin')->middleware('auth:admin')->group(function () {
     
     Route::prefix('candidates')->group(function () {
         Route::get('/journey/{id}', CandidateJourney::class)->name('admin.candidates.journey');
-        Route::get('/form-5/{id}', CandidateForm5Update::class)->name('admin.candidates.form5');
+       // Route::get('/form-5/{id}', CandidateForm5Update::class)->name('admin.candidates.form5');
+        Route::get('/form-2B/{id}', NominationForm2B::class)->name('admin.candidates.form2B');
+        Route::get('/form-2B/{id}/preview', NominationForm2BPreview::class)->name('admin.candidates.form2B.preview');
+        Route::get('/form-26/{id}', Form26::class)->name('admin.candidates.form26');
+        Route::get('/form-26/{id}/preview',Form26Preview::class)->name('admin.candidates.form26.preview');
+        Route::get('/form-2B/pdf/{id}', [NominationPdfController::class, 'download'])->name('admin.candidates.form2B.pdf');
+        Route::get('/nomination-log/pdf/{log}',[NominationPdfController::class, 'downloadFromLog'])->name('admin.candidates.log.pdf');
+        Route::get('/form-26/pdf/{id}', [NominationPdfController::class, 'downloadPdf'])->name('admin.candidates.form26.pdf');
         Route::get('/nominations', CandidateContactList::class)->name('admin.candidates.contacts');
         Route::get('/social-media', DiscrepancyReportCrud::class)->name('admin.candidates.discrepancies.report');
         // Route::get('/Candidate Discrepancy Reports', [CandidateController::class, 'nominations'])->name('admin.candidates.nominations');
@@ -114,6 +126,7 @@ Route::prefix('/admin')->middleware('auth:admin')->group(function () {
         Route::get('/documents', CandidateDocumentCollection::class)->name('admin.candidates.documents');
         Route::get('/documents/comments/{document}', DocumentComments::class)->name('admin.candidates.documents.comments');
         Route::get('/documents/vetting/{document}', CandidateDocumentVetting::class)->name('admin.candidates.documents.vetting');
+
     });
 
 

@@ -7,7 +7,7 @@
                         <div class="col-md-12 mb-4">
 
                             <div class="inner-wrapper">
-                                <div class="title-head">MCC Phase {{ $phaseName }} District View</div>
+                                <div class="title-head">MCC {{ $phaseName }} District View</div>
 
                                 <div class="wrappper-bpdy">
                                     <div class="bar-chirt-option">
@@ -52,7 +52,7 @@
                                         <div class="color-grid"><span style="background-color: #FDB747;"></span>Processed</div>
                                         <div class="color-grid"><span style="background-color: #1BC976;"></span>Confirm Resolved</div>
                                     </div>
-                                    <a href="{{route('admin.dashboard')}}" class="btm-small blue-btm">Back to State Dashboard</a>
+                                    <a href="{{route('admin.dashboard')}}" class="btm-small">Back to State Dashboard</a>
                                 </div>
                             </div>
                         </div>

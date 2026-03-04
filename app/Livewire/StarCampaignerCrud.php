@@ -16,6 +16,7 @@ class StarCampaignerCrud extends Component
     public $search = '';
 
     public $campaignerFile;
+    public $saveCampaigner;
     protected $campaignerRules = [
         'campaignerFile' => 'required|mimes:csv,txt|max:10240',
     ];
