@@ -51,30 +51,34 @@
         <div class="col-lg-12">
             <div class="card shadow-sm border-0 p-3 filter-card">
 
-                <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                    <h5 class="fw-bold mb-0">Campaigns</h5>
-                    <div class="d-flex align-items-center">
-                        <div wire:ignore>
+                <div class="card-header bg-white">
+
+                    {{-- ROW 1 : FILTERS --}}
+                    <div class="row g-2 mb-2">
+
+                        <div class="col-md-3" wire:ignore>
                             <select wire:model="filter_by_assembly" class="form-select chosen-select">
                                 <option value="">Filter by Assembly</option>
                                 @foreach ($assembly as $assemb)
-                                <option value="{{ $assemb->id }}">
-                                    {{ $assemb->assembly_name_en }} ({{ $assemb->assembly_code }})
-                                </option>
+                                    <option value="{{ $assemb->id }}">
+                                        {{ $assemb->assembly_name_en }} ({{ $assemb->assembly_code }})
+                                    </option>
                                 @endforeach
                             </select>
                         </div>
-                        <div  wire:ignore>
+
+                        <div class="col-md-3" wire:ignore>
                             <select wire:model="filter_by_district" class="form-select chosen-select">
                                 <option value="">Filter by District</option>
                                 @foreach ($districts as $district)
-                                <option value="{{ $district->id }}">
-                                    {{ $district->name_en }} ({{ $district->name_bn }})
-                                </option>
+                                    <option value="{{ $district->id }}">
+                                        {{ $district->name_en }} ({{ $district->name_bn }})
+                                    </option>
                                 @endforeach
                             </select>
                         </div>
-                        <div  wire:ignore>
+
+                        <div class="col-md-3" wire:ignore>
                             <select wire:model="filter_by_zone" class="form-select chosen-select">
                                 <option value="">Filter by Zone</option>
                                 @foreach ($zones as $z)
@@ -82,15 +86,30 @@
                                 @endforeach
                             </select>
                         </div>
-                        <input type="text" wire:model="search" wire:keyup="filterCampaign($event.target.value)"
-                            class="form-control form-control-sm w-auto me-2"
-                            placeholder="Search here...">
 
+                        <div class="col-md-3">
+                            <select wire:model="filter_by_status" class="form-select" wire:change="filterStatus($event.target.value)">
+                                <option value="">Filter by Status</option>
+                                @foreach ($statuses as $status_item)
+                                    <option value="{{ $status_item }}">{{ ucwords($status_item) }}</option>
+                                @endforeach
+                            </select>
+                        </div>
 
-                        <button class="btn btn-sm btn-danger" wire:click="resetFilters">
+                    </div>
+
+                    {{-- ROW 2 : SEARCH + RESET --}}
+                    <div class="d-flex align-items-center gap-2 justify-content-end">
+
+                        <input type="text" wire:model="search" wire:keyup="filterCampaign($event.target.value)" class="form-control form-control-sm w-auto me-2" placeholder="Search here...">
+
+                        <button class="btn btn-sm btn-danger"
+                            wire:click="resetFilters">
                             <i class="bi bi-arrow-clockwise"></i> Reset
                         </button>
+
                     </div>
+
                 </div>
 
                 <div class="card-body p-2">
@@ -113,7 +132,7 @@
 
                             <tbody>
                                 @forelse($campaigns as $index => $camp)
-                                <tr class="text-center">
+                                <tr class="text-center" wire:key="item-{{$index}}">
 
                                     <!-- SL -->
                                     <td class="fw-bold text-dark">
@@ -476,12 +495,17 @@
     <link rel="stylesheet" href="{{ asset('assets/css/component-chosen.css') }}">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{{ asset('assets/js/chosen.jquery.js') }}"></script>
-    <script>
-        window.addEventListener('toastr:error', e => toastr.error(e.detail.message));
-        window.addEventListener('toastr:success', e => toastr.success(e.detail.message));
-    </script>
+        <script>
+            window.addEventListener('toastr:error', e => toastr.error(e.detail.message));
+            window.addEventListener('toastr:success', e => toastr.success(e.detail.message));
+        </script>
 
     <script>
+        window.addEventListener('reload-page', () => {
+            setTimeout(() => {
+                location.reload();
+            }, 2000); // 2 seconds
+        });
         function initChosen() {
             $('.chosen-select').chosen({
                 width: '100%',

@@ -113,6 +113,11 @@
                                 ->where('event_required_permission_id', $permission->id)
                                 ->orderBy('id', 'desc')
                                 ->get();
+                            $latestData = App\Models\CampaignWisePermission::where('campaign_id', $camp->id)
+                                ->where('status', 'skip')
+                                ->where('event_required_permission_id', $permission->id)
+                                ->latest('id')
+                                ->first();
 
                             $latest = $records->first();  // latest entry
                         @endphp
@@ -146,16 +151,20 @@
                                                     <span class="badge bg-success">Uploaded</span>
                                                 @elseif($row->status == 'rejected')
                                                     <span class="badge bg-danger">Rejected</span>
+                                                @elseif($row->status == 'skip')
+                                                    <span class="badge bg-success">Skipped</span>
                                                 @else
                                                     <span class="badge bg-warning text-dark">Pending</span>
                                                 @endif
                                             </div>
 
                                             <div>
-                                                <a href="{{ asset($row->file) }}" target="_blank" 
-                                                class="btn btn-sm btn-outline-secondary">
-                                                    <i class="bi bi-eye"></i> View
-                                                </a>
+                                                @if($row->status !== 'skip')
+                                                    <a href="{{ asset($row->file) }}" target="_blank" 
+                                                        class="btn btn-sm btn-outline-secondary">
+                                                        <i class="bi bi-eye"></i> View
+                                                    </a>
+                                                @endif
                                             </div>
                                         </div>
 
@@ -190,10 +199,20 @@
 
                                             {{-- Uploaded Info --}}
                                             <div>
-                                                <i class="bi bi-upload me-1"></i>
-                                                Uploaded By: <strong>{{ $row->uploadedBy ? $row->uploadedBy->name : 'N/A' }}</strong>
-                                                @if($row->uploaded_at)
-                                                    — {{ \Carbon\Carbon::parse($row->uploaded_at)->format('d M Y h:i A') }}
+                                                @if($row->status === 'skip')
+                                                    <i class="bi bi-x-circle text-secondary me-1"></i>
+                                                    Skipped By:
+                                                    <strong>{{ $row->uploadedBy?->name ?? 'N/A' }}</strong>
+                                                    @if($row->uploaded_at)
+                                                        — {{ \Carbon\Carbon::parse($row->uploaded_at)->format('d M Y h:i A') }}
+                                                    @endif
+                                                @else
+                                                    <i class="bi bi-upload me-1"></i>
+                                                    Uploaded By:
+                                                    <strong>{{ $row->uploadedBy?->name ?? 'N/A' }}</strong>
+                                                    @if($row->uploaded_at)
+                                                        — {{ \Carbon\Carbon::parse($row->uploaded_at)->format('d M Y h:i A') }}
+                                                    @endif
                                                 @endif
                                             </div>
                                             {{-- Remarks --}}
@@ -206,24 +225,33 @@
 
                                         </div>
                                     </div>
-
                                 @empty
                                     <span class="text-muted text-center">No uploads yet</span>
                                 @endforelse
                             </td>
 
                             <td class="text-center">
-
-                                <button class="btn btn-sm btn-primary"
+                                @if($latestData)
+                                    <button class="btn btn-sm btn-danger"
+                                        onclick="confirmRevoke({{ $permission->id }})">
+                                        <i class="bi bi-arrow-counterclockwise me-1"></i> Revoke Skip
+                                    </button>
+                                @else
+                                    <button class="btn btn-sm btn-primary"
                                     wire:click="uploadApplied({{ $permission->id }}, {{$camp->id}})">
-                                    <i class="bi bi-upload me-1"></i> Applied Copy
-                                </button>
+                                        <i class="bi bi-upload me-1"></i> Applied Copy
+                                    </button>
 
-                                <button class="btn btn-sm btn-warning mt-1"
-                                    wire:click="uploadApproved({{ $permission->id }}, {{$camp->id}})">
-                                    <i class="bi bi-upload me-1"></i> Approved Copy
-                                </button>
-
+                                    <button class="btn btn-sm btn-warning mt-1"
+                                        wire:click="uploadApproved({{ $permission->id }}, {{$camp->id}})">
+                                        <i class="bi bi-upload me-1"></i> Approved Copy
+                                    </button>
+                                    <button class="btn btn-sm btn-secondary mt-1"
+                                        onclick="confirmSkip({{ $permission->id }})">
+                                        <i class="bi bi-x-circle me-1"></i> Skip
+                                    </button>
+                                @endif
+                                
                             </td>
 
                         </tr>
@@ -367,6 +395,37 @@
                 }).then((result) => {
                     if (result.isConfirmed) {
                         @this.call('approveDocument', id);
+                    }
+                });
+            }
+            function confirmSkip(permissionId) {
+                Swal.fire({
+                    title: "Are you sure?",
+                    text: "You are going to skip this document.",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#6c757d",
+                    cancelButtonColor: "#d33",
+                    confirmButtonText: "Yes, Skip"
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        @this.call('markAsSkipped', permissionId);
+                    }
+                });
+            }
+
+            function confirmRevoke(permissionId) {
+                Swal.fire({
+                    title: "Are you sure?",
+                    text: "You want to revoke the skipped document.",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#dc3545",
+                    cancelButtonColor: "#6c757d",
+                    confirmButtonText: "Yes, Revoke"
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        @this.call('revokeSkip', permissionId);
                     }
                 });
             }

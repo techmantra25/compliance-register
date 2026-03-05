@@ -18,18 +18,22 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\CandidateAgent;
 use App\Models\CandidateDocumentType;
 use App\Models\NominationLog;
+use Maatwebsite\Excel\Concerns\WithMultipleSheets;
+use Maatwebsite\Excel\Concerns\FromArray;
+use Maatwebsite\Excel\Concerns\WithTitle;
 
 class CandidateContactList extends Component
 {
     use WithPagination, WithFileUploads;
 
     public $search = '';
-    public $name, $designation, $email, $contact_number, $contact_number_alt_1, $contact_number_alt_2, $assembly_id, $type = 'Candidate';
+    public $filter_by_status,$name,$filter_by_document, $designation, $email, $contact_number, $contact_number_alt_1, $contact_number_alt_2, $assembly_id, $type = 'Candidate';
     public $assemblies,$districts,$phases;
     public $editMode = false;
     public $editId,$candidateId,$required_document;
     public $authUser;
     public $agentsList = [];
+    public $filter_by_document_array = [];
     public $filter_by_assembly, $filter_by_district, $filter_by_phase;
     public $form2bLogs = [];
     public $form26Logs = [];
@@ -175,6 +179,31 @@ class CandidateContactList extends Component
     public function filterCandidates($searchTerm)
     {
         $this->search = $searchTerm;
+    }
+    public function filterByStatus($filter_by_status)
+    {
+        $this->filter_by_status = $filter_by_status;
+    }
+    public function filterByDocument($filter_by_document)
+    {
+        if($filter_by_document=='all'){
+            $this->filter_by_document_array = [
+                'verified_pending_submission',
+                'ready_for_vetting',
+            ];
+        }elseif($filter_by_document=='missing'){
+            $this->filter_by_document_array = [
+                'not_received_form',
+                'rejected'
+            ];
+        }elseif($filter_by_document=='partial'){
+            $this->filter_by_document_array = [
+                'incomplete_additional_required',
+                'vetting_in_progress'
+            ];
+        }else{
+            $this->filter_by_document_array = [];
+        }
     }
     public function edit($id)
     {
@@ -345,11 +374,12 @@ class CandidateContactList extends Component
         }
     }
 
+
     public function resetForm()
     {
         $this->reset(['name', 'designation', 'email', 'contact_number', 'contact_number_alt_1', 
         'assembly_id', 'editMode', 'editId',  'search',
-        'filter_by_assembly',
+        'filter_by_assembly','filter_by_document','filter_by_status',
         'filter_by_district',
         'filter_by_phase',]);
         $this->search = '';
@@ -391,18 +421,23 @@ class CandidateContactList extends Component
                     throw new \Exception("Row " . ($index + 2) . ": Assembly code is required.");
                 }
 
-                if (empty($data['candidate_name']) || empty($data['candidate_mobile'])) {
-                    throw new \Exception("Row " . ($index + 2) . ": Candidate name and mobile are required.");
+                // Candidate Name is required
+                if (empty($data['candidate_name'])) {
+                    throw new \Exception("Row " . ($index + 2) . ": Candidate name is required.");
                 }
 
-                 // Candidate Mobile must be 10 digits
-                if (!preg_match('/^[0-9]{10}$/', $data['candidate_mobile'])) {
+                // Candidate Mobile is optional, but if given must be exactly 10 digits
+                if (!empty($data['candidate_mobile']) && 
+                    !preg_match('/^[0-9]{10}$/', $data['candidate_mobile'])) {
+                    
                     throw new \Exception("Row " . ($index + 2) . ": Candidate mobile must be exactly 10 digits.");
                 }
 
                 // Candidate Email validation
-                if (!empty($data['candidate_email']) && 
+                if (isset($data['candidate_email']) && 
+                    $data['candidate_email'] !== '' && 
                     !filter_var($data['candidate_email'], FILTER_VALIDATE_EMAIL)) {
+                    
                     throw new \Exception("Row " . ($index + 2) . ": Candidate email is invalid.");
                 }
 
@@ -421,7 +456,6 @@ class CandidateContactList extends Component
                 $existingCandidate = DB::table('candidates')
                     ->where('assembly_id', $assembly_id)
                     ->first();
-
                 $oldData = $existingCandidate ? (array) $existingCandidate : null;
 
                 // Insert or Update
@@ -471,7 +505,7 @@ class CandidateContactList extends Component
 
 
         }  catch (\Exception $e) {
-            //dd($e->getMessage());
+            // dd($e->getMessage());
             DB::rollBack();
 
             $this->csvError = $e->getMessage();
@@ -499,6 +533,7 @@ class CandidateContactList extends Component
     private function getFilteredQuery()
     {
         return Candidate::query()
+            // ->where('id',7)
             ->where('type', 'Candidate')
             ->when($this->search, function ($q) { 
                 $q->where(function ($sub) {
@@ -525,36 +560,12 @@ class CandidateContactList extends Component
                     });
                 });
             })
+            ->when($this->filter_by_status, fn($q) => $q->where('document_collection_status', $this->filter_by_status))
+            ->when($this->filter_by_document, fn($q) => $q->whereIn('document_collection_status', $this->filter_by_document_array))
             ->when($this->filter_by_assembly, fn($q) => $q->where('assembly_id', $this->filter_by_assembly))
             ->when($this->filter_by_district, fn($q) => $q->whereHas('assembly.district', fn($d) => $d->where('id', $this->filter_by_district)))
             ->when($this->filter_by_phase, fn($q) => $q->whereHas('assembly.assemblyPhase', fn($p) => $p->where('phase_id', $this->filter_by_phase)))
         ->with(['assembly.district', 'assembly.assemblyPhase.phase', 'documents']);
-    }
-
-
-    public function render()
-    {
-        $candidates = $this->getFilteredQuery()
-        ->orderByDesc('id')
-        ->paginate(20);
-
-        // if ($this->authUser->role === "legal_associate") {
-        //     $collection = $candidates->getCollection();
-
-        //     $filtered = $collection->filter(function ($candidate) {
-        //         if (!$candidate) return false;
-
-        //         $uploaded_documents = $candidate->documents->groupBy('type')->count();
-        //         return $uploaded_documents == $this->required_document;
-        //     })->values();
-
-        //     $candidates->setCollection($filtered);
-        // }
-
-        return view('livewire.candidate-contact-list', [
-            'candidates' => $candidates,
-            'assemblies' => $this->assemblies,
-        ])->layout('layouts.admin');
     }
 
     public function exportCsv()
@@ -642,5 +653,134 @@ class CandidateContactList extends Component
         })
         ->latest()
         ->get();
+    }
+
+    public function exportExcel()
+    {
+        $data = $this->getFilteredQuery()->orderByDesc('id')->get();
+        // Dummy Data
+        $required_doc = CandidateDocumentType::pluck('name', 'key')->toArray();
+        
+        $candidatesArray = [];
+        foreach ($data as $key => $item) {
+
+            $documents = $item->documents
+                ->groupBy('type')
+                ->map(function ($docs) {
+                    return $docs->sortByDesc('created_at')->first(); // latest per type
+                });
+
+            $rows = [];
+
+            foreach ($required_doc as $docKey => $docName) {
+
+                if (isset($documents[$docKey])) {
+
+                    $latest = $documents[$docKey];
+
+                    if ($latest->status === 'Rejected') {
+                        $rows[] = [
+                            $docName,
+                            'Rejected',
+                            // $latest->remarks ?? '',
+                            $latest->created_at->format('d M Y, h:i A'),
+                        ];
+                    }
+
+                } else {
+                    // Not uploaded
+                    $rows[] = [
+                        $docName,
+                        'Not Uploaded',
+                        // '',
+                        '',
+                    ];
+                }
+            }
+
+           $name = optional($item->assembly)->assembly_name_en
+            ? optional($item->assembly)->assembly_name_en .
+                (!empty($item->assembly->assembly_number)
+                    ? ' (' . $item->assembly->assembly_number . ')'
+                    : '')
+            : 'N/A';
+
+            $candidatesArray[] = [
+                'name' => substr($name, 0, 31),
+                'pending' => $rows
+            ];
         }
+
+        return Excel::download(
+            new class($candidatesArray) implements WithMultipleSheets {
+
+                protected $candidates;
+
+                public function __construct($candidates)
+                {
+                    $this->candidates = $candidates;
+                }
+
+                public function sheets(): array
+                {
+                    $sheets = [];
+
+                    foreach ($this->candidates as $candidate) {
+
+                        $sheets[] = new class($candidate) implements FromArray, WithTitle {
+
+                            protected $candidate;
+
+                            public function __construct($candidate)
+                            {
+                                $this->candidate = $candidate;
+                            }
+
+                            public function array(): array
+                            {
+                                return array_merge(
+                                    [['Document Name', 'Status', 'Remarks', 'Time']],
+                                    $this->candidate['pending']
+                                );
+                            }
+
+                            public function title(): string
+                            {
+                                return substr($this->candidate['name'], 0, 31);
+                            }
+                        };
+                    }
+
+                    return $sheets;
+                }
+            },
+            'candidate_pending_demo.xlsx'
+        );
+    }
+
+
+    public function render()
+    {
+        $candidates = $this->getFilteredQuery()
+        ->orderByDesc('id')
+        ->paginate(20);
+
+        // if ($this->authUser->role === "legal_associate") {
+        //     $collection = $candidates->getCollection();
+
+        //     $filtered = $collection->filter(function ($candidate) {
+        //         if (!$candidate) return false;
+
+        //         $uploaded_documents = $candidate->documents->groupBy('type')->count();
+        //         return $uploaded_documents == $this->required_document;
+        //     })->values();
+
+        //     $candidates->setCollection($filtered);
+        // }
+
+        return view('livewire.candidate-contact-list', [
+            'candidates' => $candidates,
+            'assemblies' => $this->assemblies,
+        ])->layout('layouts.admin');
+    }
 }

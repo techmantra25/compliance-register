@@ -89,6 +89,17 @@ class DocumentComments extends Component
             'created_by' => Auth::guard('admin')->id(),
         ]);
 
+        // Prepare notification message
+        $file_name = getCandidateDocument($this->document->type);
+        $adminName = Auth::guard('admin')->user()->name ?? 'Admin';
+        $fileName = $file_name ?? 'Document'; // <-- use the actual file name field
+        $message = "{$adminName} commented on {$fileName}";
+
+        // Create notification
+        createNotification(
+            $message,
+            route('admin.candidates.documents.comments', $this->documentId)
+        );
         $this->newComment = '';
         $this->loadComments();
 
@@ -97,7 +108,12 @@ class DocumentComments extends Component
     }
 
     public function render()
-    {
+    {   
+        if($this->authUser && $this->authUser->role=='admin'){
+            CandidateDocumentComment::where('candidate_document_id', $this->documentId)
+            ->update(['is_viewed' => 1]);
+        }
+        
         return view('livewire.candidate.document-comments')
             ->layout('layouts.admin');
     }
