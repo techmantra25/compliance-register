@@ -30,8 +30,8 @@ class NominationForm2B extends Component
     public $candidate_serial_no;
     public $candidate_part_no;
     public $constituency_where_enrolled;
-    public $political_party_name = 'AJP';
-    public $recognized_political_party = 'AJP';
+    public $political_party_name = 'AITC';
+    public $recognized_political_party = 'AITC';
     public $language_of_name = 'ENGLISH';
 
     public $proposer_name;

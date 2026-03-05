@@ -43,7 +43,7 @@
                                     <a href="{{route('forget.password')}}" class="text-decoration-none text-muted small">Forgot your password?</a>
                                 </div>
 
-                                <button type="submit" class="btn w-100 text-white py-2 btn btn-danger">
+                                <button type="submit" class="btn w-100 text-white py-2 btn btn-primary">
                                     Log In
                                 </button>
                             </form>
@@ -51,8 +51,7 @@
 
                         <div class="col-md-6 d-none d-md-block position-relative" 
                              style="background: url('{{ asset('assets/img/logo-background.jpg') }}') center/cover no-repeat;">
-                            <div class="overlay position-absolute top-0 start-0 w-100 h-100" 
-                                 style="background-color: #8359599c"></div>
+                            <div class="overlay position-absolute top-0 start-0 w-100 h-100" ></div>
                         </div>
 
                     </div>

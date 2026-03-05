@@ -9,7 +9,7 @@
                             <div class="chrat-place mb-5">
                                 <canvas width="300" id="myChart"></canvas>
                             </div>
-                             <a href="{{route('admin.eventwise.district')}}" class="btm-small" style="color: #278D27;">Click for District View</a> 
+                             <a href="{{route('admin.eventwise.district')}}" class="btm-small">Click for District View</a> 
                         </div>
                     </div>
                 </div>
@@ -44,7 +44,7 @@
                                 <div class="color-grid"><span style="background-color: #A7A7A7;"></span >Pending Acknowledgement Copy</div>
                                 <div class="color-grid"><span style="background-color: #F46674;"></span>Rejected (if any)</div>
                             </div>
-                             <p class="btm-small" style="color: #278D27;">Click on Phase to Check the Details View</p>
+                             <p class="btm-small">Click on Phase to Check the Details View</p>
                         </div>
                     </div>
                 </div>
@@ -89,7 +89,7 @@
                                 </div>
                             </div>
 
-                            <p class="btm-small" style="color: #278D27;">
+                            <p class="btm-small">
                                 Click on Phase to Check the Details View
                             </p>
                         </div>

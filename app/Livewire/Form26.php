@@ -32,7 +32,7 @@ class Form26 extends Component
     public $spouse_occupation;
     public $asset_holders = [];
     public $immovable_assets = [];
-    public $political_party_name = 'AJP';
+    public $political_party_name = 'AITC';
     public $source_of_incomes = []; 
 
 

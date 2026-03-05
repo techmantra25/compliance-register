@@ -1914,20 +1914,21 @@
 
             <p class="indent-para" style="color: #e31111;">
                 <span>Note: 5.</span>Each page of the Affidavit should be signed by the deponent and the Affidavit
-                    should bear on each page the stamp of the Notary or Oath Commissioner or
-                    Magistrate before whom the Affidavit is sworn. 
+        should bear on each page the stamp of the Notary or Oath Commissioner or
+        Magistrate before whom the Affidavit is sworn. 
             </p>
         </div>
 
         <div class="text-end mt-4">
-            {{-- <button
+           {{-- <button
                 type="button"
                 wire:click="downloadPdf"
                 class="btn btn-success"
             >
                 <span wire:loading.remove>Download PDF</span>
                 <span wire:loading>Generating PDF...</span>
-            </button> --}}
+            </button>
+            --}}
             <a 
                 href="{{ route('admin.candidates.form26.pdf', $form->id) }}" 
                 target="_blank"

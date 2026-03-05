@@ -6,7 +6,7 @@
             font-size: 16px;
         }
 
-        body { 
+        body {
             margin: 20px;
             color: #000;
             line-height: 1.4;

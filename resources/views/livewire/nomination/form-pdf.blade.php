@@ -15,7 +15,6 @@
             margin: 20px;
             color: #000;
             line-height: 1.4;
-            font-family: DejaVu Sans, sans-serif;
         }
 
         .form-container {
@@ -298,28 +297,40 @@
                     <div style="font-size: 16px; line-height: 2;">
                         Candidate's name <span class="input-field input-field-large"
                         readonly style="width: 300px;">{{ucwords($nomination->candidate->name)}}</span>
-                        @php
-                            $relation = strtolower($nomination->relation_type ?? '');
-                        @endphp
-
-                        <div style="margin-top: 5px;">
-                            Father's [{{ $relation == 'father' ? 'X' : ' ' }}]
+                        <div wire:key="relation-type-1">
+                            <label>
+                                <input type="radio" name="relation_type_main" wire:model="relation_type" value="father">
+                                Father's
+                            </label>
                             /
-                            Mother's [{{ $relation == 'mother' ? 'X' : ' ' }}]
+                            <label>
+                                <input type="radio" name="relation_type_main" wire:model="relation_type" value="mother">
+                                Mother's
+                            </label>
                             /
-                            Husband's [{{ $relation == 'husband' ? 'X' : ' ' }}]
+                            <label>
+                                <input type="radio" name="relation_type_main" wire:model="relation_type"
+                                    value="husband"> Husband's
+                            </label>
                         </div>
-
                         name <span class="input-field input-field-medium" style="width: 400px;">{{ucwords($nomination->relation_name)}}</span>
-                            @php $pronoun = strtolower($nomination->pronoun); @endphp
-
-                            His [{{ $pronoun == 'his' ? 'X' : ' ' }}]
-                            Her [{{ $pronoun == 'her' ? 'X' : ' ' }}]
+                        <div wire:key="pronoun-1">
+                            <label>
+                                <input type="radio" name="pronoun-main" wire:model="pronoun" value="his"> His
+                            </label>
+                            <label>
+                                <input type="radio" name="pronoun-main" wire:model="pronoun" value="her"> Her
+                            </label>
+                        </div>
                         postal address<span class="input-field input-field-large" style="width: 428px;">{{ucwords($nomination->postal_address)}}</span>
-                            @php $pronoun = strtolower($nomination->pronoun); @endphp
-
-                            His [{{ $pronoun == 'his' ? 'X' : ' ' }}]
-                            Her [{{ $pronoun == 'her' ? 'X' : ' ' }}]
+                        <div wire:key="pronoun-2">
+                            <label>
+                                <input type="radio" name="pronoun-copy" wire:model="pronoun" value="his"> His
+                            </label>
+                            <label>
+                                <input type="radio" name="pronoun-copy" wire:model="pronoun" value="her"> Her
+                            </label>
+                        </div>
                         name is entered at Sl. No<span class="input-field input-field-small">{{$nomination->candidate_serial_no}}</span>in Part No.
                         <span class="input-field input-field-small">{{$nomination->candidate_part_no}}</span>of the
                         electoral roll for
