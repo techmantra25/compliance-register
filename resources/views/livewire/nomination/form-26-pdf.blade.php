@@ -24,21 +24,9 @@
         text-align: right;
     }
 
-<<<<<<< HEAD
     .photo-box {
         width: 120px;
         height: 150px;
-=======
-    /* .clearfix::after {
-        content: "";
-        clear: both;
-        display: table;
-    } */
-
-    .photo-box {
-        width: 120px;
-        height: 140px;
->>>>>>> aed29f64a56c73ba54a517e0ee1bb29d1f1deff9
         border: 1px solid #000;
         float: right;
         text-align: center;
@@ -46,12 +34,6 @@
         padding: 5px;
         display: flex;
         align-items: center;
-<<<<<<< HEAD
-=======
-        position: relative;
-        box-sizing: border-box;
-        border-bottom:1px solid #000;
->>>>>>> aed29f64a56c73ba54a517e0ee1bb29d1f1deff9
     }
 
     .input-line {
@@ -80,10 +62,7 @@
         border-collapse: collapse;
         margin-top: 10px;
         border-collapse: collapse;
-<<<<<<< HEAD
         /* table-layout: fixed; */
-=======
->>>>>>> aed29f64a56c73ba54a517e0ee1bb29d1f1deff9
     }
 
     table, th, td {
@@ -97,11 +76,8 @@
     th, td {
         padding: 6px;
         vertical-align: top;
-<<<<<<< HEAD
         /* word-wrap: break-word;
         overflow-wrap: break-word; */
-=======
->>>>>>> aed29f64a56c73ba54a517e0ee1bb29d1f1deff9
         white-space: normal;
         line-height: 1.21;
     }
@@ -145,10 +121,6 @@
         background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='2' viewBox='0 0 100 2'%3E%3Cline x1='0' y1='1' x2='100' y2='1' stroke='%23000' stroke-width='1' stroke-dasharray='2,2'/%3E%3C/svg%3E");
         background-repeat: repeat-x;
         background-position: bottom;
-<<<<<<< HEAD
-=======
-        border-bottom:1px dashed #000;
->>>>>>> aed29f64a56c73ba54a517e0ee1bb29d1f1deff9
         font-weight: bold;
         word-break: break-word;
         overflow-wrap: anywhere;
@@ -194,13 +166,6 @@
     page-break-before: always;
 } */
 
-<<<<<<< HEAD
-=======
-    table td {
-        word-break: break-word;
-    }
-
->>>>>>> aed29f64a56c73ba54a517e0ee1bb29d1f1deff9
  @media print {
 
     @page {
@@ -241,14 +206,7 @@
         background-repeat: repeat-x;
         background-position: bottom;
         display: inline !important;
-<<<<<<< HEAD
     }
-=======
-        border-bottom:1px dashed #000;
-    }
-
-
->>>>>>> aed29f64a56c73ba54a517e0ee1bb29d1f1deff9
     /* .keep-together {
         page-break-inside: avoid !important;
         break-inside: avoid !important;
@@ -259,16 +217,13 @@
  }
 </style>
     <div class="form-container">
+        <form>
             <div class="keep-together">
                 <div class="pagenumber">
                     <div style="text-align: center; font-weight:bold;">Form 26</div>
                     <div class="center" style="font-weight:bold;">(See rule 4A)</div>
 
-<<<<<<< HEAD
                     <div style="text-align: right; overflow: auto; margin-bottom: 1px;">
-=======
-                    <div style="text-align: right; overflow:hidden; height:160px;  margin-bottom: 1px;">
->>>>>>> aed29f64a56c73ba54a517e0ee1bb29d1f1deff9
                         <div class="photo-box">
                             Please affix your
                             recent passport
@@ -276,15 +231,8 @@
                             here
                         </div>
                     </div>
-<<<<<<< HEAD
                     <div style="text-align: center; font-weight:bold; margin-top: 20px; text-decoration: underline;">AFFIDAVIT</div>
                     <div style="text-align: justify; font-weight: bold;">
-=======
-
-                    
-                    <div style="text-align: justify; font-weight: bold;">
-                        <div style="text-align: center; font-weight:bold; margin-top: 20px; text-decoration: underline;">AFFIDAVIT</div>
->>>>>>> aed29f64a56c73ba54a517e0ee1bb29d1f1deff9
                         AFFIDAVIT TO BE FILED BY THE CANDIDATE ALONGWITH NOMINATION PAPER BEFORE THE RETURNING OFFICER FOR ELECTION TO 
                         <span class="flex-input"  contenteditable="true" style="min-width:250px; text-transform: uppercase;">THE LEGISLATIVE ASSEMBLY</span>
                         (NAME OF THE HOUSE) FORM <span class="flex-input"  contenteditable="true" style="min-width:250px; text-transform: uppercase;">{{ optional($form->assembly)->assembly_number }} - {{ optional($form->assembly)->assembly_name_en }}</span>
@@ -293,11 +241,7 @@
 
                     <div style="text-align: center; font-weight:bold; margin-top: 20px; text-decoration: underline;">PART A</div>
 
-<<<<<<< HEAD
                     <p>
-=======
-                    <p style="text-align:left;">
->>>>>>> aed29f64a56c73ba54a517e0ee1bb29d1f1deff9
                         I<span class="flex-input"  contenteditable="true" style="padding: 0 30px;">{{ucwords($form->candidate->name)}}</span> 
                         **<span>{{ucwords($form->relation_type)}}</span> of 
                         <span class="flex-input"  contenteditable="true" style="padding: 0 30px;">{{ucwords($form->relation_name)}}</span>,
@@ -759,14 +703,20 @@
 
                         @foreach($holders as $holderKey => $holderLabel)
                             @php
-                                $holderData = collect($movableAssets)
-                                    ->firstWhere('holder', $holderKey);
+                                $assetRow = collect($movableAssets)
+                                    ->firstWhere('type', $assetType);
 
-                                $asset = $holderData
-                                    ? collect($holderData['assets'])->firstWhere('type', $assetType)
+                                $holderEntry = $assetRow
+                                    ? collect($assetRow['holders'] ?? [])
+                                        ->firstWhere('holder', $holderKey)
                                     : null;
 
-                                $amount = $asset['amount'] ?? null;
+                                $amount = $holderEntry['amount'] ?? null;
+
+                                if (is_numeric($amount)) {
+                                    $grossTotal[$holderKey] =
+                                        ($grossTotal[$holderKey] ?? 0) + (float) $amount;
+                                }
 
                                 if (is_numeric($amount)) {
                                     $grossTotal[$holderKey] =
@@ -775,10 +725,19 @@
                             @endphp
 
                             <td>
-                                {!! $amount
-                                    ? number_format((float)$amount, 2)
-                                    : 'Not Applicable'
-                                !!}
+                                @if($amount !== null && $amount !== '')
+                                    @php
+                                        $description = $holderEntry['description'] ?? null;
+                                    @endphp
+
+                                    @if($description)
+                                        <div>{{ $description }}</div>
+                                    @endif
+
+                                    <div>Rs. {{ number_format((float)$amount, 2) }}</div>
+                                @else
+                                    Not Applicable
+                                @endif
                             </td>
                         @endforeach
                     </tr>
@@ -818,9 +777,11 @@
                 </p>
 
 
-                @php
-                    $holders = ['self', 'spouse', 'huf', 'dependent_1', 'dependent_2', 'dependent_3'];
+                 @php
+                    $holders = ['self','spouse','huf','dependent_1','dependent_2','dependent_3'];
+
                     $types = ['agricultural','non_agricultural','commercial','residential','others'];
+
                     $type_labels = [
                         'agricultural' => 'Agricultural Land',
                         'non_agricultural' => 'Non-Agricultural Land',
@@ -828,180 +789,97 @@
                         'residential' => 'Residential Buildings',
                         'others' => 'Others (such as interest in property)'
                     ];
-                    $sno = 1;
+
+                    $roman = ['i','ii','iii','iv','v'];
                     $grossTotal = [];
-                @endphp
+                    @endphp
 
-                <table style="table-layout: fixed; margin-top: 35px;">
-                    <tr>
-                        <th style="width: 50px; font-weight: bold;">S. No.</th>
-                        <th style="font-weight: bold; width: 150px;">Description</th>
-                        <th style="font-weight: bold;">Self</th>
-                        <th style="font-weight: bold;">Spouse</th>
-                        <th style="font-weight: bold;">HUF</th>
-                        <th style="font-weight: bold;">Dependent-1</th>
-                        <th style="font-weight: bold;">Dependent-2</th>
-                        <th style="font-weight: bold;">Dependent-3</th>
-                    </tr>
 
-                    @foreach($types as $type)
+                    <table style="table-layout: fixed; margin-top: 35px;">
+                        <tr>
+                            <th style="width: 50px;">S. No.</th>
+                            <th>Description</th>
+                            <th>Self</th>
+                            <th>Spouse</th>
+                            <th>HUF</th>
+                            <th>Dependent-1</th>
+                            <th>Dependent-2</th>
+                            <th>Dependent-3</th>
+                        </tr>
+
+                    @foreach($types as $index => $type)
+
                         @php
                             $label = $type_labels[$type];
+
+                            $assetRow = collect($immovableAssets)
+                                ->firstWhere('type', $type);
                         @endphp
 
-                        @foreach($immovableAssets as $holderData)
-                            @foreach($holderData['groups'] as $group)
+                        <tr>
+                            <td>({{ $roman[$index] }})</td>
+
+                            <td>
+                                <strong style="text-decoration: underline;">
+                                    {{ $label }}
+                                </strong>
+                            </td>
+
+                            @foreach($holders as $holder)
+
                                 @php
-                                    $data = $group[$type] ?? null;
+                                    $holderEntry = $assetRow
+                                        ? collect($assetRow['holders'] ?? [])
+                                            ->firstWhere('holder', $holder)
+                                        : null;
+
+                                    $details = $holderEntry['details'] ?? null;
+                                    $amount  = $holderEntry['amount'] ?? null;
+
+                                    if (is_numeric($amount)) {
+                                        $grossTotal[$holder] =
+                                            ($grossTotal[$holder] ?? 0) + (float)$amount;
+                                    }
                                 @endphp
 
-                                @if($data)
-                                    {{-- Main row for type --}}
-                                    <tr>
-                                        <td>({{ $sno++ }})</td>
-                                        <td>
-                                            <strong style="text-decoration: underline;">{{ $label }}</strong> <br>
-                                            Location(s) / Survey number(s)
-                                        </td>
-                                        @foreach($holders as $holder)
-                                            <td>
-                                                {{
-                                                    ($holderData['holder'] === $holder)
-                                                        ? ($data['location'] ?? 'Not Applicable')
-                                                        : 'Not Applicable'
-                                                }}
-                                            </td>
-                                        @endforeach
-                                    </tr>
+                                <td>
+                                    @if($details || is_numeric($amount))
 
-                                    {{-- Area --}}
-                                    <tr>
-                                        <td style="border-bottom: 1px solid #fff;"></td>
-                                        <td>
-                                            Area (total measurement)
-                                        </td>
-                                        @foreach($holders as $holder)
-                                            <td>
-                                                {{
-                                                    ($holderData['holder'] === $holder)
-                                                        ? ($data['area'] ?? 'Not Applicable')
-                                                        : 'Not Applicable'
-                                                }}
-                                            </td>
-                                        @endforeach
-                                    </tr>
+                                        @if($details)
+                                            <div>{{ $details }}</div>
+                                        @endif
 
-                                    {{-- Inherited --}}
-                                    <tr>
-                                        <td style="border-bottom: 1px solid #fff;"></td>
-                                        <td>Whether inherited property (Yes or No)</td>
+                                        @if(is_numeric($amount))
+                                            <div>Rs. {{ number_format((float)$amount,2) }}</div>
+                                        @endif
 
-                                        @foreach($holders as $holder)
-                                            <td>
-                                                {{
-                                                    ($holderData['holder'] === $holder)
-                                                        ? ($data['inherited'] ?? 'Not Applicable')
-                                                        : 'Not Applicable'
-                                                }}
-                                            </td>
-                                        @endforeach
-                                    </tr>
+                                    @else
+                                        Not Applicable
+                                    @endif
+                                </td>
 
-
-                                    {{-- Purchase date --}}
-                                    <tr>
-                                        <td style="border-bottom: 1px solid #fff;"></td>
-                                        <td>Date of purchase (if self-acquired)</td>
-
-                                        @foreach($holders as $holder)
-                                            <td>
-                                                {{
-                                                    ($holderData['holder'] === $holder)
-                                                        ? ($data['purchase_date'] ?? 'Not Applicable')
-                                                        : 'Not Applicable'
-                                                }}
-                                            </td>
-                                        @endforeach
-                                    </tr>
-
-
-                                    {{-- Purchase cost --}}
-                                    <tr>
-                                        <td style="border-bottom: 1px solid #fff;"></td>
-                                        <td>Cost at time of purchase</td>
-
-                                        @foreach($holders as $holder)
-                                            @php
-                                                $val = ($holderData['holder'] === $holder)
-                                                        ? ($data['purchase_cost'] ?? 'Not Applicable')
-                                                        : 'Not Applicable';
-
-                                                if (is_numeric($val)) {
-                                                    $grossTotal[$holder] = ($grossTotal[$holder] ?? 0) + (float)$val;
-                                                    $val = number_format((float)$val, 2);
-                                                }
-                                            @endphp
-                                            <td>{{ $val }}</td>
-                                        @endforeach
-                                    </tr>
-
-
-                                    {{-- Investment made --}}
-                                    <tr>
-                                        <td style="border-bottom: 1px solid #fff;"></td>
-                                        <td>Any Investment on property (development/construction etc.)</td>
-
-                                        @foreach($holders as $holder)
-                                            @php
-                                                $val = ($holderData['holder'] === $holder)
-                                                        ? ($data['investment_made'] ?? 'Not Applicable')
-                                                        : 'Not Applicable';
-
-                                                if (is_numeric($val)) {
-                                                    $grossTotal[$holder] = ($grossTotal[$holder] ?? 0) + (float)$val;
-                                                    $val = number_format((float)$val, 2);
-                                                }
-                                            @endphp
-                                            <td>{{ $val }}</td>
-                                        @endforeach
-                                    </tr>
-
-
-                                    {{-- Current Value --}}
-                                    <tr>
-                                        <td></td>
-                                        <td>Approximate Current Market Value</td>
-
-                                        @foreach($holders as $holder)
-                                            @php
-                                                $val = ($holderData['holder'] === $holder)
-                                                        ? ($data['current_value'] ?? 'Not Applicable')
-                                                        : 'Not Applicable';
-
-                                                if (is_numeric($val)) {
-                                                    $grossTotal[$holder] = ($grossTotal[$holder] ?? 0) + (float)$val;
-                                                    $val = number_format((float)$val, 2);
-                                                }
-                                            @endphp
-                                            <td>{{ $val }}</td>
-                                        @endforeach
-                                    </tr>
-                                @endif
                             @endforeach
-                        @endforeach
+                        </tr>
 
                     @endforeach
 
-                    {{-- Gross Total --}}
+
+                    {{-- TOTAL ROW --}}
                     <tr>
                         <td>(vi)</td>
                         <td>Total of current market value of (i) to (v) above</td>
+
                         @foreach($holders as $holder)
-                            <td>{{ isset($grossTotal[$holder]) ? number_format($grossTotal[$holder],2) : 'Not Applicable' }}</td>
+                            <td>
+                                {{ isset($grossTotal[$holder])
+                                    ? number_format($grossTotal[$holder],2)
+                                    : 'Not Applicable'
+                                }}
+                            </td>
                         @endforeach
                     </tr>
-                </table>
 
+                    </table>
                 <div style="page-break-before: always;"></div>
                 <p>
                     <strong>(8)</strong> I give herein below the details of liabilities/dues to public financial institutions and government:-
@@ -1415,11 +1293,7 @@
                     <span style="font-weight: bold;">(11)</span><strong>ABSTRACT OF THE DETAILS GIVEN IN (1) TO (10) OF PART - A:</strong>
                 </p>
 
-<<<<<<< HEAD
                 <table style="table-layout: fixed;">
-=======
-                <table style="">
->>>>>>> aed29f64a56c73ba54a517e0ee1bb29d1f1deff9
                     <tr>
                         <td style="width: 60px;">1.</td>
                         <td style="text-align: justify; width:200px;">
@@ -1480,15 +1354,9 @@
                     </tr>
                     <tr>
                         <td colspan="3" style="padding: 0;">
-<<<<<<< HEAD
                             <table style="padding: 0; border: none; border:1px solid transparent; margin: 0; table-layout: fixed; width: auto;">
                                 <tr>
                                     <th style="width: 60px; text-align: left; border: none; border-right:1px solid #000;">7.</th>
-=======
-                            <table style="padding: 0; border: none; border:1px solid transparent; margin: 0; width: 100%; table-layout: fixed; border-collapse: collapse;">
-                                <tr>
-                                    <th style="width: 10%; text-align: left; border: none; border-right:1px solid #000;">7.</th>
->>>>>>> aed29f64a56c73ba54a517e0ee1bb29d1f1deff9
                                     <th style="text-align: left; border: none; border-right:1px solid #000; font-weight: bold; width:130px;"></th>
                                     <th style="text-align: left; border: none; border-right:1px solid #000; width:130px; text-align: center;">
                                         PAN of
@@ -1547,11 +1415,7 @@
                                     <td colspan="5" style="border-color: transparent; padding:0; border-width: 0;">
                                         <table style="padding: 0; border: none; border:1px solid transparent; margin: 0; table-layout: fixed; border-width: 0;">
                                             <tr>
-<<<<<<< HEAD
                                                 <th style="width: 55px; text-align: left; border: none; border-right:1px solid #000;"></th>
-=======
-                                                <th style="width: 10%; text-align: left; border: none; border-right:1px solid #000;"></th>
->>>>>>> aed29f64a56c73ba54a517e0ee1bb29d1f1deff9
                                                 <th style=" text-align: left; border: none; border-right:1px solid #000; width: 200px; font-weight: bold;">Description</th>
                                                 <th style=" text-align: left; border: none; border-right:1px solid #000; font-weight: bold;">Self</th>
                                                 <th style=" text-align: left; border: none; border-right:1px solid #000; font-weight: bold;">Spouse</th>
@@ -1562,11 +1426,7 @@
 
                                             <tr>
                                                 <td style="vertical-align: middle; border-left: 0;">A</td>
-<<<<<<< HEAD
                                                 <td style="vertical-align: middle;"><strong>Moveable Assets(Total value)</strong></td>
-=======
-                                                <td style="vertical-align: middle;"><strong style="line-height:1;">Moveable Assets(Total value)</strong></td>
->>>>>>> aed29f64a56c73ba54a517e0ee1bb29d1f1deff9
                                                 <td style="vertical-align: middle;">16,72,352.71</td>
                                                 <td style="vertical-align: middle;">Not Applicable</td>
                                                 <td style="vertical-align: middle;">Not Applicable</td>
@@ -1575,18 +1435,13 @@
                                             </tr>
 
                                             <tr>
-<<<<<<< HEAD
                                                 <td style="text-align: center; font-weight: bold; padding: 0; border-left: 0; position: relative;">
-=======
-                                                <td style="text-align: center; font-weight: bold; padding: 0; border-left: 0; position: relative; ">
->>>>>>> aed29f64a56c73ba54a517e0ee1bb29d1f1deff9
                                                     <!-- <table style="padding: 0; border: none; border:1px solid transparent; margin: 0; table-layout: fixed; border-width: 0;">
                                                         <tr>
                                                             <td style="text-align: center; border-top: 0; border-left:0; border-bottom: 0;">B</td>
                                                             <td style="text-align: center; font-weight: bold; border-top: 0; border-right:0; border-bottom: 0"></td>
                                                         </tr>
                                                     </table> -->
-<<<<<<< HEAD
                                                     <div style="display: flex; justify-content: center; align-items: center; height: 100%; position: absolute; left:0; top:0; width:100%;">
                                                         <div style="border-right:1px solid #000; flex:1 0 0; font-weight: bold; height:100%;">B</div>
                                                         <div style="flex:1 0 0; height: 100%;"></div>
@@ -1598,23 +1453,6 @@
                                                 <td>Not Applicable</td>
                                                 <td>Not Applicable</td>
                                                 <td style=" border-right: 0;">Not Applicable</td>
-=======
-                                                    
-                                                    <!-- <div style="display: flex; justify-content: center; align-items: center;">
-                                                        <div style="border-right:1px solid #000; flex:1 0 0; font-weight: bold; height:100%;">B</div>
-                                                        <div style="flex:1 0 0; height: 100%;"></div>
-                                                    </div> -->
-                                                    
-                                                    <div style="position:absolute; left:0, height:100%; top:0; width: 50%; border-right:1px solid #000;">B</div>
-                                                    <div style="position:absolute; right:0, top:0; width: 50%; height:100%;"></div>
-                                                </td>
-                                                <td style="line-height:1;"> <strong style="line-height:1;">Immovable Assets</strong></td>
-                                                <td style="line-height:1;">Not Applicable</td>
-                                                <td style="line-height:1;">Not Applicable</td>
-                                                <td style="line-height:1;">Not Applicable</td>
-                                                <td style="line-height:1;">Not Applicable</td>
-                                                <td style=" border-right: 0; line-height:1;">Not Applicable</td>
->>>>>>> aed29f64a56c73ba54a517e0ee1bb29d1f1deff9
                                             </tr>
 
                                             <tr>
@@ -1625,20 +1463,10 @@
                                                             <td style="text-align: center; border-top: 0; border-right:0; border-bottom: 0;">i</td>
                                                         </tr>
                                                     </table> -->
-<<<<<<< HEAD
                                                     <div style="display: flex; justify-content: center; align-items: center; height: 100%; position: absolute; left:0; top:0; width:100%;">
                                                         <div style="border-right:1px solid #000; flex:1 0 0; font-weight: bold; height:100%;"></div>
                                                         <div style="flex:1 0 0; height: 100%;">i</div>
                                                     </div>
-=======
-                                                    <!-- <div style="display: flex; justify-content: center; align-items: center; height: 100%; position: absolute; left:0; top:0; width:100%;">
-                                                        <div style="border-right:1px solid #000; flex:1 0 0; font-weight: bold; height:100%;"></div>
-                                                        <div style="flex:1 0 0; height: 100%;">i</div>
-                                                    </div> -->
-                                                    
-                                                    <div style="position:absolute; left:0; height:100%; top:0; width: 50%; border-right:1px solid #000;"></div>
-                                                    <div style="position:absolute; right:0; top:0; width: 50%; ">i</div>
->>>>>>> aed29f64a56c73ba54a517e0ee1bb29d1f1deff9
                                                 </td>
                                                 <td>
                                                     Purchase Price of
@@ -1653,10 +1481,6 @@
                                                 <td>Not Applicable</td>
                                                 <td style="border-right: 0;">Not Applicable</td>
                                             </tr>
-<<<<<<< HEAD
-=======
-
->>>>>>> aed29f64a56c73ba54a517e0ee1bb29d1f1deff9
                                             <tr>
                                                 <td style="text-align: center; font-weight: bold; padding: 0; border-left: 0; position: relative;">
                                                     <!-- <table style="padding: 0; border: none; border:1px solid transparent; margin: 0; table-layout: fixed; border-width: 0;">
@@ -1665,19 +1489,10 @@
                                                             <td style="text-align: center; font-weight: bold; border-top: 0; border-right:0; border-bottom: 0;">ii</td>
                                                         </tr>
                                                     </table> -->
-<<<<<<< HEAD
                                                     <div style="display: flex; justify-content: center; align-items: center; height: 100%; position: absolute; left:0; top:0; width:100%;">
                                                         <div style="border-right:1px solid #000; flex:1 0 0; font-weight: bold; height:100%;"></div>
                                                         <div style="flex:1 0 0; height: 100%;">ii</div>
                                                     </div>
-=======
-                                                    <!-- <div style="display: flex; justify-content: center; align-items: center; height: 100%; position: absolute; left:0; top:0; width:100%;">
-                                                        <div style="border-right:1px solid #000; flex:1 0 0; font-weight: bold; height:100%;"></div>
-                                                        <div style="flex:1 0 0; height: 100%;">ii</div>
-                                                    </div> -->
-                                                    <div style="position:absolute; left:0; top:0; width: 50%; border-right:1px solid #000;"></div>
-                                                    <div style="position:absolute; right:0; top:0; width: 50%; ">ii</div>
->>>>>>> aed29f64a56c73ba54a517e0ee1bb29d1f1deff9
                                                 </td>
                                                 <td>
                                                     Development/const
@@ -1702,19 +1517,10 @@
                                                             <td style="text-align: center; font-weight: bold; border-top: 0; border-right:0; border-bottom: 0;">iii</td>
                                                         </tr>
                                                     </table> -->
-<<<<<<< HEAD
                                                     <div style="display: flex; justify-content: center; align-items: center; height: 100%; position: absolute; left:0; top:0; width:100%;">
                                                         <div style="border-right:1px solid #000; flex:1 0 0; font-weight: bold; height:100%;"></div>
                                                         <div style="flex:1 0 0; height: 100%;">iii</div>
                                                     </div>
-=======
-                                                    <!-- <div style="display: flex; justify-content: center; align-items: center; height: 100%; position: absolute; left:0; top:0; width:100%;">
-                                                        <div style="border-right:1px solid #000; flex:1 0 0; font-weight: bold; height:100%;"></div>
-                                                        <div style="flex:1 0 0; height: 100%;">iii</div>
-                                                    </div> -->
-                                                    <div style="position:absolute; left:0; top:0; width: 50%; border-right:1px solid #000;"></div>
-                                                    <div style="position:absolute; right:0; top:0; width: 50%;">iii</div>
->>>>>>> aed29f64a56c73ba54a517e0ee1bb29d1f1deff9
                                                 </td>
                                                 <td style="padding:0;">
                                                     <table style="padding: 0; margin-top: 0; table-layout: fixed; border-top: 0; border-left:0; border-bottom: 0; border-right: 0;">
@@ -1803,38 +1609,21 @@
 
                                 <tr>
                                     <td style="border-right-color: #000; border-bottom-color: #000; border-bottom: 0; padding: 0; border-left:0; border-top:0; border-right: 0;" colspan="7">
-<<<<<<< HEAD
                                         <table style="padding: 0; border: none; border:1px solid transparent; margin: 0; table-layout: fixed; border-width: 0;">
                                             <tr>
                                                 <td style="border-right-color: #000; border-bottom-color: #000; border-bottom: 0; padding: 0; border-left:0; border-top:0; border-right: 0; width:55px; position: relative;">
-=======
-                                        <table style="padding: 0; border: none; border:1px solid transparent; margin: 0; table-layout: fixed; border-width: 0; border-collapse: collapse;">
-                                            <tr>
-                                                <td style="border-right-color: #000; border-bottom-color: #000; border-bottom: 0; padding: 0; border-left:0; border-top:0; border-right: 0; width:10%; position:relative;">
->>>>>>> aed29f64a56c73ba54a517e0ee1bb29d1f1deff9
                                                     <!-- <table style="padding: 0; border: none; margin: 0; table-layout: fixed; border-width: 0; border-top: 0; border-left: 0; border-right: 0; border-bottom: 0;">
                                                         <tr>
                                                             <td style="text-align: center; font-weight: bold; border-top: 0; border-right:0; border-bottom: 0;  border-left: 0;">9</td>
                                                             <td style="text-align: center; font-weight: bold; border-top: 0; border-right:0; border-bottom: 0"></td>
                                                         </tr>
                                                     </table> -->
-<<<<<<< HEAD
                                                     <div style="display: flex; justify-content: center; align-items: center; height: 100%; position: absolute; left:0; top:0; width:100%;">
                                                         <div style="border-right:1px solid #000; flex:1 0 0; font-weight: bold; height:100%; text-align: center;">9</div>
                                                         <div style="flex:1 0 0; height: 100%;"></div>
                                                     </div>
                                                 </td>
                                                 <td style=" font-weight: bold; border-top: 0; border-right:0; border-bottom: 0; width:200px;">
-=======
-                                                    <!-- <div style="display: flex; justify-content: center; align-items: center; height: 100%; position: absolute; left:0; top:0; width:100%;">
-                                                        <div style="border-right:1px solid #000; flex:1 0 0; font-weight: bold; height:100%; text-align: center;">9</div>
-                                                        <div style="flex:1 0 0; height: 100%;"></div>
-                                                    </div> -->
-                                                    <div style="position:absolute; left:0; top:0;  width: 50%; border-right:1px solid #000; text-align:center;"> <strong>9</strong></div>
-                                                    <div style="position:absolute; right:0; top:0;  width: 50%; "></div>
-                                                </td>
-                                                <td style=" font-weight: bold; border-top: 0; border-right:0; border-bottom: 0; width:20%;">
->>>>>>> aed29f64a56c73ba54a517e0ee1bb29d1f1deff9
                                                     Liabilities
                                                 </td>
                                                 <td style="text-align: center; font-weight: bold; border-top: 0; border-right:0; border-bottom: 0"></td>
@@ -1853,19 +1642,10 @@
                                                             <td style="text-align: center; border-top: 0; border-right:0; border-bottom: 0;">i</td>
                                                         </tr>
                                                     </table> -->
-<<<<<<< HEAD
                                                     <div style="display: flex; justify-content: center; align-items: center; height: 100%; position: absolute; left:0; top:0; width:100%;">
                                                         <div style="border-right:1px solid #000; flex:1 0 0; font-weight: bold; height:100%;"></div>
                                                         <div style="flex:1 0 0; height: 100%;">(i)</div>
                                                     </div>
-=======
-                                                    <!-- <div style="display: flex; justify-content: center; align-items: center; height: 100%; position: absolute; left:0; top:0; width:100%;">
-                                                        <div style="border-right:1px solid #000; flex:1 0 0; font-weight: bold; height:100%;"></div>
-                                                        <div style="flex:1 0 0; height: 100%;">(i)</div>
-                                                    </div> -->
-                                                    <div style="position:absolute; left:0; top:0; width: 50%; border-right:1px solid #000;"></div>
-                                                    <div style="position:absolute; right:0; top:0; width: 50%; ">(i)</div>
->>>>>>> aed29f64a56c73ba54a517e0ee1bb29d1f1deff9
                                                 </td>
                                                 <td>
                                                     Government dues
@@ -1886,19 +1666,10 @@
                                                             <td style="text-align: center; border-top: 0; border-right:0; border-bottom: 0;">ii</td>
                                                         </tr>
                                                     </table> -->
-<<<<<<< HEAD
                                                     <div style="display: flex; justify-content: center; align-items: center; height: 100%; position: absolute; left:0; top:0; width:100%;">
                                                         <div style="border-right:1px solid #000; flex:1 0 0; font-weight: bold; height:100%;"></div>
                                                         <div style="flex:1 0 0; height: 100%;">(ii)</div>
                                                     </div>
-=======
-                                                    <!-- <div style="display: flex; justify-content: center; align-items: center; height: 100%; position: absolute; left:0; top:0; width:100%;">
-                                                        <div style="border-right:1px solid #000; flex:1 0 0; font-weight: bold; height:100%;"></div>
-                                                        <div style="flex:1 0 0; height: 100%;">(ii)</div>
-                                                    </div> -->
-                                                    <div style="position:absolute; left:0; top:0; width: 50%; border-right:1px solid #000;"></div>
-                                                    <div style="position:absolute; right:0; top:0; width: 50%; ">(ii)</div>
->>>>>>> aed29f64a56c73ba54a517e0ee1bb29d1f1deff9
                                                 </td>
                                                 <td>
                                                     Loans from Bank,
@@ -1917,38 +1688,21 @@
                                     </td>
                                 </tr>
 
-<<<<<<< HEAD
                                 <tr >
                                     <td style="border-right-color: #000; border-bottom-color: #000; border-bottom: 0; padding: 0; border-left:0; border-top:0; border-right: 0;" colspan="7">
                                         <table style="padding: 0; border: none; border:1px solid transparent; margin: 0; table-layout: fixed; border-width: 0;">
                                             <tr>
                                                 <td style="border-right-color: #000; border-bottom-color: #000; border-bottom: 0; padding: 0; border-left:0; border-top:0; border-right: 0; width:55px; position: relative;">
-=======
-                                <tr fffffff>
-                                    <td style="border-right-color: #000; border-bottom-color: #000; border-bottom: 0; padding: 0; border-left:0; border-top:0; border-right: 0;" colspan="5">
-                                        <table style="padding: 0; border: none; border:1px solid transparent; margin: 0; table-layout: fixed; border-width: 0;">
-                                            <tr>
-                                                <td style="border-right-color: #000; border-bottom-color: #000; border-bottom: 0; padding: 0; border-left:0; border-top:0; border-right: 0; width:10%; position: relative;">
->>>>>>> aed29f64a56c73ba54a517e0ee1bb29d1f1deff9
                                                     <!-- <table style="padding: 0; border: none; margin: 0; table-layout: fixed; border-width: 0; border-top: 0; border-left: 0; border-right: 0; border-bottom: 0;">
                                                         <tr>
                                                             <td style="text-align: center; font-weight: bold; border-top: 0; border-right:0; border-bottom: 0;  border-left: 0;">10</td>
                                                             <td style="text-align: center; font-weight: bold; border-top: 0; border-right:0; border-bottom: 0"></td>
                                                         </tr>
                                                     </table> -->
-<<<<<<< HEAD
                                                     <div style="display: flex; justify-content: center; align-items: center; height: 100%; position: absolute; left:0; top:0; width:100%;">
                                                         <div style="border-right:1px solid #000; flex:1 0 0; font-weight: bold; height:100%; text-align: center;">10</div>
                                                         <div style="flex:1 0 0; height: 100%;"></div>
                                                     </div>
-=======
-                                                    <!-- <div style="display: flex; justify-content: center; align-items: center; height: 100%; position: absolute; left:0; top:0; width:100%;">
-                                                        <div style="border-right:1px solid #000; flex:1 0 0; font-weight: bold; height:100%; text-align: center;">10</div>
-                                                        <div style="flex:1 0 0; height: 100%;"></div>
-                                                    </div> -->
-                                                    <div style="position:absolute; left:0; top:0;  width: 50%; border-right:1px solid #000; text-align:center;">10</div>
-                                                    <div style="position:absolute; right:0; top:0; width: 50%; "></div>
->>>>>>> aed29f64a56c73ba54a517e0ee1bb29d1f1deff9
                                                 </td>
                                                 <td colspan="6" style="font-weight: bold; border-top: 0; border-right:0; border-bottom: 0;">
                                                     Liabilities that are under dispute
@@ -1964,23 +1718,12 @@
                                                             <td style="text-align: center; border-top: 0; border-right:0;">i</td>
                                                         </tr>
                                                     </table> -->
-<<<<<<< HEAD
                                                     <div style="display: flex; justify-content: center; align-items: center; height: 100%; position: absolute; left:0; top:0; width:100%;">
                                                         <div style="border-right:1px solid #000; flex:1 0 0; font-weight: bold; height:100%;"></div>
                                                         <div style="flex:1 0 0; height: 100%;">(i)</div>
                                                     </div>
                                                 </td>
                                                 <td style="width: 200px;">
-=======
-                                                    <!-- <div style="display: flex; justify-content: center; align-items: center; height: 100%; position: absolute; left:0; top:0; width:100%;">
-                                                        <div style="border-right:1px solid #000; flex:1 0 0; font-weight: bold; height:100%;"></div>
-                                                        <div style="flex:1 0 0; height: 100%;">(i)</div>
-                                                    </div> -->
-                                                    <div style="position:absolute; left:0; top:0; width: 50%; border-right:1px solid #000;"></div>
-                                                    <div style="position:absolute; right:0; top:0; width: 50%; ">(i)</div>
-                                                </td>
-                                                <td style="width: 20%;">
->>>>>>> aed29f64a56c73ba54a517e0ee1bb29d1f1deff9
                                                     Government dues
                                                     (Total)
                                                 </td>
@@ -1999,7 +1742,6 @@
                                                             <td style="text-align: center; border-top: 0; border-right:0; border-bottom: 0;">ii</td>
                                                         </tr>
                                                     </table> -->
-<<<<<<< HEAD
                                                     <div style="display: flex; justify-content: center; align-items: center; height: 100%; position: absolute; left:0; top:0; width:100%;">
                                                         <div style="border-right:1px solid #000; flex:1 0 0; font-weight: bold; height:100%;"></div>
                                                         <div style="flex:1 0 0; height: 100%;">(ii)</div>
@@ -2007,17 +1749,6 @@
 
                                                 </td>
                                                 <td style="width: 200px;">
-=======
-                                                    <!-- <div style="display: flex; justify-content: center; align-items: center; height: 100%; position: absolute; left:0; top:0; width:100%;">
-                                                        <div style="border-right:1px solid #000; flex:1 0 0; font-weight: bold; height:100%;"></div>
-                                                        <div style="flex:1 0 0; height: 100%;">(ii)</div>
-                                                    </div> -->
-                                                    <div style="position:absolute; left:0; top:0;  width: 50%; border-right:1px solid #000;"></div>
-                                                    <div style="position:absolute; right:0; top:0; width: 50%; ">(ii)</div>
-
-                                                </td>
-                                                <td style="width: 20%;">
->>>>>>> aed29f64a56c73ba54a517e0ee1bb29d1f1deff9
                                                     Loans from Bank,
                                                     Financial Institutions
                                                     and others (Total)
@@ -2036,15 +1767,9 @@
 
                                 <tr>
                                     <td style="border-right-color: #000; border-bottom-color: #000; border-bottom: 0; padding: 0; border-left:0; border-top:0; border-right: 0;" colspan="7">
-<<<<<<< HEAD
                                         <table style="padding: 0; border: none; border:1px solid transparent; margin: 0; table-layout: fixed; border-width: 0;">
                                             <tr>
                                                 <td style="border-right-color: #000; border-bottom-color: #000; border-bottom: 0; padding: 0; border-left:0; border-top:0; border-right: 0; width:55px;">
-=======
-                                        <table style="padding: 0; border: none; border:1px solid transparent; margin: 0; table-layout: fixed; border-width: 0; border-collapse: collapse;">
-                                            <tr>
-                                                <td style="border-right-color: #000; border-bottom-color: #000; border-bottom: 0; padding: 0; border-left:0; border-top:0; border-right: 0; width:10%;">
->>>>>>> aed29f64a56c73ba54a517e0ee1bb29d1f1deff9
                                                     <table style="padding: 0; border: none; margin: 0; table-layout: fixed; border-width: 0; border-top: 0; border-left: 0; border-right: 0; border-bottom: 0;">
                                                         <tr>
                                                             <td style="text-align: center; font-weight: bold; border-top: 0; border-right:0; border-bottom: 0;  border-left: 0;">11</td>
@@ -2127,6 +1852,7 @@
         Magistrate before whom the Affidavit is sworn. 
             </p>
         </div>
+    </form>
 
 </div>
 

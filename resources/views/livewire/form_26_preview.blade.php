@@ -703,14 +703,20 @@
 
                         @foreach($holders as $holderKey => $holderLabel)
                             @php
-                                $holderData = collect($movableAssets)
-                                    ->firstWhere('holder', $holderKey);
+                                $assetRow = collect($movableAssets)
+                                    ->firstWhere('type', $assetType);
 
-                                $asset = $holderData
-                                    ? collect($holderData['assets'])->firstWhere('type', $assetType)
+                                $holderEntry = $assetRow
+                                    ? collect($assetRow['holders'] ?? [])
+                                        ->firstWhere('holder', $holderKey)
                                     : null;
 
-                                $amount = $asset['amount'] ?? null;
+                                $amount = $holderEntry['amount'] ?? null;
+
+                                if (is_numeric($amount)) {
+                                    $grossTotal[$holderKey] =
+                                        ($grossTotal[$holderKey] ?? 0) + (float) $amount;
+                                }
 
                                 if (is_numeric($amount)) {
                                     $grossTotal[$holderKey] =
@@ -719,10 +725,19 @@
                             @endphp
 
                             <td>
-                                {!! $amount
-                                    ? number_format((float)$amount, 2)
-                                    : 'Not Applicable'
-                                !!}
+                                @if($amount !== null && $amount !== '')
+                                    @php
+                                        $description = $holderEntry['description'] ?? null;
+                                    @endphp
+
+                                    @if($description)
+                                        <div>{{ $description }}</div>
+                                    @endif
+
+                                    <div>Rs. {{ number_format((float)$amount, 2) }}</div>
+                                @else
+                                    Not Applicable
+                                @endif
                             </td>
                         @endforeach
                     </tr>
@@ -762,9 +777,11 @@
                 </p>
 
 
-                @php
-                    $holders = ['self', 'spouse', 'huf', 'dependent_1', 'dependent_2', 'dependent_3'];
+                 @php
+                    $holders = ['self','spouse','huf','dependent_1','dependent_2','dependent_3'];
+
                     $types = ['agricultural','non_agricultural','commercial','residential','others'];
+
                     $type_labels = [
                         'agricultural' => 'Agricultural Land',
                         'non_agricultural' => 'Non-Agricultural Land',
@@ -772,180 +789,97 @@
                         'residential' => 'Residential Buildings',
                         'others' => 'Others (such as interest in property)'
                     ];
-                    $sno = 1;
+
+                    $roman = ['i','ii','iii','iv','v'];
                     $grossTotal = [];
-                @endphp
+                    @endphp
 
-                <table style="table-layout: fixed; margin-top: 35px;">
-                    <tr>
-                        <th style="width: 50px; font-weight: bold;">S. No.</th>
-                        <th style="font-weight: bold; width: 150px;">Description</th>
-                        <th style="font-weight: bold;">Self</th>
-                        <th style="font-weight: bold;">Spouse</th>
-                        <th style="font-weight: bold;">HUF</th>
-                        <th style="font-weight: bold;">Dependent-1</th>
-                        <th style="font-weight: bold;">Dependent-2</th>
-                        <th style="font-weight: bold;">Dependent-3</th>
-                    </tr>
 
-                    @foreach($types as $type)
+                    <table style="table-layout: fixed; margin-top: 35px;">
+                        <tr>
+                            <th style="width: 50px;">S. No.</th>
+                            <th>Description</th>
+                            <th>Self</th>
+                            <th>Spouse</th>
+                            <th>HUF</th>
+                            <th>Dependent-1</th>
+                            <th>Dependent-2</th>
+                            <th>Dependent-3</th>
+                        </tr>
+
+                    @foreach($types as $index => $type)
+
                         @php
                             $label = $type_labels[$type];
+
+                            $assetRow = collect($immovableAssets)
+                                ->firstWhere('type', $type);
                         @endphp
 
-                        @foreach($immovableAssets as $holderData)
-                            @foreach($holderData['groups'] as $group)
+                        <tr>
+                            <td>({{ $roman[$index] }})</td>
+
+                            <td>
+                                <strong style="text-decoration: underline;">
+                                    {{ $label }}
+                                </strong>
+                            </td>
+
+                            @foreach($holders as $holder)
+
                                 @php
-                                    $data = $group[$type] ?? null;
+                                    $holderEntry = $assetRow
+                                        ? collect($assetRow['holders'] ?? [])
+                                            ->firstWhere('holder', $holder)
+                                        : null;
+
+                                    $details = $holderEntry['details'] ?? null;
+                                    $amount  = $holderEntry['amount'] ?? null;
+
+                                    if (is_numeric($amount)) {
+                                        $grossTotal[$holder] =
+                                            ($grossTotal[$holder] ?? 0) + (float)$amount;
+                                    }
                                 @endphp
 
-                                @if($data)
-                                    {{-- Main row for type --}}
-                                    <tr>
-                                        <td>({{ $sno++ }})</td>
-                                        <td>
-                                            <strong style="text-decoration: underline;">{{ $label }}</strong> <br>
-                                            Location(s) / Survey number(s)
-                                        </td>
-                                        @foreach($holders as $holder)
-                                            <td>
-                                                {{
-                                                    ($holderData['holder'] === $holder)
-                                                        ? ($data['location'] ?? 'Not Applicable')
-                                                        : 'Not Applicable'
-                                                }}
-                                            </td>
-                                        @endforeach
-                                    </tr>
+                                <td>
+                                    @if($details || is_numeric($amount))
 
-                                    {{-- Area --}}
-                                    <tr>
-                                        <td style="border-bottom: 1px solid #fff;"></td>
-                                        <td>
-                                            Area (total measurement)
-                                        </td>
-                                        @foreach($holders as $holder)
-                                            <td>
-                                                {{
-                                                    ($holderData['holder'] === $holder)
-                                                        ? ($data['area'] ?? 'Not Applicable')
-                                                        : 'Not Applicable'
-                                                }}
-                                            </td>
-                                        @endforeach
-                                    </tr>
+                                        @if($details)
+                                            <div>{{ $details }}</div>
+                                        @endif
 
-                                    {{-- Inherited --}}
-                                    <tr>
-                                        <td style="border-bottom: 1px solid #fff;"></td>
-                                        <td>Whether inherited property (Yes or No)</td>
+                                        @if(is_numeric($amount))
+                                            <div>Rs. {{ number_format((float)$amount,2) }}</div>
+                                        @endif
 
-                                        @foreach($holders as $holder)
-                                            <td>
-                                                {{
-                                                    ($holderData['holder'] === $holder)
-                                                        ? ($data['inherited'] ?? 'Not Applicable')
-                                                        : 'Not Applicable'
-                                                }}
-                                            </td>
-                                        @endforeach
-                                    </tr>
+                                    @else
+                                        Not Applicable
+                                    @endif
+                                </td>
 
-
-                                    {{-- Purchase date --}}
-                                    <tr>
-                                        <td style="border-bottom: 1px solid #fff;"></td>
-                                        <td>Date of purchase (if self-acquired)</td>
-
-                                        @foreach($holders as $holder)
-                                            <td>
-                                                {{
-                                                    ($holderData['holder'] === $holder)
-                                                        ? ($data['purchase_date'] ?? 'Not Applicable')
-                                                        : 'Not Applicable'
-                                                }}
-                                            </td>
-                                        @endforeach
-                                    </tr>
-
-
-                                    {{-- Purchase cost --}}
-                                    <tr>
-                                        <td style="border-bottom: 1px solid #fff;"></td>
-                                        <td>Cost at time of purchase</td>
-
-                                        @foreach($holders as $holder)
-                                            @php
-                                                $val = ($holderData['holder'] === $holder)
-                                                        ? ($data['purchase_cost'] ?? 'Not Applicable')
-                                                        : 'Not Applicable';
-
-                                                if (is_numeric($val)) {
-                                                    $grossTotal[$holder] = ($grossTotal[$holder] ?? 0) + (float)$val;
-                                                    $val = number_format((float)$val, 2);
-                                                }
-                                            @endphp
-                                            <td>{{ $val }}</td>
-                                        @endforeach
-                                    </tr>
-
-
-                                    {{-- Investment made --}}
-                                    <tr>
-                                        <td style="border-bottom: 1px solid #fff;"></td>
-                                        <td>Any Investment on property (development/construction etc.)</td>
-
-                                        @foreach($holders as $holder)
-                                            @php
-                                                $val = ($holderData['holder'] === $holder)
-                                                        ? ($data['investment_made'] ?? 'Not Applicable')
-                                                        : 'Not Applicable';
-
-                                                if (is_numeric($val)) {
-                                                    $grossTotal[$holder] = ($grossTotal[$holder] ?? 0) + (float)$val;
-                                                    $val = number_format((float)$val, 2);
-                                                }
-                                            @endphp
-                                            <td>{{ $val }}</td>
-                                        @endforeach
-                                    </tr>
-
-
-                                    {{-- Current Value --}}
-                                    <tr>
-                                        <td></td>
-                                        <td>Approximate Current Market Value</td>
-
-                                        @foreach($holders as $holder)
-                                            @php
-                                                $val = ($holderData['holder'] === $holder)
-                                                        ? ($data['current_value'] ?? 'Not Applicable')
-                                                        : 'Not Applicable';
-
-                                                if (is_numeric($val)) {
-                                                    $grossTotal[$holder] = ($grossTotal[$holder] ?? 0) + (float)$val;
-                                                    $val = number_format((float)$val, 2);
-                                                }
-                                            @endphp
-                                            <td>{{ $val }}</td>
-                                        @endforeach
-                                    </tr>
-                                @endif
                             @endforeach
-                        @endforeach
+                        </tr>
 
                     @endforeach
 
-                    {{-- Gross Total --}}
+
+                    {{-- TOTAL ROW --}}
                     <tr>
                         <td>(vi)</td>
                         <td>Total of current market value of (i) to (v) above</td>
+
                         @foreach($holders as $holder)
-                            <td>{{ isset($grossTotal[$holder]) ? number_format($grossTotal[$holder],2) : 'Not Applicable' }}</td>
+                            <td>
+                                {{ isset($grossTotal[$holder])
+                                    ? number_format($grossTotal[$holder],2)
+                                    : 'Not Applicable'
+                                }}
+                            </td>
                         @endforeach
                     </tr>
-                </table>
 
+                    </table>
                 <div style="page-break-before: always;"></div>
                 <p>
                     <strong>(8)</strong> I give herein below the details of liabilities/dues to public financial institutions and government:-
