@@ -33,7 +33,8 @@ use App\Livewire\{
     NominationForm2B,
     NominationForm2BPreview,
     Form26,
-    Form26Preview
+    Form26Preview,
+    NominationDocumentCrud
 };
 use App\Http\Controllers\NominationPdfController;
 use App\Livewire\Candidate\DocumentComments;
@@ -98,6 +99,7 @@ Route::prefix('/admin')->middleware('auth:admin')->group(function () {
         Route::get('/zones', ZoneCrud::class)->name('admin.master.zones')->middleware('employee.permission:master_view_zones');
         Route::get('/phases', PhaseCrud::class)->name('admin.master.phases')->middleware('employee.permission:master_view_phases');
         Route::get('/event-categories', EventCategoryCrud::class)->name('admin.master.eventcategory')->middleware('employee.permission:master_view_event_categories');
+        Route::get('/nomination-documents', NominationDocumentCrud::class)->name('admin.master.nomination-documents')->middleware('employee.permission:master_view_nomination_documents');
     });
 
     Route::prefix('/employees')->group(function (){

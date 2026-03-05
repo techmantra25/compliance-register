@@ -14,5 +14,7 @@ class CandidateDocumentType extends Model
     protected $fillable = [
         'key',
         'name',
+        'status',
+        'position',
     ];
 }

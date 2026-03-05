@@ -80,7 +80,14 @@
                                     </a>
                                 </li>
                             @endif
-
+                            @if(childUserAccess(Auth::guard('admin')->user()->id,'master_view_nomination_documents'))
+                                <li class="nav-item mb-1">
+                                <a href="{{ route('admin.master.nomination-documents') }}"
+                                    class="nav-link small {{ request()->routeIs('admin.master.nomination-documents') ? 'active' : '' }}">
+                                        <i class="bi bi-calendar-event-fill me-1"></i> Required Nomination Documents
+                                    </a>
+                                </li>
+                            @endif
                         </ul>
                     </div>
                 </li>
