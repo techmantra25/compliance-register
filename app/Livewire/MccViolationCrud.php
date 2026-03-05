@@ -7,6 +7,7 @@ use Livewire\WithPagination;
 use Livewire\WithFileUploads;
 use App\Models\Assembly;
 use App\Models\Mcc;
+use App\Models\Admin;
 use App\Models\ChangeLog;
 
 class MccViolationCrud extends Component
@@ -26,6 +27,9 @@ class MccViolationCrud extends Component
 
     public $isEdit = false;
     public $filter_by_assembly = '';
+    public $filter_by_status = '';
+
+    public $legalAssociates = [];
 
     protected $paginationTheme = "bootstrap";
 
@@ -36,6 +40,7 @@ class MccViolationCrud extends Component
         'complainer_name' => 'required|string',
         'complainer_phone' => 'required|numeric|digits:10',
         'complainer_description' => 'nullable|string',
+        'action_taken' => 'nullable|exists:admins,id',
     ];
 
     protected $messages = [
@@ -50,6 +55,7 @@ class MccViolationCrud extends Component
     public function mount()
     {
         $this->assembly = Assembly::where('status', 'active')->orderBy('assembly_name_en')->get();
+        $this->legalAssociates = Admin::where('role', 'legal_associate')->where('suspended_status', 1)->get();
     }
 
     public function openMccModal()
@@ -91,6 +97,7 @@ class MccViolationCrud extends Component
         $this->complainer_name = $mcc->complainer_name;
         $this->complainer_phone = $mcc->complainer_phone;
         $this->complainer_description = $mcc->complainer_description;
+        $this->action_taken = $mcc->action_taken;
 
         $this->isEdit = true;
 
@@ -107,6 +114,8 @@ class MccViolationCrud extends Component
     {
         $this->validate();
 
+        $status = $this->action_taken ? 'processed' : 'pending_to_process';
+
         try {
             $mcc = Mcc::create([
                 'assembly_id' => $this->assembly_id,
@@ -115,6 +124,8 @@ class MccViolationCrud extends Component
                 'complainer_name' => $this->complainer_name,
                 'complainer_phone' => $this->complainer_phone,
                 'complainer_description' => $this->complainer_description,
+                'action_taken' => $this->action_taken,
+                'status' => $status
             ]);
 
             ChangeLog::create([
@@ -142,6 +153,8 @@ class MccViolationCrud extends Component
     {
         $this->validate();
 
+        $status = $this->action_taken ? 'processed' : 'pending_to_process';
+
         try {
             $mcc = Mcc::findOrFail($this->mcc_id);
 
@@ -154,15 +167,34 @@ class MccViolationCrud extends Component
                 'complainer_name' => $this->complainer_name,
                 'complainer_phone' => $this->complainer_phone,
                 'complainer_description' => $this->complainer_description,
+                'action_taken' => $this->action_taken,
+                'status' => $status
             ]);
 
             $new = $mcc->fresh()->toArray();
+
+            $description = [];
+
+            if ($old['action_taken'] != $new['action_taken']) {
+
+                $oldAssociate = Admin::find($old['action_taken']);
+                $newAssociate = Admin::find($new['action_taken']);
+
+                $oldName = $oldAssociate->name ?? 'None';
+                $newName = $newAssociate->name ?? 'None';
+
+                $description[] = "Action Taken changed from {$oldName} to {$newName}";
+            }
+
+            $logDescription = count($description)
+            ? implode(', ', $description)
+            : 'MCC updated Successfully';
 
             ChangeLog::create([
                 'module_name' => 'mcc',
                 'module_id'    => $mcc->id,
                 'action' => 'updated',
-                'description' => 'MCC updated Successfully',
+                'description' => $logDescription,
                 'old_data' => $old,
                 'new_data' => $new,
                 'changed_by' => auth()->id(),
@@ -209,16 +241,7 @@ class MccViolationCrud extends Component
         ];
         $mcc->action_taken = $this->action_taken;
 
-        if ($this->status == 'confirm_resolved') {
-            $mcc->status = 'confirm_resolved';
-        }
-        else{
-            if (!empty($mcc->action_taken)) {
-                $mcc->status = 'processed';
-            } else {
-                $mcc->status = 'pending_to_process';
-            }
-        }
+        $mcc->status = $this->action_taken ? 'processed' : 'pending_to_process';
 
         $mcc->save();
 
@@ -346,6 +369,7 @@ class MccViolationCrud extends Component
     public function resetFilters()
     {
         $this->filter_by_assembly = '';
+        $this->filter_by_status = '';
         $this->search = '';
 
         $this->dispatch('refreshChosen'); 
@@ -389,6 +413,15 @@ class MccViolationCrud extends Component
             $rows = [];
             $line = 1;
 
+            $legalAssociates = Admin::where('role', 'legal_associate')->where('suspended_status', 1)->pluck('id')->toArray();
+
+            if (count($legalAssociates) == 0) {
+                throw new \Exception("No Legal Associate found to assign MCC.");
+            }
+
+            $associateCount = count($legalAssociates);
+            $assignIndex = 0;
+
             while (($row = fgetcsv($file)) !== false) {
                 $line++;
 
@@ -405,6 +438,8 @@ class MccViolationCrud extends Component
                     throw new \Exception("Row $line : Assembly number <b>{$data['assembly_number']}</b> NOT found.");
                 }
 
+                $assignedAssociate = $legalAssociates[$assignIndex];
+
                 $rows[] = [
                     'assembly_id'            => $assembly->id,
                     'block'                  => $data['block'],
@@ -412,9 +447,16 @@ class MccViolationCrud extends Component
                     'complainer_name'        => $data['complainer_name'],
                     'complainer_phone'       => $data['complainer_phone'],
                     'complainer_description' => $data['complainer_description'],
+                    'action_taken'           => $assignedAssociate,
+                    'status'                 => 'processed',
                     'created_at'             => now(),
                     'updated_at'             => now()
                 ];
+                $assignIndex++;
+
+                if ($assignIndex >= $associateCount) {
+                    $assignIndex = 0;
+                }
             }
 
             fclose($file);
@@ -433,20 +475,79 @@ class MccViolationCrud extends Component
             session()->flash('error', 'Import failed: ' . $e->getMessage());
         }
     }
-    // public function render()
-    // {
-    //     return view('livewire.mcc-violation-crud', [
-    //         'mccList' => MCC::with(['districts','assembly', 'assembly.assemblyPhase', 'assembly.assemblyPhase.phase'])->latest()->paginate(20),
-    //     ])->layout('layouts.admin');
-    // }
+
+    public function exportMcc()
+    {
+        $user = auth()->user();
+
+        $query = Mcc::with(['assembly']);
+
+        if($user->role == 'legal_associate'){
+            $query->where('action_taken', $user->id);
+        }
+
+        if($this->search){
+            $query->where(function($q){
+                $q->where('block', 'like', "%{$this->search}%")
+                ->orWhere('gp', 'like', "%{$this->search}%")
+                ->orWhere('complainer_name', 'like', "%{$this->search}%")
+                ->orWhere('complainer_phone', 'like', "%{$this->search}%");
+            });
+        }
+
+        if($this->filter_by_assembly){
+            $query->where('assembly_id', $this->filter_by_assembly);
+        }
+
+        if($this->filter_by_status){
+            $query->where('status', $this->filter_by_status);
+        }
+
+        $mccList = $query->get();
+
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="mcc_export.csv"',
+        ];
+
+        $columns = ['Assembly', 'Block', 'GP', 'Complainer Name', 'Complainer Phone', 'Complainer Description', 'Status', 'Remarks'];
+
+        $callback = function() use ($mccList, $columns) {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, $columns);
+
+            foreach($mccList as $item){
+                fputcsv($file, [
+                    $item->assembly->assembly_name_en ?? 'N/A',
+                    $item->block,
+                    $item->gp,
+                    $item->complainer_name,
+                    $item->complainer_phone,
+                    $item->complainer_description,
+                    $item->status,
+                    $item->remarks ?? 'N/A',
+                ]);
+            }
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
     public function render()
     {
+        $user = auth()->user();
+
         $campaigns = Mcc::with([
                 'districts',
                 'assembly',
                 'assembly.assemblyPhase',
                 'assembly.assemblyPhase.phase',
             ])
+
+            ->when($user->role == 'legal_associate', function ($query) use ($user) {
+                $query->where('action_taken', $user->id);
+            })
 
             ->when($this->search, function ($query) {
                 $query->where(function ($q) {
@@ -465,6 +566,10 @@ class MccViolationCrud extends Component
 
             ->when($this->filter_by_assembly, function ($q) {
                 $q->where('assembly_id', $this->filter_by_assembly);
+            })
+
+            ->when($this->filter_by_status, function ($q) {
+                $q->where('status', $this->filter_by_status);
             })
             ->orderBy('id', 'DESC') 
             ->paginate(20);

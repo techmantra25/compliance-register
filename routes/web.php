@@ -33,7 +33,8 @@ use App\Livewire\{
     NominationForm2B,
     NominationForm2BPreview,
     Form26,
-    Form26Preview
+    Form26Preview,
+    NominationDocumentCrud
 };
 use App\Http\Controllers\NominationPdfController;
 use App\Livewire\Candidate\DocumentComments;
@@ -98,6 +99,7 @@ Route::prefix('/admin')->middleware('auth:admin')->group(function () {
         Route::get('/zones', ZoneCrud::class)->name('admin.master.zones')->middleware('employee.permission:master_view_zones');
         Route::get('/phases', PhaseCrud::class)->name('admin.master.phases')->middleware('employee.permission:master_view_phases');
         Route::get('/event-categories', EventCategoryCrud::class)->name('admin.master.eventcategory')->middleware('employee.permission:master_view_event_categories');
+        Route::get('/nomination-documents', NominationDocumentCrud::class)->name('admin.master.nomination-documents')->middleware('employee.permission:master_view_nomination_documents');
     });
 
     Route::prefix('/employees')->group(function (){
@@ -116,8 +118,8 @@ Route::prefix('/admin')->middleware('auth:admin')->group(function () {
         Route::get('/form-26/{id}', Form26::class)->name('admin.candidates.form26');
         Route::get('/form-26/{id}/preview',Form26Preview::class)->name('admin.candidates.form26.preview');
         Route::get('/form-2B/pdf/{id}', [NominationPdfController::class, 'download'])->name('admin.candidates.form2B.pdf');
-        Route::get('/nomination-log/pdf/{log}',[NominationPdfController::class, 'downloadFromLog'])->name('admin.candidates.log.pdf');
         Route::get('/form-26/pdf/{id}', [NominationPdfController::class, 'downloadPdf'])->name('admin.candidates.form26.pdf');
+        Route::get('/nomination-log/pdf/{log}',[NominationPdfController::class, 'downloadFromLog'])->name('admin.candidates.log.pdf');
         Route::get('/nominations', CandidateContactList::class)->name('admin.candidates.contacts');
         Route::get('/social-media', DiscrepancyReportCrud::class)->name('admin.candidates.discrepancies.report');
         // Route::get('/Candidate Discrepancy Reports', [CandidateController::class, 'nominations'])->name('admin.candidates.nominations');

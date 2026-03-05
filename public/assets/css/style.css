@@ -1,5 +1,5 @@
 :root {
-    --primary-color: #3A1212;
+    --primary-color: #F97D09;
     --sidebar-width: 206px;
 }
 /* =========================================
@@ -131,6 +131,18 @@ body {
     transition: all 0.3s ease;
 }
 
+.btn-danger{
+    background-color: #F97D09;
+}
+
+.btn-secondary{
+    background-color: #278D27;
+}
+
+.text-dark{
+    color: #278D27 !important;
+}
+
 /* Mobile view */
 @media (max-width: 992px) {
     .sidebar {
@@ -229,7 +241,7 @@ body {
 }
  .bg-lavel-danger{
         background: #ffe2e3;
-    color: #ff5156;
+    color: #F97D09;
     }
     .bg-lavel-success{
     background-color: #e4f7d6 !important;

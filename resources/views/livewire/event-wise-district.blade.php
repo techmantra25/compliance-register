@@ -8,7 +8,7 @@
                     <div class="row">
                         <div class="col-md-12 mb-4">
                     <div class="inner-wrapper">
-                        <div class="title-head">Event Permission (District Level)</div>
+                        <div class="title-head" style="color: #F97D09;">Event Permission (District Level)</div>
                         <div class="wrappper-bpdy">
                             <div class="bar-chirt-option">
                                 {{-- @dd($uniqueEventDistricts) --}}

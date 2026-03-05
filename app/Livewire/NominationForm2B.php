@@ -10,7 +10,6 @@ use Livewire\WithFileUploads;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\DB;
 
-
 class NominationForm2B extends Component
 {
     public $candidateId;
@@ -100,6 +99,9 @@ class NominationForm2B extends Component
 
     public $commission_disqualified;
     public $commission_disqualified_date;
+
+    public $criminal_check = 'No';
+    public $formLocked = false;
    
 
     protected $rules = [
@@ -226,7 +228,17 @@ class NominationForm2B extends Component
         $this->disqualified_by_president = $this->titleCase($this->disqualified_by_president);
         $this->subsisting_govt_contract = $this->titleCase($this->subsisting_govt_contract);
         $this->managing_agent_role = $this->titleCase($this->managing_agent_role);
+        $this->criminal_check = 'No';
+        $this->formLocked = false;
+    }
 
+    public function updatedCriminalCheck($value)
+    {
+        if ($value === 'Yes') {
+            $this->formLocked = true;
+        } else {
+            $this->formLocked = false;
+        }
     }
 
     public function updatedConvicted($value)

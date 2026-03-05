@@ -9,7 +9,7 @@
                         <div class="col-md-6 p-5 bg-white">
                             <div class="text-center mb-4">
                                 <img src="{{ asset('assets/img/logo.png') }}" alt="Logo" height="50">
-                                <h3 class="mt-3 fw-semibold">Welcome Back!</h3>
+                                <h3 class="mt-3 fw-semibold" style="color: #F97D09;">Welcome Back!</h3>
                                 <p class="text-muted">Sign in to continue to us.</p>
                             </div>
 

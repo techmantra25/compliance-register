@@ -15,6 +15,10 @@
             margin: 20px;
             color: #000;
             line-height: 1.4;
+<<<<<<< HEAD
+=======
+            font-family: DejaVu Sans, sans-serif;
+>>>>>>> f8b00e02d52e33e77499fce42db9885e26dcec78
         }
 
         .form-container {
@@ -297,6 +301,7 @@
                     <div style="font-size: 16px; line-height: 2;">
                         Candidate's name <span class="input-field input-field-large"
                         readonly style="width: 300px;">{{ucwords($nomination->candidate->name)}}</span>
+<<<<<<< HEAD
                         <div wire:key="relation-type-1">
                             <label>
                                 <input type="radio" name="relation_type_main" wire:model="relation_type" value="father">
@@ -331,6 +336,30 @@
                                 <input type="radio" name="pronoun-copy" wire:model="pronoun" value="her"> Her
                             </label>
                         </div>
+=======
+                        @php
+                            $relation = strtolower($nomination->relation_type ?? '');
+                        @endphp
+
+                        <div style="margin-top: 5px;">
+                            Father's [{{ $relation == 'father' ? 'X' : ' ' }}]
+                            /
+                            Mother's [{{ $relation == 'mother' ? 'X' : ' ' }}]
+                            /
+                            Husband's [{{ $relation == 'husband' ? 'X' : ' ' }}]
+                        </div>
+
+                        name <span class="input-field input-field-medium" style="width: 400px;">{{ucwords($nomination->relation_name)}}</span>
+                            @php $pronoun = strtolower($nomination->pronoun); @endphp
+
+                            His [{{ $pronoun == 'his' ? 'X' : ' ' }}]
+                            Her [{{ $pronoun == 'her' ? 'X' : ' ' }}]
+                        postal address<span class="input-field input-field-large" style="width: 428px;">{{ucwords($nomination->postal_address)}}</span>
+                            @php $pronoun = strtolower($nomination->pronoun); @endphp
+
+                            His [{{ $pronoun == 'his' ? 'X' : ' ' }}]
+                            Her [{{ $pronoun == 'her' ? 'X' : ' ' }}]
+>>>>>>> f8b00e02d52e33e77499fce42db9885e26dcec78
                         name is entered at Sl. No<span class="input-field input-field-small">{{$nomination->candidate_serial_no}}</span>in Part No.
                         <span class="input-field input-field-small">{{$nomination->candidate_part_no}}</span>of the
                         electoral roll for

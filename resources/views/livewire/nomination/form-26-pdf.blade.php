@@ -24,6 +24,7 @@
         text-align: right;
     }
 
+<<<<<<< HEAD
     /* .clearfix::after {
         content: "";
         clear: both;
@@ -33,6 +34,11 @@
     .photo-box {
         width: 120px;
         height: 140px;
+=======
+    .photo-box {
+        width: 120px;
+        height: 150px;
+>>>>>>> f8b00e02d52e33e77499fce42db9885e26dcec78
         border: 1px solid #000;
         float: right;
         text-align: center;
@@ -40,9 +46,12 @@
         padding: 5px;
         display: flex;
         align-items: center;
+<<<<<<< HEAD
         position: relative;
         box-sizing: border-box;
         border-bottom:1px solid #000;
+=======
+>>>>>>> f8b00e02d52e33e77499fce42db9885e26dcec78
     }
 
     .input-line {
@@ -71,6 +80,10 @@
         border-collapse: collapse;
         margin-top: 10px;
         border-collapse: collapse;
+<<<<<<< HEAD
+=======
+        /* table-layout: fixed; */
+>>>>>>> f8b00e02d52e33e77499fce42db9885e26dcec78
     }
 
     table, th, td {
@@ -84,6 +97,11 @@
     th, td {
         padding: 6px;
         vertical-align: top;
+<<<<<<< HEAD
+=======
+        /* word-wrap: break-word;
+        overflow-wrap: break-word; */
+>>>>>>> f8b00e02d52e33e77499fce42db9885e26dcec78
         white-space: normal;
         line-height: 1.21;
     }
@@ -127,7 +145,10 @@
         background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='2' viewBox='0 0 100 2'%3E%3Cline x1='0' y1='1' x2='100' y2='1' stroke='%23000' stroke-width='1' stroke-dasharray='2,2'/%3E%3C/svg%3E");
         background-repeat: repeat-x;
         background-position: bottom;
+<<<<<<< HEAD
         border-bottom:1px dashed #000;
+=======
+>>>>>>> f8b00e02d52e33e77499fce42db9885e26dcec78
         font-weight: bold;
         word-break: break-word;
         overflow-wrap: anywhere;
@@ -173,10 +194,13 @@
     page-break-before: always;
 } */
 
+<<<<<<< HEAD
     table td {
         word-break: break-word;
     }
 
+=======
+>>>>>>> f8b00e02d52e33e77499fce42db9885e26dcec78
  @media print {
 
     @page {
@@ -217,10 +241,14 @@
         background-repeat: repeat-x;
         background-position: bottom;
         display: inline !important;
+<<<<<<< HEAD
         border-bottom:1px dashed #000;
     }
 
 
+=======
+    }
+>>>>>>> f8b00e02d52e33e77499fce42db9885e26dcec78
     /* .keep-together {
         page-break-inside: avoid !important;
         break-inside: avoid !important;
@@ -236,7 +264,11 @@
                     <div style="text-align: center; font-weight:bold;">Form 26</div>
                     <div class="center" style="font-weight:bold;">(See rule 4A)</div>
 
+<<<<<<< HEAD
                     <div style="text-align: right; overflow:hidden; height:160px;  margin-bottom: 1px;">
+=======
+                    <div style="text-align: right; overflow: auto; margin-bottom: 1px;">
+>>>>>>> f8b00e02d52e33e77499fce42db9885e26dcec78
                         <div class="photo-box">
                             Please affix your
                             recent passport
@@ -244,10 +276,15 @@
                             here
                         </div>
                     </div>
+<<<<<<< HEAD
 
                     
                     <div style="text-align: justify; font-weight: bold;">
                         <div style="text-align: center; font-weight:bold; margin-top: 20px; text-decoration: underline;">AFFIDAVIT</div>
+=======
+                    <div style="text-align: center; font-weight:bold; margin-top: 20px; text-decoration: underline;">AFFIDAVIT</div>
+                    <div style="text-align: justify; font-weight: bold;">
+>>>>>>> f8b00e02d52e33e77499fce42db9885e26dcec78
                         AFFIDAVIT TO BE FILED BY THE CANDIDATE ALONGWITH NOMINATION PAPER BEFORE THE RETURNING OFFICER FOR ELECTION TO 
                         <span class="flex-input"  contenteditable="true" style="min-width:250px; text-transform: uppercase;">THE LEGISLATIVE ASSEMBLY</span>
                         (NAME OF THE HOUSE) FORM <span class="flex-input"  contenteditable="true" style="min-width:250px; text-transform: uppercase;">{{ optional($form->assembly)->assembly_number }} - {{ optional($form->assembly)->assembly_name_en }}</span>
@@ -256,7 +293,11 @@
 
                     <div style="text-align: center; font-weight:bold; margin-top: 20px; text-decoration: underline;">PART A</div>
 
+<<<<<<< HEAD
                     <p style="text-align:left;">
+=======
+                    <p>
+>>>>>>> f8b00e02d52e33e77499fce42db9885e26dcec78
                         I<span class="flex-input"  contenteditable="true" style="padding: 0 30px;">{{ucwords($form->candidate->name)}}</span> 
                         **<span>{{ucwords($form->relation_type)}}</span> of 
                         <span class="flex-input"  contenteditable="true" style="padding: 0 30px;">{{ucwords($form->relation_name)}}</span>,
@@ -1374,7 +1415,11 @@
                     <span style="font-weight: bold;">(11)</span><strong>ABSTRACT OF THE DETAILS GIVEN IN (1) TO (10) OF PART - A:</strong>
                 </p>
 
+<<<<<<< HEAD
                 <table style="">
+=======
+                <table style="table-layout: fixed;">
+>>>>>>> f8b00e02d52e33e77499fce42db9885e26dcec78
                     <tr>
                         <td style="width: 60px;">1.</td>
                         <td style="text-align: justify; width:200px;">
@@ -1435,9 +1480,15 @@
                     </tr>
                     <tr>
                         <td colspan="3" style="padding: 0;">
+<<<<<<< HEAD
                             <table style="padding: 0; border: none; border:1px solid transparent; margin: 0; width: 100%; table-layout: fixed; border-collapse: collapse;">
                                 <tr>
                                     <th style="width: 10%; text-align: left; border: none; border-right:1px solid #000;">7.</th>
+=======
+                            <table style="padding: 0; border: none; border:1px solid transparent; margin: 0; table-layout: fixed; width: auto;">
+                                <tr>
+                                    <th style="width: 60px; text-align: left; border: none; border-right:1px solid #000;">7.</th>
+>>>>>>> f8b00e02d52e33e77499fce42db9885e26dcec78
                                     <th style="text-align: left; border: none; border-right:1px solid #000; font-weight: bold; width:130px;"></th>
                                     <th style="text-align: left; border: none; border-right:1px solid #000; width:130px; text-align: center;">
                                         PAN of
@@ -1496,7 +1547,11 @@
                                     <td colspan="5" style="border-color: transparent; padding:0; border-width: 0;">
                                         <table style="padding: 0; border: none; border:1px solid transparent; margin: 0; table-layout: fixed; border-width: 0;">
                                             <tr>
+<<<<<<< HEAD
                                                 <th style="width: 10%; text-align: left; border: none; border-right:1px solid #000;"></th>
+=======
+                                                <th style="width: 55px; text-align: left; border: none; border-right:1px solid #000;"></th>
+>>>>>>> f8b00e02d52e33e77499fce42db9885e26dcec78
                                                 <th style=" text-align: left; border: none; border-right:1px solid #000; width: 200px; font-weight: bold;">Description</th>
                                                 <th style=" text-align: left; border: none; border-right:1px solid #000; font-weight: bold;">Self</th>
                                                 <th style=" text-align: left; border: none; border-right:1px solid #000; font-weight: bold;">Spouse</th>
@@ -1507,7 +1562,11 @@
 
                                             <tr>
                                                 <td style="vertical-align: middle; border-left: 0;">A</td>
+<<<<<<< HEAD
                                                 <td style="vertical-align: middle;"><strong style="line-height:1;">Moveable Assets(Total value)</strong></td>
+=======
+                                                <td style="vertical-align: middle;"><strong>Moveable Assets(Total value)</strong></td>
+>>>>>>> f8b00e02d52e33e77499fce42db9885e26dcec78
                                                 <td style="vertical-align: middle;">16,72,352.71</td>
                                                 <td style="vertical-align: middle;">Not Applicable</td>
                                                 <td style="vertical-align: middle;">Not Applicable</td>
@@ -1516,13 +1575,18 @@
                                             </tr>
 
                                             <tr>
+<<<<<<< HEAD
                                                 <td style="text-align: center; font-weight: bold; padding: 0; border-left: 0; position: relative; ">
+=======
+                                                <td style="text-align: center; font-weight: bold; padding: 0; border-left: 0; position: relative;">
+>>>>>>> f8b00e02d52e33e77499fce42db9885e26dcec78
                                                     <!-- <table style="padding: 0; border: none; border:1px solid transparent; margin: 0; table-layout: fixed; border-width: 0;">
                                                         <tr>
                                                             <td style="text-align: center; border-top: 0; border-left:0; border-bottom: 0;">B</td>
                                                             <td style="text-align: center; font-weight: bold; border-top: 0; border-right:0; border-bottom: 0"></td>
                                                         </tr>
                                                     </table> -->
+<<<<<<< HEAD
                                                     
                                                     <!-- <div style="display: flex; justify-content: center; align-items: center;">
                                                         <div style="border-right:1px solid #000; flex:1 0 0; font-weight: bold; height:100%;">B</div>
@@ -1538,6 +1602,19 @@
                                                 <td style="line-height:1;">Not Applicable</td>
                                                 <td style="line-height:1;">Not Applicable</td>
                                                 <td style=" border-right: 0; line-height:1;">Not Applicable</td>
+=======
+                                                    <div style="display: flex; justify-content: center; align-items: center; height: 100%; position: absolute; left:0; top:0; width:100%;">
+                                                        <div style="border-right:1px solid #000; flex:1 0 0; font-weight: bold; height:100%;">B</div>
+                                                        <div style="flex:1 0 0; height: 100%;"></div>
+                                                    </div>
+                                                </td>
+                                                <td> <strong>Immovable Assets</strong></td>
+                                                <td>Not Applicable</td>
+                                                <td>Not Applicable</td>
+                                                <td>Not Applicable</td>
+                                                <td>Not Applicable</td>
+                                                <td style=" border-right: 0;">Not Applicable</td>
+>>>>>>> f8b00e02d52e33e77499fce42db9885e26dcec78
                                             </tr>
 
                                             <tr>
@@ -1548,6 +1625,7 @@
                                                             <td style="text-align: center; border-top: 0; border-right:0; border-bottom: 0;">i</td>
                                                         </tr>
                                                     </table> -->
+<<<<<<< HEAD
                                                     <!-- <div style="display: flex; justify-content: center; align-items: center; height: 100%; position: absolute; left:0; top:0; width:100%;">
                                                         <div style="border-right:1px solid #000; flex:1 0 0; font-weight: bold; height:100%;"></div>
                                                         <div style="flex:1 0 0; height: 100%;">i</div>
@@ -1555,6 +1633,12 @@
                                                     
                                                     <div style="position:absolute; left:0; height:100%; top:0; width: 50%; border-right:1px solid #000;"></div>
                                                     <div style="position:absolute; right:0; top:0; width: 50%; ">i</div>
+=======
+                                                    <div style="display: flex; justify-content: center; align-items: center; height: 100%; position: absolute; left:0; top:0; width:100%;">
+                                                        <div style="border-right:1px solid #000; flex:1 0 0; font-weight: bold; height:100%;"></div>
+                                                        <div style="flex:1 0 0; height: 100%;">i</div>
+                                                    </div>
+>>>>>>> f8b00e02d52e33e77499fce42db9885e26dcec78
                                                 </td>
                                                 <td>
                                                     Purchase Price of
@@ -1569,7 +1653,10 @@
                                                 <td>Not Applicable</td>
                                                 <td style="border-right: 0;">Not Applicable</td>
                                             </tr>
+<<<<<<< HEAD
 
+=======
+>>>>>>> f8b00e02d52e33e77499fce42db9885e26dcec78
                                             <tr>
                                                 <td style="text-align: center; font-weight: bold; padding: 0; border-left: 0; position: relative;">
                                                     <!-- <table style="padding: 0; border: none; border:1px solid transparent; margin: 0; table-layout: fixed; border-width: 0;">
@@ -1578,12 +1665,19 @@
                                                             <td style="text-align: center; font-weight: bold; border-top: 0; border-right:0; border-bottom: 0;">ii</td>
                                                         </tr>
                                                     </table> -->
+<<<<<<< HEAD
                                                     <!-- <div style="display: flex; justify-content: center; align-items: center; height: 100%; position: absolute; left:0; top:0; width:100%;">
                                                         <div style="border-right:1px solid #000; flex:1 0 0; font-weight: bold; height:100%;"></div>
                                                         <div style="flex:1 0 0; height: 100%;">ii</div>
                                                     </div> -->
                                                     <div style="position:absolute; left:0; top:0; width: 50%; border-right:1px solid #000;"></div>
                                                     <div style="position:absolute; right:0; top:0; width: 50%; ">ii</div>
+=======
+                                                    <div style="display: flex; justify-content: center; align-items: center; height: 100%; position: absolute; left:0; top:0; width:100%;">
+                                                        <div style="border-right:1px solid #000; flex:1 0 0; font-weight: bold; height:100%;"></div>
+                                                        <div style="flex:1 0 0; height: 100%;">ii</div>
+                                                    </div>
+>>>>>>> f8b00e02d52e33e77499fce42db9885e26dcec78
                                                 </td>
                                                 <td>
                                                     Development/const
@@ -1608,12 +1702,19 @@
                                                             <td style="text-align: center; font-weight: bold; border-top: 0; border-right:0; border-bottom: 0;">iii</td>
                                                         </tr>
                                                     </table> -->
+<<<<<<< HEAD
                                                     <!-- <div style="display: flex; justify-content: center; align-items: center; height: 100%; position: absolute; left:0; top:0; width:100%;">
                                                         <div style="border-right:1px solid #000; flex:1 0 0; font-weight: bold; height:100%;"></div>
                                                         <div style="flex:1 0 0; height: 100%;">iii</div>
                                                     </div> -->
                                                     <div style="position:absolute; left:0; top:0; width: 50%; border-right:1px solid #000;"></div>
                                                     <div style="position:absolute; right:0; top:0; width: 50%;">iii</div>
+=======
+                                                    <div style="display: flex; justify-content: center; align-items: center; height: 100%; position: absolute; left:0; top:0; width:100%;">
+                                                        <div style="border-right:1px solid #000; flex:1 0 0; font-weight: bold; height:100%;"></div>
+                                                        <div style="flex:1 0 0; height: 100%;">iii</div>
+                                                    </div>
+>>>>>>> f8b00e02d52e33e77499fce42db9885e26dcec78
                                                 </td>
                                                 <td style="padding:0;">
                                                     <table style="padding: 0; margin-top: 0; table-layout: fixed; border-top: 0; border-left:0; border-bottom: 0; border-right: 0;">
@@ -1702,15 +1803,22 @@
 
                                 <tr>
                                     <td style="border-right-color: #000; border-bottom-color: #000; border-bottom: 0; padding: 0; border-left:0; border-top:0; border-right: 0;" colspan="7">
+<<<<<<< HEAD
                                         <table style="padding: 0; border: none; border:1px solid transparent; margin: 0; table-layout: fixed; border-width: 0; border-collapse: collapse;">
                                             <tr>
                                                 <td style="border-right-color: #000; border-bottom-color: #000; border-bottom: 0; padding: 0; border-left:0; border-top:0; border-right: 0; width:10%; position:relative;">
+=======
+                                        <table style="padding: 0; border: none; border:1px solid transparent; margin: 0; table-layout: fixed; border-width: 0;">
+                                            <tr>
+                                                <td style="border-right-color: #000; border-bottom-color: #000; border-bottom: 0; padding: 0; border-left:0; border-top:0; border-right: 0; width:55px; position: relative;">
+>>>>>>> f8b00e02d52e33e77499fce42db9885e26dcec78
                                                     <!-- <table style="padding: 0; border: none; margin: 0; table-layout: fixed; border-width: 0; border-top: 0; border-left: 0; border-right: 0; border-bottom: 0;">
                                                         <tr>
                                                             <td style="text-align: center; font-weight: bold; border-top: 0; border-right:0; border-bottom: 0;  border-left: 0;">9</td>
                                                             <td style="text-align: center; font-weight: bold; border-top: 0; border-right:0; border-bottom: 0"></td>
                                                         </tr>
                                                     </table> -->
+<<<<<<< HEAD
                                                     <!-- <div style="display: flex; justify-content: center; align-items: center; height: 100%; position: absolute; left:0; top:0; width:100%;">
                                                         <div style="border-right:1px solid #000; flex:1 0 0; font-weight: bold; height:100%; text-align: center;">9</div>
                                                         <div style="flex:1 0 0; height: 100%;"></div>
@@ -1719,6 +1827,14 @@
                                                     <div style="position:absolute; right:0; top:0;  width: 50%; "></div>
                                                 </td>
                                                 <td style=" font-weight: bold; border-top: 0; border-right:0; border-bottom: 0; width:20%;">
+=======
+                                                    <div style="display: flex; justify-content: center; align-items: center; height: 100%; position: absolute; left:0; top:0; width:100%;">
+                                                        <div style="border-right:1px solid #000; flex:1 0 0; font-weight: bold; height:100%; text-align: center;">9</div>
+                                                        <div style="flex:1 0 0; height: 100%;"></div>
+                                                    </div>
+                                                </td>
+                                                <td style=" font-weight: bold; border-top: 0; border-right:0; border-bottom: 0; width:200px;">
+>>>>>>> f8b00e02d52e33e77499fce42db9885e26dcec78
                                                     Liabilities
                                                 </td>
                                                 <td style="text-align: center; font-weight: bold; border-top: 0; border-right:0; border-bottom: 0"></td>
@@ -1737,12 +1853,19 @@
                                                             <td style="text-align: center; border-top: 0; border-right:0; border-bottom: 0;">i</td>
                                                         </tr>
                                                     </table> -->
+<<<<<<< HEAD
                                                     <!-- <div style="display: flex; justify-content: center; align-items: center; height: 100%; position: absolute; left:0; top:0; width:100%;">
                                                         <div style="border-right:1px solid #000; flex:1 0 0; font-weight: bold; height:100%;"></div>
                                                         <div style="flex:1 0 0; height: 100%;">(i)</div>
                                                     </div> -->
                                                     <div style="position:absolute; left:0; top:0; width: 50%; border-right:1px solid #000;"></div>
                                                     <div style="position:absolute; right:0; top:0; width: 50%; ">(i)</div>
+=======
+                                                    <div style="display: flex; justify-content: center; align-items: center; height: 100%; position: absolute; left:0; top:0; width:100%;">
+                                                        <div style="border-right:1px solid #000; flex:1 0 0; font-weight: bold; height:100%;"></div>
+                                                        <div style="flex:1 0 0; height: 100%;">(i)</div>
+                                                    </div>
+>>>>>>> f8b00e02d52e33e77499fce42db9885e26dcec78
                                                 </td>
                                                 <td>
                                                     Government dues
@@ -1763,12 +1886,19 @@
                                                             <td style="text-align: center; border-top: 0; border-right:0; border-bottom: 0;">ii</td>
                                                         </tr>
                                                     </table> -->
+<<<<<<< HEAD
                                                     <!-- <div style="display: flex; justify-content: center; align-items: center; height: 100%; position: absolute; left:0; top:0; width:100%;">
                                                         <div style="border-right:1px solid #000; flex:1 0 0; font-weight: bold; height:100%;"></div>
                                                         <div style="flex:1 0 0; height: 100%;">(ii)</div>
                                                     </div> -->
                                                     <div style="position:absolute; left:0; top:0; width: 50%; border-right:1px solid #000;"></div>
                                                     <div style="position:absolute; right:0; top:0; width: 50%; ">(ii)</div>
+=======
+                                                    <div style="display: flex; justify-content: center; align-items: center; height: 100%; position: absolute; left:0; top:0; width:100%;">
+                                                        <div style="border-right:1px solid #000; flex:1 0 0; font-weight: bold; height:100%;"></div>
+                                                        <div style="flex:1 0 0; height: 100%;">(ii)</div>
+                                                    </div>
+>>>>>>> f8b00e02d52e33e77499fce42db9885e26dcec78
                                                 </td>
                                                 <td>
                                                     Loans from Bank,
@@ -1787,23 +1917,38 @@
                                     </td>
                                 </tr>
 
+<<<<<<< HEAD
                                 <tr fffffff>
                                     <td style="border-right-color: #000; border-bottom-color: #000; border-bottom: 0; padding: 0; border-left:0; border-top:0; border-right: 0;" colspan="5">
                                         <table style="padding: 0; border: none; border:1px solid transparent; margin: 0; table-layout: fixed; border-width: 0;">
                                             <tr>
                                                 <td style="border-right-color: #000; border-bottom-color: #000; border-bottom: 0; padding: 0; border-left:0; border-top:0; border-right: 0; width:10%; position: relative;">
+=======
+                                <tr >
+                                    <td style="border-right-color: #000; border-bottom-color: #000; border-bottom: 0; padding: 0; border-left:0; border-top:0; border-right: 0;" colspan="7">
+                                        <table style="padding: 0; border: none; border:1px solid transparent; margin: 0; table-layout: fixed; border-width: 0;">
+                                            <tr>
+                                                <td style="border-right-color: #000; border-bottom-color: #000; border-bottom: 0; padding: 0; border-left:0; border-top:0; border-right: 0; width:55px; position: relative;">
+>>>>>>> f8b00e02d52e33e77499fce42db9885e26dcec78
                                                     <!-- <table style="padding: 0; border: none; margin: 0; table-layout: fixed; border-width: 0; border-top: 0; border-left: 0; border-right: 0; border-bottom: 0;">
                                                         <tr>
                                                             <td style="text-align: center; font-weight: bold; border-top: 0; border-right:0; border-bottom: 0;  border-left: 0;">10</td>
                                                             <td style="text-align: center; font-weight: bold; border-top: 0; border-right:0; border-bottom: 0"></td>
                                                         </tr>
                                                     </table> -->
+<<<<<<< HEAD
                                                     <!-- <div style="display: flex; justify-content: center; align-items: center; height: 100%; position: absolute; left:0; top:0; width:100%;">
                                                         <div style="border-right:1px solid #000; flex:1 0 0; font-weight: bold; height:100%; text-align: center;">10</div>
                                                         <div style="flex:1 0 0; height: 100%;"></div>
                                                     </div> -->
                                                     <div style="position:absolute; left:0; top:0;  width: 50%; border-right:1px solid #000; text-align:center;">10</div>
                                                     <div style="position:absolute; right:0; top:0; width: 50%; "></div>
+=======
+                                                    <div style="display: flex; justify-content: center; align-items: center; height: 100%; position: absolute; left:0; top:0; width:100%;">
+                                                        <div style="border-right:1px solid #000; flex:1 0 0; font-weight: bold; height:100%; text-align: center;">10</div>
+                                                        <div style="flex:1 0 0; height: 100%;"></div>
+                                                    </div>
+>>>>>>> f8b00e02d52e33e77499fce42db9885e26dcec78
                                                 </td>
                                                 <td colspan="6" style="font-weight: bold; border-top: 0; border-right:0; border-bottom: 0;">
                                                     Liabilities that are under dispute
@@ -1819,6 +1964,7 @@
                                                             <td style="text-align: center; border-top: 0; border-right:0;">i</td>
                                                         </tr>
                                                     </table> -->
+<<<<<<< HEAD
                                                     <!-- <div style="display: flex; justify-content: center; align-items: center; height: 100%; position: absolute; left:0; top:0; width:100%;">
                                                         <div style="border-right:1px solid #000; flex:1 0 0; font-weight: bold; height:100%;"></div>
                                                         <div style="flex:1 0 0; height: 100%;">(i)</div>
@@ -1827,6 +1973,14 @@
                                                     <div style="position:absolute; right:0; top:0; width: 50%; ">(i)</div>
                                                 </td>
                                                 <td style="width: 20%;">
+=======
+                                                    <div style="display: flex; justify-content: center; align-items: center; height: 100%; position: absolute; left:0; top:0; width:100%;">
+                                                        <div style="border-right:1px solid #000; flex:1 0 0; font-weight: bold; height:100%;"></div>
+                                                        <div style="flex:1 0 0; height: 100%;">(i)</div>
+                                                    </div>
+                                                </td>
+                                                <td style="width: 200px;">
+>>>>>>> f8b00e02d52e33e77499fce42db9885e26dcec78
                                                     Government dues
                                                     (Total)
                                                 </td>
@@ -1845,6 +1999,7 @@
                                                             <td style="text-align: center; border-top: 0; border-right:0; border-bottom: 0;">ii</td>
                                                         </tr>
                                                     </table> -->
+<<<<<<< HEAD
                                                     <!-- <div style="display: flex; justify-content: center; align-items: center; height: 100%; position: absolute; left:0; top:0; width:100%;">
                                                         <div style="border-right:1px solid #000; flex:1 0 0; font-weight: bold; height:100%;"></div>
                                                         <div style="flex:1 0 0; height: 100%;">(ii)</div>
@@ -1854,6 +2009,15 @@
 
                                                 </td>
                                                 <td style="width: 20%;">
+=======
+                                                    <div style="display: flex; justify-content: center; align-items: center; height: 100%; position: absolute; left:0; top:0; width:100%;">
+                                                        <div style="border-right:1px solid #000; flex:1 0 0; font-weight: bold; height:100%;"></div>
+                                                        <div style="flex:1 0 0; height: 100%;">(ii)</div>
+                                                    </div>
+
+                                                </td>
+                                                <td style="width: 200px;">
+>>>>>>> f8b00e02d52e33e77499fce42db9885e26dcec78
                                                     Loans from Bank,
                                                     Financial Institutions
                                                     and others (Total)
@@ -1872,9 +2036,15 @@
 
                                 <tr>
                                     <td style="border-right-color: #000; border-bottom-color: #000; border-bottom: 0; padding: 0; border-left:0; border-top:0; border-right: 0;" colspan="7">
+<<<<<<< HEAD
                                         <table style="padding: 0; border: none; border:1px solid transparent; margin: 0; table-layout: fixed; border-width: 0; border-collapse: collapse;">
                                             <tr>
                                                 <td style="border-right-color: #000; border-bottom-color: #000; border-bottom: 0; padding: 0; border-left:0; border-top:0; border-right: 0; width:10%;">
+=======
+                                        <table style="padding: 0; border: none; border:1px solid transparent; margin: 0; table-layout: fixed; border-width: 0;">
+                                            <tr>
+                                                <td style="border-right-color: #000; border-bottom-color: #000; border-bottom: 0; padding: 0; border-left:0; border-top:0; border-right: 0; width:55px;">
+>>>>>>> f8b00e02d52e33e77499fce42db9885e26dcec78
                                                     <table style="padding: 0; border: none; margin: 0; table-layout: fixed; border-width: 0; border-top: 0; border-left: 0; border-right: 0; border-bottom: 0;">
                                                         <tr>
                                                             <td style="text-align: center; font-weight: bold; border-top: 0; border-right:0; border-bottom: 0;  border-left: 0;">11</td>

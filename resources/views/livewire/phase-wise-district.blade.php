@@ -6,7 +6,7 @@
                     <div class="row">
                         <div class="col-md-12 mb-4">
                     <div class="inner-wrapper">
-                        <div class="title-head">Nomination Vetting {{ $phaseName }} District View</div>
+                        <div class="title-head" style="color: #F97D09;">Nomination Vetting {{ $phaseName }} District View</div>
                         <div class="wrappper-bpdy">
                             <div class="bar-chirt-option">
                                 @foreach ($districtChart as $index => $row)

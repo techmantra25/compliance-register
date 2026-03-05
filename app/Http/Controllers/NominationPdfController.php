@@ -57,7 +57,6 @@ class NominationPdfController extends Controller
                 $log->created_at->format('Ymd_His') . '.pdf"'
             );
     }
-    
     public function downloadPdf($id)
     {
         $form = NominationForm::with('candidate', 'assembly')->findOrFail($id);
