@@ -27,6 +27,7 @@ class Form26 extends Component
     public $whatsapp_no;
     public $facebook_account;
     public $twitter_account;
+    public $linked_in;
     public $pan_details = [];
     public $candidate_occupation;
     public $spouse_occupation;
@@ -92,7 +93,7 @@ class Form26 extends Component
     {
         $currentYear = now()->year;
 
-        if (now()->month < 4) {
+        if (now()->month < 1) {
             $currentYear--;
         }
 
@@ -217,49 +218,46 @@ class Form26 extends Component
         return match ($type) {
 
             'agricultural' => [
-                'location' => 'Location(s)',
-                'survey_number' => 'Survey number(s)',
-                'area_acres' => 'Area (in acres)',
-                'inherited' => 'Whether inherited property',
-                'purchase_date' => 'Date of purchase',
-                'purchase_cost' => 'Cost of Land at purchase',
-                'investment' => 'Development / Construction Investment',
-                'market_value' => 'Approximate Current Market Value',
+                'location_survey_number' => 'Location(s) Survey number(s)',
+                'area_acres' => 'Area (total measurement in acres)',
+                'inherited' => 'Whether inherited property (Yes or No)',
+                'purchase_date' => 'Date of purchase in case of self - acquired property',
+                'purchase_cost' => 'Cost of Land (in case of purchase) at the time of purchase',
+                'investment' => 'Any Invest ment on the land by way of develop ment, construction etc.',
+                'market_value' => 'Approxi mate Current market value',
             ],
 
             'non_agricultural' => [
-                'location' => 'Location(s)',
-                'survey_number' => 'Survey number(s)',
-                'area_sqft' => 'Area (in sq. ft.)',
-                'inherited' => 'Whether inherited property',
-                'purchase_date' => 'Date of purchase',
-                'purchase_cost' => 'Cost of Land at purchase',
-                'investment' => 'Development Investment',
-                'market_value' => 'Approximate Current Market Value',
+                'location_survey_number' => 'Location(s) Survey number(s)',
+                'area_sqft' => 'Area (total measurement in sq. ft.)',
+                'inherited' => 'Whether inherited property (Yes or No)',
+                'purchase_date' => 'Date of purchase in case of self-acquired property',
+                'purchase_cost' => 'Cost of Land (in case of purchase) at the time of purchase',
+                'investment' => 'Any Investment on the land by way of develop ment, construction etc.',
+                'market_value' => 'Approximate current market value',
             ],
 
             'commercial' => [
-                'location' => 'Location(s)',
-                'survey_number' => 'Survey number(s)',
-                'area_sqft' => 'Area (in sq. ft.)',
-                'builtup_area' => 'Built-up Area (in sq. ft.)',
-                'inherited' => 'Whether inherited property',
-                'purchase_date' => 'Date of purchase',
-                'purchase_cost' => 'Cost of Property at purchase',
-                'investment' => 'Development Investment',
-                'market_value' => 'Approximate Current Market Value',
+                'location_survey_number' => 'Location(s) Survey number(s)',
+                'area_sqft' => 'Area (total measurement in sq. ft.)',
+                'area_sqft' => 'Area (total measurement in sq. ft.)',
+                'builtup_area' => 'Built-up Area (total measurement in sq.ft.)',
+                'inherited' => 'Whether inherited property (Yes or No)',
+                'purchase_date' => 'Date of purchase in case of self-acquired property',
+                'purchase_cost' => 'Cost of property (in case of purchase) at the time of purchase',
+                'investment' => 'Any Investment on the property by way of development, construction etc.',
+                'market_value' => 'Approximate current market value',
             ],
 
             'residential' => [
-                'location' => 'Location(s)',
-                'survey_number' => 'Survey number(s)',
-                'area_sqft' => 'Area (in sq. ft.)',
-                'builtup_area' => 'Built-up Area (in sq. ft.)',
-                'inherited' => 'Whether inherited property',
-                'purchase_date' => 'Date of purchase',
-                'purchase_cost' => 'Cost of Property at purchase',
-                'investment' => 'Development Investment',
-                'market_value' => 'Approximate Current Market Value',
+                'location_survey_number' => 'Location(s) Survey number(s)',
+                'area_sqft' => 'Area (Total measurement in sq. ft)',
+                'builtup_area' => 'Built up Area (Total measurement in sq. ft.)',
+                'inherited' => 'Whether inherited property (Yes or No)',
+                'purchase_date' => 'Date of purchase in case of self–acquired property',
+                'purchase_cost' => 'Cost of property (in case of purchase) at the time of purchase',
+                'investment' => 'Any Investment on the land by way of develop ment, construction etc.',
+                'market_value' => 'Approximate current market value',
             ],
 
             default => [],
@@ -300,6 +298,7 @@ class Form26 extends Component
         $this->whatsapp_no = $social['whatsapp_no'] ?? null;
         $this->facebook_account = $social['facebook_account'] ?? null;
         $this->twitter_account = $social['twitter_account'] ?? null;
+        $this->linked_in = $social['linked_in'] ?? null;
 
         $this->pan_details = $this->mergePanAndIncome(
             $this->decode($form->pan_details),
@@ -339,14 +338,14 @@ class Form26 extends Component
 
     protected $rules = [
 
-        'relation_type' => 'nullable|in:son,daughter,wife',
-        'relation_name' => 'nullable|string|max:255',
-        'address' => 'nullable|string|max:255',
-        'age' => 'nullable|integer|min:18|max:120',
+        'relation_type' => 'required|in:son,daughter,wife',
+        'relation_name' => 'required|string|max:255',
+        'address' => 'required|string|max:255',
+        'age' => 'required|integer|min:18|max:120',
 
-        'enrolled_constituency_name' => 'nullable|string|max:255',
-        'constituency_serial_no' => 'nullable|string|max:255',
-        'constituency_part_no' => 'nullable|string|max:255',
+        'enrolled_constituency_name' => 'required|string|max:255',
+        'constituency_serial_no' => 'required|string|max:255',
+        'constituency_part_no' => 'required|string|max:255',
 
         'phone_no' => 'nullable|digits_between:10,15',
         'alternative_phone_no' => 'nullable|digits_between:10,15',
@@ -355,11 +354,12 @@ class Form26 extends Component
         'whatsapp_no' => 'nullable|digits_between:10,15',
         'facebook_account' => 'nullable|string',
         'twitter_account' => 'nullable|string',
+        'linked_in' => 'nullable|string',
 
         'pan_details' => 'nullable|array',
         'pan_details.*.type' => 'nullable|string',
         'pan_details.*.name' => 'nullable|string',
-        'pan_details.*.pan' => 'nullable|alpha_num|size:10',
+        'pan_details.*.pan' => 'nullable|regex:/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/',
 
         'movable_assets' => 'nullable|array',
         'movable_assets.*.type' => 'nullable|string',
@@ -532,6 +532,7 @@ class Form26 extends Component
                     'whatsapp_no' => $this->whatsapp_no,
                     'facebook_account' => $this->facebook_account,
                     'twitter_account' => $this->twitter_account,
+                    'linked_in' => $this->linked_in,
                 ]),
 
                 'pan_details' => json_encode($panOnly),

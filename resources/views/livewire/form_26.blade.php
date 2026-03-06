@@ -111,7 +111,7 @@
                                     placeholder="WhatsApp Number"
                                     min="0">
                                 @error('whatsapp_no') <small class="text-danger">{{ $message }}</small> @enderror
-                                </div>
+                            </div>
 
                             <div class="col-md-4">
                                 <input type="text"
@@ -127,6 +127,13 @@
                                     wire:model.defer="twitter_account"
                                     placeholder="Twitter Account">
                                 @error('twitter_account') <small class="text-danger">{{ $message }}</small> @enderror
+                            </div>
+                             <div class="col-md-4">
+                                <input type="text"
+                                    class="form-control"
+                                    wire:model.defer="linked_in"
+                                    placeholder="Link In Account">
+                                @error('linked_in') <small class="text-danger">{{ $message }}</small> @enderror
                             </div>
                         </div>
                     </div>
