@@ -215,6 +215,7 @@ class CandidateContactList extends Component
                 'vetting_in_progress'
             ];
         }elseif($filter_by_document=='personal_doc'){
+            $this->filter_by_document_array = [];
             $this->filter_by_personal_document = 'personal_doc';
         }else{
             $this->filter_by_document_array = [];
