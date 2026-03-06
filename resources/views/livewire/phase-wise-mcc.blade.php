@@ -52,11 +52,7 @@
                                         <div class="color-grid"><span style="background-color: #FDB747;"></span>Processed</div>
                                         <div class="color-grid"><span style="background-color: #1BC976;"></span>Confirm Resolved</div>
                                     </div>
-<<<<<<< HEAD
                                     <a href="{{route('admin.dashboard')}}" class="btm-small">Back to State Dashboard</a>
-=======
-                                    <a href="{{route('admin.dashboard')}}" class="btm-small" style="color: #278D27;">Back to State Dashboard</a>
->>>>>>> f8b00e02d52e33e77499fce42db9885e26dcec78
                                 </div>
                             </div>
                         </div>

@@ -19,7 +19,11 @@
     {{-- Bootstrap Icons --}}
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
-
+    <style>
+        #sidebar .collapse.show {
+            visibility: visible;
+        }
+    </style>
 </head>
 
 <body>
@@ -55,7 +59,7 @@
                     </a>
 
                     <div class="collapse {{ request()->is('admin/master*') ? 'show' : '' }}" id="masterMenu">
-                        <ul class="nav flex-column ms-4 border-start ps-2 mt-1">
+                        <ul class="nav flex-column border-start mt-1">
                             @if(childUserAccess(Auth::guard('admin')->user()->id,'master_view_zones'))
                                 <li class="nav-item mb-1">
                                     <a href="{{ route('admin.master.zones') }}"
@@ -135,7 +139,7 @@
                     </a>
 
                     <div class="collapse {{ request()->is('admin/candidates*') ? 'show' : '' }}" id="candidateMenu">
-                        <ul class="nav flex-column ms-4 border-start ps-2 mt-1">
+                        <ul class="nav flex-column border-start mt-1">
                             @if(childUserAccess(Auth::guard('admin')->user()->id,'nomination_view_candidate'))
                                 <li class="nav-item mb-1">
                                     <a href="{{ route('admin.candidates.contacts') }}"
@@ -164,7 +168,7 @@
                     </a>
 
                     <div class="collapse {{ request()->is('admin/campaign*') ? 'show' : '' }}" id="campaignMenu">
-                        <ul class="nav flex-column ms-4 border-start ps-2 mt-1">
+                        <ul class="nav flex-column border-start mt-1">
                             @if(childUserAccess(Auth::guard('admin')->user()->id,'campaign_view_campaign'))
                                 <li class="nav-item mb-1">
                                     <a href="{{ route('admin.campaigns') }}"
@@ -176,7 +180,7 @@
                         </ul>
                     </div>
                     <div class="collapse {{ request()->is('admin/campaign*') ? 'show' : '' }}" id="campaignMenu">
-                        <ul class="nav flex-column ms-4 border-start ps-2 mt-1">
+                        <ul class="nav flex-column border-start mt-1">
                             @if(childUserAccess(Auth::guard('admin')->user()->id,'campaign_view_campaigner'))
                                 <li class="nav-item mb-1">
                                     <a href="{{route('admin.campaigns.star-campaigner')}}"
@@ -205,7 +209,7 @@
                     </a>
 
                     <div class="collapse {{ request()->is('admin/mcc*') ? 'show' : '' }}" id="mccMenu">
-                        <ul class="nav flex-column ms-4 border-start ps-2 mt-1">
+                        <ul class="nav flex-column border-start mt-1">
                             @if(childUserAccess(Auth::guard('admin')->user()->id,'mcc_view_mcc'))
                                 <li class="nav-item mb-1">
                                     <a href="{{route('admin.mcc_violation')}}"
