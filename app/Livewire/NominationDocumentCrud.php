@@ -99,7 +99,6 @@ class NominationDocumentCrud extends Component
     public function updatePosition($items)
     {
         foreach ($items as $item) {
-
             CandidateDocumentType::where('id', $item['value'])
                 ->update(['position' => $item['order']]);
         }
