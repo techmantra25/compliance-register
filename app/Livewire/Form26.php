@@ -356,10 +356,10 @@ class Form26 extends Component
         'twitter_account' => 'nullable|string',
         'linked_in' => 'nullable|string',
 
-        'pan_details' => 'nullable|array',
+        'pan_details' => 'required|array|min:1',
         'pan_details.*.type' => 'nullable|string',
         'pan_details.*.name' => 'nullable|string',
-        'pan_details.*.pan' => 'nullable|regex:/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/',
+        'pan_details.*.pan' => 'nullable|string',
 
         'movable_assets' => 'nullable|array',
         'movable_assets.*.type' => 'nullable|string',
@@ -398,6 +398,33 @@ class Form26 extends Component
         'educational_qualifications.*.university' => 'nullable|string|max:255',
         'educational_qualifications.*.year' => 'nullable|digits:4',
     ];
+
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+
+            $selfPan = collect($this->pan_details ?? [])
+                ->first(function ($row) {
+                    return strtolower($row['type'] ?? '') === 'self';
+                });
+
+            if (!$selfPan) {
+                $validator->errors()->add(
+                    'pan_self_required',
+                    'PAN details for Self are mandatory.'
+                );
+                return;
+            }
+
+            if (empty($selfPan['pan'])) {
+                $validator->errors()->add(
+                    'pan_details',
+                    'PAN number for Self is mandatory.'
+                );
+            }
+
+        });
+    }
 
     private function decode($value)
     {
@@ -483,7 +510,11 @@ class Form26 extends Component
 
     public function save()
     {
-        $this->validate();
+        $validator = validator($this->all(), $this->rules);
+
+        $this->withValidator($validator);
+
+        $validator->validate();
 
         $panOnly = [];
         $incomeOnly = [];

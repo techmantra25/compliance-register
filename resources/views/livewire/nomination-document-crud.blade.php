@@ -62,66 +62,20 @@
                             </thead>
 
 
-                            <tbody id="sortableDocuments">
-
-                                @forelse($documents as $index => $doc)
-
-                                <tr wire:key="doc-{{ $doc->id }}" data-id="{{ $doc->id }}">
-
+                            <tbody x-data="sortableTable(@this)" x-ref="tableBody" wire:ignore>
+                                @foreach($documents as $index => $doc)
+                                <tr data-id="{{ $doc->id }}">
+                                    <td>{{ $index + 1 }}</td>
+                                    <td>{{ $doc->name }}</td>
+                                    <td>{{ $doc->key }}</td>
                                     <td>
-                                        {{ $index + 1 }}
+                                        <input type="checkbox" wire:click="toggleStatus({{ $doc->id }})" {{ $doc->status ? 'checked' : '' }}>
                                     </td>
-
-                                    <td class="fw-semibold">
-                                        {{ ucwords($doc->name) }}
-                                    </td>
-
                                     <td>
-                                        <span class="badge bg-light text-dark border">
-                                            {{ $doc->key }}
-                                        </span>
-                                    </td>
-
-                                    <td>
-
-                                        <div class="form-check form-switch">
-
-                                            <input
-                                                class="form-check-input"
-                                                type="checkbox"
-                                                wire:click="toggleStatus({{ $doc->id }})"
-                                                {{ $doc->status ? 'checked' : '' }}
-                                            >
-
-                                        </div>
-
-                                    </td>
-
-                                    <td>
-                                        @if(childUserAccess(Auth::guard('admin')->user()->id,'master_view_update_nomination_documents'))
-                                            <button
-                                                class="btn btn-sm btn-outline-primary"
-                                                wire:click="edit({{ $doc->id }})">
-
-                                                <i class="bi bi-pencil"></i>
-
-                                            </button>
-                                        @endif
-                                    </td>
-
-                                </tr>
-
-                                @empty
-
-                                <tr>
-                                    <td colspan="5"
-                                        class="text-center text-muted py-3">
-                                        No document types found
+                                        <button wire:click="edit({{ $doc->id }})" class="btn btn-sm btn-outline-primary">Edit</button>
                                     </td>
                                 </tr>
-
-                                @endforelse
-
+                                @endforeach
                             </tbody>
 
                         </table>
@@ -217,47 +171,33 @@
     @push('scripts')
     <link rel="stylesheet" href="{{ asset('assets/css/component-chosen.css') }}">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="//unpkg.com/alpinejs" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
     <script src="{{ asset('assets/js/chosen.jquery.js') }}"></script>
     <script>
         window.addEventListener('toastr:error', e => toastr.error(e.detail.message));
         window.addEventListener('toastr:success', e => toastr.success(e.detail.message));
     </script>
     <script>
-        function initSortable() {
+    function sortableTable(livewireComponent) {
+        return {
+            init() {
+                let el = this.$refs.tableBody;
 
-            $("#sortableDocuments").sortable({
-
-                items: "tr",
-                cursor: "move",
-                opacity: 0.8,
-                update: function () {
-
-                    let items = [];
-
-                    $("#sortableDocuments tr").each(function (index) {
-
-                        items.push({
-                            value: $(this).data("id"),
-                            order: index + 1
+                new Sortable(el, {
+                    animation: 150,
+                    handle: 'td',
+                    onEnd: function () {
+                        let items = [];
+                        el.querySelectorAll('tr').forEach((row, index) => {
+                            items.push({ value: row.dataset.id, order: index + 1 });
                         });
-
-                    });
-
-                    Livewire.emit("updatePosition", items);
-
-                }
-
-            });
-
+                        livewireComponent.emit('updatePosition', items);
+                    }
+                });
+            }
         }
-
-        document.addEventListener("livewire:load", function () {
-            initSortable();
-        });
-
-        document.addEventListener("livewire:update", function () {
-            initSortable();
-        });
+    }
     </script>
     @endpush
 </div>

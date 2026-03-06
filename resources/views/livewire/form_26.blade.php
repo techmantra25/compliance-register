@@ -139,6 +139,9 @@
                     </div>
 
                     <h5 class="text-primary mt-4">PAN and ITR Details</h5>
+                    @error('pan_self_required')
+                    <div class="alert alert-danger">{{ $message }}</div>
+                    @enderror
 
                         @foreach ($pan_details as $index => $row)
                             <div class="card mb-2 shadow-sm position-relative">
@@ -167,6 +170,9 @@
                                                 <option value="huf">HUF</option>
                                                 <option value="dependent">Dependent</option>
                                             </select>
+                                            @error('pan_details.'.$index.'.type')
+                                                <small class="text-danger">{{ $message }}</small>
+                                            @enderror
                                         </div>
 
                                         <div class="col-md-3">
@@ -174,6 +180,9 @@
                                             <input type="text"
                                                 class="form-control"
                                                 wire:model.defer="pan_details.{{ $index }}.name">
+                                                @error('pan_details.'.$index.'.name')
+                                                    <small class="text-danger">{{ $message }}</small>
+                                                @enderror
                                         </div>
 
                                         <div class="col-md-3">
@@ -181,6 +190,9 @@
                                             <input type="text"
                                                 class="form-control text-uppercase"
                                                 wire:model.defer="pan_details.{{ $index }}.pan">
+                                                @error('pan_details.'.$index.'.pan')
+                                                    <small class="text-danger">{{ $message }}</small>
+                                                @enderror
                                         </div>
 
                                         <div class="col-md-4">
@@ -191,6 +203,9 @@
                                                     <option value="{{ $year }}">{{ $year }}</option>
                                                 @endforeach
                                             </select>
+                                            @error('pan_details.'.$index.'.last_filed_year')
+                                                <small class="text-danger">{{ $message }}</small>
+                                            @enderror
                                         </div>
                                     </div>
 
