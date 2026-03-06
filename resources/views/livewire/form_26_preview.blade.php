@@ -703,14 +703,20 @@
 
                         @foreach($holders as $holderKey => $holderLabel)
                             @php
-                                $holderData = collect($movableAssets)
-                                    ->firstWhere('holder', $holderKey);
+                                $assetRow = collect($movableAssets)
+                                    ->firstWhere('type', $assetType);
 
-                                $asset = $holderData
-                                    ? collect($holderData['assets'])->firstWhere('type', $assetType)
+                                $holderEntry = $assetRow
+                                    ? collect($assetRow['holders'] ?? [])
+                                        ->firstWhere('holder', $holderKey)
                                     : null;
 
-                                $amount = $asset['amount'] ?? null;
+                                $amount = $holderEntry['amount'] ?? null;
+
+                                if (is_numeric($amount)) {
+                                    $grossTotal[$holderKey] =
+                                        ($grossTotal[$holderKey] ?? 0) + (float) $amount;
+                                }
 
                                 if (is_numeric($amount)) {
                                     $grossTotal[$holderKey] =
@@ -719,10 +725,19 @@
                             @endphp
 
                             <td>
-                                {!! $amount
-                                    ? number_format((float)$amount, 2)
-                                    : 'Not Applicable'
-                                !!}
+                                @if($amount !== null && $amount !== '')
+                                    @php
+                                        $description = $holderEntry['description'] ?? null;
+                                    @endphp
+
+                                    @if($description)
+                                        <div>{{ $description }}</div>
+                                    @endif
+
+                                    <div>Rs. {{ number_format((float)$amount, 2) }}</div>
+                                @else
+                                    Not Applicable
+                                @endif
                             </td>
                         @endforeach
                     </tr>
@@ -757,195 +772,197 @@
                 <span> Note: 2.</span> Each land or building or apartment should be mentioned separately in this format
                 </p>
 
-                <p class="indent-para" style="color: #e31111;">
-                <span> Note: 3.</span> Details should include the interest in or ownership of offshore assets.
+               <p class="indent-para" style="color: #e31111;">
+                    <span> Note: 3.</span> Details should include the interest in or ownership of offshore assets.
                 </p>
 
+                    @php
 
-                @php
-                    $holders = ['self', 'spouse', 'huf', 'dependent_1', 'dependent_2', 'dependent_3'];
-                    $types = ['agricultural','non_agricultural','commercial','residential','others'];
-                    $type_labels = [
-                        'agricultural' => 'Agricultural Land',
-                        'non_agricultural' => 'Non-Agricultural Land',
-                        'commercial' => 'Commercial Buildings',
-                        'residential' => 'Residential Buildings',
-                        'others' => 'Others (such as interest in property)'
+                    $holders = ['self','spouse','huf','dependent_1','dependent_2','dependent_3'];
+
+                    $types = [
+                        'agricultural' => [
+                            'label' => 'Agricultural Land',
+                            'rows' => [
+                                'location' => 'Location(s) Survey number(s)',
+                                'area' => 'Area (total measurement in acres)',
+                                'inherited' => 'Whether inherited property (Yes or No)',
+                                'purchase_date' => 'Date of purchase in case of self-acquired property',
+                                'cost' => 'Cost of Land (in case of purchase) at the time of purchase',
+                                'investment' => 'Any Investment on the land by way of development, construction etc.',
+                                'market_value' => 'Approximate Current market value'
+                            ]
+                        ],
+
+                        'non_agricultural' => [
+                            'label' => 'Non-Agricultural Land',
+                            'rows' => [
+                                'location' => 'Location(s) Survey number(s)',
+                                'area' => 'Area (total measurement in sq. ft.)',
+                                'inherited' => 'Whether inherited property (Yes or No)',
+                                'purchase_date' => 'Date of purchase in case of self-acquired property',
+                                'cost' => 'Cost of Land (in case of purchase) at the time of purchase',
+                                'investment' => 'Any Investment on the land by way of development, construction etc.',
+                                'market_value' => 'Approximate current market value'
+                            ]
+                        ],
+
+                        'commercial' => [
+                            'label' => 'Commercial Buildings (including apartments)',
+                            'rows' => [
+                                'location' => 'Location(s) Survey number(s)',
+                                'area' => 'Area (total measurement in sq. ft.)',
+                                'builtup' => 'Built-up Area (total measurement in sq.ft.)',
+                                'inherited' => 'Whether inherited property (Yes or No)',
+                                'purchase_date' => 'Date of purchase in case of self-acquired property',
+                                'cost' => 'Cost of property (in case of purchase)',
+                                'investment' => 'Any Investment on the property by way of development, construction etc.',
+                                'market_value' => 'Approximate current market value'
+                            ]
+                        ],
+
+                        'residential' => [
+                            'label' => 'Residential Buildings (including apartments)',
+                            'rows' => [
+                                'location' => 'Location(s) Survey number(s)',
+                                'area' => 'Area (Total measurement in sq. ft)',
+                                'builtup' => 'Built up Area (Total measurement in sq. ft.)',
+                                'inherited' => 'Whether inherited property (Yes or No)',
+                                'purchase_date' => 'Date of purchase in case of self–acquired property',
+                                'cost' => 'Cost of property (in case of purchase)',
+                                'investment' => 'Any Investment on the land by way of development, construction etc.',
+                                'market_value' => 'Approximate current market value'
+                            ]
+                        ]
                     ];
-                    $sno = 1;
-                    $grossTotal = [];
-                @endphp
 
-                <table style="table-layout: fixed; margin-top: 35px;">
+                    $roman = ['i','ii','iii','iv'];
+                    $grossTotal = [];
+
+                    $descriptionMap = [
+                        'location' => 'location_survey_number',
+                        'area' => 'area',
+                        'inherited' => 'inherited',
+                        'purchase_date' => 'purchase_date',
+                        'cost' => 'cost',
+                        'investment' => 'investment',
+                        'market_value' => 'market_value',
+                        'builtup' => 'builtup_area'
+                    ];
+
+                    @endphp
+
+
+                    <table style="table-layout: fixed; margin-top: 35px;">
                     <tr>
-                        <th style="width: 50px; font-weight: bold;">S. No.</th>
-                        <th style="font-weight: bold; width: 150px;">Description</th>
-                        <th style="font-weight: bold;">Self</th>
-                        <th style="font-weight: bold;">Spouse</th>
-                        <th style="font-weight: bold;">HUF</th>
-                        <th style="font-weight: bold;">Dependent-1</th>
-                        <th style="font-weight: bold;">Dependent-2</th>
-                        <th style="font-weight: bold;">Dependent-3</th>
+                    <th style="width: 50px;">S. No.</th>
+                    <th>Description</th>
+                    <th>Self</th>
+                    <th>Spouse</th>
+                    <th>HUF</th>
+                    <th>Dependent-1</th>
+                    <th>Dependent-2</th>
+                    <th>Dependent-3</th>
                     </tr>
 
-                    @foreach($types as $type)
+
+                    @foreach($types as $typeKey => $type)
+
+                    @php
+                    $assetRow = collect($immovableAssets)->firstWhere('type',$typeKey);
+                    @endphp
+
+                    @foreach($type['rows'] as $field => $label)
+
+                    <tr>
+
+                    <td>
+                    @if($loop->first)
+                    ({{ $roman[$loop->parent->index] ?? '' }})
+                    @endif
+                    </td>
+
+                    <td>
+
+                    @if($loop->first)
+                    <strong style="text-decoration: underline;">
+                    {{ $type['label'] }}
+                    </strong>
+                    <br>
+                    @endif
+
+                    {{ $label }}
+
+                    </td>
+
+
+                   @foreach($holders as $holder)
+
                         @php
-                            $label = $type_labels[$type];
+                        $holderRow = collect($immovableAssets)
+                            ->where('type',$typeKey)
+                            ->where('description', $descriptionMap[$field] ?? $field)
+                            ->first();
+
+                        $details = null;
+                        $amount = null;
+
+                        if($holderRow){
+                            $holderData = collect($holderRow['holders'])
+                                ->where('holder',$holder)
+                                ->first();
+
+                            if($holderData){
+                                $details = $holderData['details'] ?? null;
+                                $amount = $holderData['amount'] ?? null;
+                            }
+                        }
+
+                        if(is_numeric($amount)){
+                            $grossTotal[$holder] = ($grossTotal[$holder] ?? 0) + (float)$amount;
+                        }
                         @endphp
 
-                        @foreach($immovableAssets as $holderData)
-                            @foreach($holderData['groups'] as $group)
-                                @php
-                                    $data = $group[$type] ?? null;
-                                @endphp
+                        <td>
 
-                                @if($data)
-                                    {{-- Main row for type --}}
-                                    <tr>
-                                        <td>({{ $sno++ }})</td>
-                                        <td>
-                                            <strong style="text-decoration: underline;">{{ $label }}</strong> <br>
-                                            Location(s) / Survey number(s)
-                                        </td>
-                                        @foreach($holders as $holder)
-                                            <td>
-                                                {{
-                                                    ($holderData['holder'] === $holder)
-                                                        ? ($data['location'] ?? 'Not Applicable')
-                                                        : 'Not Applicable'
-                                                }}
-                                            </td>
-                                        @endforeach
-                                    </tr>
+                        @if($details)
+                        {{ $details }}
+                        @endif
 
-                                    {{-- Area --}}
-                                    <tr>
-                                        <td style="border-bottom: 1px solid #fff;"></td>
-                                        <td>
-                                            Area (total measurement)
-                                        </td>
-                                        @foreach($holders as $holder)
-                                            <td>
-                                                {{
-                                                    ($holderData['holder'] === $holder)
-                                                        ? ($data['area'] ?? 'Not Applicable')
-                                                        : 'Not Applicable'
-                                                }}
-                                            </td>
-                                        @endforeach
-                                    </tr>
+                        @if(is_numeric($amount))
+                        <br>Rs. {{ number_format($amount,2) }}
+                        @endif
 
-                                    {{-- Inherited --}}
-                                    <tr>
-                                        <td style="border-bottom: 1px solid #fff;"></td>
-                                        <td>Whether inherited property (Yes or No)</td>
+                        @if(!$details && !$amount)
+                        Not Applicable
+                        @endif
 
-                                        @foreach($holders as $holder)
-                                            <td>
-                                                {{
-                                                    ($holderData['holder'] === $holder)
-                                                        ? ($data['inherited'] ?? 'Not Applicable')
-                                                        : 'Not Applicable'
-                                                }}
-                                            </td>
-                                        @endforeach
-                                    </tr>
+                        </td>
 
-
-                                    {{-- Purchase date --}}
-                                    <tr>
-                                        <td style="border-bottom: 1px solid #fff;"></td>
-                                        <td>Date of purchase (if self-acquired)</td>
-
-                                        @foreach($holders as $holder)
-                                            <td>
-                                                {{
-                                                    ($holderData['holder'] === $holder)
-                                                        ? ($data['purchase_date'] ?? 'Not Applicable')
-                                                        : 'Not Applicable'
-                                                }}
-                                            </td>
-                                        @endforeach
-                                    </tr>
-
-
-                                    {{-- Purchase cost --}}
-                                    <tr>
-                                        <td style="border-bottom: 1px solid #fff;"></td>
-                                        <td>Cost at time of purchase</td>
-
-                                        @foreach($holders as $holder)
-                                            @php
-                                                $val = ($holderData['holder'] === $holder)
-                                                        ? ($data['purchase_cost'] ?? 'Not Applicable')
-                                                        : 'Not Applicable';
-
-                                                if (is_numeric($val)) {
-                                                    $grossTotal[$holder] = ($grossTotal[$holder] ?? 0) + (float)$val;
-                                                    $val = number_format((float)$val, 2);
-                                                }
-                                            @endphp
-                                            <td>{{ $val }}</td>
-                                        @endforeach
-                                    </tr>
-
-
-                                    {{-- Investment made --}}
-                                    <tr>
-                                        <td style="border-bottom: 1px solid #fff;"></td>
-                                        <td>Any Investment on property (development/construction etc.)</td>
-
-                                        @foreach($holders as $holder)
-                                            @php
-                                                $val = ($holderData['holder'] === $holder)
-                                                        ? ($data['investment_made'] ?? 'Not Applicable')
-                                                        : 'Not Applicable';
-
-                                                if (is_numeric($val)) {
-                                                    $grossTotal[$holder] = ($grossTotal[$holder] ?? 0) + (float)$val;
-                                                    $val = number_format((float)$val, 2);
-                                                }
-                                            @endphp
-                                            <td>{{ $val }}</td>
-                                        @endforeach
-                                    </tr>
-
-
-                                    {{-- Current Value --}}
-                                    <tr>
-                                        <td></td>
-                                        <td>Approximate Current Market Value</td>
-
-                                        @foreach($holders as $holder)
-                                            @php
-                                                $val = ($holderData['holder'] === $holder)
-                                                        ? ($data['current_value'] ?? 'Not Applicable')
-                                                        : 'Not Applicable';
-
-                                                if (is_numeric($val)) {
-                                                    $grossTotal[$holder] = ($grossTotal[$holder] ?? 0) + (float)$val;
-                                                    $val = number_format((float)$val, 2);
-                                                }
-                                            @endphp
-                                            <td>{{ $val }}</td>
-                                        @endforeach
-                                    </tr>
-                                @endif
-                            @endforeach
                         @endforeach
+
+                    </tr>
 
                     @endforeach
 
-                    {{-- Gross Total --}}
-                    <tr>
-                        <td>(vi)</td>
-                        <td>Total of current market value of (i) to (v) above</td>
-                        @foreach($holders as $holder)
-                            <td>{{ isset($grossTotal[$holder]) ? number_format($grossTotal[$holder],2) : 'Not Applicable' }}</td>
-                        @endforeach
-                    </tr>
-                </table>
+                    @endforeach
 
+                    <tr>
+                    <td>(vi)</td>
+                    <td>Total of current market value of (i) to (v) above</td>
+
+                    @foreach($holders as $holder)
+
+                    <td>
+                    {{ isset($grossTotal[$holder]) 
+                        ? 'Rs. '.number_format($grossTotal[$holder],2) 
+                        : 'Not Applicable' }}
+                    </td>
+
+                    @endforeach
+
+                    </tr>
+                    </table>
                 <div style="page-break-before: always;"></div>
                 <p>
                     <strong>(8)</strong> I give herein below the details of liabilities/dues to public financial institutions and government:-
@@ -967,37 +984,118 @@
                         <th style="font-weight: bold;">Dependent-2</th>
                         <th style="font-weight: bold;">Dependent-3</th>
                     </tr>
-                    <tr>
-                        <td style="border-bottom: 1px solid #fff;">(i)</td>
+                   @php
+                        $holders = ['self','spouse','huf','dependent_1','dependent_2','dependent_3'];
+                        $loanTotals = [];
+
+                        function getHolderLoans($loans,$holder){
+                            return collect($loans)
+                                ->where('holder',$holder)
+                                ->flatMap(function($item){
+                                    return $item['loans'] ?? [];
+                                });
+                        }
+                        @endphp
+
+                   <tr>
+
+                        <td>(i)</td>
+
                         <td>
-                            <strong>Loan or dues to Bank/Financial Institution(s) </strong> <br>
-                            Name of Bank or
-                            Financial Institution,
-                            Amount outstanding,
-                            Nature of loan
+                        <strong>Loan or dues to Bank/Financial Institution(s)</strong><br>
+                        Name of Bank / Financial Institution,<br>
+                        Amount outstanding, Nature of loan
+                        </td>
+
+                        @foreach($holders as $holder)
+
+                        @php
+                        $holderLoans = getHolderLoans($loans,$holder)
+                            ->where('type','bank');
+
+                        $total = 0;
+                        @endphp
+
+                        <td>
+
+                        @if($holderLoans->count())
+
+                        @foreach($holderLoans as $loan)
+
+                        <div>
+                        <strong>{{ $loan['name'] }}</strong><br>
+                        Nature: {{ $loan['nature'] }}<br>
+                        Amount: Rs. {{ number_format($loan['amount'],2) }}
+                        </div>
+
+                        @php
+                        $total += (float)$loan['amount'];
+                        @endphp
+
+                        @endforeach
+
+                        @php
+                        $loanTotals[$holder] = ($loanTotals[$holder] ?? 0) + $total;
+                        @endphp
+
+                        @else
+                        Not Applicable
+                        @endif
 
                         </td>
-                        <td>Not Applicable</td>
-                        <td>Not Applicable</td>
-                        <td>Not Applicable</td>
-                        <td>Not Applicable</td>
-                        <td>Not Applicable</td>
-                        <td>Not Applicable</td>
-                    </tr>
-                    <tr>
-                        <td style="border-bottom: 1px solid #fff;"></td>
+
+                        @endforeach
+
+                        </tr>
+                   <tr>
+
+                        <td></td>
+
                         <td>
-                            <strong>Loan or dues to any other individuals/
-                            entity other than mentioned above.</strong> <br>
-                            Name(s), Amount outstanding, nature of loan
+                        <strong>Loan or dues to any other individuals/entity</strong><br>
+                        Name(s), Amount outstanding, nature of loan
                         </td>
-                        <td>Not Applicable</td>
-                        <td>Not Applicable</td>
-                        <td>Not Applicable</td>
-                        <td>Not Applicable</td>
-                        <td>Not Applicable</td>
-                        <td>Not Applicable</td>
-                    </tr>
+
+                        @foreach($holders as $holder)
+
+                        @php
+                        $holderLoans = getHolderLoans($loans,$holder)
+                            ->where('type','individual');
+
+                        $total = 0;
+                        @endphp
+
+                        <td>
+
+                        @if($holderLoans->count())
+
+                        @foreach($holderLoans as $loan)
+
+                        <div>
+                        <strong>{{ $loan['name'] }}</strong><br>
+                        Nature: {{ $loan['nature'] }}<br>
+                        Amount: Rs. {{ number_format($loan['amount'],2) }}
+                        </div>
+
+                        @php
+                        $total += (float)$loan['amount'];
+                        @endphp
+
+                        @endforeach
+
+                        @php
+                        $loanTotals[$holder] = ($loanTotals[$holder] ?? 0) + $total;
+                        @endphp
+
+                        @else
+                        Not Applicable
+                        @endif
+
+                        </td>
+
+                        @endforeach
+
+                        </tr>
                     <tr>
                         <td style="border-bottom: 1px solid #fff;"></td>
                         <td>
@@ -1010,17 +1108,25 @@
                         <td>Not Applicable</td>
                         <td>Not Applicable</td>
                     </tr>
-                    <tr >
-                        <td style="border-bottom: 1px solid #fff;"></td>
-                        <td>
-                            <strong>Grand total of liabilities</strong>
-                        </td>
-                        <td>Not Applicable</td>
-                        <td>Not Applicable</td>
-                        <td>Not Applicable</td>
-                        <td>Not Applicable</td>
-                        <td>Not Applicable</td>
-                        <td>Not Applicable</td>
+                   <tr>
+                    <td></td>
+
+                    <td><strong>Grand total of liabilities</strong></td>
+
+                    @foreach($holders as $holder)
+
+                    <td>
+
+                    @if(isset($loanTotals[$holder]))
+                    Rs. {{ number_format($loanTotals[$holder],2) }}
+                    @else
+                    Not Applicable
+                    @endif
+
+                    </td>
+
+                    @endforeach
+
                     </tr>
 
                     <tr class="page-break" >
@@ -1096,156 +1202,186 @@
                         </td>
                     </tr>
 
-                    <tr class="page-break">
-                        <td>(iv)</td>
-                        <td>
-                        Income Tax dues
-                        </td>
-                        <td  style="text-align: center; vertical-align: middle;" >
-                            NIL
-                        </td>
-                        <td style="text-align: center; vertical-align: middle;">
-                            Not Applicable
-                        </td>
-                        <td style="text-align: center; vertical-align: middle;">
-                            Not Applicable
-                        </td>
-                        <td style="text-align: center; vertical-align: middle;">
-                            Not Applicable
-                        </td>
-                        <td style="text-align: center; vertical-align: middle;">
-                            Not Applicable
-                        </td>
-                        <td style="text-align: center; vertical-align: middle;">
-                            Not Applicable
-                        </td>
+                   <tr>
+
+                    <td>(iv)</td>
+                    <td>Income Tax dues</td>
+
+                    @foreach($holders as $holder)
+
+                    @php
+                    $gov = collect($governmentDues)
+                            ->where('holder',$holder)
+                            ->first();
+
+                    $value = $gov['income_tax'] ?? null;
+                    @endphp
+
+                    <td style="text-align:center">
+
+                    @if($value)
+                    Rs. {{ number_format($value,2) }}
+                    @else
+                    NIL
+                    @endif
+
+                    </td>
+
+                    @endforeach
+
                     </tr>
 
                     <tr>
-                        <td>(v)</td>
-                        <td>
-                        GST dues
-                        </td>
-                        <td  style="text-align: center; vertical-align: middle;" >
-                            NIL
-                        </td>
-                        <td style="text-align: center; vertical-align: middle;">
-                            Not Applicable
-                        </td>
-                        <td style="text-align: center; vertical-align: middle;">
-                            Not Applicable
-                        </td>
-                        <td style="text-align: center; vertical-align: middle;">
-                            Not Applicable
-                        </td>
-                        <td style="text-align: center; vertical-align: middle;">
-                            Not Applicable
-                        </td>
-                        <td style="text-align: center; vertical-align: middle;">
-                            Not Applicable
-                        </td>
+
+                    <td>(v)</td>
+                    <td>GST dues</td>
+
+                    @foreach($holders as $holder)
+
+                    @php
+                    $gov = collect($governmentDues)
+                            ->where('holder',$holder)
+                            ->first();
+
+                    $value = $gov['gst'] ?? null;
+                    @endphp
+
+                    <td style="text-align:center">
+
+                    @if($value)
+                    Rs. {{ number_format($value,2) }}
+                    @else
+                    NIL
+                    @endif
+
+                    </td>
+
+                    @endforeach
+
                     </tr>
 
                     <tr>
-                        <td>(vi)</td>
-                        <td>
-                        Municipal/Property tax dues
-                        </td>
-                        <td  style="text-align: center; vertical-align: middle;" >
-                            NIL
-                        </td>
-                        <td style="text-align: center; vertical-align: middle;">
-                            Not Applicable
-                        </td>
-                        <td style="text-align: center; vertical-align: middle;">
-                            Not Applicable
-                        </td>
-                        <td style="text-align: center; vertical-align: middle;">
-                            Not Applicable
-                        </td>
-                        <td style="text-align: center; vertical-align: middle;">
-                            Not Applicable
-                        </td>
-                        <td style="text-align: center; vertical-align: middle;">
-                            Not Applicable
-                        </td>
+
+                    <td>(vi)</td>
+                    <td>Municipal/Property tax dues</td>
+
+                    @foreach($holders as $holder)
+
+                    @php
+                    $gov = collect($governmentDues)
+                            ->where('holder',$holder)
+                            ->first();
+
+                    $value = $gov['property_tax'] ?? null;
+                    @endphp
+
+                    <td style="text-align:center">
+
+                    @if($value)
+                    Rs. {{ number_format($value,2) }}
+                    @else
+                    NIL
+                    @endif
+
+                    </td>
+
+                    @endforeach
+
                     </tr>
 
                     <tr>
-                        <td>(vii)</td>
-                        <td>
-                        Any other dues
-                        </td>
-                        <td  style="text-align: center; vertical-align: middle;" >
-                            NIL
-                        </td>
-                        <td style="text-align: center; vertical-align: middle;">
-                            Not Applicable
-                        </td>
-                        <td style="text-align: center; vertical-align: middle;">
-                            Not Applicable
-                        </td>
-                        <td style="text-align: center; vertical-align: middle;">
-                            Not Applicable
-                        </td>
-                        <td style="text-align: center; vertical-align: middle;">
-                            Not Applicable
-                        </td>
-                        <td style="text-align: center; vertical-align: middle;">
-                            Not Applicable
-                        </td>
+
+                    <td>(vii)</td>
+                    <td>Any other dues</td>
+
+                    @foreach($holders as $holder)
+
+                    @php
+                    $gov = collect($governmentDues)
+                            ->where('holder',$holder)
+                            ->first();
+
+                    $value = $gov['other_dues'] ?? null;
+                    @endphp
+
+                    <td style="text-align:center">
+
+                    @if($value)
+                    Rs. {{ number_format($value,2) }}
+                    @else
+                    NIL
+                    @endif
+
+                    </td>
+
+                    @endforeach
+
                     </tr>
 
                     <tr>
-                        <td>(viii)</td>
-                        <td>
-                        Grand total of all Government dues
-                        </td>
-                        <td  style="text-align: center; vertical-align: middle;" >
-                            NIL
-                        </td>
-                        <td style="text-align: center; vertical-align: middle;">
-                            Not Applicable
-                        </td>
-                        <td style="text-align: center; vertical-align: middle;">
-                            Not Applicable
-                        </td>
-                        <td style="text-align: center; vertical-align: middle;">
-                            Not Applicable
-                        </td>
-                        <td style="text-align: center; vertical-align: middle;">
-                            Not Applicable
-                        </td>
-                        <td style="text-align: center; vertical-align: middle;">
-                            Not Applicable
-                        </td>
+
+                    <td>(viii)</td>
+                    <td>Grand total of all Government dues</td>
+
+                    @foreach($holders as $holder)
+
+                    @php
+                    $gov = collect($governmentDues)
+                            ->where('holder',$holder)
+                            ->first();
+
+                    $total = 0;
+
+                    if($gov){
+                    $total =
+                        ($gov['income_tax'] ?? 0) +
+                        ($gov['gst'] ?? 0) +
+                        ($gov['property_tax'] ?? 0) +
+                        ($gov['other_dues'] ?? 0);
+                    }
+                    @endphp
+
+                    <td style="text-align:center">
+
+                    @if($total)
+                    Rs. {{ number_format($total,2) }}
+                    @else
+                    NIL
+                    @endif
+
+                    </td>
+
+                    @endforeach
+
                     </tr>
                     <tr>
-                        <td>(ix)</td>
-                        <td>
-                            Whether any other liabilities are in dispute,
-                            if so, mention the amount involved and the
-                            authority before which it is pending.
-                        </td>
-                        <td  style="text-align: center; vertical-align: middle;" >
-                            Not Applicable
-                        </td>
-                        <td style="text-align: center; vertical-align: middle;">
-                            Not Applicable
-                        </td>
-                        <td style="text-align: center; vertical-align: middle;">
-                            Not Applicable
-                        </td>
-                        <td style="text-align: center; vertical-align: middle;">
-                            Not Applicable
-                        </td>
-                        <td style="text-align: center; vertical-align: middle;">
-                            Not Applicable
-                        </td>
-                        <td style="text-align: center; vertical-align: middle;">
-                            Not Applicable
-                        </td>
-                    </tr>
+
+                <td>(ix)</td>
+                <td>
+                Whether any other liabilities are in dispute,
+                if so, mention the amount involved and the
+                authority before which it is pending.
+                </td>
+
+                @foreach($holders as $holder)
+
+                @php
+                $gov = collect($governmentDues)
+                        ->where('holder',$holder)
+                        ->first();
+
+                $value = $gov['dispute_details'] ?? null;
+                @endphp
+
+                <td style="text-align:center">
+
+                {{ $value ?: 'Not Applicable' }}
+
+                </td>
+
+                @endforeach
+
+                </tr>
                 </table>
 
                 <p class="indent-para">
