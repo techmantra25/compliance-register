@@ -93,6 +93,9 @@
                             <input type="number"
                                 class="form-control"
                                 wire:model.defer="age">
+                                @error('age')
+                                    <small class="text-danger d-block">{{ $message }}</small>
+                                @enderror
                         </div>
                     </div>
 

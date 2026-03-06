@@ -33,13 +33,11 @@ class PhaseCrud extends Component
 
     public function assemblyUpdate($assemblyIds)
     {
-        // Convert to array if single value
         $assemblyIds = is_array($assemblyIds) ? $assemblyIds : [$assemblyIds];
 
-        // Find conflicts: assemblies that already belong to other phases
+  
         $query = PhaseWiseAssembly::whereIn('assembly_id', $assemblyIds);
 
-        // If editing, exclude the current phase
         if ($this->isEdit && $this->phase_id) {
             $query->where('phase_id', '!=', $this->phase_id);
         }
@@ -47,16 +45,16 @@ class PhaseCrud extends Component
         $conflicts = $query->pluck('assembly_id')->toArray();
 
         if (!empty($conflicts)) {
-            // Get the assembly names that conflict
+           
             $conflictNames = Assembly::whereIn('id', $conflicts)->pluck('assembly_name_en')->implode(', ');
 
-            // Dispatch a toastr or alert message
+          
             $this->dispatch('toastr:error', message: "⚠️ These assemblies are already assigned to another phase: {$conflictNames}");
 
-            // Remove conflicting assemblies from the selected list
+           
             $this->assembly_ids = array_diff($assemblyIds, $conflicts);
         } else {
-            // No conflicts — update the selected assemblies
+       
             $this->assembly_ids = $assemblyIds;
         }
     }

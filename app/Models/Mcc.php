@@ -10,7 +10,7 @@ class Mcc extends Model
    protected $table = 'mcc';
 
    protected $fillable = [
-        'assembly_id', 'block', 'gp', 'complainer_name', 'complainer_phone','complainer_description', 'remarks','action_taken','status'
+        'assembly_id', 'category','mcc_code','block', 'gp', 'complainer_name', 'complainer_phone','complainer_description', 'remarks','action_taken','status'
    ];
 
     public function districts(){
@@ -23,5 +23,10 @@ class Mcc extends Model
 
     public function legalAssociate(){
         return $this->belongsTo(Admin::class, 'action_taken');
+    }
+
+    public function latestRemark()
+    {
+        return $this->hasOne(MccRemarks::class, 'mcc_id')->latestOfMany();
     }
 }
