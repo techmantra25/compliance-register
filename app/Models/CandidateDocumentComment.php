@@ -9,9 +9,7 @@ class CandidateDocumentComment extends Model
     protected $table = 'candidate_document_comments';
 
     protected $fillable = [
-        'candidate_document_id',
-        'comment',
-       'created_by',
+        'candidate_document_id', 'comment', 'created_by', 'is_viewed'
     ];
 
     /**

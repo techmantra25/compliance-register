@@ -146,7 +146,7 @@ class CandidateDocumentCollection extends Component
                     'vetted_by_name' => $document->vettedBy->name ?? 'N/A',
                     'vetted_on' => $document->vetted_on?$document->vetted_on->format('d/m/Y h:i A'):"N/A",
                     'uploaded_by_id' => $document->uploaded_by,
-                    'comments_count' => $document->comments->count(),
+                    'comments_count' => $document->comments->where('is_viewed',0)->count(),
                     'status' => $document->status,
                 ];
             })->values()->toArray();

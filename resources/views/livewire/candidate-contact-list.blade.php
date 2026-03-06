@@ -20,12 +20,18 @@
             </div>
             <div>
                 @if(childUserAccess(Auth::guard('admin')->user()->id,'nomination_export_candidate'))
-                <a wire:click='exportCsv' class="btn btn-primary btn-sm">
-                    <i class="bi bi-cloud-arrow-down me-1"></i>Export
-                </a>
+                    @if($filter_by_document=='partial')
+                        <button class="btn btn-sm btn-danger"
+                                wire:click="exportExcel">
+                            <i class="bi bi-cloud-arrow-down me-1"></i> Export Pending Documents
+                        </button>
+                    @endif
+                    <a wire:click='exportCsv' class="btn btn-danger btn-sm">
+                        <i class="bi bi-cloud-arrow-down me-1"></i>Export All Candidate
+                    </a>
                 @endif
                 @if(childUserAccess(Auth::guard('admin')->user()->id,'nomination_import_candidate'))
-                <button class="btn btn-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#uploadcandidateModal">
+                <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#uploadcandidateModal">
                     <i class="bi bi-upload me-1"></i>Upload Candidate
                 </button>
                 @endif
@@ -41,47 +47,81 @@
         <!--  Main Content -->
         <div class="col-lg-12">
             <div class="card shadow-sm border-0 p-3 filter-card">
-                <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                    <h5 class="fw-bold mb-0">Candidate Contacts</h5>
+                <div class="card-header bg-white">
 
-                    <div class="d-flex align-items-center">
-                        <div wire:ignore>
-                            <select wire:model="filter_by_assembly" class="form-select chosen-select">
+                    <!-- 🔹 Row 1 -->
+                    <div class="row g-2 mb-2">
+
+                        <div class="col-md-4" wire:ignore>
+                            <select wire:model="filter_by_assembly" class="form-select form-select-sm chosen-select">
                                 <option value="">Filter by Assembly</option>
                                 @foreach ($assemblies as $assembly)
-                                <option value="{{ $assembly->id }}">
-                                    {{ $assembly->assembly_name_en }} -{{ $assembly->assembly_number }}
-                                </option>
+                                    <option value="{{ $assembly->id }}">
+                                        {{ $assembly->assembly_name_en }} - {{ $assembly->assembly_number }}
+                                    </option>
                                 @endforeach
                             </select>
                         </div>
-                        <div  wire:ignore>
-                            <select wire:model="filter_by_district" class="form-select chosen-select">
+
+                        <div class="col-md-4" wire:ignore>
+                            <select wire:model="filter_by_district" class="form-select form-select-sm chosen-select">
                                 <option value="">Filter by District</option>
                                 @foreach ($districts as $district)
-                                <option value="{{ $district->id }}">
-                                    {{ $district->name_en }} ({{ $district->name_bn }})
-                                </option>
+                                    <option value="{{ $district->id }}">
+                                        {{ $district->name_en }}
+                                    </option>
                                 @endforeach
                             </select>
                         </div>
-                        <div  wire:ignore>
-                            <select wire:model="filter_by_phase" class="form-select chosen-select">
-                                <option value="">Filter by phase</option>
-                                @foreach ($phases as $phase)
-                                <option value="{{ $phase->id }}">
-                                    {{ ucwords($phase->name) }} ({{$phase->last_date_of_nomination}})
-                                </option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <input type="text" wire:model="search" wire:keyup="filterCandidates($event.target.value)"
-                            class="form-control form-control-sm w-auto me-2" placeholder="Search here...">
 
-                        <button class="btn btn-sm btn-danger" wire:click="resetForm">
-                            <i class="bi bi-arrow-clockwise"></i> Reset
-                        </button>
+                        <div class="col-md-4" wire:ignore>
+                            <select wire:model="filter_by_phase" class="form-select form-select-sm chosen-select">
+                                <option value="">Filter by Phase</option>
+                                @foreach ($phases as $phase)
+                                    <option value="{{ $phase->id }}">
+                                        {{ ucwords($phase->name) }}
+                                        ({{ \Carbon\Carbon::parse($phase->last_date_of_nomination)->format('d M Y') }})
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
                     </div>
+
+                    <!-- 🔹 Row 2 -->
+                    <div class="row g-2 align-items-center">
+                        <div class="col-md-3">
+                            <input type="text"
+                                wire:model="search" wire:keyup="filterCandidates($event.target.value)"
+                                class="form-control form-control-sm"
+                                placeholder="Search candidate...">
+                        </div>
+                        <div class="col-md-4">
+                            <select wire:model="filter_by_status" class="form-select form-select-sm" wire:change="filterByStatus($event.target.value)">
+                                <option value="">Filter by Final Status</option>
+                                @foreach (getFinalDocStatus() as $key => $status)
+                                    <option value="{{ $key }}">
+                                        {{ $status['icon'] }} {{ $status['label'] }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="col-md-4">
+                            <select wire:model="filter_by_document" class="form-select form-select-sm" wire:change="filterByDocument($event.target.value)">
+                                <option value="">Filter by Document Status</option>
+                                <option value="all">All Documents Uploaded</option>
+                                <option value="missing">Missing Documents</option>
+                                <option value="partial">Partially Uploaded</option>
+                            </select>
+                        </div>
+                        <div class="col-md-1 text-end">
+                            <button class="btn btn-sm btn-danger"
+                                    wire:click="resetForm">
+                                <i class="bi bi-arrow-clockwise me-1"></i>
+                            </button>
+                        </div>
+                    </div>
+
                 </div>
 
                 <div class="card-body p-2">
@@ -90,10 +130,10 @@
                             <thead class="table-light">
                                 <tr>
                                     <th style="width: 60px;">#</th>
-                                    <th>Candidate Details</th>
-                                    <th>Agent</th>
+                                    <th>Candidate</th>
+                                    {{-- <th>Agent</th> --}}
                                     <th>Assembly</th>
-                                    <th>Documents Count</th>
+                                    <th>Documents</th>
                                     <th>Final Status</th>
                                     <th>Last Date Of Nomination</th>
                                     <th style="max-width: 250px;" class="text-center">Action</th>
@@ -104,50 +144,139 @@
                                 <tr wire:key="candidate-{{ $candidate->id }}">
                                     <td>{{ $candidates->firstItem() + $loop->index }}</td>
                                     <td>
-                                        <div class="fw-semibold text-primary">{{ ucwords($candidate->name) }}</div>
+                                        <div class="fw-semibold text-primary">
+                                            {{ ucwords($candidate->name) }}
+                                        </div>
+
                                         <div class="text-muted small">
+
                                             @if($candidate->email)
-                                            <span><strong>Email:</strong> {{ $candidate->email ?? '-' }}</span><br>
+                                                <span>
+                                                    <i class="bi bi-envelope-fill text-primary me-1"></i>
+                                                    {{ $candidate->email }}
+                                                </span>
+                                                <br>
                                             @endif
-                                            <span><strong>Contact:</strong> {{ $candidate->contact_number ?? '-' }}
+
+                                            <span>
+                                                <i class="bi bi-telephone-fill text-success me-1"></i>
+                                                {{ $candidate->contact_number ?? '-' }}
+
                                                 @if($candidate->contact_number_alt_1)
-                                                ,{{ $candidate->contact_number_alt_1 ?? '-' }}
+                                                    , {{ $candidate->contact_number_alt_1 }}
                                                 @endif
-                                            </span><br>
-                                            <span><strong>District:</strong> {{ $candidate->assembly->district->name_en
-                                                ?? 'N/A' }}</span>
+                                            </span>
+                                            <br>
+
+                                            <span>
+                                                <i class="bi bi-geo-alt-fill text-danger me-1"></i>
+                                                {{ $candidate->assembly->district->name_en ?? 'N/A' }}
+                                            </span>
+
                                         </div>
                                     </td>
 
-                                    <td>
+                                    {{-- <td class="text-center">
                                         @if ($candidate->agents->isNotEmpty())
-                                        @foreach ($candidate->agents as $agent)
-                                        <div class="d-flex mb-1">
-                                            <i class="bi bi-person-badge text-primary me-1"></i>
-                                            <div>
-                                                <strong>{{ ucwords($agent->name) }}</strong>
-                                                <span class="text-muted small">
-                                                    ({{ $agent->contact_number }}@if($agent->contact_number_alt_1) / {{
-                                                    $agent->contact_number_alt_1}}@endif)
-                                                </span>
-                                                @if($agent->email)
-                                                <div class="small text-muted">{{ $agent->email }}</div>
-                                                @endif
+                                            <button class="btn btn-sm btn-outline-primary"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#agentModal-{{ $candidate->id }}">
+                                                <i class="bi bi-eye me-1"></i> View
+                                            </button>
+                                        @else
+                                            N/A
+                                        @endif
+
+                                        <div class="modal fade"
+                                            id="agentModal-{{ $candidate->id }}"
+                                            tabindex="-1"
+                                            aria-hidden="true"
+                                            wire:ignore.self>
+
+                                            <div class="modal-dialog modal-lg modal-dialog-centered">
+                                                <div class="modal-content border-0 shadow">
+
+                                                    <!-- Header -->
+                                                    <div class="modal-header bg-primary text-white">
+                                                        <h5 class="modal-title">
+                                                            <i class="bi bi-people-fill me-1"></i>
+                                                            Agent Details
+                                                        </h5>
+                                                        <button type="button"
+                                                                class="btn-close btn-close-white"
+                                                                data-bs-dismiss="modal"></button>
+                                                    </div>
+
+                                                    <!-- Body -->
+                                                    <div class="modal-body">
+
+                                                        <div class="table-responsive">
+                                                            <table class="table table-bordered align-middle">
+                                                                <thead class="table-light">
+                                                                    <tr>
+                                                                        <th>Name</th>
+                                                                        <th>Phone</th>
+                                                                        <th>Email</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    @foreach ($candidate->agents as $agent)
+                                                                        <tr>
+                                                                            <td>
+                                                                                <i class="bi bi-person-badge text-primary me-1"></i>
+                                                                                {{ ucwords($agent->name) }}
+                                                                            </td>
+
+                                                                            <td>
+                                                                                <div class="d-flex align-items-center gap-2">
+
+                                                                                    <span id="phone-{{ $agent->id }}">
+                                                                                        {{ $agent->contact_number }}
+                                                                                        @if($agent->contact_number_alt_1)
+                                                                                            / {{ $agent->contact_number_alt_1 }}
+                                                                                        @endif
+                                                                                    </span>
+
+                                                                                    <button class="btn btn-sm btn-outline-secondary"
+                                                                                            onclick="copyToClipboard('phone-{{ $agent->id }}')">
+                                                                                        <i class="bi bi-clipboard"></i>
+                                                                                    </button>
+
+                                                                                </div>
+                                                                            </td>
+
+                                                                            <td>
+                                                                                @if($agent->email)
+                                                                                    <i class="bi bi-envelope-fill text-primary me-1"></i>
+                                                                                    {{ $agent->email }}
+                                                                                @else
+                                                                                    -
+                                                                                @endif
+                                                                            </td>
+                                                                        </tr>
+                                                                    @endforeach
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+
+                                                    </div>
+
+                                                </div>
                                             </div>
                                         </div>
-                                        @endforeach
-                                        @else
-                                        N/A
-                                        @endif
-                                    </td>
+                                    </td> --}}
                                     <td>
-                                        <span> {{ $candidate->assembly->assembly_name_en ?? 'N/A' }}
-                                            -{{ $candidate->assembly->assembly_number ?? '-' }}
+                                        <span>
+                                            {{ $candidate->assembly->assembly_name_en ?? 'N/A' }}
+
+                                            @if(!empty($candidate->assembly->assembly_number))
+                                                ({{ $candidate->assembly->assembly_number }})
+                                            @endif
                                         </span>
                                     </td>
                                     <td>
-                                        @php
-                                        $uploaded = $candidate->documents->groupBy('type')->count();
+                                       @php
+                                            $uploaded = $candidate->VedifiedDocuments->groupBy('type')->count();
                                         @endphp
 
                                         <span>
@@ -195,7 +324,15 @@
 
                                         @endif
                                     </td>
-                                    <td>{{ optional(optional(optional($candidate->assembly)->assemblyPhase)->phase)->last_date_of_nomination ?? 'N/A' }}</td>
+                                    <td>
+                                        {{
+                                            optional(optional(optional($candidate->assembly)->assemblyPhase)->phase)->last_date_of_nomination
+                                            ? \Carbon\Carbon::parse(
+                                                optional(optional(optional($candidate->assembly)->assemblyPhase)->phase)->last_date_of_nomination
+                                            )->format('d M Y')
+                                            : 'N/A'
+                                        }}
+                                    </td>
 
                                     <td class="text-center">
                                         @if($authUser->role=='legal_associate')
@@ -234,18 +371,12 @@
                                             </a>
                                             @endif
                                             @if(childUserAccess(Auth::guard('admin')->user()->id,'nomination_candidate_journey_timeline'))
-                                            <a href="{{ route('admin.candidates.journey', $candidate->id) }}"
-                                                class="btn btn-sm btn-outline-primary mt-1"
-                                                title="Candidate Journey Timeline">
-                                            <i class="bi bi-person-lines-fill"></i>
-                                            </a>
+                                                <a href="{{ route('admin.candidates.journey', $candidate->id) }}"
+                                                    class="btn btn-sm btn-outline-primary mt-1"
+                                                    title="Candidate Journey Timeline">
+                                                    <i class="bi bi-clock-history"></i>
+                                                </a>
                                             @endif
-
-                                            {{-- <a href="{{ route('admin.candidates.form5', $candidate->id) }}"
-                                                class="btn btn-sm btn-outline-primary mt-1"
-                                                title="Candidate Journey Timeline">
-                                                FORM 5
-                                            </a> --}}
                                             <button
                                                 class="btn btn-sm btn-outline-primary mt-1"
                                                 wire:click="openFormModal({{ $candidate->id }})"
@@ -331,7 +462,7 @@
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="3" class="text-center text-muted py-3">
+                                    <td colspan="8" class="text-center text-muted py-3">
                                         No candidates found
                                     </td>
                                 </tr>
@@ -665,6 +796,13 @@
                 $('input[wire\\:model="search"]').val('');
             });
         });
+
+        // function copyToClipboard(id) {
+        //     let text = document.getElementById(id).innerText;
+        //     navigator.clipboard.writeText(text);
+
+        //     alert("Phone number copied!");
+        // }
     </script>
 
    

@@ -47,6 +47,35 @@ class PermissionCampaignCrud extends Component
         $this->reset(['file', 'remarks', 'campaign_id', 'event_required_permission_id', 'doc_type']);
     }
 
+    public function markAsSkipped($permissionId){
+
+        $create = new CampaignWisePermission();
+        $create->campaign_id = $this->campaign_id;
+        $create->event_required_permission_id = $permissionId;
+        $create->status = 'skip'; // always approved since no legal associate flow
+        $create->doc_type = "applied_copy";
+        $create->uploaded_by = auth('admin')->id();
+        $create->uploaded_at = now();
+        $create->save();
+
+        $insert = new CampaignWisePermission();
+        $insert->campaign_id = $this->campaign_id;
+        $insert->event_required_permission_id = $permissionId;
+        $insert->status = 'skip'; // always approved since no legal associate flow
+        $insert->doc_type = "approved_copy";
+        $insert->uploaded_by = auth('admin')->id();
+        $insert->uploaded_at = now();
+        $insert->save();
+
+        $this->dispatch('toastr:success', message: "Document updated successfully");
+    }
+
+    public function revokeSkip($permissionId){
+       CampaignWisePermission::where('campaign_id', $this->campaign_id)
+        ->where('status', 'skip')
+        ->where('event_required_permission_id', $permissionId)
+        ->delete();
+    }
     public function save()
     {
         $this->validate([

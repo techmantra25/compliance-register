@@ -27,4 +27,5 @@ class Campaign extends Model
     public function permissions(){
         return $this->hasMany(CampaignWisePermission::class, 'campaign_id', 'id');
     }
+
 }

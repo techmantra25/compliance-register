@@ -9,6 +9,7 @@ use App\Models\EventCategory;
 use Livewire\WithPagination;
 use Livewire\WithFileUploads;
 use App\Models\Campaigner;
+use App\Models\CampaignWisePermission;
 use App\Models\ChangeLog;
 use App\Models\District;
 use App\Models\Phase;
@@ -21,7 +22,6 @@ class CampaignCrud extends Component
     public $campaign_id, $campaigner_id, $assembly_id, $event_category_id, $address, $campaign_date, $remarks, $permission_status, $last_date_of_permission;
     public $isEdit = false;
     public $search = '';
-
     public $new_campaign_date;
     public $selected_campaign_id;
     public $rescheduled_at;
@@ -29,12 +29,19 @@ class CampaignCrud extends Component
     public $old_selected_status;
     public $cancelled_remarks;
 
+    public $filter_by_status = '';
     public $filter_by_assembly = '';
     public $filter_by_district = '';
     public $filter_by_zone = '';
     public $districts = [];
     public $phases = [];
     public $zones = [];
+    public $statuses = [
+        'pending',
+        'rescheduled',
+        'cancelled',
+        'completed',
+    ];
 
 
     public $campaign;
@@ -215,6 +222,39 @@ class CampaignCrud extends Component
 
     public function statusChanged($id, $status)
     {
+        if($status=="completed"){
+            $campaign = Campaign::findOrFail($id);
+            $requiredDoc = $campaign->category->permissions->pluck('id')->toArray();
+            if (count($requiredDoc) > 0) {
+
+                foreach ($requiredDoc as $permissionId) {
+
+                    $data = CampaignWisePermission::where('campaign_id', $id)
+                        ->where('event_required_permission_id', $permissionId)
+                        ->latest('id')
+                        ->first();
+
+                    // Not uploaded
+                    if (!$data) {
+                        $this->dispatch('toastr:error', message: "Required permission document is missing.");
+
+                        $this->dispatch('reload-page');
+
+                        return true;
+                    }
+
+                    // Rejected
+                    if ($data->status === "rejected") {
+                        $this->dispatch('toastr:error', message: "One or more permission documents are rejected. Please re-upload.");
+
+                        $this->dispatch('reload-page');
+
+                        return true;
+                    }
+                }
+            }
+            // CampaignWisePermission
+        }
         $Campaign = Campaign::find($id);
         $this->selected_campaign_id = $id;
         $this->selected_status = $status;
@@ -376,13 +416,19 @@ class CampaignCrud extends Component
         $this->filter_by_district = '';
         $this->filter_by_zone = '';
         $this->search = '';
+        $this->filter_by_status = '';
 
         $this->dispatch('refreshChosen'); 
+        $this->dispatch('resetField'); 
     }
 
     public function filterCampaign($searchTerm)
     {
         $this->search = $searchTerm;
+    }
+    public function filterStatus($filter_by_status)
+    {
+        $this->filter_by_status = $filter_by_status;
     }
 
     public function render()
@@ -413,6 +459,9 @@ class CampaignCrud extends Component
 
             ->when($this->filter_by_assembly, function ($q) {
                 $q->where('assembly_id', $this->filter_by_assembly);
+            })
+            ->when($this->filter_by_status, function ($q) {
+                $q->where('status', $this->filter_by_status);
             })
 
 

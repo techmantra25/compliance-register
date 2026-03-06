@@ -16,6 +16,11 @@ class Candidate extends Model
     {
         return $this->hasMany(CandidateDocument::class, 'candidate_id');
     }
+  public function VedifiedDocuments()
+    {
+        return $this->hasMany(CandidateDocument::class, 'candidate_id')
+                    ->whereIn('status', ['Skipped','Approved','Pending']);
+    }
    public function assembly()
     {
         return $this->belongsTo(Assembly::class, 'assembly_id');

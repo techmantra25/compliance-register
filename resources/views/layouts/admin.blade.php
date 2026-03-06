@@ -31,7 +31,7 @@
             <span class="ms-2 fw-semibold">{{__('admin/sidebar.project_name')}}</span>
         </div>
 
-        <ul class="nav flex-column px-2">
+        <ul class="nav flex-column px-2 ">
             @if(userAccess(Auth::guard('admin')->user()->id,'dashboard'))
                 <li class="nav-item mb-2">
                     <a href="{{ route('admin.dashboard') }}"
@@ -97,7 +97,7 @@
             @endif
 
             @if(userAccess(Auth::guard('admin')->user()->id,'contact_management'))
-            <li class="nav-item mb-2">
+                <li class="nav-item mb-2">
                     <a href="{{ route('admin.agents') }}"
                     class="nav-link {{ request()->routeIs('admin.agents') ? 'active' : '' }}">
                         <i class="bi bi-person-badge me-2"></i> Contacts
@@ -106,7 +106,7 @@
             @endif
 
             @if(userAccess(Auth::guard('admin')->user()->id,'assembly_management'))
-            <li class="nav-item mb-2">
+                <li class="nav-item mb-2">
                     <a href="{{ route('admin.assemblies') }}"
                     class="nav-link {{ request()->routeIs('admin.assemblies') ? 'active' : '' }}">
                         <i class="bi bi-building me-2"></i> {{ __('admin/sidebar.assemblies') }}
@@ -224,6 +224,50 @@
             </div>
 
             <div class="d-flex align-items-center gap-3">
+                {{-- 🔔 Notification --}}
+                <div class="dropdown position-relative">
+                    <a href="#" class="text-decoration-none position-relative" data-bs-toggle="dropdown">
+                        <i class="bi bi-bell fs-5"></i>
+                        <!-- Live Badge -->
+                        <span id="notificationBadge" class="position-absolute top-0 start-100 translate-middle 
+                                    badge rounded-pill bg-danger pulse-badge" style="font-size: 10px;">
+                            3
+                        </span>
+                    </a>
+
+                    <ul class="dropdown-menu dropdown-menu-end shadow-lg notifications-dropdown" style="width: 300px;">
+                        <li class="dropdown-header fw-bold bg-light py-2">Notifications</li>
+
+                        <li>
+                            <a href="#" class="dropdown-item small">
+                                <i class="bi bi-envelope-fill text-primary me-2"></i>
+                                New campaign request submitted.
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="#" class="dropdown-item small">
+                                <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                Permission document approved.
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="#" class="dropdown-item small">
+                                <i class="bi bi-x-circle-fill text-danger me-2"></i>
+                                One document was rejected.
+                            </a>
+                        </li>
+
+                        <li><hr class="dropdown-divider"></li>
+
+                        <li>
+                            <a href="#" class="dropdown-item text-center text-primary fw-bold">
+                                View All
+                            </a>
+                        </li>
+                    </ul>
+                </div>
                 {{-- ЁЯМР Language Toggle --}}
                 <div class="language-toggle">
                     <!--@if(app()->getLocale() == 'en')-->
@@ -304,6 +348,37 @@
             sidebar.classList.remove('active');
             overlay.classList.remove('active');
         });
+
+        function addNotification(message, type='info') {
+            const dropdown = document.querySelector('.notifications-dropdown');
+            const badge = document.getElementById('notificationBadge');
+
+            // Increment count
+            let count = parseInt(badge.textContent);
+            badge.textContent = count + 1;
+
+            // Create new notification
+            const li = document.createElement('li');
+            li.innerHTML = `<a href="#" class="dropdown-item small">
+                                <i class="bi ${type === 'success' ? 'bi-check-circle-fill text-success' : type === 'danger' ? 'bi-x-circle-fill text-danger' : 'bi-envelope-fill text-primary'} me-2"></i>
+                                ${message}
+                            </a>`;
+
+            // Add new notification at the top
+            dropdown.prepend(li);
+        }
+
+        // Example: simulate new notification every 5 seconds
+        setInterval(() => {
+            const messages = [
+                'New user signed up.',
+                'Server backup completed.',
+                'Invoice approved.',
+                'New comment on your post.'
+            ];
+            const randomMsg = messages[Math.floor(Math.random() * messages.length)];
+            addNotification(randomMsg);
+        }, 5000);
     </script>
 </body>
 </html>

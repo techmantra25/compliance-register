@@ -4,6 +4,7 @@ use App\Models\CandidateDocumentType;
 use App\Models\ChangeLog;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Models\Notification;
 
 if (!function_exists('getCandidateDocument')) {
     /**
@@ -153,5 +154,22 @@ if (!function_exists('childUserAccess')) {
         } else {
             return true;
         }
+    }
+}
+if (!function_exists('createNotification')) {
+    /**
+     * Create a new notification
+     *
+     * @param string $title - Notification title
+     * @param string|null $slug - URL or slug
+     * @return \App\Models\Notification
+     */
+    function createNotification($title, $slug = null)
+    {
+        return Notification::create([
+            'title' => $title,
+            'url'   => $slug,
+            'is_read' => false,
+        ]);
     }
 }
