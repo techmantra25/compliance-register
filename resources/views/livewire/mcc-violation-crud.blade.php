@@ -135,20 +135,30 @@
                                                 </span>
                                             @endif
                                         </td>
-                                        <td>
+                                        {{-- <td>
                                             @php
                                                 $user = auth()->user();
                                             @endphp
-                                            @if($item->status == 'processed' && $user->role == 'legal_associate' && $item->action_taken == $user->id)
+                                            @if($item->status == 'processed' || $item->status == 'resolved_processing')
+                                                @if($user->role == 'legal_associate' && $item->action_taken == $user->id)
+
                                                 <select class="form-select form-select-sm"
-                                                        wire:change="changeStatus({{ $item->id }}, $event.target.value)">
-                                                    <option value="processed" selected>Processed</option>
+                                                    wire:change="changeStatus({{ $item->id }}, $event.target.value)">
+
+                                                    <option value="processed" {{ $item->status=='processed' ? 'selected':'' }}>Processed</option>
+
+                                                    <option value="resolved_processing">Resolved Processing</option>
+
                                                     <option value="confirm_resolved">Resolved</option>
+
                                                 </select>
+
+                                                @endif
                                             @endif
                                             <span class="badge 
                                                 @if($item->status == 'pending_to_process') bg-warning
                                                 @elseif($item->status == 'processed') bg-info
+                                                @elseif($item->status == 'resolved_processing') bg-primary
                                                 @elseif($item->status == 'confirm_resolved') bg-success
                                                 @else bg-secondary
                                                 @endif">
@@ -157,8 +167,61 @@
 
                                             <div class="mt-1">
                                                 <small class="text-muted d-block">
-                                                    Remarks: 
-                                                    {{ $item->remarks ? \Illuminate\Support\Str::words($item->remarks, 100, '...') : 'N/A' }}
+                                                    Remarks:
+                                                    {{ $item->latestRemark?->remarks 
+                                                        ? \Illuminate\Support\Str::words(ucwords($item->latestRemark->remarks), 100, '...')
+                                                        : 'N/A' }}
+                                                </small>
+                                            </div>
+                                        </td> --}}
+                                        <td>
+                                            @php
+                                                $user = auth()->user();
+                                            @endphp
+
+                                            @if($item->status == 'processed' || $item->status == 'resolved_processing')
+                                                @if($user->role == 'legal_associate' && $item->action_taken == $user->id)
+
+                                                <select class="form-select form-select-sm"
+                                                    wire:change="changeStatus({{ $item->id }}, $event.target.value)">
+
+                                                    <option value="processed" 
+                                                        {{ $item->status=='processed' ? 'selected':'' }}>
+                                                        Processed
+                                                    </option>
+
+                                                    <option value="resolved_processing" 
+                                                        {{ $item->status=='resolved_processing' ? 'selected':'' }}>
+                                                        Resolved Processing
+                                                    </option>
+
+                                                    <option value="confirm_resolved">
+                                                        Resolved
+                                                    </option>
+
+                                                </select>
+
+                                                @endif
+                                            @endif
+
+                                            <span class="badge 
+                                                @if($item->status == 'pending_to_process') bg-warning
+                                                @elseif($item->status == 'processed') bg-info
+                                                @elseif($item->status == 'resolved_processing') bg-primary
+                                                @elseif($item->status == 'confirm_resolved') bg-success
+                                                @else bg-secondary
+                                                @endif">
+
+                                                {{ ucwords(str_replace('_',' ', $item->status)) }}
+
+                                            </span>
+
+                                            <div class="mt-1">
+                                                <small class="text-muted d-block">
+                                                    Remarks:
+                                                    {{ $item->latestRemark?->remarks 
+                                                        ? \Illuminate\Support\Str::words(ucwords($item->latestRemark->remarks), 100, '...')
+                                                        : 'N/A' }}
                                                 </small>
                                             </div>
                                         </td>
@@ -416,11 +479,16 @@
                         @error('remarks') <small class="text-danger">{{ $message }}</small> @enderror
                     </div>
 
+                    <div class="modal-body">
+                        <label>Attachment<span class="text-danger"></span></label>
+                        <input type="file" class="form-control" wire:model="attachment">
+                        @error('remarks') <small class="text-danger">{{ $message }}</small> @enderror
+                    </div>
+
                     <div class="modal-footer">
                         <button class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
                         <button class="btn btn-success btn-sm" wire:click="saveResolution">Save</button>
                     </div>
-
                 </div>
             </div>
         </div>

@@ -24,4 +24,9 @@ class Mcc extends Model
     public function legalAssociate(){
         return $this->belongsTo(Admin::class, 'action_taken');
     }
+
+    public function latestRemark()
+    {
+        return $this->hasOne(MccRemarks::class, 'mcc_id')->latestOfMany();
+    }
 }
