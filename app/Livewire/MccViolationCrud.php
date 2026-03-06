@@ -14,7 +14,7 @@ class MccViolationCrud extends Component
 {
     use WithPagination , WithFileUploads;
 
-    public $mcc_id, $assembly_id, $block, $gp, $complainer_name, $complainer_phone, $complainer_description;
+    public $mcc_id, $assembly_id, $category, $block, $gp, $complainer_name, $complainer_phone, $complainer_description;
     public $assembly;
     public $search = '';
     public $mccFile;
@@ -41,6 +41,8 @@ class MccViolationCrud extends Component
         'complainer_phone' => 'required|numeric|digits:10',
         'complainer_description' => 'nullable|string',
         'action_taken' => 'nullable|exists:admins,id',
+        'category' => 'required',
+        'mccFile' => 'required|file|mimes:csv,txt|max:2048'
     ];
 
     protected $messages = [
@@ -50,6 +52,7 @@ class MccViolationCrud extends Component
         'complainer_name.required' => 'Complainer name is required.',
         'complainer_phone.required' => 'Phone is required.',
         'complainer_phone.digits' => 'Phone must be 10 digits.',
+        'category.required' => 'Category is required.'
     ];
 
     public function mount()
@@ -77,7 +80,8 @@ class MccViolationCrud extends Component
             'gp',
             'complainer_name',
             'complainer_phone',
-            'complainer_description'
+            'complainer_description',
+            'category'
         ]);
 
         $this->isEdit = false;
@@ -92,6 +96,7 @@ class MccViolationCrud extends Component
 
         $this->mcc_id = $mcc->id;
         $this->assembly_id = $mcc->assembly_id;
+        $this->category = $mcc->category;
         $this->block = $mcc->block;
         $this->gp = $mcc->gp;
         $this->complainer_name = $mcc->complainer_name;
@@ -117,20 +122,32 @@ class MccViolationCrud extends Component
         $status = $this->action_taken ? 'processed' : 'pending_to_process';
 
         try {
+
+            $assembly = Assembly::find($this->assembly_id);
+            $assemblyNumber = $assembly->assembly_number;
+
+            $count = Mcc::where('assembly_id', $this->assembly_id)->count();
+
+            $sequence = str_pad($count + 1, 4, '0', STR_PAD_LEFT);
+
+            $mccCode = $assemblyNumber . '-' . $sequence;
+
             $mcc = Mcc::create([
                 'assembly_id' => $this->assembly_id,
+                'category' => $this->category,
                 'block' => $this->block,
                 'gp' => $this->gp,
                 'complainer_name' => $this->complainer_name,
                 'complainer_phone' => $this->complainer_phone,
                 'complainer_description' => $this->complainer_description,
                 'action_taken' => $this->action_taken,
-                'status' => $status
+                'status' => $status,
+                'mcc_code' => $mccCode
             ]);
 
             ChangeLog::create([
                 'module_name' => 'mcc',
-                'module_id'    => $mcc->id,
+                'module_id' => $mcc->id,
                 'action' => 'inserted',
                 'description' => 'MCC created Successfully',
                 'old_data' => $mcc->toArray(),
@@ -145,6 +162,7 @@ class MccViolationCrud extends Component
             $this->resetInputFields();
 
         } catch (\Exception $e) {
+            dd($e->getMessage());
             $this->dispatch('toastr:error', message: 'Something went wrong while creating!');
         }
     }
@@ -162,13 +180,14 @@ class MccViolationCrud extends Component
 
             $mcc->update([
                 'assembly_id' => $this->assembly_id,
+                'category' => $this->category,
                 'block' => $this->block,
                 'gp' => $this->gp,
                 'complainer_name' => $this->complainer_name,
                 'complainer_phone' => $this->complainer_phone,
                 'complainer_description' => $this->complainer_description,
                 'action_taken' => $this->action_taken,
-                'status' => $status
+                'status' => $status,
             ]);
 
             $new = $mcc->fresh()->toArray();
@@ -206,6 +225,7 @@ class MccViolationCrud extends Component
             $this->dispatch('modelHide');
 
         } catch (\Exception $e) {
+            dd($e->getMessage());
             $this->dispatch('toastr:error', message: 'Something went wrong while updating!');
         }
     }
@@ -365,7 +385,6 @@ class MccViolationCrud extends Component
         $this->dispatch('toastr:success', message: 'Resolved successfully');
     }
 
-
     public function resetFilters()
     {
         $this->filter_by_assembly = '';
@@ -421,8 +440,10 @@ class MccViolationCrud extends Component
 
             $associateCount = count($legalAssociates);
             $assignIndex = 0;
+            $assemblySequence = [];
 
             while (($row = fgetcsv($file)) !== false) {
+
                 $line++;
 
                 $data = array_combine($header, $row);
@@ -431,17 +452,31 @@ class MccViolationCrud extends Component
                     throw new \Exception("Row $line : Complainer Phone must be EXACTLY 10 digits.");
                 }
 
-            
                 $assembly = Assembly::where('assembly_number', $data['assembly_number'])->first();
 
                 if (!$assembly) {
-                    throw new \Exception("Row $line : Assembly number <b>{$data['assembly_number']}</b> NOT found.");
+                    throw new \Exception("Row $line : Assembly number {$data['assembly_number']} NOT found.");
                 }
+
+                if (!isset($assemblySequence[$assembly->id])) {
+
+                    $count = Mcc::where('assembly_id', $assembly->id)->count();
+
+                    $assemblySequence[$assembly->id] = $count + 1;
+                }
+
+                $sequence = str_pad($assemblySequence[$assembly->id], 4, '0', STR_PAD_LEFT);
+
+                $mccCode = $assembly->assembly_number . '-' . $sequence;
+
+                $assemblySequence[$assembly->id]++;
 
                 $assignedAssociate = $legalAssociates[$assignIndex];
 
                 $rows[] = [
                     'assembly_id'            => $assembly->id,
+                    'category'               => $data['category'],
+                    'mcc_code'               => $mccCode,
                     'block'                  => $data['block'],
                     'gp'                     => $data['gp'],
                     'complainer_name'        => $data['complainer_name'],
@@ -452,6 +487,7 @@ class MccViolationCrud extends Component
                     'created_at'             => now(),
                     'updated_at'             => now()
                 ];
+
                 $assignIndex++;
 
                 if ($assignIndex >= $associateCount) {
@@ -471,7 +507,7 @@ class MccViolationCrud extends Component
             $this->dispatch('closeModal', id: 'importMccModal');
 
         } catch (\Exception $e) {
-
+            dd($e->getMessage());
             session()->flash('error', 'Import failed: ' . $e->getMessage());
         }
     }
@@ -510,7 +546,7 @@ class MccViolationCrud extends Component
             'Content-Disposition' => 'attachment; filename="mcc_export.csv"',
         ];
 
-        $columns = ['Assembly', 'Block', 'GP', 'Complainer Name', 'Complainer Phone', 'Complainer Description', 'Status', 'Remarks'];
+        $columns = ['Assembly', 'Category','Mcc_Code', 'Block', 'GP', 'Complainer Name', 'Complainer Phone', 'Complainer Description', 'Status', 'Remarks'];
 
         $callback = function() use ($mccList, $columns) {
             $file = fopen('php://output', 'w');
@@ -519,6 +555,8 @@ class MccViolationCrud extends Component
             foreach($mccList as $item){
                 fputcsv($file, [
                     $item->assembly->assembly_name_en ?? 'N/A',
+                    ucwords($item->category),
+                    $item->mcc_code,
                     $item->block,
                     $item->gp,
                     $item->complainer_name,

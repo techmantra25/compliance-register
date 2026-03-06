@@ -34,7 +34,8 @@ use App\Livewire\{
     NominationForm2BPreview,
     Form26,
     Form26Preview,
-    NominationDocumentCrud
+    NominationDocumentCrud,
+    GradeWiseAssemblyCrud
 };
 use App\Http\Controllers\NominationPdfController;
 use App\Livewire\Candidate\DocumentComments;
@@ -100,6 +101,7 @@ Route::prefix('/admin')->middleware('auth:admin')->group(function () {
         Route::get('/phases', PhaseCrud::class)->name('admin.master.phases')->middleware('employee.permission:master_view_phases');
         Route::get('/event-categories', EventCategoryCrud::class)->name('admin.master.eventcategory')->middleware('employee.permission:master_view_event_categories');
         Route::get('/nomination-documents', NominationDocumentCrud::class)->name('admin.master.nomination-documents')->middleware('employee.permission:master_view_nomination_documents');
+        Route::get('/grade-wise-assembly', GradeWiseAssemblyCrud::class)->name('admin.master.grade-wise-assembly');
     });
 
     Route::prefix('/employees')->group(function (){

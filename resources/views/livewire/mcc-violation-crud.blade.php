@@ -93,7 +93,7 @@
                         <table class="table table-hover align-middle mb-0 shadow-sm rounded">
                             <thead class="table-primary text-center">
                                 <tr>
-                                    <th>SL No.</th>
+                                    <th>Code</th>
                                     <th>Assembly</th>
                                     <th>Block & GP</th>
                                     <th>Complainer Details</th>
@@ -105,11 +105,13 @@
                                     <th>Action</th>
                                 </tr>
                             </thead>
-
                             <tbody>
                                 @forelse($mccList as $key => $item)
                                     <tr class="text-center">
-                                        <td>{{ $mccList->firstItem() + $key }}</td>
+                                        <td>
+                                            <div class="fw-bold">{{ $item->mcc_code }}</div>
+                                            <div class="text-muted small">Category: {{ ucwords($item->category) }}</div>
+                                        </td>
                                         <td class="text-start">
                                             <div class="fw-semibold">{{ ucwords(optional($item->assembly)->assembly_name_en ?? '_') }}</div>
                                             <div class="text-muted small">District: {{ optional(optional($item->assembly)->district)->name_en }}</div>
@@ -159,35 +161,6 @@
                                                     {{ $item->remarks ? \Illuminate\Support\Str::words($item->remarks, 100, '...') : 'N/A' }}
                                                 </small>
                                             </div>
-                                        </td> --}}
-                                        <td>
-                                            @if($item->status == 'processed')
-                                                <select class="form-select form-select-sm"
-                                                    wire:change="changeStatus({{ $item->id }}, $event.target.value)">
-
-                                                    <option value="processed" selected>
-                                                        Processed
-                                                    </option>
-
-                                                    <option value="confirm_resolved">
-                                                        Resolved
-                                                    </option>
-                                                </select>
-                                            @endif
-                                            <span class="badge 
-                                                @if($item->status == 'pending_to_process') bg-warning
-                                                @elseif($item->status == 'processed') bg-info
-                                                @elseif($item->status == 'confirm_resolved') bg-success
-                                                @else bg-secondary
-                                                @endif">
-                                                {{ ucwords(str_replace('_',' ', $item->status)) }}
-                                            </span>
-
-                                            <div class="mt-1">
-                                                <small class="text-muted d-block">
-                                                    Remarks: {{ $item->remarks ? ucwords($item->remarks) : 'N/A' }}
-                                                </small>
-                                            </div>
                                         </td>
 
                                         <td class="text-center">
@@ -221,7 +194,6 @@
                                 @endforelse
                             </tbody>
                         </table>
-
                     </div>
                 </div>
 
@@ -234,10 +206,9 @@
 
         <!-- Form -->
         <div wire:ignore.self class="modal fade" id="mccModal" tabindex="-1" aria-labelledby="mccModalLabel"
-        aria-hidden="true" style="background: rgba(0,0,0,0.5);">
+            ria-hidden="true" style="background: rgba(0,0,0,0.5);">
             <div class="modal-dialog modal-xl">
                 <div class="modal-content">
-
                     <div class="modal-header">
                         <h5 class="modal-title" id="mccModalLabel">{{ $isEdit ? 'Edit MCC' : 'Add MCC' }}</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -262,6 +233,19 @@
                                         </select>
                                     </div>
                                     @error('assembly_id') <small class="text-danger">{{ $message }}</small> @enderror
+                                </div>
+
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Category<span class="text-danger">*</span></label>
+                                    <select class="form-control" wire:model="category">
+                                        <option value="">Select Category</option>
+                                        <option value="For AITC">For AITC</option>
+                                        <option value="Against AITC">Against AITC</option>
+                                    </select>
+
+                                    @error('category')
+                                        <small class="text-danger">{{ $message }}</small>
+                                    @enderror
                                 </div>
 
                                 <div class="col-md-6 mb-3">
@@ -324,7 +308,6 @@
                             {{ $isEdit ? 'Update' : 'Save' }}
                         </button>
                     </div>
-
                 </div>
             </div>
         </div>
@@ -352,7 +335,7 @@
             </div>
         </div>
 
-        <div wire:ignore class="modal fade" id="importMccModal" tabindex="-1"
+        <div wire:ignore.self class="modal fade" id="importMccModal" tabindex="-1"
             aria-labelledby="importMccModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-lg modal-dialog-centered">
                 <div class="modal-content border-0 shadow-lg rounded-3">
@@ -389,7 +372,10 @@
                             <div class="col-12">
                                 <label for="mccFile" class="form-label fw-semibold mt-3">Upload MCC CSV</label>
                                 <input type="file" class="form-control" id="mccFile" wire:model="mccFile" accept=".csv">
-                                
+                                    @error('mccFile')
+                                        <div class="text-danger mt-1">{{ $message }}</div>
+                                    @enderror
+
                                 <div wire:loading wire:target="mccFile" class="text-muted mt-2">
                                     <span class="spinner-border spinner-border-sm me-1"></span> Uploading...
                                 </div>

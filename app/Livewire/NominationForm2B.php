@@ -105,6 +105,7 @@ class NominationForm2B extends Component
    
 
     protected $rules = [
+        'age' => 'required|integer|min:18',
         'relation_type' => 'required|in:father,mother,husband',
         'relation_name' => 'required',
         'postal_address' => 'required',
