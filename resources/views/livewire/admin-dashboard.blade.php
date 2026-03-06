@@ -4,7 +4,7 @@
             <div class="row mb-4">
                 <div class="col-md-12 mb-4">
                     <div class="inner-wrapper">
-                        <div class="title-head" style="color: #F97D09;">Event Permission (State View)</div>
+                        <div class="title-head" style="color: #3e0b0f;">Event Permission (State View)</div>
                         <div class="wrappper-bpdy">
                             <div class="chrat-place mb-5">
                                 <canvas width="300" id="myChart"></canvas>
@@ -16,7 +16,7 @@
                 
                 <div class="col-md-6 mb-4">
                     <div class="inner-wrapper">
-                        <div class="title-head" style="color: #F97D09;">Nomination Vetting (State View) - {{ $this->phases->count() }} Phases</div>
+                        <div class="title-head" style="color: #3e0b0f;">Nomination Vetting (State View) - {{ $this->phases->count() }} Phases</div>
                         <div class="wrappper-bpdy">
                             <div class="row">
                                 @foreach($this->phases as $key => $phase)
@@ -50,7 +50,7 @@
                 </div>
                 <div class="col-md-6">
                     <div class="inner-wrapper">
-                        <div class="title-head" style="color: #F97D09;">
+                        <div class="title-head" style="color: #3e0b0f;">
                             MCC Complaints (State-view) - {{ $this->phases->count() }} Phases
                         </div>
 

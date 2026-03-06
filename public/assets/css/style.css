@@ -1,5 +1,5 @@
 :root {
-    --primary-color: #F97D09;
+    --primary-color: #3e0b0f;
     --sidebar-width: 206px;
 }
 /* =========================================
@@ -24,7 +24,7 @@
 
 /* ---------- BUTTONS ---------- */
 .btn-primary {
-    background-color: var(--primary-color);
+    background-color: var(--primary-color) !important;
     border-color: var(--primary-color);
     color: #fff;
     transition: all 0.3s ease;
@@ -131,17 +131,17 @@ body {
     transition: all 0.3s ease;
 }
 
-.btn-danger{
+/* .btn-danger{
     background-color: #F97D09;
-}
+} */
 
-.btn-secondary{
+/* .btn-secondary{
     background-color: #278D27;
 }
 
 .text-dark{
     color: #278D27 !important;
-}
+} */
 
 /* Mobile view */
 @media (max-width: 992px) {
@@ -241,7 +241,7 @@ body {
 }
  .bg-lavel-danger{
         background: #ffe2e3;
-    color: #F97D09;
+        /* color: #F97D09; */
     }
     .bg-lavel-success{
     background-color: #e4f7d6 !important;
@@ -652,34 +652,31 @@ body {
     border-radius: 50%;
     display: inline-block;
 }
-/* Dropdown styling remains the same */
 .notifications-dropdown {
     max-height: 350px;
     overflow-y: auto;
-    transition: all 0.3s ease;
+    width: 320px;
 }
 
+/* Notification item */
 .notifications-dropdown .dropdown-item {
     display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    transition: background 0.2s;
+    align-items: flex-start; /* icon top align */
+    gap: 8px;
+    white-space: normal; /* allow line break */
+    word-break: break-word; /* break long words */
+    line-height: 1.3;
+    padding: 8px 12px;
 }
 
+/* Icon size */
+.notifications-dropdown .dropdown-item i {
+    font-size: 14px;
+    margin-top: 3px;
+}
+
+/* Hover effect */
 .notifications-dropdown .dropdown-item:hover {
-    background-color: #f0f2f5;
-    border-radius: 5px;
-}
-
-/* Pulse + Blink Badge */
-.pulse-badge {
-    animation: pulseBlink 1s infinite;
-}
-
-@keyframes pulseBlink {
-    0% { transform: scale(1); opacity: 1; background-color: #dc3545; }
-    25% { transform: scale(1.3); opacity: 0.8; background-color: #ff4d4d; }
-    50% { transform: scale(1.4); opacity: 0.6; background-color: #dc3545; }
-    75% { transform: scale(1.3); opacity: 0.8; background-color: #ff4d4d; }
-    100% { transform: scale(1); opacity: 1; background-color: #dc3545; }
+    background: #f5f7fa;
+    border-radius: 4px;
 }

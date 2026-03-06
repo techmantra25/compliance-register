@@ -22,12 +22,17 @@
                 @if(childUserAccess(Auth::guard('admin')->user()->id,'nomination_export_candidate'))
                     @if($filter_by_document=='partial')
                         <button class="btn btn-sm btn-danger"
-                                wire:click="exportExcel">
+                                wire:click="exportPendingDocument">
                             <i class="bi bi-cloud-arrow-down me-1"></i> Export Pending Documents
                         </button>
+                    {{-- @elseif($filter_by_document=="personal_doc")
+                        <button class="btn btn-sm btn-danger"
+                                wire:click="exportPersonalDocument">
+                            <i class="bi bi-cloud-arrow-down me-1"></i> Export Personal Documents
+                        </button> --}}
                     @endif
                     <a wire:click='exportCsv' class="btn btn-danger btn-sm">
-                        <i class="bi bi-cloud-arrow-down me-1"></i>Export All Candidate
+                        <i class="bi bi-cloud-arrow-down me-1"></i>Export Candidate
                     </a>
                 @endif
                 @if(childUserAccess(Auth::guard('admin')->user()->id,'nomination_import_candidate'))
@@ -89,12 +94,7 @@
 
                     <!-- 🔹 Row 2 -->
                     <div class="row g-2 align-items-center">
-                        <div class="col-md-3">
-                            <input type="text"
-                                wire:model="search" wire:keyup="filterCandidates($event.target.value)"
-                                class="form-control form-control-sm"
-                                placeholder="Search candidate...">
-                        </div>
+                        
                         <div class="col-md-4">
                             <select wire:model="filter_by_status" class="form-select form-select-sm" wire:change="filterByStatus($event.target.value)">
                                 <option value="">Filter by Final Status</option>
@@ -110,9 +110,16 @@
                             <select wire:model="filter_by_document" class="form-select form-select-sm" wire:change="filterByDocument($event.target.value)">
                                 <option value="">Filter by Document Status</option>
                                 <option value="all">All Documents Uploaded</option>
-                                <option value="missing">Missing Documents</option>
+                                <option value="personal_doc">Missing Personal Documents</option>
+                                <option value="missing">Missing Required Documents</option>
                                 <option value="partial">Partially Uploaded</option>
                             </select>
+                        </div>
+                        <div class="col-md-3">
+                            <input type="text"
+                                wire:model="search" wire:keyup="filterCandidates($event.target.value)"
+                                class="form-control form-control-sm"
+                                placeholder="Search candidate...">
                         </div>
                         <div class="col-md-1 text-end">
                             <button class="btn btn-sm btn-danger"
@@ -385,6 +392,11 @@
                                                 title="Forms">
                                                 <i class="bi bi-file-earmark-text"></i> FORM
                                             </button>
+                                            @if($candidate->document_collection_status=="ready_for_vetting")
+                                                <button type="button" class="btn btn-sm btn-outline-primary mt-1" title="Send Email to Legal Associate to Start Vetting" >
+                                                    <i class="bi bi-envelope-fill"></i>
+                                                </button>
+                                            @endif
                                         @endif
                                     </td>
 
@@ -643,9 +655,9 @@
                 </div>
 
                 <div class="modal-body">
-
                     @foreach ($agentsList as $index => $agent)
-                    <div class="row align-items-end mb-3" wire:key="agent-row-{{ $index }}">
+                     @php $key = $agent['id'] ?? $index; @endphp
+                    <div class="row align-items-end mb-3" wire:key="agent-row-{{ $key }}">
                         <div class="col-md-3">
                             <label class="form-label fw-semibold">Name <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" wire:model.defer="agentsList.{{ $index }}.name"
@@ -717,19 +729,29 @@
         window.addEventListener('toastr:success', event => toastr.success(event.detail.message));
             window.addEventListener('toastr:error', event => toastr.error(event.detail.message));
     </script>
-    {{-- <script>
-        window.addEventListener('ResetFormData', event => {
-                document.querySelectorAll('input, textarea, select').forEach(el => el.value = '');
-                const chosen = $('.chosen-select');
-                if (chosen.length) {
-                    chosen.val('').trigger('chosen:updated');
-                    $('.chosen-single span').text('Select one');
+    <script>
+       window.addEventListener('ResetFormData', event => {
+
+            document.querySelectorAll('input, textarea, select').forEach(el => {
+
+                if (el.type === 'checkbox' || el.type === 'radio') {
+                    el.checked = false;
+                } 
+                else if (el.tagName === 'SELECT') {
+                    el.selectedIndex = 0;
+                } 
+                else {
+                    el.value = '';
                 }
+
             });
-    </script> --}}
+
+        });
+    </script>
 
     <link rel="stylesheet" href="{{ asset('assets/css/component-chosen.css') }}">
     <script src="{{ asset('assets/js/chosen.jquery.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         function initChosen() {
             $('.chosen-select').chosen({
@@ -804,6 +826,8 @@
         //     alert("Phone number copied!");
         // }
     </script>
+
+
 
    
     @endpush

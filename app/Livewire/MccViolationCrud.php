@@ -578,5 +578,4 @@ class MccViolationCrud extends Component
             'mccList' => $campaigns,
         ])->layout('layouts.admin');
     }
-
 }

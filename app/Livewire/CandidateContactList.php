@@ -34,6 +34,7 @@ class CandidateContactList extends Component
     public $authUser;
     public $agentsList = [];
     public $filter_by_document_array = [];
+    public $filter_by_personal_document;
     public $filter_by_assembly, $filter_by_district, $filter_by_phase;
     public $form2bLogs = [];
     public $form26Logs = [];
@@ -62,20 +63,32 @@ class CandidateContactList extends Component
     {
         $this->candidateId = $candidateId;
 
-        // Load existing agents if updating
-        $this->agentsList = CandidateAgent::where('candidate_id', $candidateId)
+        // Reset previous data
+        $this->reset('agentsList');
+
+        $agents = CandidateAgent::where('candidate_id', $candidateId)
             ->with('agent')
             ->get()
-            ->map(function($item){
+            ->map(function ($item) {
                 return [
                     'id' => $item->agent_id,
-                    'name' => $item->agent ? $item->agent->name : null,
-                    'contact_number' => $item->agent ? $item->agent->contact_number : null,
-                    'contact_number_alt_1' => $item->agent ? $item->agent->contact_number_alt_1 : null,
-                    'email' => $item->agent ? $item->agent->email : null
+                    'name' => optional($item->agent)->name,
+                    'contact_number' => optional($item->agent)->contact_number,
+                    'contact_number_alt_1' => optional($item->agent)->contact_number_alt_1,
+                    'email' => optional($item->agent)->email,
                 ];
             })
+            ->values() // important for Livewire indexing
             ->toArray();
+
+        // If no agents exist, create one empty row
+        $this->agentsList = count($agents) > 0 ? $agents : [[
+            'id' => null,
+            'name' => '',
+            'contact_number' => '',
+            'contact_number_alt_1' => '',
+            'email' => ''
+        ]];
     }
 
     public function addAgentRow()
@@ -201,6 +214,8 @@ class CandidateContactList extends Component
                 'incomplete_additional_required',
                 'vetting_in_progress'
             ];
+        }elseif($filter_by_document=='personal_doc'){
+            $this->filter_by_personal_document = 'personal_doc';
         }else{
             $this->filter_by_document_array = [];
         }
@@ -379,7 +394,7 @@ class CandidateContactList extends Component
     {
         $this->reset(['name', 'designation', 'email', 'contact_number', 'contact_number_alt_1', 
         'assembly_id', 'editMode', 'editId',  'search',
-        'filter_by_assembly','filter_by_document','filter_by_status',
+        'filter_by_assembly','filter_by_document', 'filter_by_personal_document', 'filter_by_document_array', 'filter_by_status',
         'filter_by_district',
         'filter_by_phase',]);
         $this->search = '';
@@ -561,7 +576,39 @@ class CandidateContactList extends Component
                 });
             })
             ->when($this->filter_by_status, fn($q) => $q->where('document_collection_status', $this->filter_by_status))
-            ->when($this->filter_by_document, fn($q) => $q->whereIn('document_collection_status', $this->filter_by_document_array))
+            ->when(!empty($this->filter_by_document_array), fn($q) =>
+                $q->whereIn('document_collection_status', $this->filter_by_document_array)
+            )
+
+            ->when($this->filter_by_personal_document, function ($q) {
+
+                $q->where(function ($query) {
+
+                    // Case 1
+                    $query->where(function ($sub) {
+                        $sub->whereNull('contact_number')
+                            ->orWhere('contact_number', '')
+                            ->whereDoesntHave('agents');
+                    })
+
+                    // Case 2
+                    ->orWhere(function ($sub) {
+                        $sub->whereNotNull('contact_number')
+                            ->where('contact_number', '!=', '')
+                            ->whereDoesntHave('agents');
+                    })
+
+                    // Case 3
+                    ->orWhere(function ($sub) {
+                        $sub->where(function ($c) {
+                            $c->whereNull('contact_number')
+                            ->orWhere('contact_number', '');
+                        })->whereHas('agents');
+                    });
+
+                });
+
+            })
             ->when($this->filter_by_assembly, fn($q) => $q->where('assembly_id', $this->filter_by_assembly))
             ->when($this->filter_by_district, fn($q) => $q->whereHas('assembly.district', fn($d) => $d->where('id', $this->filter_by_district)))
             ->when($this->filter_by_phase, fn($q) => $q->whereHas('assembly.assemblyPhase', fn($p) => $p->where('phase_id', $this->filter_by_phase)))
@@ -655,14 +702,21 @@ class CandidateContactList extends Component
         ->get();
     }
 
-    public function exportExcel()
+    public function exportPendingDocument()
     {
         $data = $this->getFilteredQuery()->orderByDesc('id')->get();
-        // Dummy Data
+
         $required_doc = CandidateDocumentType::pluck('name', 'key')->toArray();
-        
-        $candidatesArray = [];
-        foreach ($data as $key => $item) {
+
+        $rows = [];
+
+        // Header
+        $rows[] = ['Assembly Code', 'Candidate Name', 'Document', 'Status', 'Time'];
+
+        foreach ($data as $item) {
+
+            $assemblyCode = optional($item->assembly)->assembly_code ?? 'N/A';
+            $candidateName = $item->name ?? 'N/A';
 
             $documents = $item->documents
                 ->groupBy('type')
@@ -670,91 +724,55 @@ class CandidateContactList extends Component
                     return $docs->sortByDesc('created_at')->first(); // latest per type
                 });
 
-            $rows = [];
-
             foreach ($required_doc as $docKey => $docName) {
 
                 if (isset($documents[$docKey])) {
 
                     $latest = $documents[$docKey];
 
+                    // Only latest Rejected
                     if ($latest->status === 'Rejected') {
+
                         $rows[] = [
+                            $assemblyCode,
+                            $candidateName,
                             $docName,
                             'Rejected',
-                            // $latest->remarks ?? '',
-                            $latest->created_at->format('d M Y, h:i A'),
+                            $latest->created_at->format('d M Y, h:i A')
                         ];
                     }
 
                 } else {
+
                     // Not uploaded
                     $rows[] = [
+                        $assemblyCode,
+                        $candidateName,
                         $docName,
                         'Not Uploaded',
-                        // '',
-                        '',
+                        ''
                     ];
                 }
             }
-
-           $name = optional($item->assembly)->assembly_name_en
-            ? optional($item->assembly)->assembly_name_en .
-                (!empty($item->assembly->assembly_number)
-                    ? ' (' . $item->assembly->assembly_number . ')'
-                    : '')
-            : 'N/A';
-
-            $candidatesArray[] = [
-                'name' => substr($name, 0, 31),
-                'pending' => $rows
-            ];
         }
 
         return Excel::download(
-            new class($candidatesArray) implements WithMultipleSheets {
+            new class($rows) implements \Maatwebsite\Excel\Concerns\FromArray {
 
-                protected $candidates;
+                protected $rows;
 
-                public function __construct($candidates)
+                public function __construct($rows)
                 {
-                    $this->candidates = $candidates;
+                    $this->rows = $rows;
                 }
 
-                public function sheets(): array
+                public function array(): array
                 {
-                    $sheets = [];
-
-                    foreach ($this->candidates as $candidate) {
-
-                        $sheets[] = new class($candidate) implements FromArray, WithTitle {
-
-                            protected $candidate;
-
-                            public function __construct($candidate)
-                            {
-                                $this->candidate = $candidate;
-                            }
-
-                            public function array(): array
-                            {
-                                return array_merge(
-                                    [['Document Name', 'Status', 'Remarks', 'Time']],
-                                    $this->candidate['pending']
-                                );
-                            }
-
-                            public function title(): string
-                            {
-                                return substr($this->candidate['name'], 0, 31);
-                            }
-                        };
-                    }
-
-                    return $sheets;
+                    return $this->rows;
                 }
+
             },
-            'candidate_pending_demo.xlsx'
+            'candidate_pending_documents.xlsx'
         );
     }
 

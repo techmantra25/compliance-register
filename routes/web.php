@@ -24,6 +24,7 @@ use App\Livewire\{
     PermissionCampaignCrud,
     ForgetPassword,
     UpdateProfile,
+    NotificationList,
     RolePermissions,
     StarCampaignerCrud,
     EventWiseDistrict,
@@ -38,7 +39,7 @@ use App\Livewire\{
 };
 use App\Http\Controllers\NominationPdfController;
 use App\Livewire\Candidate\DocumentComments;
-use App\Http\Controllers\CandidateController;
+use App\Http\Controllers\NotificationController;
 
 Route::middleware('site.down')->group(function () {
 /*
@@ -90,9 +91,13 @@ Route::get('/forget/password',ForgetPassword::class)->name('forget.password');
 Route::prefix('/admin')->middleware('auth:admin')->group(function () {
     Route::get('/dashboard', AdminDashboard::class)->name('admin.dashboard')->middleware('employee.permission:view_dashboard');
     Route::get('/update/profile', UpdateProfile::class)->name('admin.update.profile');
+    Route::get('/notifications', NotificationList::class)->name('admin.notifications');
     Route::get('phase/{phaseId}/district', PhaseWiseDistrict::class)->name('admin.phasewise.district');
     Route::get('phase/{phaseId}/mcc', PhaseWiseMcc::class)->name('admin.phasewise.mcc');
     Route::get('/eventwise/district', EventWiseDistrict::class)->name('admin.eventwise.district');
+
+    Route::get('/notifications/latest', [NotificationController::class, 'latest']);
+    Route::post('/notifications/mark-read/{id}', [NotificationController::class, 'markRead']);
 
 
     Route::prefix('master')->group(function () {
@@ -122,9 +127,6 @@ Route::prefix('/admin')->middleware('auth:admin')->group(function () {
         Route::get('/nomination-log/pdf/{log}',[NominationPdfController::class, 'downloadFromLog'])->name('admin.candidates.log.pdf');
         Route::get('/nominations', CandidateContactList::class)->name('admin.candidates.contacts');
         Route::get('/social-media', DiscrepancyReportCrud::class)->name('admin.candidates.discrepancies.report');
-        // Route::get('/Candidate Discrepancy Reports', [CandidateController::class, 'nominations'])->name('admin.candidates.nominations');
-        // Route::get('/documents', [CandidateController::class, 'documents'])->name('admin.candidates.documents');
-        // Route::get('/vetting', [CandidateController::class, 'vetting'])->name('admin.candidates.vetting');
         Route::get('/documents', CandidateDocumentCollection::class)->name('admin.candidates.documents');
         Route::get('/documents/comments/{document}', DocumentComments::class)->name('admin.candidates.documents.comments');
         Route::get('/documents/vetting/{document}', CandidateDocumentVetting::class)->name('admin.candidates.documents.vetting');

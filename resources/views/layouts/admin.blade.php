@@ -3,6 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', __('admin/sidebar.dashboard'))</title>
 
     {{-- Favicon --}}
@@ -231,50 +232,45 @@
             </div>
 
             <div class="d-flex align-items-center gap-3">
-                {{-- 🔔 Notification --}}
-                <div class="dropdown position-relative">
-                    <a href="#" class="text-decoration-none position-relative" data-bs-toggle="dropdown">
-                        <i class="bi bi-bell fs-5"></i>
-                        <!-- Live Badge -->
-                        <span id="notificationBadge" class="position-absolute top-0 start-100 translate-middle 
-                                    badge rounded-pill bg-danger pulse-badge" style="font-size: 10px;">
-                            3
-                        </span>
-                    </a>
+                @if(auth()->guard('admin')->check() && auth()->guard('admin')->user()->role !== 'legal_associate')
+                    <div>
+                        <!-- Bell Icon -->
+                        <a class="nav-link position-relative" href="#" data-bs-toggle="dropdown">
+                            <i class="bi bi-bell fs-5"></i>
 
-                    <ul class="dropdown-menu dropdown-menu-end shadow-lg notifications-dropdown" style="width: 300px;">
-                        <li class="dropdown-header fw-bold bg-light py-2">Notifications</li>
+                            <!-- Badge -->
+                            <span id="notificationBadge"
+                                class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger pulse-badge">
+                                0
+                            </span>
+                        </a>
 
-                        <li>
-                            <a href="#" class="dropdown-item small">
-                                <i class="bi bi-envelope-fill text-primary me-2"></i>
-                                New campaign request submitted.
-                            </a>
-                        </li>
+                        <!-- Dropdown -->
+                        <ul id="notificationList"
+                            class="dropdown-menu dropdown-menu-end notifications-dropdown shadow"
+                            style="width:320px;">
 
-                        <li>
-                            <a href="#" class="dropdown-item small">
-                                <i class="bi bi-check-circle-fill text-success me-2"></i>
-                                Permission document approved.
-                            </a>
-                        </li>
+                            <li class="dropdown-header fw-bold bg-light py-2">
+                                Notifications
+                            </li>
 
-                        <li>
-                            <a href="#" class="dropdown-item small">
-                                <i class="bi bi-x-circle-fill text-danger me-2"></i>
-                                One document was rejected.
-                            </a>
-                        </li>
+                            <li class="text-center p-3 text-muted">
+                                Loading notifications...
+                            </li>
 
-                        <li><hr class="dropdown-divider"></li>
+                            <li><hr class="dropdown-divider"></li>
 
-                        <li>
-                            <a href="#" class="dropdown-item text-center text-primary fw-bold">
-                                View All
-                            </a>
-                        </li>
-                    </ul>
-                </div>
+                            <li>
+                                <a href="{{ route('admin.notifications') }}"
+                                class="dropdown-item text-center text-primary fw-bold">
+                                See All
+                                </a>
+                            </li>
+
+                        </ul>
+                    </div>
+                @endif
+                
                 {{-- ЁЯМР Language Toggle --}}
                 <div class="language-toggle">
                     <!--@if(app()->getLocale() == 'en')-->
@@ -356,36 +352,104 @@
             overlay.classList.remove('active');
         });
 
-        function addNotification(message, type='info') {
-            const dropdown = document.querySelector('.notifications-dropdown');
-            const badge = document.getElementById('notificationBadge');
+        document.addEventListener("DOMContentLoaded", function () {
 
-            // Increment count
-            let count = parseInt(badge.textContent);
-            badge.textContent = count + 1;
+            function loadNotifications() {
 
-            // Create new notification
-            const li = document.createElement('li');
-            li.innerHTML = `<a href="#" class="dropdown-item small">
-                                <i class="bi ${type === 'success' ? 'bi-check-circle-fill text-success' : type === 'danger' ? 'bi-x-circle-fill text-danger' : 'bi-envelope-fill text-primary'} me-2"></i>
-                                ${message}
-                            </a>`;
+                const dropdown = document.getElementById('notificationList');
+                const badge = document.getElementById('notificationBadge');
 
-            // Add new notification at the top
-            dropdown.prepend(li);
+                if (!dropdown || !badge) return;
+
+                fetch('/admin/notifications/latest')
+                    .then(res => res.json())
+                    .then(data => {
+
+                        dropdown.innerHTML = `
+                            <li class="dropdown-header fw-bold bg-light py-2">
+                                Notifications
+                            </li>
+                        `;
+
+                        badge.textContent = data.length;
+
+                        if (data.length === 0) {
+
+                            dropdown.innerHTML += `
+                                <li class="text-center p-3 text-muted">
+                                    No notifications
+                                </li>
+                            `;
+
+                        } else {
+
+                            data.forEach(n => {
+
+                                let icon = 'bi-envelope-fill text-primary';
+
+                                if (n.title && n.title.toLowerCase().includes('approved'))
+                                    icon = 'bi-check-circle-fill text-success';
+
+                                if (n.title && n.title.toLowerCase().includes('rejected'))
+                                    icon = 'bi-x-circle-fill text-danger';
+
+                                dropdown.innerHTML += `
+                                    <li>
+                                        <a href="javascript:void(0)" 
+                                        onclick="markNotificationRead(${n.id}, '${n.url}')"
+                                        class="dropdown-item small">
+
+                                            <i class="bi ${icon}"></i>
+                                            <span class="notification-text">${n.title ?? ''}</span>
+
+                                        </a>
+                                    </li>
+                                `;
+                            });
+
+                        }
+
+                        dropdown.innerHTML += `
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a href="{{ route('admin.notifications') }}"
+                                class="dropdown-item text-center text-primary fw-bold">
+                                See All
+                                </a>
+                            </li>
+                        `;
+
+                    })
+                    .catch(err => console.error("Notification fetch error:", err));
+            }
+
+            // First Load
+            loadNotifications();
+
+            // Auto Refresh
+            setInterval(loadNotifications, 5000);
+
+        });
+         function markNotificationRead(id, url) {
+
+            fetch('/admin/notifications/mark-read/' + id, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+
+                if(data.success){
+                    window.location.href = url;
+                }
+
+            })
+            .catch(error => console.error('Error:', error));
+
         }
-
-        // Example: simulate new notification every 5 seconds
-        setInterval(() => {
-            const messages = [
-                'New user signed up.',
-                'Server backup completed.',
-                'Invoice approved.',
-                'New comment on your post.'
-            ];
-            const randomMsg = messages[Math.floor(Math.random() * messages.length)];
-            addNotification(randomMsg);
-        }, 5000);
     </script>
 </body>
 </html>
