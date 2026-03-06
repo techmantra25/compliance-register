@@ -20,4 +20,8 @@ class Mcc extends Model
     public function assembly(){
         return $this->belongsTo(Assembly::class, 'assembly_id');
     }
+
+    public function legalAssociate(){
+        return $this->belongsTo(Admin::class, 'action_taken');
+    }
 }

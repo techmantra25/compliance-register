@@ -32,6 +32,11 @@
                 </ol>
             </div>
             <div>
+                @if(childUserAccess(Auth::guard('admin')->user()->id,'mcc_export_mcc'))
+                <button class="btn btn-primary btn-sm" wire:click="exportMcc">
+                    <i class="bi bi-download me-1"></i> Export MCC
+                </button>
+                @endif
                 @if(childUserAccess(Auth::guard('admin')->user()->id,'mcc_import_mcc'))
                 <button class="btn btn-secondary btn-sm me-2" data-bs-toggle="modal" data-bs-target="#importMccModal">
                     <i class="bi bi-upload me-1"></i> Import MCC
@@ -53,6 +58,14 @@
                 <div class="card-header bg-white d-flex justify-content-between align-items-center">
                     <h5 class="fw-bold mb-0">MCC</h5>
                     <div class="d-flex align-items-center">
+                        <div wire:ignore class="me-2">
+                            <select wire:model="filter_by_status" class="form-select chosen-select">
+                                <option value="">Filter by Status</option>
+                                <option value="pending_to_process">Pending to Process</option>
+                                <option value="processed">Processed</option>
+                                <option value="confirm_resolved">Resolved</option>
+                            </select>
+                        </div>
                         <div wire:ignore>
                             <select wire:model="filter_by_assembly" class="form-select chosen-select">
                                 <option value="">Filter by Assembly</option>
@@ -63,6 +76,7 @@
                                 @endforeach
                             </select>
                         </div>
+                        
                         <input type="text" wire:model="search" wire:keyup="filterCampaign($event.target.value)"
                             class="form-control form-control-sm w-auto me-2"
                             placeholder="Search here...">
@@ -81,13 +95,10 @@
                                 <tr>
                                     <th>SL No.</th>
                                     <th>Assembly</th>
-                                    <th>Block</th>
-                                    <th>GP</th>
-                                    <th>Complainer Name</th>
-                                    <th>Complainer Phone</th>
-                                    <th>Complain Description</th>
+                                    <th>Block & GP</th>
+                                    <th>Complainer Details</th>
                                     <th>Date & Time</th>
-                                    <th>Action Taken</th>
+                                    <th>Assign To</th>
                                     <th width="15%">
                                         <i class="bi bi-flag me-1"></i> Status
                                     </th>
@@ -106,62 +117,47 @@
                                                 {{ ucwords(optional(optional(optional($item->assembly)->assemblyPhase)->phase)->name ?? 'N/A') }}
                                             </div>
                                         </td>
-                                        <td>{{ ucwords($item->block) }}</td>
-                                        <td>{{ ucwords($item->gp) }}</td>
-                                        <td>{{ ucwords($item->complainer_name) }}</td>
-                                        <td>{{ ucwords($item->complainer_phone) }}</td>
-                                        <td>{{ ucwords($item->complainer_description) }}</td>
+                                        <td>
+                                            <div class="fw-bold">{{ ucwords($item->block) }}</div>
+                                            <div class="text-muted small">GP: {{ ucwords($item->gp) }}</div>
+                                        </td>
+                                        <td>
+                                            <div class="fw-bold">{{ ucwords($item->complainer_name) }}</div>
+                                            <div class="text-muted small">Phone: {{ $item->complainer_phone }}</div>
+                                        </td>
                                         <td>{{ $item->created_at->format('d-m-Y h:i A') }}</td>
                                         <td class="text-center">
                                             @if(childUserAccess(Auth::guard('admin')->user()->id,'mcc_action_taken_and_status'))
-                                            <div class="btn-group">
-                                                @if(empty($item->action_taken))
-                                                    <button class="btn btn-sm btn-outline-primary"
-                                                        title="Action Taken"
-                                                        wire:click="openActionTakenModal({{ $item->id }})"
-                                                        data-bs-toggle="modal" data-bs-target="#openActionTakenModal">
-                                                        Escalated To:
-                                                    </button>
-                                                @else
-                                                    <button class="btn btn-sm btn-success"
-                                                        title="Action Taken">
-                                                        Escalated To: {{ ucwords($item->action_taken) }}
-                                                    </button>
-                                                @endif
-                                            </div>
+                                                <span class="badge bg-success" title="Action Taken">
+                                                    {{ ucwords($item->legalAssociate->name ?? '-') }}
+                                                </span>
                                             @endif
                                         </td>
-                                        {{-- <td>
-                                            <select class="form-select form-select-sm"
-                                                wire:change="changeStatus({{ $item->id }}, $event.target.value)"
-                                                @if($item->status == 'pending_to_process' || $item->status == 'confirm_resolved') disabled @endif >
-
-                                                <option value="pending_to_process"
-                                                    {{ $item->status == 'pending_to_process' ? 'selected' : '' }}>
-                                                    Pending to Process
-                                                </option>
-                                                <option value="processed"
-                                                    {{ $item->status == 'processed' ? 'selected' : '' }}
-                                                    @if($item->status == 'confirm_resolved') disabled @endif>
-                                                    Processed
-                                                </option>
-                                                <option value="confirm_resolved"
-                                                    {{ $item->status == 'confirm_resolved' ? 'selected' : '' }}>
-                                                    Resolved
-                                                </option>
-                                            </select>
-
+                                        <td>
+                                            @php
+                                                $user = auth()->user();
+                                            @endphp
+                                            @if($item->status == 'processed' && $user->role == 'legal_associate' && $item->action_taken == $user->id)
+                                                <select class="form-select form-select-sm"
+                                                        wire:change="changeStatus({{ $item->id }}, $event.target.value)">
+                                                    <option value="processed" selected>Processed</option>
+                                                    <option value="confirm_resolved">Resolved</option>
+                                                </select>
+                                            @endif
                                             <span class="badge 
                                                 @if($item->status == 'pending_to_process') bg-warning
                                                 @elseif($item->status == 'processed') bg-info
                                                 @elseif($item->status == 'confirm_resolved') bg-success
                                                 @else bg-secondary
-                                                @endif
-                                                ">
+                                                @endif">
                                                 {{ ucwords(str_replace('_',' ', $item->status)) }}
                                             </span>
+
                                             <div class="mt-1">
-                                                <small class="text-muted d-block">Remarks: {{ ucwords($item->remarks) ?? 'N/A' }}</small>
+                                                <small class="text-muted d-block">
+                                                    Remarks: 
+                                                    {{ $item->remarks ? \Illuminate\Support\Str::words($item->remarks, 100, '...') : 'N/A' }}
+                                                </small>
                                             </div>
                                         </td> --}}
                                         <td>
@@ -297,6 +293,25 @@
                                     <textarea class="form-control" wire:model="complainer_description" placeholder="Write your complain here"></textarea>
                                     @error('complainer_description') <small class="text-danger">{{ $message }}</small> @enderror
                                 </div>
+
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Assign To</label>
+                                    <select class="form-control" wire:model="action_taken">
+                                        <option value="">Select Legal Associate</option>
+
+                                        @foreach($legalAssociates as $associate)
+                                            <option value="{{ $associate->id }}" data-code="{{ $associate->name }}"
+                                                    data-number="{{ $associate->name }}">
+                                                {{ ucwords($associate->name) }}
+                                            </option>
+                                        @endforeach
+
+                                    </select>
+
+                                    @error('action_taken')
+                                        <small class="text-danger">{{ $message }}</small>
+                                    @enderror
+                                </div>
                             </div>
 
                         </form>
@@ -398,6 +413,7 @@
                 </div>
             </div>
         </div>
+
         <div wire:ignore class="modal fade" id="resolveModal" tabindex="-1">
             <div class="modal-dialog modal-md">
                 <div class="modal-content">
@@ -423,9 +439,9 @@
             </div>
         </div>
 
-    <div class="loader-container" wire:loading wire:target="save,openCampaignModal">
-        <div class="loader"></div>
-    </div>
+        <div class="loader-container" wire:loading wire:target="save,openCampaignModal">
+            <div class="loader"></div>
+        </div>
 
     </div>
     @push('scripts')
