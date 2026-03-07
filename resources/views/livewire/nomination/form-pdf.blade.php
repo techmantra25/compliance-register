@@ -260,7 +260,7 @@
                         Assembly of
                         <span class="input-field input-field-large"
                             style="width:125px;">{{$nomination->state}}
-                        </span>
+                        </span>(state)
                     </div>
                 </div>
 
@@ -291,44 +291,46 @@
                         I nominate as a candidate for election to the Legislative Assembly from the
                         <span class="input-field input-field-large"
                             style="width:228px;" readonly>{{ $nomination->assembly->assembly_name_en }}-{{$nomination->assembly->assembly_number}}
-                        </span>
+                        </span>Assembly Constituency
                     </div>
 
                     <div style="font-size: 16px; line-height: 2;">
                         Candidate's name <span class="input-field input-field-large"
                         readonly style="width: 300px;">{{ucwords($nomination->candidate->name)}}</span>
-                        <div wire:key="relation-type-1">
-                            <label>
-                                <input type="radio" name="relation_type_main" wire:model="relation_type" value="father">
-                                Father's
-                            </label>
-                            /
-                            <label>
-                                <input type="radio" name="relation_type_main" wire:model="relation_type" value="mother">
-                                Mother's
-                            </label>
-                            /
-                            <label>
-                                <input type="radio" name="relation_type_main" wire:model="relation_type"
-                                    value="husband"> Husband's
-                            </label>
-                        </div>
+                        <span class="input-field input-field-small">
+                            {{ ucfirst($nomination->relation_type) }}'s
+                        </span>
                         name <span class="input-field input-field-medium" style="width: 400px;">{{ucwords($nomination->relation_name)}}</span>
-                        <div wire:key="pronoun-1">
+                        <div>
                             <label>
-                                <input type="radio" name="pronoun-main" wire:model="pronoun" value="his"> His
+                                <input type="radio" name="pronoun-main" value="his"
+                                    {{ $nomination->pronoun == 'his' ? 'checked' : '' }}>
+                                His
                             </label>
+
                             <label>
-                                <input type="radio" name="pronoun-main" wire:model="pronoun" value="her"> Her
+                                <input type="radio" name="pronoun-main" value="her"
+                                    {{ $nomination->pronoun == 'her' ? 'checked' : '' }}>
+                                Her
                             </label>
                         </div>
-                        postal address<span class="input-field input-field-large" style="width: 428px;">{{ucwords($nomination->postal_address)}}</span>
-                        <div wire:key="pronoun-2">
+
+                        postal address
+                        <span class="input-field input-field-large" style="width: 428px;">
+                            {{ ucwords($nomination->postal_address) }}
+                        </span>
+
+                        <div>
                             <label>
-                                <input type="radio" name="pronoun-copy" wire:model="pronoun" value="his"> His
+                                <input type="radio" name="pronoun-copy" value="his"
+                                    {{ $nomination->pronoun == 'his' ? 'checked' : '' }}>
+                                His
                             </label>
+
                             <label>
-                                <input type="radio" name="pronoun-copy" wire:model="pronoun" value="her"> Her
+                                <input type="radio" name="pronoun-copy" value="her"
+                                    {{ $nomination->pronoun == 'her' ? 'checked' : '' }}>
+                                Her
                             </label>
                         </div>
                         name is entered at Sl. No<span class="input-field input-field-small">{{$nomination->candidate_serial_no}}</span>in Part No.
@@ -563,22 +565,10 @@
                 </div>
                 <div style="margin-top: 3px;">
                     (d) my name and my
-                    <div wire:key="relation-type-2">
-                        <label>
-                            <input type="radio" name="relation_type_copy" wire:model="relation_type" value="father">
-                            Father's
-                        </label>
-                        /
-                        <label>
-                            <input type="radio" name="relation_type_copy" wire:model="relation_type" value="mother">
-                            Mother's
-                        </label>
-                        /
-                        <label>
-                            <input type="radio" name="relation_type_copy" wire:model="relation_type" value="husband">
-                            Husband's
-                        </label>
-                    </div>
+                        <span class="input-field input-field-small">
+                            {{ ucfirst($nomination->relation_type) }}'s
+                        </span>
+
                     name have been correctly spelt out above in
                     <span class="input-field input-field-medium" >{{$nomination->language_of_name}}</span>(name of the
                     language); and
@@ -664,85 +654,85 @@
                     <div style="margin-left: 20px; line-height: 1.21;">
                         (i) Case / First information report No./Nos.
                         <span class="input-field input-field-large">
-                            {{ $nomination->convicted_details['case_no'] ?? '-' }}
+                            {{ $nomination->convicted_details['case_no'] ?? 'Not Applicable' }}
                         </span>
                     </div>
 
                     <div style="margin-left: 20px; line-height: 1.21;">
                         (ii) Police station(s)
                         <span class="input-field" style="width: 139px;">
-                            {{ $nomination->convicted_details['police_station'] ?? '-' }}
+                            {{ $nomination->convicted_details['police_station'] ?? 'Not Applicable' }}
                         </span>
                         District(s)
                         <span class="input-field" style="width: 139px;">
-                            {{ $nomination->convicted_details['district'] ?? '-' }}
+                            {{ $nomination->convicted_details['district'] ?? 'Not Applicable' }}
                         </span>
                         State(s)
                         <span class="input-field" style="width: 139px;">
-                            {{ $nomination->convicted_details['state'] ?? '-' }}
+                            {{ $nomination->convicted_details['state'] ?? 'Not Applicable' }}
                         </span>
                     </div>
 
                     <div style="margin-left: 20px; line-height: 1.21;">
                         (iii) Section(s) of the concerned Act(s) and brief description of the offence(s)
                         <span class="input-field input-field-large">
-                            {{ $nomination->convicted_details['sections'] ?? '-' }}
+                            {{ $nomination->convicted_details['sections'] ?? 'Not Applicable' }}
                         </span>
                     </div>
 
                     <div style="margin-left: 20px; line-height: 1.21;">
                         (iv) Date(s) of conviction(s)
                         <span class="input-field input-field-medium" style="width: 139px;">
-                            {{ $nomination->convicted_details['conviction_date'] ?? '-' }}
+                            {{ $nomination->convicted_details['conviction_date'] ?? 'Not Applicable' }}
                         </span>
                     </div>
 
                     <div style="margin-left: 20px; line-height: 1.21;">
                         (v) Court(s) which convicted the candidate
                         <span class="input-field input-field-medium" style="width: 331px;">
-                            {{ $nomination->convicted_details['court'] ?? '-' }}
+                            {{ $nomination->convicted_details['court'] ?? 'Not Applicable' }}
                         </span>
                     </div>
 
                     <div style="margin-left: 20px; line-height: 1.21;">
                         (vi) Punishment(s) imposed (imprisonment / fine)
                         <span class="input-field input-field-large">
-                            {{ $nomination->convicted_details['punishment'] ?? '-' }}
+                            {{ $nomination->convicted_details['punishment'] ?? 'Not Applicable' }}
                         </span>
                     </div>
 
                     <div style="margin-left: 20px; line-height: 1.21;">
                         (vii) Date(s) of release from prison
                         <span class="input-field input-field-medium">
-                            {{ $nomination->convicted_details['release_date'] ?? '-' }}
+                            {{ $nomination->convicted_details['release_date'] ?? 'Not Applicable' }}
                         </span>
                     </div>
 
                     <div style="margin-left: 20px; line-height: 1.21;">
                         (viii) Whether any appeal(s)/revision(s) filed
                         <strong>
-                            {{ ucfirst($nomination->convicted_details['appeal_filed'] ?? '-') }}
+                            {{ ucfirst($nomination->convicted_details['appeal_filed'] ?? 'Not Applicable') }}
                         </strong>
                     </div>
 
                     <div style="margin-left: 20px; line-height: 1.21;">
                         (ix) Date and particulars of appeal(s)/revision(s)
                         <span class="input-field input-field-large">
-                            {{ $nomination->convicted_details['appeal_details'] ?? '-' }}
+                            {{ $nomination->convicted_details['appeal_details'] ?? 'Not Applicable' }}
                         </span>
                     </div>
 
                     <div style="margin-left: 20px; line-height: 1.21;">
                         (x) Name of the court(s) where appeal(s) filed
                         <span class="input-field input-field-medium">
-                            {{ $nomination->convicted_details['appeal_court'] ?? '-' }}
+                            {{ $nomination->convicted_details['appeal_court'] ?? 'Not Applicable' }}
                         </span>
                     </div>
 
                     <div style="margin-left: 20px; line-height: 1.21;">
                         (xi) Whether appeal(s) disposed of or pending
                         <span class="input-field input-field-medium">
-                            {{ $nomination->convicted_details['appeal_status'] ?? '-' }}
+                            {{ $nomination->convicted_details['appeal_status'] ?? 'Not Applicable' }}
                         </span>
                     </div>
 
@@ -753,14 +743,14 @@
                     <div style="margin-left: 60px; line-height: 1.21;">
                         (a) Date(s) of disposal
                         <span class="input-field input-field-medium">
-                            {{ $nomination->convicted_details['disposal_date'] ?? '-' }}
+                            {{ $nomination->convicted_details['disposal_date'] ?? 'Not Applicable' }}
                         </span>
                     </div>
 
                     <div style="margin-left: 60px; line-height: 1.21;">
                         (b) Nature of order(s) passed
                         <span class="input-field input-field-medium">
-                            {{ $nomination->convicted_details['order_nature'] ?? '-' }}
+                            {{ $nomination->convicted_details['order_nature'] ?? 'Not Applicable' }}
                         </span>
                     </div>
                 @else

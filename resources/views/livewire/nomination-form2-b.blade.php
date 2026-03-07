@@ -102,33 +102,39 @@
                     <div class="row mb-3">
                         <label class="col-md-3 col-form-label fw-semibold">Relation Type</label>
                         <div class="col-md-9">
+
                             <div class="form-check form-check-inline">
                                 <input class="form-check-input"
                                     type="radio"
                                     name="relation_type"
+                                    id="relation_father"
                                     wire:model.defer="relation_type"
                                     value="father">
-                                <label class="form-check-label">Father</label>
+                                <label class="form-check-label" for="relation_father">Father</label>
                             </div>
 
                             <div class="form-check form-check-inline">
                                 <input class="form-check-input"
                                     type="radio"
                                     name="relation_type"
+                                    id="relation_mother"
                                     wire:model.defer="relation_type"
                                     value="mother">
-                                <label class="form-check-label">Mother</label>
+                                <label class="form-check-label" for="relation_mother">Mother</label>
                             </div>
 
                             <div class="form-check form-check-inline">
                                 <input class="form-check-input"
                                     type="radio"
                                     name="relation_type"
+                                    id="relation_husband"
                                     wire:model.defer="relation_type"
                                     value="husband">
-                                <label class="form-check-label">Husband</label>
+                                <label class="form-check-label" for="relation_husband">Husband</label>
                             </div>
+
                         </div>
+
                         @error('relation_type')
                             <small class="text-danger d-block">{{ $message }}</small>
                         @enderror
@@ -154,8 +160,9 @@
                                     type="radio"
                                     name="pronoun"
                                     wire:model.defer="pronoun"
+                                    id = "pronoun_his"
                                     value="his">
-                                <label class="form-check-label">His</label>
+                                <label class="form-check-label" for="pronoun_his">His</label>
                             </div>
 
                             <div class="form-check form-check-inline">
@@ -163,8 +170,9 @@
                                     type="radio"
                                     name="pronoun"
                                     wire:model.defer="pronoun"
+                                    id = "pronoun_her"
                                     value="her">
-                                <label class="form-check-label">Her</label>
+                                <label class="form-check-label" for="pronoun_her">Her</label>
                             </div>
                         </div>
                     </div>
@@ -394,18 +402,20 @@
                                 <input class="form-check-input"
                                     type="radio"
                                     name="appeal_filed"
+                                    id ="appeal_filed_yes"
                                     wire:model.defer="convicted_details.appeal_filed"
                                     value="Yes">
-                                <label class="form-check-label">Yes</label>
+                                <label class="form-check-label" for="appeal_filed_yes">Yes</label>
                             </div>
 
                             <div class="form-check form-check-inline">
                                 <input class="form-check-input"
                                     type="radio"
                                     name="appeal_filed"
+                                    id="appeal_filed_no"
                                     wire:model.defer="convicted_details.appeal_filed"
                                     value="No">
-                                <label class="form-check-label">No</label>
+                                <label class="form-check-label" for="appeal_filed_no">No</label>
                             </div>
                         </div>
                     </div>
