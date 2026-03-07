@@ -364,7 +364,7 @@
                                                 <td class="text-center">
                                                     <span class="cursor-pointer badge
                                                         @if($doc['status'] == 'Approved') bg-lavel-success
-                                                        @elseif($doc['status'] == 'Rejected') bg-lavel-danger
+                                                        @elseif($doc['status'] == 'Rejected') bg-lavel-danger text-danger
                                                         @elseif($doc['status'] == 'Pending') bg-lavel-warning
                                                         @else bg-secondary @endif">
                                                         {{ $doc['status'] ?? 'Uploaded' }}
@@ -387,7 +387,7 @@
                                                 <td colspan="4" class="text-center">
                                                     <span class="cursor-pointer badge
                                                         @if($doc['status'] == 'Approved') bg-lavel-success
-                                                        @elseif($doc['status'] == 'Rejected') bg-lavel-danger
+                                                        @elseif($doc['status'] == 'Rejected') bg-lavel-danger text-danger
                                                         @elseif($doc['status'] == 'Pending') bg-lavel-warning
                                                         @else bg-secondary @endif">
                                                         {{ $doc['status'] ?? 'Uploaded' }}

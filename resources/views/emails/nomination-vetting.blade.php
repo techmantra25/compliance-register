@@ -26,11 +26,11 @@
                     <tr>
                         <td style="padding:25px;color:#333333;font-size:14px;line-height:1.6;">
 
-                            <p style="margin-top:0;">Dear <strong>Legal Associate</strong>,</p>
+                            <p style="margin-top:0;">Dear <strong>Legal Team</strong>,</p>
 
                             <p>
-                                The nomination documents for the following election candidate have been marked as
-                                <strong>"Ready for Vetting"</strong> and require your legal review.
+                                All required documents for the below candidate have been uploaded and are now
+                                <strong>"Ready for Vetting"</strong>
                             </p>
 
                             <table width="100%" cellpadding="8" cellspacing="0"
@@ -38,37 +38,43 @@
 
                                 <tr style="background:#f2f2f2;">
                                     <td style="border:1px solid #ddd;"><strong>Candidate Name</strong></td>
-                                    <td style="border:1px solid #ddd;">Mr. Rajesh Kumar Sharma</td>
+                                    <td style="border:1px solid #ddd;">
+                                        {{ $data['candidate']->name ?? 'N/A' }}
+                                    </td>
                                 </tr>
 
                                 <tr>
                                     <td style="border:1px solid #ddd;"><strong>Assembly Constituency (AC)</strong></td>
-                                    <td style="border:1px solid #ddd;">AC-230 | Ghatal Assembly Constituency</td>
+                                    <td style="border:1px solid #ddd;">
+                                        {{ $data['ac'] }}
+                                    </td>
                                 </tr>
 
                                 <tr style="background:#f2f2f2;">
                                     <td style="border:1px solid #ddd;"><strong>Nomination Date</strong></td>
-                                    <td style="border:1px solid #ddd;">05 March 2026</td>
+                                    <td style="border:1px solid #ddd;">
+                                        {{ $data['nominationDate'] }}
+                                    </td>
                                 </tr>
 
                                 <tr>
                                     <td style="border:1px solid #ddd;"><strong>Election Date</strong></td>
-                                    <td style="border:1px solid #ddd;">25 April 2026</td>
+                                    <td style="border:1px solid #ddd;">
+                                        {{ $data['electionDate'] }}
+                                    </td>
                                 </tr>
 
                             </table>
 
                             <p>
-                                Kindly review the submitted nomination documents and complete the vetting process
-                                <strong>as soon as possible</strong> so that the nomination process can proceed without
-                                delay.
+                                Kindly review the submitted documents and complete the vetting process <strong>as soon as possible</strong> so that the nomination process can proceed without delay.
                             </p>
 
                             <!-- Button -->
                             <table cellpadding="0" cellspacing="0" style="margin:25px 0;">
                                 <tr>
                                     <td align="center">
-                                        <a href="https://electionportal.gov.in/candidate-documents/458"
+                                        <a href="{{ $data['link'] }}"
                                             style="background:#1f4e79;color:#ffffff;padding:12px 22px;text-decoration:none;font-size:14px;border-radius:4px;display:inline-block;">
                                             View Nomination Documents
                                         </a>
@@ -77,8 +83,7 @@
                             </table>
 
                             <p>
-                                If any discrepancies or additional requirements are identified, kindly update your
-                                remarks in the system.
+                                If any discrepancies or additional requirements are identified, kindly update your remarks in the system.
                             </p>
 
                             <p>
@@ -87,8 +92,7 @@
 
                             <p style="margin-bottom:0;">
                                 Regards,<br>
-                                <strong>Election Management System</strong><br>
-                                Election Operations Department
+                                <strong>Election Management System</strong>
                             </p>
 
                         </td>

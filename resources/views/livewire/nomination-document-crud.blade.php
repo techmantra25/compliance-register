@@ -38,7 +38,7 @@
                             placeholder="Search documents...">
 
                         <button type="button" class="btn btn-sm btn-danger" wire:click="resetInputFields">
-                            <i class="bi bi-arrow-clockwise"></i>
+                            Reset Filter
                         </button>
 
                     </div>
@@ -64,7 +64,7 @@
 
                             <tbody x-data="sortableTable(@this)" x-ref="tableBody" wire:ignore>
                                 @foreach($documents as $index => $doc)
-                                <tr data-id="{{ $doc->id }}">
+                                <tr data-id="{{ $doc->id }}" wire:key="item-{{ $doc->id }}">
                                     <td>{{ $index + 1 }}</td>
                                     <td>{{ $doc->name }}</td>
                                     <td>{{ $doc->key }}</td>
@@ -169,11 +169,7 @@
 
     </div>
     @push('scripts')
-    <link rel="stylesheet" href="{{ asset('assets/css/component-chosen.css') }}">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="//unpkg.com/alpinejs" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
-    <script src="{{ asset('assets/js/chosen.jquery.js') }}"></script>
     <script>
         window.addEventListener('toastr:error', e => toastr.error(e.detail.message));
         window.addEventListener('toastr:success', e => toastr.success(e.detail.message));
@@ -192,7 +188,7 @@
                         el.querySelectorAll('tr').forEach((row, index) => {
                             items.push({ value: row.dataset.id, order: index + 1 });
                         });
-                        livewireComponent.emit('updatePosition', items);
+                        @this.call('updatePosition', items);
                     }
                 });
             }

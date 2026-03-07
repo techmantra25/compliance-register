@@ -14,8 +14,6 @@ class NominationDocumentCrud extends Component
     public $search = '';
     public $searchResetKey = 0;
 
-    protected $listeners = ['updatePosition'];
-
     protected function rules()
     {
         return [

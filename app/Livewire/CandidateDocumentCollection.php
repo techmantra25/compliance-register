@@ -14,6 +14,10 @@ use App\Models\CandidateDocumentType;
 use App\Models\CandidateDocument;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\NominationVettingMail;
+use Carbon\Carbon;
+use App\Models\Admin;
 
 class CandidateDocumentCollection extends Component
 {
@@ -115,7 +119,7 @@ class CandidateDocumentCollection extends Component
      */
     protected function getDocumentTypes()
     {
-        return CandidateDocumentType::pluck('name', 'key')->toArray();
+        return CandidateDocumentType::orderBy('position','ASC')->pluck('name', 'key')->toArray();
     }
     protected function remainDocuments(){
         $skippedDocs = CandidateDocument::where('candidate_id', $this->candidateId)->where('status', 'Skipped')->pluck('type')->toArray();
@@ -410,15 +414,62 @@ class CandidateDocumentCollection extends Component
             }
             
             if ($this->candidateData->document_collection_status !== $newStatus) {
+                if($newStatus=="ready_for_vetting"){
+                    $this->SendMail($this->candidateId);
+                }
                 $this->candidateData->document_collection_status = $newStatus;
                 $this->candidateData->save();
             }
-
         }else{
             if(count($documentsData)>0){
                 $this->candidateData->document_collection_status = "incomplete_additional_required";
                 $this->candidateData->save();
             }
+        }
+    }
+
+    protected function SendMail($id){
+        
+        $legal_associate = Admin::where('role','legal_associate')->pluck('email')->toArray();
+
+        DB::beginTransaction();
+
+        try {
+
+            $candidate = Candidate::findOrFail($id);
+
+            $data = [
+                'candidate' => $candidate,
+
+                'ac' => optional($candidate->assembly)->assembly_code . ' | ' .
+                    optional($candidate->assembly)->assembly_name_en .
+                    ' (' . optional($candidate->assembly)->assembly_name_bn . ')',
+
+                'nominationDate' => optional(optional(optional($candidate->assembly)->assemblyPhase)->phase)->last_date_of_nomination
+                    ? Carbon::parse(optional(optional(optional($candidate->assembly)->assemblyPhase)->phase)->last_date_of_nomination)->format('d M Y')
+                    : 'N/A',
+
+                'electionDate' => optional(optional(optional($candidate->assembly)->assemblyPhase)->phase)->date_of_election
+                    ? Carbon::parse(optional(optional(optional($candidate->assembly)->assemblyPhase)->phase)->date_of_election)->format('d M Y')
+                    : 'N/A',
+
+                'link' => route('admin.candidates.documents', ['candidate' => $candidate->id]),
+            ];
+
+            foreach ($legal_associate as $email) {
+
+                Mail::to($email)->send(
+                    new NominationVettingMail($data)
+                );
+            }
+
+            DB::commit();
+
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+            // dd($e->getMessage());
+            $this->dispatch('mail-sent-failed', message: $e->getMessage());
         }
     }
     public function getAcknowledgmentCopies(){

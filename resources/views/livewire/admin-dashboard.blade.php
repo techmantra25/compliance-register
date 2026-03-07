@@ -2,18 +2,6 @@
     <section class="dash-wrapper">
         <div class="container">
             <div class="row mb-4">
-                <div class="col-md-12 mb-4">
-                    <div class="inner-wrapper">
-                        <div class="title-head" style="color: #3e0b0f;">Event Permission (State View)</div>
-                        <div class="wrappper-bpdy">
-                            <div class="chrat-place mb-5">
-                                <canvas width="300" id="myChart"></canvas>
-                            </div>
-                             <a href="{{route('admin.eventwise.district')}}" class="btm-small blue-btm">Click for District View</a> 
-                        </div>
-                    </div>
-                </div>
-                
                 <div class="col-md-6 mb-4">
                     <div class="inner-wrapper">
                         <div class="title-head" style="color: #3e0b0f;">Nomination Vetting (State View) - {{ $this->phases->count() }} Phases</div>
@@ -92,6 +80,17 @@
                             <p class="btm-small blue-btm">
                                 Click on Phase to Check the Details View
                             </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12 mb-4">
+                    <div class="inner-wrapper">
+                        <div class="title-head" style="color: #3e0b0f;">Event Permission (State View)</div>
+                        <div class="wrappper-bpdy">
+                            <div class="chrat-place mb-5">
+                                <canvas width="300" id="myChart"></canvas>
+                            </div>
+                             <a href="{{route('admin.eventwise.district')}}" class="btm-small blue-btm">Click for District View</a> 
                         </div>
                     </div>
                 </div>

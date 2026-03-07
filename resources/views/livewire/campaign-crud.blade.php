@@ -114,8 +114,8 @@
 
                 <div class="card-body p-2">
                     <div class="table-responsive">
-                        <table class="table table-hover align-middle mb-0 shadow-sm rounded">
-                            <thead class="table-primary text-center">
+                        <table class="table mb-0 align-middle">
+                            <thead class="table-light">
                                 <tr>
                                     <th>#</th>
                                     <th>Campaigner</th>
@@ -239,21 +239,25 @@
 
                                             <!-- Edit -->
                                             @if(childUserAccess(Auth::guard('admin')->user()->id,'campaign_update_campaign'))
-                                            <button class="btn btn-sm btn-outline-primary"
-                                                title="Edit Campaign"
-                                                wire:click="edit({{ $camp->id }})"
-                                                data-bs-toggle="modal" data-bs-target="#campaignModal">
-                                                <i class="bi bi-pencil"></i>
-                                            </button>
+                                            <div class="tooltip-wrapper">
+                                                <button class="btn btn-sm btn-outline-primary"
+                                                    wire:click="edit({{ $camp->id }})"
+                                                    data-bs-toggle="modal" data-bs-target="#campaignModal">
+                                                    <i class="bi bi-pencil"></i>
+                                                </button>
+                                                <span class="tooltip-text">Edit Campaign</span>
+                                            </div>
                                             @endif
 
                                             <!-- Permission -->
                                             @if(childUserAccess(Auth::guard('admin')->user()->id,'campaign_campaign_permission'))
+                                            <div class="tooltip-wrapper">
                                                 <a href="{{ route('admin.campaigns.permission', $camp->id) }}"
-                                                    class="btn btn-sm btn-outline-success"
-                                                    title="View Permissions">
+                                                    class="btn btn-sm btn-outline-success">
                                                     <i class="bi bi-file-earmark-arrow-up"></i>
                                                 </a>
+                                                <span class="tooltip-text">View Permissions</span>
+                                            </div>
                                             @endif
 
                                         </div>

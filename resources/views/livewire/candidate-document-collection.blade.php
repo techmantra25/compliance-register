@@ -575,7 +575,7 @@
                                             <td class="text-center">
                                                 <span class="cursor-pointer badge
                                                     @if($doc['status'] == 'Approved') bg-lavel-success
-                                                    @elseif($doc['status'] == 'Rejected') bg-lavel-danger
+                                                    @elseif($doc['status'] == 'Rejected') bg-lavel-danger text-danger
                                                     @elseif($doc['status'] == 'Pending') bg-lavel-warning
                                                     @else bg-secondary @endif">
                                                     {{ $doc['status'] ?? 'Uploaded' }}
@@ -643,12 +643,15 @@
                                                     @endphp
 
                                                     @if($lastDocument['status'] == 'Rejected')
-                                                        <button class="btn btn-primary btn-sm" 
+                                                        <div class="tooltip-wrapper d-inline-block">
+                                                            <button class="btn btn-outline-success btn-sm"
                                                                 wire:click="SetDocType('{{ $key }}')" 
                                                                 data-bs-toggle="modal" 
                                                                 data-bs-target="#DocumentModal">
-                                                            <i class="bi bi-upload me-1"></i> Upload
-                                                        </button>
+                                                                <i class="bi bi-upload"></i>
+                                                            </button>
+                                                            <span class="tooltip-text">Please upload {{ $label }}</span>
+                                                        </div>
                                                     
                                                     @elseif($lastDocument['status'] == 'Approved')
                                                         <span class="badge bg-success">Verified</span>
@@ -663,7 +666,7 @@
                                             <td colspan="4" class="text-center">
                                                 <span class="cursor-pointer badge
                                                     @if($doc['status'] == 'Approved') bg-lavel-success
-                                                    @elseif($doc['status'] == 'Rejected') bg-lavel-danger
+                                                    @elseif($doc['status'] == 'Rejected') bg-lavel-danger text-danger
                                                     @elseif($doc['status'] == 'Pending') bg-lavel-warning
                                                     @else bg-secondary @endif">
                                                     {{ $doc['status'] ?? 'Uploaded' }}
@@ -734,12 +737,15 @@
                                     </td>
 
                                     <td class="text-center">
-                                        <button class="btn btn-primary btn-sm" 
+                                        <div class="tooltip-wrapper d-inline-block">
+                                            <button class="btn btn-outline-success btn-sm"
                                                 wire:click="SetDocType('{{ $key }}')" 
                                                 data-bs-toggle="modal" 
                                                 data-bs-target="#DocumentModal">
-                                            <i class="bi bi-upload me-1"></i> Upload
-                                        </button>
+                                                <i class="bi bi-upload"></i>
+                                            </button>
+                                            <span class="tooltip-text">Please upload {{ $label }}</span>
+                                        </div>
                                     </td>
                                 </tr>
                             @endif
@@ -810,6 +816,15 @@
     @push('scripts')
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
+         window.addEventListener('mail-sent-failed', () => {
+            Swal.fire({
+                icon: "error",
+                title: "Mail Failed",
+                text: event.message ?? "Something went wrong while sending mail.",
+                confirmButtonColor: "#d33"
+            });
+
+        });
         function confirmUpdateAttachment(key, value) {
             if(value === "") {
                 toastr.success("Attachment reset.");
