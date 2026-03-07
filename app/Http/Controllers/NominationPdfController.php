@@ -62,6 +62,8 @@ class NominationPdfController extends Controller
         $form = NominationForm::with('candidate', 'assembly')->findOrFail($id);
         $candidate = $form->candidate;
         $social           = json_decode($form->social_media_accounts, true) ?? [];
+        $phones           = json_decode($form->contact_phone_nos, true) ?? [];
+
         $panDetails       = json_decode($form->pan_details, true) ?? [];
         $incomes          = json_decode($form->last_five_year_incomes, true) ?? [];
         $movableAssets    = json_decode($form->movable_assets, true) ?? [];
@@ -90,6 +92,7 @@ class NominationPdfController extends Controller
                 'sourceOfIncomes',
                 'education',
                 'persons',
+                'phones',
                 'social'
             )
         );

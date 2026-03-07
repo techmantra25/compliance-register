@@ -533,8 +533,9 @@
                                             <select class="form-select"
                                                 wire:model.defer="loan_holders.{{ $hIndex }}.loans.{{ $lIndex }}.type">
                                                 <option value="">Select Type</option>
-                                                <option value="bank">Bank</option>
-                                                <option value="individual">Individual</option>
+                                                <option value="bank">Bank/Financial Institution</option>
+                                                <option value="individual">Any Other Individuals/Entity</option>
+                                                <option value="liability">Any Other Liability</option>
                                             </select>
                                         </div>
 
