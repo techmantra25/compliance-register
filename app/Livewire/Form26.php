@@ -37,15 +37,14 @@ class Form26 extends Component
     public $source_of_incomes = []; 
     public $financial_years = [];
 
-    public $loan_holders = [
+    public $loan_types = [
         [
-            'holder' => '',
-            'loans' => [
+            'type' => '',
+            'holders' => [
                 [
-                    'type' => '',
-                    'name' => '',
+                    'holder' => '',
+                    'description' => '',
                     'amount' => '',
-                    'nature' => '',
                 ],
             ],
         ],
@@ -61,13 +60,15 @@ class Form26 extends Component
 
     public $government_dues = [
         [
-            'holder' => '',
-            'income_tax' => '',
-            'gst' => '',
-            'property_tax' => '',
-            'other_dues' => '',
-            'dispute_details' => '',
-        ],
+            'type' => '',
+            'holders' => [
+                [
+                    'holder' => '',
+                    'description' => '',
+                    'amount' => '',
+                ]
+            ]
+        ]
     ];
 
     public function mount($id)
@@ -109,14 +110,13 @@ class Form26 extends Component
             $this->addImmovableAssetType();
         }
 
-        // Loans
-        if (empty($this->loan_holders)) {
-            $this->addLoanHolder();
+        // loan
+        if (empty($this->loan_types)) {
+            $this->addLoanType();
         }
-
         // Government dues
         if (empty($this->government_dues)) {
-            $this->addGovernmentDue();
+            $this->addGovernmentDueType();
         }
         
     }
@@ -221,7 +221,6 @@ class Form26 extends Component
             'commercial' => [
                 'location_survey_number' => 'Location(s) Survey number(s)',
                 'area_sqft' => 'Area (total measurement in sq. ft.)',
-                'area_sqft' => 'Area (total measurement in sq. ft.)',
                 'builtup_area' => 'Built-up Area (total measurement in sq.ft.)',
                 'inherited' => 'Whether inherited property (Yes or No)',
                 'purchase_date' => 'Date of purchase in case of self-acquired property',
@@ -290,7 +289,7 @@ class Form26 extends Component
         $this->immovable_assets = $this->decode($form->immovable_assets);
 
         $loans = $this->decode($form->loans_and_govt_dues);
-        $this->loan_holders = $loans['loans'] ?? [];
+        $this->loan_types = $loans['loans'] ?? $this->loan_types;
         $this->government_dues = $loans['government_dues'] ?? [];
 
         $this->candidate_occupation = $form->candidate_occupation;
@@ -357,15 +356,18 @@ class Form26 extends Component
         'immovable_assets.*.holders.*.details' => 'nullable|string',
         'immovable_assets.*.holders.*.amount' => 'nullable|numeric',
       
-        'loan_holders' => 'nullable|array',
-        'loan_holders.*.holder' => 'nullable|string',
-        'loan_holders.*.loans' => 'nullable|array',
-        'loan_holders.*.loans.*.type' => 'nullable|string',
-        'loan_holders.*.loans.*.name' => 'nullable|string',
-        'loan_holders.*.loans.*.amount' => 'nullable|numeric',
+        'loan_types' => 'nullable|array',
+        'loan_types.*.type' => 'nullable|string',
+        'loan_types.*.holders' => 'nullable|array',
+        'loan_types.*.holders.*.holder' => 'nullable|string',
+        'loan_types.*.holders.*.description' => 'nullable|string',
+        'loan_types.*.holders.*.amount' => 'nullable|numeric',
 
-        'government_dues' => 'nullable|array',
-        'government_dues.*.holder' => 'nullable|string',
+        'government_dues.*.type' => 'nullable|string',
+        'government_dues.*.holders' => 'nullable|array',
+        'government_dues.*.holders.*.holder' => 'nullable|string',
+        'government_dues.*.holders.*.description' => 'nullable|string',
+        'government_dues.*.holders.*.amount' => 'nullable|numeric',
 
         'candidate_occupation' => 'nullable|string',
         'spouse_occupation' => 'nullable|string',
@@ -413,60 +415,77 @@ class Form26 extends Component
         return [];
     }
 
-    public function addLoanHolder()
+    public function addLoanType()
     {
-        $this->loan_holders[] = [
-            'holder' => '',
-            'loans' => [
+        $this->loan_types[] = [
+            'type' => '',
+            'holders' => [
                 [
-                    'type' => '',
-                    'name' => '',
+                    'holder' => '',
+                    'description' => '',
                     'amount' => '',
-                    'nature' => '',
                 ],
             ],
         ];
     }
 
-    public function addLoanRow($hIndex)
+    public function removeLoanType($index)
     {
-        $this->loan_holders[$hIndex]['loans'][] = [
-            'type' => '',
-            'name' => '',
+        unset($this->loan_types[$index]);
+        $this->loan_types = array_values($this->loan_types);
+    }
+
+    public function addLoanHolder($index)
+    {
+        $this->loan_types[$index]['holders'][] = [
+            'holder' => '',
+            'description' => '',
             'amount' => '',
-            'nature' => '',
         ];
     }
 
-    public function removeLoanRow($hIndex, $lIndex)
+    public function removeLoanHolder($tIndex, $hIndex)
     {
-        unset($this->loan_holders[$hIndex]['loans'][$lIndex]);
-        $this->loan_holders[$hIndex]['loans'] =
-            array_values($this->loan_holders[$hIndex]['loans']);
+        unset($this->loan_types[$tIndex]['holders'][$hIndex]);
+        $this->loan_types[$tIndex]['holders'] =
+            array_values($this->loan_types[$tIndex]['holders']);
     }
 
-    public function removeLoanHolder($index)
-    {
-        unset($this->loan_holders[$index]);
-        $this->loan_holders = array_values($this->loan_holders);
-    }
-
-    public function addGovernmentDue()
+    public function addGovernmentDueType()
     {
         $this->government_dues[] = [
-            'holder' => '',
-            'income_tax' => '',
-            'gst' => '',
-            'property_tax' => '',
-            'other_dues' => '',
-            'dispute_details' => '',
+            'type' => '',
+            'holders' => [
+                [
+                    'holder' => '',
+                    'description' => '',
+                    'amount' => '',
+                ]
+            ]
         ];
     }
 
-    public function removeGovernmentDue($index)
+    public function removeGovernmentDueType($index)
     {
         unset($this->government_dues[$index]);
         $this->government_dues = array_values($this->government_dues);
+    }
+
+    public function addGovernmentDueHolder($index)
+    {
+        $this->government_dues[$index]['holders'][] = [
+            'holder' => '',
+            'description' => '',
+            'amount' => '',
+        ];
+    }
+
+    public function removeGovernmentDueHolder($dIndex, $hIndex)
+    {
+        unset($this->government_dues[$dIndex]['holders'][$hIndex]);
+
+        $this->government_dues[$dIndex]['holders'] =
+            array_values($this->government_dues[$dIndex]['holders']);
     }
 
 
@@ -568,7 +587,7 @@ class Form26 extends Component
                 'immovable_assets' => json_encode($this->immovable_assets),
 
                 'loans_and_govt_dues' => json_encode([
-                    'loans' => $this->loan_holders,
+                    'loans' => $this->loan_types,
                     'government_dues' => $this->government_dues,
                 ]),
 
