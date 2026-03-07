@@ -18,36 +18,35 @@
                     </ol>
                 </nav>
             </div>
+        </div> 
+        <div class="d-flex flex-wrap justify-content-end align-items-center" style="margin-top: -10px;">
             <div>
                 @if(childUserAccess(Auth::guard('admin')->user()->id,'nomination_export_candidate'))
                     @if($filter_by_document=='partial')
-                        <button class="btn btn-sm btn-danger"
+                        <button class="btn btn-sm btn-outline-danger"
                                 wire:click="exportPendingDocument">
-                            <i class="bi bi-cloud-arrow-down me-1"></i> Export Pending Documents
+                            <i class="bi bi-cloud-arrow-down me-1"></i> Export Candidate Wise Pending Documents
                         </button>
-                    {{-- @elseif($filter_by_document=="personal_doc")
-                        <button class="btn btn-sm btn-danger"
-                                wire:click="exportPersonalDocument">
-                            <i class="bi bi-cloud-arrow-down me-1"></i> Export Personal Documents
-                        </button> --}}
                     @endif
-                    <a wire:click='exportCsv' class="btn btn-danger btn-sm">
+                    <a wire:click='exportCsv' class="btn btn-outline-danger btn-sm">
                         <i class="bi bi-cloud-arrow-down me-1"></i>Export Candidate
                     </a>
                 @endif
+
                 @if(childUserAccess(Auth::guard('admin')->user()->id,'nomination_import_candidate'))
-                <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#uploadcandidateModal">
+                <button class="btn btn-outline-success btn-sm" data-bs-toggle="modal" data-bs-target="#uploadcandidateModal">
                     <i class="bi bi-upload me-1"></i>Upload Candidate
                 </button>
                 @endif
+
                 @if(childUserAccess(Auth::guard('admin')->user()->id,'nomination_add_candidate'))
-                <button class="btn btn-primary btn-sm" wire:click="newCandidate" data-bs-toggle="modal"
+                <button class="btn btn-outline-primary btn-sm" wire:click="newCandidate" data-bs-toggle="modal"
                     data-bs-target="#candidateModal">
                     <i class="bi bi-plus-circle me-1"></i> Add Candidate
                 </button>
                 @endif
             </div>
-        </div> 
+        </div>
 
         <!--  Main Content -->
         <div class="col-lg-12">
@@ -106,13 +105,13 @@
                             </select>
                         </div>
 
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <select wire:model="filter_by_document" class="form-select form-select-sm" wire:change="filterByDocument($event.target.value)">
                                 <option value="">Filter by Document Status</option>
                                 <option value="all">All Documents Uploaded</option>
-                                <option value="personal_doc">Missing Personal Documents</option>
+                                <option value="personal_doc">Missing Personal Informations</option>
                                 <option value="missing">Missing Required Documents</option>
-                                <option value="partial">Partially Uploaded</option>
+                                <option value="partial">Partially Uploaded Documents</option>
                             </select>
                         </div>
                         <div class="col-md-3">
@@ -121,10 +120,11 @@
                                 class="form-control form-control-sm"
                                 placeholder="Search candidate...">
                         </div>
-                        <div class="col-md-1 text-end">
+                        <div class="col-md-2 text-end">
                             <button class="btn btn-sm btn-danger"
                                     wire:click="resetForm">
-                                <i class="bi bi-arrow-clockwise me-1"></i>
+                                    Reset Filters
+                                {{-- <i class="bi bi-arrow-clockwise me-1"></i> --}}
                             </button>
                         </div>
                     </div>
@@ -132,7 +132,7 @@
                 </div>
 
                 <div class="card-body p-2">
-                    <div class="table-responsive">
+                    <div class="table_responsive">
                         <table class="table mb-0 align-middle">
                             <thead class="table-light">
                                 <tr>
@@ -344,61 +344,97 @@
                                     <td class="text-center">
                                         @if($authUser->role=='legal_associate')
                                             @if($uploaded == $required_document)
+
+                                            <div class="tooltip-wrapper">
                                                 <a href="{{route('admin.candidates.documents.vetting', $candidate->id)}}"
-                                                    class="btn btn-sm btn-outline-primary" title="Verify Documents">
+                                                class="btn btn-sm btn-outline-success">
                                                     @if($candidate->document_collection_status == 'rejected')
                                                         <i class="bi bi-arrow-clockwise"></i> View Details
                                                     @else   
-                                                    <i class="bi bi-check2-square"></i> Verify Now
+                                                         Verify
                                                     @endif
                                                 </a>
+                                                <span class="tooltip-text">Verify Documents</span>
+                                            </div>
+
                                             @endif
                                         @else
+
                                             @if($candidate->document_collection_status !== 'rejected')
+
                                                 @if(childUserAccess(Auth::guard('admin')->user()->id,'nomination_assign_agents'))
-                                                <button class="btn btn-sm btn-outline-{{count($candidate->agents)>0?"primary":"danger"}}" wire:click="openAgentModal({{ $candidate->id }})"
-                                                    data-bs-toggle="modal" data-bs-target="#assignAgentModal"
-                                                    title="Assign Agent">
-                                                    <i class="bi bi-people"></i>
-                                                </button>
+                                                <div class="tooltip-wrapper">
+                                                    <button 
+                                                        class="btn btn-sm btn-outline-{{ count($candidate->agents) > 0 ? 'primary' : 'danger' }}"
+                                                        wire:click="openAgentModal({{ $candidate->id }})"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#assignAgentModal">
+                                                        <i class="bi bi-people"></i>
+                                                    </button>
+
+                                                    <span class="tooltip-text">
+                                                    {{ count($candidate->agents) > 0 ? 'View or Change Assigned Agent' : 'Assign Agent to Candidate' }}
+                                                    </span>
+                                                </div>
                                                 @endif
+
                                                 @if(childUserAccess(Auth::guard('admin')->user()->id,'nomination_update_candidate'))
-                                                <button class="btn btn-sm btn-outline-primary"
-                                                    wire:click="edit({{ $candidate->id }})" data-bs-toggle="modal"
-                                                    data-bs-target="#candidateModal" title="Edit Candidate">
-                                                    <i class="bi bi-pencil"></i>
-                                                </button>
+                                                <div class="tooltip-wrapper">
+                                                    <button class="btn btn-sm btn-outline-success"
+                                                        wire:click="edit({{ $candidate->id }})"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#candidateModal">
+                                                        <i class="bi bi-pencil"></i>
+                                                    </button>
+                                                    <span class="tooltip-text">Edit Candidate</span>
+                                                </div>
                                                 @endif
+
                                             @endif
+
                                             @if(childUserAccess(Auth::guard('admin')->user()->id,'nomination_document_collections'))
-                                            <a href="{{ route('admin.candidates.documents', ['candidate' => $candidate->id]) }}"
-                                                class="btn btn-sm btn-outline-primary"
-                                                title="View Candidate Document Collections">
-                                               <i class="bi bi-file-earmark-arrow-up"></i>
-                                            </a>
-                                            @endif
-                                            @if(childUserAccess(Auth::guard('admin')->user()->id,'nomination_candidate_journey_timeline'))
-                                                <a href="{{ route('admin.candidates.journey', $candidate->id) }}"
-                                                    class="btn btn-sm btn-outline-primary mt-1"
-                                                    title="Candidate Journey Timeline">
-                                                    <i class="bi bi-clock-history"></i>
+                                            <div class="tooltip-wrapper">
+                                                <a href="{{ route('admin.candidates.documents', ['candidate' => $candidate->id]) }}"
+                                                class="btn btn-sm btn-outline-success">
+                                                <i class="bi bi-file-earmark-arrow-up"></i>
                                                 </a>
+                                                <span class="tooltip-text">View Candidate Document Collections</span>
+                                            </div>
                                             @endif
-                                            <button
-                                                class="btn btn-sm btn-outline-primary mt-1"
-                                                wire:click="openFormModal({{ $candidate->id }})"
-                                                data-bs-toggle="modal"
-                                                data-bs-target="#formModal-{{ $candidate->id }}"
-                                                title="Forms">
-                                                <i class="bi bi-file-earmark-text"></i> FORM
-                                            </button>
+
+                                            @if(childUserAccess(Auth::guard('admin')->user()->id,'nomination_candidate_journey_timeline'))
+                                            <div class="tooltip-wrapper">
+                                                <a href="{{ route('admin.candidates.journey', $candidate->id) }}"
+                                                class="btn btn-sm btn-outline-success mt-1">
+                                                <i class="bi bi-clock-history"></i>
+                                                </a>
+                                                <span class="tooltip-text">Candidate Journey Timeline</span>
+                                            </div>
+                                            @endif
+
+                                            <div class="tooltip-wrapper">
+                                                <button
+                                                    class="btn btn-sm btn-outline-success mt-1"
+                                                    wire:click="openFormModal({{ $candidate->id }})"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#formModal-{{ $candidate->id }}">
+                                                    <i class="bi bi-file-earmark-text"></i> FORM
+                                                </button>
+                                                <span class="tooltip-text">Forms</span>
+                                            </div>
+
                                             @if($candidate->document_collection_status=="ready_for_vetting")
-                                                <button type="button" class="btn btn-sm btn-outline-primary mt-1" title="Send Email to Legal Associate to Start Vetting" >
+                                            <div class="tooltip-wrapper">
+                                                <button type="button"
+                                                    class="btn btn-sm btn-outline-success mt-1" onclick="SendMail({{$candidate->id}})">
                                                     <i class="bi bi-envelope-fill"></i>
                                                 </button>
+                                                <span class="tooltip-text">Send Email to Legal Associate to Start Vetting</span>
+                                            </div>
                                             @endif
+
                                         @endif
-                                    </td>
+                                        </td>
 
                                     <!-- modal -->
                                     <div class="modal fade" id="formModal-{{ $candidate->id }}" tabindex="-1"
@@ -825,10 +861,61 @@
 
         //     alert("Phone number copied!");
         // }
+
+        function SendMail(id) {
+            Swal.fire({
+                title: "Send Mail?",
+                text: "Are you sure you want to send the email to the Legal Associate?",
+                icon: "question",
+                showCancelButton: true,
+                confirmButtonColor: "#198754",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Yes, Send Mail"
+            }).then((result) => {
+
+                if (result.isConfirmed) {
+
+                    Swal.fire({
+                        title: "Sending Mail...",
+                        text: "Please wait while the email is being sent.",
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+
+                    @this.call('ConfirmSendMail', id);
+                }
+
+            });
+        }
+
+          document.addEventListener('livewire:init', () => {
+
+            window.addEventListener('mail-sent-success', () => {
+
+                Swal.fire({
+                    icon: "success",
+                    title: "Mail Sent!",
+                    text: "Email successfully sent to the Legal Associate.",
+                    confirmButtonColor: "#198754"
+                });
+
+            });
+
+            window.addEventListener('mail-sent-failed', () => {
+                Swal.fire({
+                    icon: "error",
+                    title: "Mail Failed",
+                    text: event.message ?? "Something went wrong while sending mail.",
+                    confirmButtonColor: "#d33"
+                });
+
+            });
+
+        });
     </script>
 
-
-
-   
     @endpush
 </div>

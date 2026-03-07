@@ -10,24 +10,20 @@ class NominationVettingMail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public $candidate;
-    public $ac;
-    public $nominationDate;
-    public $electionDate;
-    public $link;
+    public $data;
 
-    public function __construct($candidate,$ac,$nominationDate,$electionDate,$link)
+    public function __construct($data)
     {
-        $this->candidate = $candidate;
-        $this->ac = $ac;
-        $this->nominationDate = $nominationDate;
-        $this->electionDate = $electionDate;
-        $this->link = $link;
+        $this->data = $data;
     }
 
     public function build()
     {
-        return $this->subject('Nomination Documents Ready for Vetting – '.$this->ac)
-                    ->view('emails.nomination-vetting');
+        return $this->from(
+            config('mail.from.address'),
+            config('mail.from.name')
+        )
+        ->subject('Nomination Documents Ready for Vetting – '.$this->data['ac'])
+        ->view('emails.nomination-vetting');
     }
 }

@@ -90,8 +90,8 @@
 
                 <div class="card-body p-2">
                     <div class="table-responsive">
-                        <table class="table table-hover align-middle mb-0 shadow-sm rounded">
-                            <thead class="table-primary text-center">
+                        <table class="table mb-0 align-middle">
+                            <thead class="table-light">
                                 <tr>
                                     <th>Code</th>
                                     <th>Assembly</th>
@@ -227,25 +227,32 @@
                                         </td>
 
                                         <td class="text-center">
+
                                             <div class="btn-group">
                                                 <!-- Edit -->
                                                 @if(childUserAccess(Auth::guard('admin')->user()->id,'mcc_update_mcc'))
-                                                <button class="btn btn-sm btn-outline-primary"
-                                                    title="Edit Campaign"
-                                                    wire:click="edit({{ $item->id }})">
-                                                    <i class="bi bi-pencil"></i>
-                                                </button>
+                                                <div class="tooltip-wrapper">
+                                                    <button class="btn btn-sm btn-outline-success"
+                                                        wire:click="edit({{ $item->id }})">
+                                                        <i class="bi bi-pencil"></i>
+                                                    </button>
+                                                    <span class="tooltip-text">Edit Campaign</span>
+                                                </div>
                                                 @endif
                                             </div>
+
                                             @if(childUserAccess(Auth::guard('admin')->user()->id,'mcc_view_mcc_log'))
-                                            <div class="btn group">
-                                                <a href="{{ route('admin.mcc_log_details', $item->id) }}"
-                                                    class="btn btn-sm btn-outline-primary"
-                                                    title="Mcc Log">
-                                                    <i class="bi bi-person-lines-fill"></i>
-                                                </a>
+                                            <div class="btn-group">
+                                                <div class="tooltip-wrapper">
+                                                    <a href="{{ route('admin.mcc_log_details', $item->id) }}"
+                                                        class="btn btn-sm btn-outline-success">
+                                                        <i class="bi bi-person-lines-fill"></i>
+                                                    </a>
+                                                    <span class="tooltip-text">Mcc Log</span>
+                                                </div>
                                             </div>
                                             @endif
+
                                         </td>
                                     </tr>
                                 @empty
@@ -500,7 +507,7 @@
     </div>
     @push('scripts')
     <link rel="stylesheet" href="{{ asset('assets/css/component-chosen.css') }}">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    {{-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script> --}}
     <script src="{{ asset('assets/js/chosen.jquery.js') }}"></script>
     <script>
         window.addEventListener('toastr:error', e => toastr.error(e.detail.message));

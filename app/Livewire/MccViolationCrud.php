@@ -44,7 +44,7 @@ class MccViolationCrud extends Component
         'complainer_description' => 'nullable|string',
         'action_taken' => 'nullable|exists:admins,id',
         'category' => 'required',
-        'mccFile' => 'required|file|mimes:csv,txt|max:2048'
+        // 'mccFile' => 'required|file|mimes:csv,txt|max:2048'
     ];
 
     protected $messages = [

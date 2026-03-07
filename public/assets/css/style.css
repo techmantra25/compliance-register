@@ -680,3 +680,29 @@ body {
     background: #f5f7fa;
     border-radius: 4px;
 }
+.tooltip-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.tooltip-text {
+    visibility: hidden;
+    position: absolute;
+    top: -105%;
+    right: -40%;
+
+    /* left: 0%; */
+    /* transform: translateY(-50%); */
+    background-color: var(--primary-color) !important;
+    color: #fff;
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+
+    z-index: 9999; /* very important */
+}
+
+.tooltip-wrapper:hover .tooltip-text {
+    visibility: visible;
+}

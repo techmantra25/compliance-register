@@ -105,26 +105,40 @@
 
                                             @if ($admin->id !== 1)
                                             <td class="text-center text-nowrap">
+
                                                 @if(childUserAccess(Auth::guard('admin')->user()->id,'employee_update_employee'))
-                                                <button class="btn btn-sm btn-outline-primary me-1" title="Edit" wire:click="edit({{ $admin->id }})">
-                                                    <i class="bi bi-pencil"></i>
-                                                </button>
+                                                <div class="tooltip-wrapper d-inline-block me-1">
+                                                    <button class="btn btn-sm btn-outline-primary"
+                                                        wire:click="edit({{ $admin->id }})">
+                                                        <i class="bi bi-pencil"></i>
+                                                    </button>
+                                                    <span class="tooltip-text">Edit</span>
+                                                </div>
                                                 @endif
 
-                                                <a href="{{ route('admin.employees.permissions', $admin->id) }}" class="btn btn-sm btn-outline-secondary me-1" title="Permissions">
-                                                    <i class="bi bi-shield-lock"></i>
-                                                </a>
+                                                <div class="tooltip-wrapper d-inline-block me-1">
+                                                    <a href="{{ route('admin.employees.permissions', $admin->id) }}"
+                                                    class="btn btn-sm btn-outline-secondary">
+                                                        <i class="bi bi-shield-lock"></i>
+                                                    </a>
+                                                    <span class="tooltip-text">Permissions</span>
+                                                </div>
 
                                                 @if(childUserAccess(Auth::guard('admin')->user()->id,'employee_delete_employee'))
-                                                @if ($admin->id !== 1)
-                                                    <button class="btn btn-sm btn-outline-danger" title="Delete" wire:click="confirmDelete({{ $admin->id }})">
-                                                        <i class="bi bi-trash"></i>
-                                                    </button>
+                                                    @if ($admin->id !== 1)
+                                                    <div class="tooltip-wrapper d-inline-block">
+                                                        <button class="btn btn-sm btn-outline-danger"
+                                                            wire:click="confirmDelete({{ $admin->id }})">
+                                                            <i class="bi bi-trash"></i>
+                                                        </button>
+                                                        <span class="tooltip-text">Delete</span>
+                                                    </div>
+                                                    @endif
                                                 @endif
-                                                @endif
+
                                             </td>
-                                            @else
-                                                <td class="text-center text-muted">-</td>
+                                            @else 
+                                            <td>-</td>
                                             @endif
                                         </tr>
                                     @empty

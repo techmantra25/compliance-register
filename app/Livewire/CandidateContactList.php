@@ -21,6 +21,10 @@ use App\Models\NominationLog;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 use Maatwebsite\Excel\Concerns\FromArray;
 use Maatwebsite\Excel\Concerns\WithTitle;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\NominationVettingMail;
+use Carbon\Carbon;
+use App\Models\Admin;
 
 class CandidateContactList extends Component
 {
@@ -777,7 +781,52 @@ class CandidateContactList extends Component
         );
     }
 
+    public function ConfirmSendMail($id)
+    {
+        $legal_associate = Admin::where('role','legal_associate')->pluck('email')->toArray();
 
+        DB::beginTransaction();
+
+        try {
+
+            $candidate = Candidate::findOrFail($id);
+
+            $data = [
+                'candidate' => $candidate,
+
+                'ac' => optional($candidate->assembly)->assembly_code . ' | ' .
+                    optional($candidate->assembly)->assembly_name_en .
+                    ' (' . optional($candidate->assembly)->assembly_name_bn . ')',
+
+                'nominationDate' => optional(optional(optional($candidate->assembly)->assemblyPhase)->phase)->last_date_of_nomination
+                    ? Carbon::parse(optional(optional(optional($candidate->assembly)->assemblyPhase)->phase)->last_date_of_nomination)->format('d M Y')
+                    : 'N/A',
+
+                'electionDate' => optional(optional(optional($candidate->assembly)->assemblyPhase)->phase)->date_of_election
+                    ? Carbon::parse(optional(optional(optional($candidate->assembly)->assemblyPhase)->phase)->date_of_election)->format('d M Y')
+                    : 'N/A',
+
+                'link' => route('admin.candidates.documents', ['candidate' => $candidate->id]),
+            ];
+
+            foreach ($legal_associate as $email) {
+
+                Mail::to($email)->send(
+                    new NominationVettingMail($data)
+                );
+            }
+
+            DB::commit();
+
+            $this->dispatch('mail-sent-success');
+
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+
+            $this->dispatch('mail-sent-failed', message: $e->getMessage());
+        }
+    }
     public function render()
     {
         $candidates = $this->getFilteredQuery()
@@ -797,6 +846,7 @@ class CandidateContactList extends Component
         //     $candidates->setCollection($filtered);
         // }
 
+        $this->dispatch('resetTooltip');
         return view('livewire.candidate-contact-list', [
             'candidates' => $candidates,
             'assemblies' => $this->assemblies,
