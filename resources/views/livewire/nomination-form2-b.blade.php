@@ -2,6 +2,12 @@
     <style>
         label{
             cursor: pointer;
+        },
+        input:invalid {
+            border-color: red;
+        },
+        .error-field {
+            font-weight: 500;
         }
     </style>
    
@@ -86,7 +92,7 @@
                                 class="form-control"
                                 wire:model.defer="age">
                                 @error('age')
-                                    <small class="text-danger d-block">{{ $message }}</small>
+                                    <small class="text-danger d-block error-field" id="error-age">{{ $message }}</small>
                                 @enderror
                         </div>
                     </div>
@@ -128,7 +134,7 @@
                         </div>
 
                         @error('relation_type')
-                            <small class="text-danger d-block">{{ $message }}</small>
+                            <small class="text-danger d-block error-field" id="error-relation_type">{{ $message }}</small>
                         @enderror
                     </div>
 
@@ -139,7 +145,7 @@
                                 class="form-control"
                                 wire:model.defer="relation_name">
                                 @error('relation_name')
-                                    <small class="text-danger d-block">{{ $message }}</small>
+                                    <small class="text-danger d-block error-field" id="error-relation_name">{{ $message }}</small>
                                 @enderror
                         </div>
                     </div>
@@ -166,6 +172,9 @@
                                     value="her">
                                 <label class="form-check-label" for="pronoun_her">Her</label>
                             </div>
+                            @error('pronoun')
+                                <small class="text-danger d-block error-field" id="error-pronoun">{{ $message }}</small>
+                            @enderror
                         </div>
                     </div>
 
@@ -176,7 +185,7 @@
                                 class="form-control"
                                 wire:model.defer="postal_address">
                             @error('postal_address')
-                                <small class="text-danger d-block">{{ $message }}</small>
+                                <small class="text-danger d-block error-field" id="error-postal_address">{{ $message }}</small>
                             @enderror
                         </div>
                     </div>
@@ -189,7 +198,7 @@
                                 placeholder="Sl. No."
                                 wire:model.defer="candidate_serial_no">
                             @error('candidate_serial_no')
-                                <small class="text-danger d-block">{{ $message }}</small>
+                                <small class="text-danger d-block error-field" id="error-candidate_serial_no">{{ $message }}</small>
                             @enderror
                         </div>
                         <div class="col-md-3">
@@ -198,7 +207,7 @@
                                 placeholder="Part No."
                                 wire:model.defer="candidate_part_no">
                             @error('candidate_part_no')
-                                <small class="text-danger d-block">{{ $message }}</small>
+                                <small class="text-danger d-block error-field" id="error-candidate_part_no">{{ $message }}</small>
                             @enderror
                         </div>
                         <div class="col-md-3">
@@ -230,7 +239,7 @@
                                 class="form-control"
                                 wire:model.defer="proposer_name">
                             @error('proposer_name')
-                                <small class="text-danger d-block">{{ $message }}</small>
+                                <small class="text-danger d-block error-field" id="error-proposer_name">{{ $message }}</small>
                             @enderror
                         </div>
                     </div>
@@ -243,7 +252,7 @@
                                 placeholder="Sl. No."
                                 wire:model.defer="proposer_serial_no">
                             @error('proposer_serial_no')
-                                <small class="text-danger d-block">{{ $message }}</small>
+                                <small class="text-danger d-block error-field" id="error-proposer_serial_no">{{ $message }}</small>
                             @enderror
                         </div>
                         <div class="col-md-3">
@@ -252,7 +261,7 @@
                                 placeholder="Part No."
                                 wire:model.defer="proposer_part_no">
                             @error('proposer_part_no')
-                                <small class="text-danger d-block">{{ $message }}</small>
+                                <small class="text-danger d-block error-field" id="error-proposer_part_no">{{ $message }}</small>
                             @enderror
                         </div>
                         <div class="col-md-3">
@@ -706,3 +715,42 @@
         </div>
     </div>
 </div>
+
+@push('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        window.addEventListener('toastr:error', e => toastr.error(e.detail.message));
+        window.addEventListener('toastr:success', e => toastr.success(e.detail.message));
+    </script>
+    <script>
+        document.addEventListener('livewire:init', function () {
+
+            Livewire.on('scroll-to-error', () => {
+
+                let firstError = document.querySelector('.error-field');
+
+                if (firstError) {
+
+                    firstError.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center'
+                    });
+                    let parent = firstError.closest('.row');
+
+                    if (parent) {
+                        let input = parent.querySelector('input, textarea, select');
+
+                        if (input) {
+                            setTimeout(() => {
+                                input.focus();
+                            }, 500);
+                        }
+                    }
+
+                }
+
+            });
+
+        });
+    </script>
+@endpush

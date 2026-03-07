@@ -9,6 +9,7 @@ use App\Models\NominationForm;
 use Livewire\WithFileUploads;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class NominationForm2B extends Component
 {
@@ -263,9 +264,8 @@ class NominationForm2B extends Component
 
     public function save()
     {
-        $this->validate();
-
         try {
+            $this->validate();
             $data = [
                 'convicted' => $this->convicted,
             ];
@@ -361,6 +361,10 @@ class NominationForm2B extends Component
             );
 
             return redirect()->route('admin.candidates.form2B.preview', $nomination->id);
+        } catch (ValidationException $e) {
+
+            $this->dispatch('scroll-to-error'); 
+            throw $e;
 
         } catch (\Exception $e) {
             //dd($e->getMessage());
