@@ -734,7 +734,6 @@
                                         <div>{{ $description }}</div>
                                     @endif
 
-                                    <div>Rs. {{ number_format((float)$amount, 2) }}</div>
                                 @else
                                     Not Applicable
                                 @endif
@@ -927,10 +926,6 @@
 
                         @if($details)
                         {{ $details }}
-                        @endif
-
-                        @if(is_numeric($amount))
-                        <br>Rs. {{ number_format($amount,2) }}
                         @endif
 
                         @if(!$details && !$amount)
