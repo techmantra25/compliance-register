@@ -53,25 +53,6 @@ class Form26 extends Component
 
     public $educational_qualifications = [
         [
-            'level' => 'Master',
-            'degree' => '',
-            'university' => '',
-            'year' => '',
-        ],
-        [
-            'level' => 'Bachelor',
-            'degree' => '',
-            'university' => '',
-            'year' => '',
-        ],
-        [
-            'level' => 'Higher Secondary (12th)',
-            'degree' => '',
-            'university' => '',
-            'year' => '',
-        ],
-        [
-            'level' => 'Secondary (10th)',
             'degree' => '',
             'university' => '',
             'year' => '',
@@ -393,7 +374,6 @@ class Form26 extends Component
         'source_of_incomes.dependents' => 'nullable|string',
 
         'educational_qualifications' => 'nullable|array',
-        'educational_qualifications.*.level' => 'nullable|string',
         'educational_qualifications.*.degree' => 'nullable|string|max:255',
         'educational_qualifications.*.university' => 'nullable|string|max:255',
         'educational_qualifications.*.year' => 'nullable|digits:4',
@@ -511,7 +491,6 @@ class Form26 extends Component
     public function addQualification()
     {
         $this->educational_qualifications[] = [
-            'level' => '',
             'degree' => '',
             'university' => '',
             'year' => '',

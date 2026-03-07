@@ -264,14 +264,14 @@
                                     <select class="form-select"
                                         wire:model.defer="movable_assets.{{ $aIndex }}.type">
                                         <option value="">Select</option>
-                                        <option value="cash">Cash</option>
-                                        <option value="bank_deposit">Bank Deposit</option>
-                                        <option value="securities">Securities</option>
-                                        <option value="postal_investment">Postal / Insurance</option>
-                                        <option value="loan_given">Loan Given</option>
-                                        <option value="vehicle">Vehicle</option>
-                                        <option value="jewellery">Jewellery</option>
-                                        <option value="other">Other</option>
+                                        <option value="cash">I. Cash</option>
+                                        <option value="bank_deposit">II. Bank Deposit</option>
+                                        <option value="securities">III. Securities</option>
+                                        <option value="postal_investment">IV. Postal / Insurance</option>
+                                        <option value="loan_given">V. Loan Given</option>
+                                        <option value="vehicle">VI. Vehicle</option>
+                                        <option value="jewellery">VII. Jewellery</option>
+                                        <option value="other">VIII. Other</option>
                                     </select>
                                 </div>
 
@@ -318,7 +318,7 @@
 
                                         <div class="col-md-3">
                                             <label class="form-label text-primary">Total Amount</label>
-                                            <input type="text"
+                                            <input type="number"
                                                 class="form-control"
                                                 wire:model="movable_assets.{{ $aIndex }}.holders.{{ $hIndex }}.amount">
                                         </div>
@@ -373,11 +373,11 @@
                                                         wire:model="immovable_assets.{{ $aIndex }}.type"
                                                         wire:change="typeChanged({{ $aIndex }})">
                                                         <option value="">Select</option>
-                                                        <option value="agricultural">Agricultural Land</option>
-                                                        <option value="non_agricultural">Non-Agricultural Land</option>
-                                                        <option value="commercial">Commercial Building</option>
-                                                        <option value="residential">Residential Building</option>
-                                                        <option value="others">Others</option>
+                                                        <option value="agricultural">I. Agricultural Land</option>
+                                                        <option value="non_agricultural">II. Non-Agricultural Land</option>
+                                                        <option value="commercial">III. Commercial Building</option>
+                                                        <option value="residential">IV. Residential Building</option>
+                                                        <option value="others">V. Others</option>
                                                     </select>
                                                 </div>
 
@@ -608,33 +608,33 @@
 
                             <div class="row g-2">
                                 <div class="col-md-3">
-                                    <label class="form-label text-primary">Income Tax</label>
+                                    <label class="form-label text-primary">Income Tax Dues</label>
                                     <input class="form-control" type="number"
                                         wire:model.defer="government_dues.{{ $gIndex }}.income_tax">
                                 </div>
 
                                 <div class="col-md-3">
-                                    <label class="form-label text-primary">GST</label>
+                                    <label class="form-label text-primary">GST Dues</label>
                                     <input class="form-control" type="number"
                                         wire:model.defer="government_dues.{{ $gIndex }}.gst">
                                 </div>
 
                                 <div class="col-md-3">
-                                    <label class="form-label text-primary">Property Tax</label>
+                                    <label class="form-label text-primary">Municipal Property Tax Dues</label>
                                     <input class="form-control" type="number"
                                         wire:model.defer="government_dues.{{ $gIndex }}.property_tax">
                                 </div>
 
                                 <div class="col-md-3">
-                                    <label class="form-label text-primary">Other Dues</label>
+                                    <label class="form-label text-primary">Any Others Dues</label>
                                     <input class="form-control" type="number"
                                         wire:model.defer="government_dues.{{ $gIndex }}.other_dues">
                                 </div>
 
-                                <div class="col-md-12 mt-2">
-                                    <label class="form-label text-primary">Dispute Details</label>
-                                    <textarea class="form-control"
-                                        wire:model.defer="government_dues.{{ $gIndex }}.dispute_details"></textarea>
+                                <div class="col-md-3 mt-2">
+                                    <label class="form-label text-primary">Any Other Liabilities are in Dispute</label>
+                                    <input class="form-control" type="number"
+                                        wire:model.defer="government_dues.{{ $gIndex }}.dispute_details">
                                 </div>
                             </div>
 
@@ -713,21 +713,8 @@
 
                                     <div class="row g-2 mt-2">
 
-                                        <!-- Qualification Level Dropdown -->
-                                        <div class="col-md-3">
-                                            <label class="form-label text-primary">Qualification Level</label>
-                                            <select class="form-select"
-                                                wire:model.defer="educational_qualifications.{{ $index }}.level">
-                                                <option value="">Select Level</option>
-                                                <option value="Master">Master</option>
-                                                <option value="Bachelor">Bachelor</option>
-                                                <option value="Higher Secondary (12th)">Higher Secondary (12th)</option>
-                                                <option value="Secondary (10th)">Secondary (10th)</option>
-                                            </select>
-                                        </div>
-
                                         <!-- Degree / Course -->
-                                        <div class="col-md-3">
+                                        <div class="col-md-4">
                                             <label class="form-label text-primary">Degree / Course</label>
                                             <input type="text"
                                                 class="form-control"
@@ -735,7 +722,7 @@
                                         </div>
 
                                         <!-- University / Institution -->
-                                        <div class="col-md-4">
+                                        <div class="col-md-5">
                                             <label class="form-label text-primary">University / Institution</label>
                                             <input type="text"
                                                 class="form-control"
@@ -743,7 +730,7 @@
                                         </div>
 
                                         <!-- Year of Passing -->
-                                        <div class="col-md-2">
+                                        <div class="col-md-3">
                                             <label class="form-label text-primary">Year of Passing</label>
                                             <input type="number"
                                                 class="form-control"

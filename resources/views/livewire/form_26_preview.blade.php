@@ -676,7 +676,7 @@
                         'cash' => 'Cash in hand (As on Date)',
                         'bank_deposit' => 'Details of deposit in Bank accounts (FDRs, Term Deposits and all other types of deposits including saving accounts), Deposits with Financial Institutions, Non-Banking Financial Companies and Cooperative societies and the amount in each such deposit',
                         'securities' => 'Details of investment in Bonds, Debentures /shares land units in companies /Mutual funds and others and the amount',
-                        'postal_investment' => '	Details of investment in NSS, Postal Saving, Insurance policies and investment in any Financial instruments in Post office or Insurance Company and the amount',
+                        'postal_investment' => 'Details of investment in NSS, Postal Saving, Insurance policies and investment in any Financial instruments in Post office or Insurance Company and the amount',
                         'loan_given' => 'Personal loans/ advance given to any person or entity including firm, company, Trust etc., and other receivables from debtors and the amoun',
                         'vehicle' => 'Motor Vehicles/ Aircrafts/Yachts /Ships (Details of Make, registration number etc. year of purchase and amount)',
                         'jewellery' => 'Jewellery, bullion and valuable thing(s) (give Details of weight value)',
@@ -734,7 +734,7 @@
                                         <div>{{ $description }}</div>
                                     @endif
 
-                                    {{-- <div>Rs. {{ number_format((float)$amount, 2) }}</div> --}}
+                                    <div>Rs. {{ number_format((float)$amount, 2) }}</div>
                                 @else
                                     Not Applicable
                                 @endif
