@@ -59,12 +59,6 @@ class NominationDocumentCrud extends Component
         $this->resetValidation();    
         
         $this->search = '';
-        $this->resetPage();
-    }
-
-    public function updatingSearch()
-    {
-        $this->resetPage();
     }
 
     public function filterDocuments($searchTerm)

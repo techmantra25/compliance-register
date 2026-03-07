@@ -37,7 +37,7 @@ class NominationPdfController extends Controller
             ->header('Content-Type', 'application/pdf')
             ->header(
                 'Content-Disposition',
-                'inline; filename="Nomination_Form_2B_'.$nomination->candidate_name.$timestamp.'.pdf"'
+                'inline; filename="Nomination_Form_2B_'.str_replace(' ','_',$nomination->candidate_name).'_'.$timestamp.'.pdf"'
         );
 
         // return $pdf->stream(

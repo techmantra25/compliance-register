@@ -44,7 +44,6 @@ class MccViolationCrud extends Component
         'complainer_description' => 'nullable|string',
         'action_taken' => 'nullable|exists:admins,id',
         'category' => 'required',
-        // 'mccFile' => 'required|file|mimes:csv,txt|max:2048'
     ];
 
     protected $messages = [
@@ -158,7 +157,6 @@ class MccViolationCrud extends Component
                 'ip_address' => request()->ip(),
                 'user_agent' => request()->header('User-Agent'),
             ]);
-
             $this->dispatch('toastr:success', message: 'MCC created successfully!');
             $this->dispatch('closeModal', id: 'mccModal');
             $this->resetInputFields();
@@ -222,12 +220,11 @@ class MccViolationCrud extends Component
                 'ip_address' => request()->ip(),
                 'user_agent' => request()->header('User-Agent'),
             ]);
-
             $this->dispatch('toastr:success', message: 'MCC updated successfully!');
-            $this->dispatch('modelHide');
+            $this->dispatch('closeModal', id: 'mccModal');
+            $this->resetInputFields();
 
         } catch (\Exception $e) {
-            dd($e->getMessage());
             $this->dispatch('toastr:error', message: 'Something went wrong while updating!');
         }
     }
@@ -289,65 +286,11 @@ class MccViolationCrud extends Component
         $this->dispatch('close-escalation-modal');
     }
 
-    // public function changeStatus($id, $newStatus)
-    // {
-    //     $mcc = Mcc::find($id);
-
-    //     if (!$mcc) {
-    //         $this->dispatch('toastr:error', message: 'Record not found');
-    //         return;
-    //     }
-
-    //     if ($mcc->status == 'pending_to_process') {
-    //         $this->dispatch('toastr:error', message: 'Status cannot be changed from Pending to Process');
-    //         return;
-    //     }
-
-    //     if ($mcc->status == 'processed' && $newStatus == 'pending_to_process') {
-    //         $this->dispatch('toastr:error', message: 'Cannot move back to Pending to Process');
-    //         return;
-    //     }
-
-    //     if ($mcc->status == 'confirm_resolved') {
-    //         $this->dispatch('toastr:error', message: 'Resolved status cannot be changed');
-    //         return;
-    //     }
-
-    //     if ($newStatus == 'confirm_resolved') {
-    //         $this->selectedId = $id;
-    //         $this->reset('remarks');
-
-    //         $this->dispatch('open-resolve-modal');
-    //         return;
-    //     }
-
-    //     $oldData = [
-    //         'status' => $mcc->status
-    //     ];
-
-    //     $mcc->status = $newStatus;
-    //     $mcc->save();
-
-    //     $newData = [
-    //         'status' => $newStatus
-    //     ];
-
-    //     ChangeLog::create([
-    //         'module_name'  => 'mcc',
-    //         'module_id'    => $mcc->id,
-    //         'action'       => 'Status Updated',
-    //         'description' => 'Status updated Successfully',
-    //         'old_data'     => $oldData,
-    //         'new_data'     => $newData,
-    //         'changed_by'   => auth()->id(),
-    //         'ip_address'   => request()->ip(),
-    //         'user_agent'   => request()->header('User-Agent'),
-    //     ]);
-
-    //     $this->dispatch('toastr:success', message: 'Status updated successfully');
-    // }
     public function changeStatus($id, $newStatus)
     {
+        if(!$newStatus){
+            return;
+        }
         $mcc = Mcc::find($id);
 
         if (!$mcc) {
@@ -365,13 +308,18 @@ class MccViolationCrud extends Component
             return;
         }
 
+        if ($mcc->status == 'resolved_processing' && $newStatus == 'processed') {
+            $this->dispatch('toastr:error', message: 'Cannot move back to Processed after Resolved Processing');
+            return;
+        }
+
         if ($mcc->status == 'confirm_resolved') {
             $this->dispatch('toastr:error', message: 'Resolved status cannot be changed');
             return;
         }
 
         
-        if ($newStatus == 'resolved_processing' || $newStatus == 'confirm_resolved') {
+        if (in_array($newStatus, ['resolved_processing','confirm_resolved'])) {
 
             $this->selectedId = $id;
             $this->status = $newStatus;
@@ -436,12 +384,18 @@ class MccViolationCrud extends Component
         ]);
 
     
+        $oldData = [
+            'status_from' => $mcc->status
+        ];
+
         $mcc->status = $this->status;
         $mcc->save();
-
+        
         $newData = [
-            'status'  => $this->status,
-            'remarks' => $this->remarks
+            'status_from' => $oldData['status_from'],
+            'status_to'  => $this->status,
+            'remarks' => $this->remarks,
+            'attachment'  => $filePath
         ];
 
         ChangeLog::create([
@@ -460,46 +414,6 @@ class MccViolationCrud extends Component
 
         $this->dispatch('toastr:success', message: 'Status updated with remarks successfully');
     }
-
-    // public function saveResolution()
-    // {
-    //     $mcc = Mcc::find($this->selectedId);
-
-    //     if (!$mcc) {
-    //         $this->dispatch('toastr:error', message: 'Record not found');
-    //         return;
-    //     }
-    //     $oldData = [
-    //         'status'  => $mcc->status,
-    //         'remarks' => $mcc->remarks,
-    //     ];
-
-    //     $newStatus = 'confirm_resolved';
-
-    //     $mcc->status = $newStatus;
-    //     $mcc->remarks = $this->remarks;
-    //     $mcc->save();
-
-    //     $newData = [
-    //         'status'  => $newStatus,
-    //         'remarks' => $this->remarks,
-    //     ];
-
-    //     ChangeLog::create([
-    //         'module_name'  => 'mcc',
-    //         'module_id'    => $mcc->id,
-    //         'action'       => 'Status Change',
-    //         'description'  => 'MCC resolved successfully',
-    //         'old_data'     => json_encode($oldData),
-    //         'new_data'     => json_encode($newData),
-    //         'changed_by'   => auth()->id(),
-    //         'ip_address'   => request()->ip(),
-    //         'user_agent'   => request()->header('User-Agent'),
-    //     ]);
-
-    //     $this->dispatch('close-resolve-modal');
-    //     $this->dispatch('toastr:success', message: 'Resolved successfully');
-    // }
 
     public function resetFilters()
     {
@@ -520,6 +434,24 @@ class MccViolationCrud extends Component
     public function resetForm(){
         $this->reset(['mccFile']);
         session()->forget(['success', 'error']);
+    }
+
+    public function openSameStatusModal($id)
+    {
+        $mcc = Mcc::find($id);
+
+        if(!$mcc){
+            return;
+        }
+
+        if($mcc->status == 'resolved_processing'){
+            $this->selectedId = $id;
+            $this->status = 'resolved_processing';
+
+            $this->reset(['remarks','attachment']);
+
+            $this->dispatch('open-resolve-modal');
+        }
     }
 
 

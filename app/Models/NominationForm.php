@@ -17,6 +17,7 @@ class NominationForm extends Model
             'candidate_part_no',
             'relation_type',
             'relation_name',
+            'pronoun',
             'age',
             'postal_address',
             'constituency_where_enrolled',

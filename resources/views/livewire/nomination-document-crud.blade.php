@@ -56,7 +56,7 @@
                                     <th width="50">#</th>
                                     <th>Document Name</th>
                                     <th>Key</th>
-                                    <th width="120">Status</th>
+                                    {{-- <th width="120">Status</th> --}}
                                     <th width="120">Actions</th>
                                 </tr>
                             </thead>
@@ -68,9 +68,9 @@
                                     <td>{{ $index + 1 }}</td>
                                     <td>{{ $doc->name }}</td>
                                     <td>{{ $doc->key }}</td>
-                                    <td>
+                                    {{-- <td>
                                         <input type="checkbox" wire:click="toggleStatus({{ $doc->id }})" {{ $doc->status ? 'checked' : '' }}>
-                                    </td>
+                                    </td> --}}
                                     <td>
                                         <button wire:click="edit({{ $doc->id }})" class="btn btn-sm btn-outline-primary">Edit</button>
                                     </td>
