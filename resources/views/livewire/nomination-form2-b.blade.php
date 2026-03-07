@@ -73,7 +73,7 @@
 
     <div class="card">
         <div class="card-body">
-            <div class="{{ $formLocked ? 'opacity-50' : '' }}">
+            <div class="{{ $criminal_check === 'Yes' ? 'opacity-50 pointer-events-none' : '' }}">
                 <form wire:submit.prevent="save">
                     <div class="row mb-3">
                         <label class="col-md-3 col-form-label fw-semibold">Candidate Name</label>
@@ -706,7 +706,8 @@
                         </div>
                     @endif
                     <div class="text-end">
-                        <button type="submit" class="btn btn-primary">
+                        <button type="submit" class="btn btn-primary" 
+                            {{ $criminal_check === 'Yes' ? 'disabled' : '' }}>
                             Save & Preview
                         </button>
                     </div>

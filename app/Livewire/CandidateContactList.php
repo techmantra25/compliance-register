@@ -227,7 +227,7 @@ class CandidateContactList extends Component
     }
     public function edit($id)
     {
-        $this->resetForm(); // always reset before editing
+        // $this->resetForm(); 
         $this->editMode = true;
 
         $candidate = Candidate::findOrFail($id);
@@ -240,15 +240,15 @@ class CandidateContactList extends Component
         $this->contact_number_alt_1 = $candidate->contact_number_alt_1;
         $this->assembly_id = $candidate->assembly_id;
 
-        //  Get assemblies already assigned to other candidates (excluding this one)
+
         $assignedIds = $this->getInvalidAssembly($candidate->assembly_id);
 
-        //  Load assemblies excluding already-assigned ones
+  
         $this->assemblies = Assembly::orderBy('assembly_name_en')
             ->whereNotIn('id', $assignedIds)
             ->get();
 
-        //  Reinitialize chosen on frontend
+        $this->dispatch('refreshChosen', $this->assembly_id);
     }
 
     protected function getInvalidAssembly($excludeId)
