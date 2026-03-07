@@ -4,15 +4,7 @@
             cursor: pointer;
         }
     </style>
-    @if ($errors->any())
-        <div class="alert alert-danger">
-            <ul class="mb-0">
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
+   
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h4 class="mb-0 text-primary">
             <i class="bi bi-person-circle me-2"></i>
@@ -695,7 +687,15 @@
                     </div>
                     {{-- @endif --}}
 
-
+                     @if ($errors->any())
+                        <div class="alert alert-danger">
+                            <ul class="mb-0">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
                     <div class="text-end">
                         <button type="submit" class="btn btn-primary">
                             Save & Preview

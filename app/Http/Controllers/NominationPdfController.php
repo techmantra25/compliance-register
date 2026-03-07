@@ -61,6 +61,8 @@ class NominationPdfController extends Controller
     {
         $form = NominationForm::with('candidate', 'assembly')->findOrFail($id);
         $candidate = $form->candidate;
+        $social           = json_decode($form->social_media_accounts, true) ?? [];
+        $phones           = json_decode($form->contact_phone_nos, true) ?? [];
 
         $panDetails       = json_decode($form->pan_details, true) ?? [];
         $incomes          = json_decode($form->last_five_year_incomes, true) ?? [];
@@ -74,11 +76,7 @@ class NominationPdfController extends Controller
         $sourceOfIncomes  = json_decode($form->source_of_incomes, true) ?? [];
         $education        = json_decode($form->highest_educational_qualification, true) ?? [];
 
-        $persons = [
-            'self'       => 'Self',
-            'spouse'     => 'Spouse',
-            'dependents' => 'Dependents',
-        ];
+        $persons = ['self','spouse','huf','dependent_1','dependent_2','dependent_3'];
 
         $pdf = Pdf::loadView(
             'livewire.nomination.form-26-pdf',
@@ -93,7 +91,9 @@ class NominationPdfController extends Controller
                 'governmentDues',
                 'sourceOfIncomes',
                 'education',
-                'persons'
+                'persons',
+                'phones',
+                'social'
             )
         );
 

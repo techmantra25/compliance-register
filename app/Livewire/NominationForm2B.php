@@ -112,7 +112,6 @@ class NominationForm2B extends Component
         'postal_address' => 'required',
         'candidate_serial_no' => 'required',
         'candidate_part_no' => 'required',
-
         'proposer_name' => 'required',
         'proposer_serial_no' => 'required',
         'proposer_part_no' => 'required',

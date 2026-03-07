@@ -32,7 +32,7 @@
                 <div class="row g-3">
 
                    <div class="col-md-6">
-                        <label class="form-label">Relation</label>
+                        <label class="form-label text-primary">Relation</label>
                         <div class="input-group">
                             <select class="form-select" wire:model.defer="relation_type" style="max-width: 120px;">
                                 <option value="">--</option>
@@ -51,48 +51,48 @@
                         @error('relation_name') <small class="text-danger">{{ $message }}</small> @enderror
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label">Age</label>
+                        <label class="form-label text-primary">Age</label>
                         <input type="number" class="form-control" wire:model.defer="age">
                         @error('age') <small class="text-danger">{{ $message }}</small> @enderror
                     </div>
 
                     <div class="col-md-6">
-                        <label class="form-label">Address</label>
+                        <label class="form-label text-primary">Address</label>
                         <textarea class="form-control" wire:model.defer="address" rows="2"></textarea>
                         @error('address') <small class="text-danger">{{ $message }}</small> @enderror
                     </div>
 
                     <div class="col-md-6">
-                        <label class="form-label">Enrolled Constituency Name</label>
+                        <label class="form-label text-primary">Enrolled Constituency Name</label>
                         <input type="text" class="form-control" wire:model.defer="enrolled_constituency_name">
                         @error('enrolled_constituency_name') <small class="text-danger">{{ $message }}</small> @enderror
                     </div>
 
                     <div class="col-md-6">
-                        <label class="form-label">Constituency Serial No</label>
+                        <label class="form-label text-primary">Constituency Serial No</label>
                         <input type="text" class="form-control" wire:model.defer="constituency_serial_no">
                         @error('constituency_serial_no') <small class="text-danger">{{ $message }}</small> @enderror
                     </div>
 
                      <div class="col-md-6">
-                        <label class="form-label">Constituency Part No</label>
+                        <label class="form-label text-primary">Constituency Part No</label>
                         <input type="text" class="form-control" wire:model.defer="constituency_part_no">
                         @error('constituency_part_no') <small class="text-danger">{{ $message }}</small> @enderror
                     </div>
 
                     <div class="col-md-6">
-                        <label class="form-label">Phone No</label>
+                        <label class="form-label text-primary">Phone No</label>
                         <input type="number" class="form-control" wire:model.defer="phone_no" min="0">
                         @error('phone_no') <small class="text-danger">{{ $message }}</small> @enderror
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label">Alternative Phone No</label>
+                        <label class="form-label text-primary">Alternative Phone No</label>
                         <input type="number" class="form-control" wire:model.defer="alternative_phone_no" min="0">
                         @error('alternative_phone_no') <small class="text-danger">{{ $message }}</small> @enderror
                     </div>
 
                     <div class="col-md-6">
-                        <label class="form-label">Email</label>
+                        <label class="form-label text-primary">Email</label>
                         <input type="email" class="form-control" wire:model.defer="email_id">
                     </div>
 
@@ -102,37 +102,42 @@
                         </h5>
                     </div>
 
-                    <div class="col-md-12">
+                   <div class="col-md-12">
                         <div class="row g-2">
                             <div class="col-md-4">
+                                <label for="whatsapp_no" class="form-label text-primary">WhatsApp Number</label>
                                 <input type="number"
+                                    id="whatsapp_no"
                                     class="form-control"
                                     wire:model.defer="whatsapp_no"
-                                    placeholder="WhatsApp Number"
                                     min="0">
                                 @error('whatsapp_no') <small class="text-danger">{{ $message }}</small> @enderror
                             </div>
 
                             <div class="col-md-4">
+                                <label for="facebook_account" class="form-label text-primary">Facebook Account</label>
                                 <input type="text"
+                                    id="facebook_account"
                                     class="form-control"
-                                    wire:model.defer="facebook_account"
-                                    placeholder="Facebook Account">
+                                    wire:model.defer="facebook_account">
                                 @error('facebook_account') <small class="text-danger">{{ $message }}</small> @enderror
                             </div>
 
                             <div class="col-md-4">
+                                <label for="twitter_account" class="form-label text-primary">Twitter Account</label>
                                 <input type="text"
+                                    id="twitter_account"
                                     class="form-control"
-                                    wire:model.defer="twitter_account"
-                                    placeholder="Twitter Account">
+                                    wire:model.defer="twitter_account">
                                 @error('twitter_account') <small class="text-danger">{{ $message }}</small> @enderror
                             </div>
-                             <div class="col-md-4">
+
+                            <div class="col-md-4">
+                                <label for="linked_in" class="form-label text-primary">LinkedIn Account</label>
                                 <input type="text"
+                                    id="linked_in"
                                     class="form-control"
-                                    wire:model.defer="linked_in"
-                                    placeholder="Link In Account">
+                                    wire:model.defer="linked_in">
                                 @error('linked_in') <small class="text-danger">{{ $message }}</small> @enderror
                             </div>
                         </div>
@@ -161,14 +166,16 @@
 
                                     <div class="row g-2 mb-3">
                                         <div class="col-md-2">
-                                            <label class="form-label">Holder</label>
+                                            <label class="form-label text-primary">Holder</label>
                                             <select class="form-select"
                                                 wire:model.defer="pan_details.{{ $index }}.type">
                                                 <option value="">Select</option>
                                                 <option value="self">Self</option>
                                                 <option value="spouse">Spouse</option>
                                                 <option value="huf">HUF</option>
-                                                <option value="dependent">Dependent</option>
+                                                <option value="dependent_1">Dependent 1</option>
+                                                <option value="dependent_2">Dependent 2</option>
+                                                <option value="dependent_3">Dependent 3</option>
                                             </select>
                                             @error('pan_details.'.$index.'.type')
                                                 <small class="text-danger">{{ $message }}</small>
@@ -176,7 +183,7 @@
                                         </div>
 
                                         <div class="col-md-3">
-                                            <label class="form-label">Name</label>
+                                            <label class="form-label text-primary">Name</label>
                                             <input type="text"
                                                 class="form-control"
                                                 wire:model.defer="pan_details.{{ $index }}.name">
@@ -186,7 +193,7 @@
                                         </div>
 
                                         <div class="col-md-3">
-                                            <label class="form-label">PAN</label>
+                                            <label class="form-label text-primary">PAN</label>
                                             <input type="text"
                                                 class="form-control text-uppercase"
                                                 wire:model.defer="pan_details.{{ $index }}.pan">
@@ -196,7 +203,7 @@
                                         </div>
 
                                         <div class="col-md-4">
-                                            <label class="form-label">Last ITR Filed (FY)</label>
+                                            <label class="form-label text-primary">Last ITR Filed (FY)</label>
                                             <select class="form-select"
                                                 wire:model.defer="pan_details.{{ $index }}.last_filed_year">
                                                 @foreach($financial_years as $year)
@@ -253,24 +260,24 @@
                                 @endif
 
                                 <div class="mb-3 col-md-4">
-                                    <label class="form-label">Asset Type</label>
+                                    <label class="form-label text-primary">Asset Type</label>
                                     <select class="form-select"
                                         wire:model.defer="movable_assets.{{ $aIndex }}.type">
                                         <option value="">Select</option>
-                                        <option value="cash">Cash</option>
-                                        <option value="bank_deposit">Bank Deposit</option>
-                                        <option value="securities">Securities</option>
-                                        <option value="postal_investment">Postal / Insurance</option>
-                                        <option value="loan_given">Loan Given</option>
-                                        <option value="vehicle">Vehicle</option>
-                                        <option value="jewellery">Jewellery</option>
-                                        <option value="other">Other</option>
+                                        <option value="cash">I. Cash</option>
+                                        <option value="bank_deposit">II. Bank Deposit</option>
+                                        <option value="securities">III. Securities</option>
+                                        <option value="postal_investment">IV. Postal / Insurance</option>
+                                        <option value="loan_given">V. Loan Given</option>
+                                        <option value="vehicle">VI. Vehicle</option>
+                                        <option value="jewellery">VII. Jewellery</option>
+                                        <option value="other">VIII. Other</option>
                                     </select>
                                 </div>
 
                                 @foreach($asset['holders'] as $hIndex => $holder)
 
-                                <div class="border rounded p-3 mb-2 bg-light">
+                                <div class="border rounded p-3 mb-2">
 
                                     <div class="d-flex justify-content-between">
                                         <span class="badge bg-secondary">
@@ -287,30 +294,35 @@
                                     </div>
 
                                     <div class="row g-2 mt-2">
+
                                         <div class="col-md-3">
+                                            <label class="form-label text-primary">Holder</label>
                                             <select class="form-select"
                                                 wire:model.defer="movable_assets.{{ $aIndex }}.holders.{{ $hIndex }}.holder">
                                                 <option value="">Select Holder</option>
                                                 <option value="self">Self</option>
                                                 <option value="spouse">Spouse</option>
                                                 <option value="huf">HUF</option>
-                                                <option value="dependent">Dependent</option>
+                                                <option value="dependent_1">Dependent 1</option>
+                                                <option value="dependent_2">Dependent 2</option>
+                                                <option value="dependent_3">Dependent 3</option>
                                             </select>
                                         </div>
 
                                         <div class="col-md-5">
+                                            <label class="form-label text-primary">Description</label>
                                             <textarea class="form-control"
-                                                placeholder="Description"
                                                 wire:model.defer="movable_assets.{{ $aIndex }}.holders.{{ $hIndex }}.description">
                                             </textarea>
                                         </div>
 
                                         <div class="col-md-3">
-                                            <input type="text"
+                                            <label class="form-label text-primary">Total Amount</label>
+                                            <input type="number"
                                                 class="form-control"
-                                                placeholder="Amount"
                                                 wire:model="movable_assets.{{ $aIndex }}.holders.{{ $hIndex }}.amount">
                                         </div>
+
                                     </div>
                                 </div>
 
@@ -356,38 +368,32 @@
                                             <!-- Asset Type -->
                                             <div class="row mb-3">
                                                 <div class="col-md-4">
-                                                    <label class="form-label">Asset Type</label>
+                                                    <label class="form-label text-primary">Asset Type</label>
                                                     <select class="form-select"
                                                         wire:model="immovable_assets.{{ $aIndex }}.type"
                                                         wire:change="typeChanged({{ $aIndex }})">
                                                         <option value="">Select</option>
-                                                        <option value="agricultural">Agricultural Land</option>
-                                                        <option value="non_agricultural">Non-Agricultural Land</option>
-                                                        <option value="commercial">Commercial Building</option>
-                                                        <option value="residential">Residential Building</option>
-                                                        <option value="others">Others</option>
+                                                        <option value="agricultural">I. Agricultural Land</option>
+                                                        <option value="non_agricultural">II. Non-Agricultural Land</option>
+                                                        <option value="commercial">III. Commercial Building</option>
+                                                        <option value="residential">IV. Residential Building</option>
+                                                        <option value="others">V. Others</option>
                                                     </select>
                                                 </div>
 
                                                 <div class="col-md-8">
-                                                    <label class="form-label">Description</label>
+                                                    <label class="form-label text-primary">Description</label>
 
                                                     @if(($immovable_assets[$aIndex]['type'] ?? '') === 'others')
-
                                                         <textarea class="form-control"
                                                             wire:key="description-{{ $aIndex }}-others"
-                                                            wire:model="immovable_assets.{{ $aIndex }}.description"
-                                                            placeholder="Describe the property">
+                                                            wire:model="immovable_assets.{{ $aIndex }}.description">
                                                         </textarea>
-
                                                     @else
-
                                                         <select class="form-select"
                                                             wire:key="description-{{ $aIndex }}-{{ $immovable_assets[$aIndex]['type'] ?? 'none' }}"
                                                             wire:model.defer="immovable_assets.{{ $aIndex }}.description">
-
                                                             <option value="">Select Description</option>
-
                                                             @foreach(
                                                                 $this->getImmovableDescriptionOptions(
                                                                     $immovable_assets[$aIndex]['type'] ?? ''
@@ -395,17 +401,15 @@
                                                             )
                                                                 <option value="{{ $key }}">{{ $label }}</option>
                                                             @endforeach
-
                                                         </select>
-
                                                     @endif
                                                 </div>
+                                            </div>
 
                                             <!-- Holders -->
                                             @foreach($asset['holders'] as $hIndex => $holder)
 
-                                            <div class="border rounded p-3 mb-2 bg-light">
-
+                                            <div class="border rounded p-3 mb-2">
                                                 <div class="d-flex justify-content-between">
                                                     <span class="badge bg-secondary">
                                                         Holder {{ $hIndex + 1 }}
@@ -423,27 +427,30 @@
                                                 <div class="row g-2 mt-2">
 
                                                     <div class="col-md-3">
+                                                        <label class="form-label text-primary">Holder</label>
                                                         <select class="form-select"
                                                             wire:model.defer="immovable_assets.{{ $aIndex }}.holders.{{ $hIndex }}.holder">
                                                             <option value="">Select Holder</option>
                                                             <option value="self">Self</option>
                                                             <option value="spouse">Spouse</option>
                                                             <option value="huf">HUF</option>
-                                                            <option value="dependent">Dependent</option>
+                                                            <option value="dependent_1">Dependent 1</option>
+                                                            <option value="dependent_2">Dependent 2</option>
+                                                            <option value="dependent_3">Dependent 3</option>
                                                         </select>
                                                     </div>
 
                                                     <div class="col-md-6">
+                                                        <label class="form-label text-primary">Details</label>
                                                         <textarea class="form-control"
-                                                            placeholder="Details"
                                                             wire:model.defer="immovable_assets.{{ $aIndex }}.holders.{{ $hIndex }}.details">
                                                         </textarea>
                                                     </div>
 
                                                     <div class="col-md-3">
+                                                        <label class="form-label text-primary">Total Amount</label>
                                                         <input type="number"
                                                             class="form-control"
-                                                            placeholder="Total Amount"
                                                             wire:model.defer="immovable_assets.{{ $aIndex }}.holders.{{ $hIndex }}.amount">
                                                     </div>
 
@@ -489,15 +496,18 @@
                                     </button>
                                 @endif
 
+                                <!-- Holder -->
                                 <div class="mb-3 col-md-4">
-                                    <label class="form-label">Holder</label>
+                                    <label class="form-label text-primary">Holder</label>
                                     <select class="form-select"
                                         wire:model.defer="loan_holders.{{ $hIndex }}.holder">
                                         <option value="">Select</option>
                                         <option value="self">Self</option>
                                         <option value="spouse">Spouse</option>
                                         <option value="huf">HUF</option>
-                                        <option value="dependent">Dependent</option>
+                                        <option value="dependent_1">Dependent 1</option>
+                                        <option value="dependent_2">Dependent 2</option>
+                                        <option value="dependent_3">Dependent 3</option>
                                     </select>
                                 </div>
 
@@ -517,32 +527,40 @@
                                     </div>
 
                                     <div class="row g-2 mt-2">
+
                                         <div class="col-md-3">
+                                            <label class="form-label text-primary">Loan Type</label>
                                             <select class="form-select"
                                                 wire:model.defer="loan_holders.{{ $hIndex }}.loans.{{ $lIndex }}.type">
-                                                <option value="">Loan Type</option>
-                                                <option value="bank">Bank</option>
-                                                <option value="individual">Individual</option>
+                                                <option value="">Select Type</option>
+                                                <option value="bank">Bank/Financial Institution</option>
+                                                <option value="individual">Any Other Individuals/Entity</option>
+                                                <option value="liability">Any Other Liability</option>
                                             </select>
                                         </div>
 
                                         <div class="col-md-3">
-                                            <input class="form-control" placeholder="Name"
+                                            <label class="form-label text-primary">Name</label>
+                                            <input class="form-control"
                                                 wire:model.defer="loan_holders.{{ $hIndex }}.loans.{{ $lIndex }}.name">
                                         </div>
 
                                         <div class="col-md-3">
-                                            <input class="form-control" type="number" placeholder="Amount"
+                                            <label class="form-label text-primary">Amount</label>
+                                            <input class="form-control" type="number"
                                                 wire:model.defer="loan_holders.{{ $hIndex }}.loans.{{ $lIndex }}.amount">
                                         </div>
 
                                         <div class="col-md-3">
-                                            <input class="form-control" placeholder="Nature"
+                                            <label class="form-label text-primary">Nature</label>
+                                            <input class="form-control"
                                                 wire:model.defer="loan_holders.{{ $hIndex }}.loans.{{ $lIndex }}.nature">
                                         </div>
+
                                     </div>
                                 </div>
                                 @endforeach
+
                                 <div class="text-end">
                                     <button type="button"
                                         class="btn btn-outline-success btn-sm"
@@ -574,39 +592,50 @@
                                 </button>
                             @endif
 
+                            <!-- Holder -->
                             <div class="mb-3 col-md-4">
-                                <label class="form-label">Holder</label>
+                                <label class="form-label text-primary">Holder</label>
                                 <select class="form-select"
                                     wire:model.defer="government_dues.{{ $gIndex }}.holder">
                                     <option value="">Select</option>
                                     <option value="self">Self</option>
                                     <option value="spouse">Spouse</option>
                                     <option value="huf">HUF</option>
-                                    <option value="dependent">Dependent</option>
+                                    <option value="dependent_1">Dependent 1</option>
+                                    <option value="dependent_2">Dependent 2</option>
+                                    <option value="dependent_3">Dependent 3</option>
                                 </select>
                             </div>
 
                             <div class="row g-2">
                                 <div class="col-md-3">
-                                    <input class="form-control" type="number" placeholder="Income Tax"
+                                    <label class="form-label text-primary">Income Tax Dues</label>
+                                    <input class="form-control" type="number"
                                         wire:model.defer="government_dues.{{ $gIndex }}.income_tax">
                                 </div>
+
                                 <div class="col-md-3">
-                                    <input class="form-control" type="number" placeholder="GST"
+                                    <label class="form-label text-primary">GST Dues</label>
+                                    <input class="form-control" type="number"
                                         wire:model.defer="government_dues.{{ $gIndex }}.gst">
                                 </div>
+
                                 <div class="col-md-3">
-                                    <input class="form-control" type="number" placeholder="Property Tax"
+                                    <label class="form-label text-primary">Municipal Property Tax Dues</label>
+                                    <input class="form-control" type="number"
                                         wire:model.defer="government_dues.{{ $gIndex }}.property_tax">
                                 </div>
+
                                 <div class="col-md-3">
-                                    <input class="form-control" type="number" placeholder="Other Dues"
+                                    <label class="form-label text-primary">Any Others Dues</label>
+                                    <input class="form-control" type="number"
                                         wire:model.defer="government_dues.{{ $gIndex }}.other_dues">
                                 </div>
-                                <div class="col-md-12">
-                                    <textarea class="form-control mt-2"
-                                        placeholder="Dispute Details"
-                                        wire:model.defer="government_dues.{{ $gIndex }}.dispute_details"></textarea>
+
+                                <div class="col-md-3 mt-2">
+                                    <label class="form-label text-primary">Any Other Liabilities are in Dispute</label>
+                                    <input class="form-control" type="number"
+                                        wire:model.defer="government_dues.{{ $gIndex }}.dispute_details">
                                 </div>
                             </div>
 
@@ -623,18 +652,18 @@
                     </div>
 
                     <div class="col-md-12">
-                        <h6 class="fw-bold">Profession / Occupation:</h6>
+                        <h5 class="text-primary mt-2">Profession / Occupation</h5>
 
                         <div class="ms-3">
                             <div class="mb-2">
-                                <label class="form-label">Self</label>
+                                <label class="form-label text-primary">Self</label>
                                 <input type="text"
                                     class="form-control"
                                     wire:model.defer="candidate_occupation">
                             </div>
 
                             <div class="mb-2">
-                                <label class="form-label">Spouse</label>
+                                <label class="form-label text-primary">Spouse</label>
                                 <input type="text"
                                     class="form-control"
                                     wire:model.defer="spouse_occupation">
@@ -643,71 +672,83 @@
                     </div>
 
                     <div class="col-md-12 mt-3">
-                        <h6 class="fw-bold">Source(s) of Income</h6>
+                        <h5 class="text-primary mt-2">Source(s) of Income</h5>
 
                         <div class="ms-3">
                             <div class="mb-2">
-                                <label class="form-label">Self</label>
+                                <label class="form-label text-primary">Self</label>
                                 <input type="text"
                                     class="form-control"
                                     wire:model.defer="source_of_incomes.self">
                             </div>
 
                             <div class="mb-2">
-                                <label class="form-label">Spouse</label>
+                                <label class="form-label text-primary">Spouse</label>
                                 <input type="text"
                                     class="form-control"
                                     wire:model.defer="source_of_incomes.spouse">
                             </div>
 
                             <div class="mb-2">
-                                <label class="form-label">Dependents</label>
+                                <label class="form-label text-primary">Dependents</label>
                                 <input type="text"
                                     class="form-control"
                                     wire:model.defer="source_of_incomes.dependents">
                             </div>
                         </div>
                     </div>
+                        <div class="col-md-12 mt-3">
+                            <h5 class="text-primary mt-2">Educational Qualifications</h5>
 
+                            @foreach($educational_qualifications as $index => $edu)
+                                <div class="border rounded p-3 mb-3 bg-white shadow-sm position-relative">
 
-                    <div class="col-md-12 mt-3">
-                        <h6 class="fw-bold">Educational Qualifications</h6>
+                                    <!-- Remove Button -->
+                                    @if($index > 0)
+                                        <button type="button"
+                                            class="btn btn-sm btn-outline-danger position-absolute top-0 end-0 m-2"
+                                            wire:click="removeQualification({{ $index }})">
+                                            <i class="bi bi-x-lg"></i>
+                                        </button>
+                                    @endif
 
-                        @foreach($educational_qualifications as $index => $edu)
-                            <div class="border rounded p-3 mb-3 bg-white shadow-sm">
+                                    <div class="row g-2 mt-2">
 
-                                <span class="badge bg-secondary mb-2">
-                                    {{ $edu['level'] }}
-                                </span>
+                                        <!-- Degree / Course -->
+                                        <div class="col-md-4">
+                                            <label class="form-label text-primary">Degree / Course</label>
+                                            <input type="text"
+                                                class="form-control"
+                                                wire:model.defer="educational_qualifications.{{ $index }}.degree">
+                                        </div>
 
-                                <div class="row g-2 mt-2">
-                                    <div class="col-md-4">
-                                        <input type="text"
-                                            class="form-control"
-                                            placeholder="Degree / Course"
-                                            wire:model.defer="educational_qualifications.{{ $index }}.degree">
+                                        <!-- University / Institution -->
+                                        <div class="col-md-5">
+                                            <label class="form-label text-primary">University / Institution</label>
+                                            <input type="text"
+                                                class="form-control"
+                                                wire:model.defer="educational_qualifications.{{ $index }}.university">
+                                        </div>
+
+                                        <!-- Year of Passing -->
+                                        <div class="col-md-3">
+                                            <label class="form-label text-primary">Year of Passing</label>
+                                            <input type="number"
+                                                class="form-control"
+                                                wire:model.defer="educational_qualifications.{{ $index }}.year">
+                                        </div>
+
                                     </div>
 
-                                    <div class="col-md-5">
-                                        <input type="text"
-                                            class="form-control"
-                                            placeholder="University / Institution"
-                                            wire:model.defer="educational_qualifications.{{ $index }}.university">
-                                    </div>
-
-                                    <div class="col-md-3">
-                                        <input type="number"
-                                            class="form-control"
-                                            placeholder="Year of Passing"
-                                            wire:model.defer="educational_qualifications.{{ $index }}.year">
-                                    </div>
                                 </div>
+                            @endforeach
 
+                            <div class="text-center mb-2">
+                                <button type="button" class="btn btn-outline-primary btn-sm px-4" wire:click="addQualification">
+                                    <i class="bi bi-plus-circle"></i> Add Qualification
+                                </button>
                             </div>
-                        @endforeach
-                    </div>
-
-
+                        </div>
                 </div>
 
                 <div class="mt-4 text-end">

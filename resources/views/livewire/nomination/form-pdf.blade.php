@@ -15,6 +15,7 @@
             margin: 20px;
             color: #000;
             line-height: 1.4;
+            font-family: DejaVu Sans, sans-serif;
         }
 
         .form-container {
@@ -297,9 +298,22 @@
                     <div style="font-size: 16px; line-height: 2;">
                         Candidate's name <span class="input-field input-field-large"
                         readonly style="width: 300px;">{{ucwords($nomination->candidate->name)}}</span>
-                        <span class="input-field input-field-small">
-                            {{ ucfirst($nomination->relation_type) }}'s
-                        </span>
+                        <div wire:key="relation-type-1">
+                            <label>
+                                <input type="radio" name="relation_type_main" wire:model="relation_type" value="father">
+                                Father's
+                            </label>
+                            /
+                            <label>
+                                <input type="radio" name="relation_type_main" wire:model="relation_type" value="mother">
+                                Mother's
+                            </label>
+                            /
+                            <label>
+                                <input type="radio" name="relation_type_main" wire:model="relation_type"
+                                    value="husband"> Husband's
+                            </label>
+                        </div>
                         name <span class="input-field input-field-medium" style="width: 400px;">{{ucwords($nomination->relation_name)}}</span>
                         <div>
                             <label>
