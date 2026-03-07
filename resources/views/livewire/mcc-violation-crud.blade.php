@@ -131,49 +131,10 @@
                                         <td class="text-center">
                                             @if(childUserAccess(Auth::guard('admin')->user()->id,'mcc_action_taken_and_status'))
                                                 <span class="badge bg-success" title="Action Taken">
-                                                    {{ ucwords($item->legalAssociate->name ?? '-') }}
+                                                    {{ ucwords($item->legalAssociate->name ?? 'N/A') }}
                                                 </span>
                                             @endif
                                         </td>
-                                        {{-- <td>
-                                            @php
-                                                $user = auth()->user();
-                                            @endphp
-                                            @if($item->status == 'processed' || $item->status == 'resolved_processing')
-                                                @if($user->role == 'legal_associate' && $item->action_taken == $user->id)
-
-                                                <select class="form-select form-select-sm"
-                                                    wire:change="changeStatus({{ $item->id }}, $event.target.value)">
-
-                                                    <option value="processed" {{ $item->status=='processed' ? 'selected':'' }}>Processed</option>
-
-                                                    <option value="resolved_processing">Resolved Processing</option>
-
-                                                    <option value="confirm_resolved">Resolved</option>
-
-                                                </select>
-
-                                                @endif
-                                            @endif
-                                            <span class="badge 
-                                                @if($item->status == 'pending_to_process') bg-warning
-                                                @elseif($item->status == 'processed') bg-info
-                                                @elseif($item->status == 'resolved_processing') bg-primary
-                                                @elseif($item->status == 'confirm_resolved') bg-success
-                                                @else bg-secondary
-                                                @endif">
-                                                {{ ucwords(str_replace('_',' ', $item->status)) }}
-                                            </span>
-
-                                            <div class="mt-1">
-                                                <small class="text-muted d-block">
-                                                    Remarks:
-                                                    {{ $item->latestRemark?->remarks 
-                                                        ? \Illuminate\Support\Str::words(ucwords($item->latestRemark->remarks), 100, '...')
-                                                        : 'N/A' }}
-                                                </small>
-                                            </div>
-                                        </td> --}}
                                         <td>
                                             @php
                                                 $user = auth()->user();
@@ -183,21 +144,18 @@
                                                 @if($user->role == 'legal_associate' && $item->action_taken == $user->id)
 
                                                 <select class="form-select form-select-sm"
-                                                    wire:change="changeStatus({{ $item->id }}, $event.target.value)">
+                                                    wire:change="changeStatus({{ $item->id }}, $event.target.value)"
+                                                    wire:click="openSameStatusModal({{ $item->id }})">
+                                                    @if($item->status == 'processed')
+                                                        <option value="processed" selected>Processed</option>
+                                                        <option value="resolved_processing">Resolved Processing</option>
+                                                        <option value="confirm_resolved">Resolved</option>
+                                                    @endif
 
-                                                    <option value="processed" 
-                                                        {{ $item->status=='processed' ? 'selected':'' }}>
-                                                        Processed
-                                                    </option>
-
-                                                    <option value="resolved_processing" 
-                                                        {{ $item->status=='resolved_processing' ? 'selected':'' }}>
-                                                        Resolved Processing
-                                                    </option>
-
-                                                    <option value="confirm_resolved">
-                                                        Resolved
-                                                    </option>
+                                                    @if($item->status == 'resolved_processing')
+                                                        <option value="resolved_processing" selected>Resolved Processing</option>
+                                                        <option value="confirm_resolved">Resolved</option>
+                                                    @endif
 
                                                 </select>
 
@@ -216,13 +174,20 @@
 
                                             </span>
 
-                                            <div class="mt-1">
+                                            {{-- <div class="mt-1">
                                                 <small class="text-muted d-block">
                                                     Remarks:
                                                     {{ $item->latestRemark?->remarks 
                                                         ? \Illuminate\Support\Str::words(ucwords($item->latestRemark->remarks), 100, '...')
                                                         : 'N/A' }}
                                                 </small>
+                                            </div> --}}
+                                            
+                                            <div class="mt-1">
+                                                <a href="{{ route('admin.mcc_log_details', $item->id) }}" 
+                                                class="btn btn-sm btn-outline-primary">
+                                                    View Remarks
+                                                </a>
                                             </div>
                                         </td>
 
@@ -312,14 +277,14 @@
                                 </div>
 
                                 <div class="col-md-6 mb-3">
-                                    <label>Block<span class="text-danger">*</span></label>
-                                    <textarea class="form-control" wire:model="block" placeholder="Enter blocks"></textarea>
+                                    <label>Block/Municipality/Town<span class="text-danger">*</span></label>
+                                    <textarea class="form-control" wire:model="block" placeholder="Enter Block/Municipality/Town"></textarea>
                                     @error('block') <small class="text-danger">{{ $message }}</small> @enderror
                                 </div>
 
                                 <div class="col-md-6 mb-3">
-                                    <label>GP<span class="text-danger">*</span></label>
-                                    <textarea class="form-control" wire:model="gp" placeholder="Enter GP"></textarea>
+                                    <label>GP/Word<span class="text-danger">*</span></label>
+                                    <textarea class="form-control" wire:model="gp" placeholder="Enter GP/Word"></textarea>
                                     @error('gp') <small class="text-danger">{{ $message }}</small> @enderror
                                 </div>
 
@@ -571,7 +536,6 @@
             Livewire.on('modelHide', () => {
                 $("#mccModal").modal('hide');
 
-                // Cleanup leftover backdrop
                 document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
                 document.body.classList.remove('modal-open');
                 document.body.style = "";

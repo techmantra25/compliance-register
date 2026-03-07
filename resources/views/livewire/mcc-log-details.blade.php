@@ -119,6 +119,12 @@
                                     <div class="timeline-body mt-2">
                                         {!! $item['details'] !!}
 
+                                        @if(!empty($item['attachment']))
+                                            <a href="{{ asset('storage/'.$item['attachment']) }}" target="_blank" class="btn btn-sm btn-info">
+                                                View Attachment
+                                            </a>
+                                        @endif
+
                                         <p class="text-muted mt-2 mb-0">
                                             <i class="bi bi-person"></i>Action By 
                                             <strong>{{ $item['changed_by'] }}</strong>

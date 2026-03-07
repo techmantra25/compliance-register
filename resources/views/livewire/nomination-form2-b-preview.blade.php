@@ -616,7 +616,7 @@
                         Bye-Election
                     </label> 
                     being held simultaneously, to the Legislative Assembly
-                    <input type="text" class="input-field input-field-medium" wire:model="state_name"> of (State) from
+                    <input type="text" wire:model="state_name"><span class="input-field input-field-medium" >{{$nomination->state}}</span> of (State) from
                     more than two Assembly constituencies.
                 </div>
                 <div style="margin-top: 37px; display: flex; justify-content: space-between; ">
