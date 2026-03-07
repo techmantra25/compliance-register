@@ -364,7 +364,7 @@ class Form26 extends Component
         'movable_assets' => 'nullable|array',
         'movable_assets.*.type' => 'nullable|string',
         'movable_assets.*.holders' => 'nullable|array',
-        'movable_assets.*.holders.*.holder' => 'nullable|in:self,spouse,huf,dependent',
+        'movable_assets.*.holders.*.holder' => 'nullable|in:self,spouse,huf,dependent_1,dependent_2,dependent_3',
         'movable_assets.*.holders.*.description' => 'nullable|string',
         'movable_assets.*.holders.*.amount' => 'nullable|numeric',
 
@@ -506,6 +506,22 @@ class Form26 extends Component
     {
         unset($this->pan_details[$index]);
         $this->pan_details = array_values($this->pan_details);
+    }
+
+    public function addQualification()
+    {
+        $this->educational_qualifications[] = [
+            'level' => '',
+            'degree' => '',
+            'university' => '',
+            'year' => '',
+        ];
+    }
+
+    public function removeQualification($index)
+    {
+        unset($this->educational_qualifications[$index]);
+        $this->educational_qualifications = array_values($this->educational_qualifications);
     }
 
     public function save()

@@ -66,60 +66,60 @@ class Form26Preview extends Component
             ->layout('layouts.admin');
     }
 
-    public function downloadPdf()
-    {
-        $form = $this->form->load('candidate', 'assembly');
-        $candidate = $form->candidate;
+    // public function downloadPdf()
+    // {
+    //     $form = $this->form->load('candidate', 'assembly');
+    //     $candidate = $form->candidate;
 
-        $panDetails       = json_decode($form->pan_details, true) ?? [];
-        $incomes          = json_decode($form->last_five_year_incomes, true) ?? [];
-        $movableAssets    = json_decode($form->movable_assets, true) ?? [];
-        $immovableAssets  = json_decode($form->immovable_assets, true) ?? [];
+    //     $panDetails       = json_decode($form->pan_details, true) ?? [];
+    //     $incomes          = json_decode($form->last_five_year_incomes, true) ?? [];
+    //     $movableAssets    = json_decode($form->movable_assets, true) ?? [];
+    //     $immovableAssets  = json_decode($form->immovable_assets, true) ?? [];
 
-        $loansAndDues     = json_decode($form->loans_and_govt_dues, true) ?? [];
-        $loans            = $loansAndDues['loans'] ?? [];
-        $governmentDues   = $loansAndDues['government_dues'] ?? [];
+    //     $loansAndDues     = json_decode($form->loans_and_govt_dues, true) ?? [];
+    //     $loans            = $loansAndDues['loans'] ?? [];
+    //     $governmentDues   = $loansAndDues['government_dues'] ?? [];
 
-        $sourceOfIncomes  = json_decode($form->source_of_incomes, true) ?? [];
-        $education        = json_decode($form->highest_educational_qualification, true) ?? [];
+    //     $sourceOfIncomes  = json_decode($form->source_of_incomes, true) ?? [];
+    //     $education        = json_decode($form->highest_educational_qualification, true) ?? [];
 
-        $persons = [
-            'self'       => 'Self',
-            'spouse'     => 'Spouse',
-            'dependents' => 'Dependents',
-        ];
+    //     $persons = [
+    //         'self'       => 'Self',
+    //         'spouse'     => 'Spouse',
+    //         'dependents' => 'Dependents',
+    //     ];
 
-        $pdf = Pdf::loadView(
-            'livewire.nomination.form-26-pdf',
-            compact(
-                'form',
-                'candidate',
-                'panDetails',
-                'incomes',
-                'movableAssets',
-                'immovableAssets',
-                'loans',
-                'governmentDues',
-                'sourceOfIncomes',
-                'education',
-                'persons'
-            )
-        );
+    //     $pdf = Pdf::loadView(
+    //         'livewire.nomination.form-26-pdf',
+    //         compact(
+    //             'form',
+    //             'candidate',
+    //             'panDetails',
+    //             'incomes',
+    //             'movableAssets',
+    //             'immovableAssets',
+    //             'loans',
+    //             'governmentDues',
+    //             'sourceOfIncomes',
+    //             'education',
+    //             'persons'
+    //         )
+    //     );
 
-        NominationLog::create([
-            'nomination_id' => $form->id,
-            'form_data'     => $form->toArray(),
-            'pdf_file'      => $pdf->output(),
-            'generated_by'  => Auth::id(),
-            'ip_address'    => request()->ip(),
-        ]);
+    //     NominationLog::create([
+    //         'nomination_id' => $form->id,
+    //         'form_data'     => $form->toArray(),
+    //         'pdf_file'      => $pdf->output(),
+    //         'generated_by'  => Auth::id(),
+    //         'ip_address'    => request()->ip(),
+    //     ]);
 
-        return response()->streamDownload(
-            fn () => print($pdf->output()),
-            'Nomination_Form_26_' . now()->format('Ymd_His') . '.pdf',
-            ['Content-Type' => 'application/pdf']
-        );
-    }
+    //     return response()->streamDownload(
+    //         fn () => print($pdf->output()),
+    //         'Nomination_Form_26_' . now()->format('Ymd_His') . '.pdf',
+    //         ['Content-Type' => 'application/pdf']
+    //     );
+    // }
 
 
 }
