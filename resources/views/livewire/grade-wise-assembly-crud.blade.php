@@ -71,10 +71,12 @@
                                     </td>
 
                                     <td>
-                                        <button wire:click="edit({{ $grade->id }})"
-                                            class="btn btn-sm btn-outline-primary">
-                                            <i class="bi bi-pencil"></i>
-                                        </button>
+                                        @if(childUserAccess(Auth::guard('admin')->user()->id,'master_view_update_grade_wise_assembly'))
+                                            <button wire:click="edit({{ $grade->id }})"
+                                                class="btn btn-sm btn-outline-primary">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                        @endif
                                     </td>
 
                                 </tr>

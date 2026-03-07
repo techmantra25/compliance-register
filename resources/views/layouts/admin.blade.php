@@ -79,14 +79,14 @@
                                     </a>
                                 </li>
                             @endif
-                            {{-- @if(childUserAccess(Auth::guard('admin')->user()->id,'master_view_phases')) --}}
+                            @if(childUserAccess(Auth::guard('admin')->user()->id,'master_view_grade_wise_assembly'))
                                 <li class="nav-item mb-1">
                                     <a href="{{ route('admin.master.grade-wise-assembly') }}"
                                         class="nav-link small {{ request()->routeIs('admin.master.grade-wise-assembly') ? 'active' : '' }}">
                                         <i class="bi bi-calendar2-event me-1"></i> Grade Wise Assembly
                                     </a>
                                 </li>
-                            {{-- @endif --}}
+                            @endif
                             @if(childUserAccess(Auth::guard('admin')->user()->id,'master_view_event_categories'))
                                 <li class="nav-item mb-1">
                                 <a href="{{ route('admin.master.eventcategory') }}"

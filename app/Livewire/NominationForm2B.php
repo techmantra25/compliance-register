@@ -30,7 +30,7 @@ class NominationForm2B extends Component
     public $candidate_part_no;
     public $constituency_where_enrolled;
     public $political_party_name = 'AITC';
-    public $recognized_political_party = 'AITC';
+    public $recognized_political_party = 'National Party';
     public $language_of_name = 'ENGLISH';
 
     public $proposer_name;
@@ -107,6 +107,7 @@ class NominationForm2B extends Component
     protected $rules = [
         'age' => 'required|integer|min:18',
         'relation_type' => 'required|in:father,mother,husband',
+        'pronoun' => 'required|in:his,her',
         'relation_name' => 'required',
         'postal_address' => 'required',
         'candidate_serial_no' => 'required',
@@ -138,6 +139,7 @@ class NominationForm2B extends Component
 
             $this->candidate_name               = $this->titleCase($this->candidate_name);
             $this->relation_name                = $this->titleCase($this->relation_name);
+            $this->pronoun                      = $form->pronoun ?? 'his'; 
             $this->postal_address               = $this->titleCase($this->postal_address);
             $this->constituency_where_enrolled  = $this->titleCase($this->constituency_where_enrolled);
             $this->proposer_name                = $this->titleCase($this->proposer_name);
@@ -326,6 +328,7 @@ class NominationForm2B extends Component
                     'form_type' => 'form_2b',
                     'age' => $this->age,
                     'relation_type' => $this->relation_type,
+                    'pronoun' => $this->pronoun,
                     'relation_name' => $this->relation_name,
                     'postal_address' => $this->postal_address,
                     'candidate_serial_no' => $this->candidate_serial_no,
@@ -361,7 +364,7 @@ class NominationForm2B extends Component
             return redirect()->route('admin.candidates.form2B.preview', $nomination->id);
 
         } catch (\Exception $e) {
-            dd($e->getMessage());
+            //dd($e->getMessage());
             \Log::error('Nomination Save Error: '.$e->getMessage());
             session()->flash('error', 'Something went wrong');
         }
