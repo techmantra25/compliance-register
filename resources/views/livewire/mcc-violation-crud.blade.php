@@ -61,9 +61,9 @@
                         <div wire:ignore class="me-2">
                             <select wire:model="filter_by_status" class="form-select chosen-select">
                                 <option value="">Filter by Status</option>
-                                <option value="pending_to_process">Pending to Process</option>
-                                <option value="processed">Processed</option>
-                                <option value="confirm_resolved">Resolved</option>
+                                <option value="pending">Pending</option>
+                                <option value="inprogress">Inprogress</option>
+                                <option value="resolved">Resolved</option>
                             </select>
                         </div>
                         <div wire:ignore>
@@ -99,18 +99,23 @@
                                     <th>Complainer Details</th>
                                     <th>Date & Time</th>
                                     <th>Assign To</th>
-                                    <th width="15%">
-                                        <i class="bi bi-flag me-1"></i> Status
-                                    </th>
+                                    <th width="15%">Status</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @forelse($mccList as $key => $item)
-                                    <tr class="text-center">
+                                    <tr>
                                         <td>
                                             <div class="fw-bold">{{ $item->mcc_code }}</div>
-                                            <div class="text-muted small">Category: {{ ucwords($item->category) }}</div>
+
+                                            <div class="text-muted small">
+                                                @if($item->category == 'For AITC')
+                                                    <span class="badge bg-primary">{{ ucwords($item->category) }}</span>
+                                                @else
+                                                    <span class="badge bg-danger">{{ ucwords($item->category) }}</span>
+                                                @endif
+                                            </div>
                                         </td>
                                         <td class="text-start">
                                             <div class="fw-semibold">{{ ucwords(optional($item->assembly)->assembly_name_en ?? '_') }}</div>
@@ -125,98 +130,77 @@
                                         </td>
                                         <td>
                                             <div class="fw-bold">{{ ucwords($item->complainer_name) }}</div>
-                                            <div class="text-muted small">Phone: {{ $item->complainer_phone }}</div>
+                                            <div class="text-muted small">
+                                                <i class="bi bi-telephone me-1"></i> {{ $item->complainer_phone }}
+                                            </div>
                                         </td>
                                         <td>{{ $item->created_at->format('d-m-Y h:i A') }}</td>
                                         <td class="text-center">
-                                            @if(childUserAccess(Auth::guard('admin')->user()->id,'mcc_action_taken_and_status'))
-                                                <span class="badge bg-success" title="Action Taken">
-                                                    {{ ucwords($item->legalAssociate->name ?? 'N/A') }}
-                                                </span>
-                                            @endif
+                                            <span class="badge bg-lavel-success" title="Action Taken">
+                                                {{ ucwords($item->legalAssociate->name ?? 'N/A') }}
+                                            </span>
                                         </td>
                                         <td>
-                                            @php
-                                                $user = auth()->user();
-                                            @endphp
-
-                                            @if($item->status == 'processed' || $item->status == 'resolved_processing')
-                                                @if($user->role == 'legal_associate' && $item->action_taken == $user->id)
-
-                                                <select class="form-select form-select-sm"
-                                                    wire:change="changeStatus({{ $item->id }}, $event.target.value)"
-                                                    wire:click="openSameStatusModal({{ $item->id }})">
-                                                    @if($item->status == 'processed')
-                                                        <option value="processed" selected>Processed</option>
-                                                        <option value="resolved_processing">Resolved Processing</option>
-                                                        <option value="confirm_resolved">Resolved</option>
-                                                    @endif
-
-                                                    @if($item->status == 'resolved_processing')
-                                                        <option value="resolved_processing" selected>Resolved Processing</option>
-                                                        <option value="confirm_resolved">Resolved</option>
-                                                    @endif
-
-                                                </select>
-
-                                                @endif
-                                            @endif
-
-                                            <span class="badge 
-                                                @if($item->status == 'pending_to_process') bg-warning
-                                                @elseif($item->status == 'processed') bg-info
-                                                @elseif($item->status == 'resolved_processing') bg-primary
-                                                @elseif($item->status == 'confirm_resolved') bg-success
+                                            <span class="badge
+                                                @if($item->status == 'pending') bg-warning
+                                                @elseif($item->status == 'inprogress') bg-info
+                                                @elseif($item->status == 'resolved') bg-success
                                                 @else bg-secondary
                                                 @endif">
 
                                                 {{ ucwords(str_replace('_',' ', $item->status)) }}
 
                                             </span>
-
-                                            {{-- <div class="mt-1">
-                                                <small class="text-muted d-block">
-                                                    Remarks:
-                                                    {{ $item->latestRemark?->remarks 
-                                                        ? \Illuminate\Support\Str::words(ucwords($item->latestRemark->remarks), 100, '...')
-                                                        : 'N/A' }}
-                                                </small>
-                                            </div> --}}
-                                            
-                                            <div class="mt-1">
-                                                <a href="{{ route('admin.mcc_log_details', $item->id) }}" 
-                                                class="btn btn-sm btn-outline-primary">
-                                                    View Remarks
-                                                </a>
-                                            </div>
                                         </td>
 
                                         <td class="text-center">
 
-                                            <div class="btn-group">
-                                                <!-- Edit -->
-                                                @if(childUserAccess(Auth::guard('admin')->user()->id,'mcc_update_mcc'))
+                                            <!-- Edit Button -->
+                                            @if(childUserAccess(Auth::guard('admin')->user()->id,'mcc_update_mcc') && $item->status == "pending")
+                                            <div class="btn-group m-1">
                                                 <div class="tooltip-wrapper">
-                                                    <button class="btn btn-sm btn-outline-success"
-                                                        wire:click="edit({{ $item->id }})">
-                                                        <i class="bi bi-pencil"></i>
+                                                    <button class="btn btn-sm btn-outline-primary"
+                                                            wire:click="edit({{ $item->id }})">
+                                                        <i class="bi bi-pencil-square"></i>
                                                     </button>
-                                                    <span class="tooltip-text">Edit Campaign</span>
-                                                </div>
-                                                @endif
-                                            </div>
-
-                                            @if(childUserAccess(Auth::guard('admin')->user()->id,'mcc_view_mcc_log'))
-                                            <div class="btn-group">
-                                                <div class="tooltip-wrapper">
-                                                    <a href="{{ route('admin.mcc_log_details', $item->id) }}"
-                                                        class="btn btn-sm btn-outline-success">
-                                                        <i class="bi bi-person-lines-fill"></i>
-                                                    </a>
-                                                    <span class="tooltip-text">Mcc Log</span>
+                                                    <span class="tooltip-text">Edit MCC</span>
                                                 </div>
                                             </div>
                                             @endif
+                                            <!-- View MCC Log -->
+                                            {{-- @if(childUserAccess(Auth::guard('admin')->user()->id,'mcc_view_mcc_log'))
+                                            <div class="btn-group m-1">
+                                                <div class="tooltip-wrapper">
+                                                    <a href="{{ route('admin.mcc_log_details', $item->id) }}"
+                                                    class="btn btn-sm btn-outline-info">
+                                                        <i class="bi bi-clock-history"></i>
+                                                    </a>
+                                                    <span class="tooltip-text">View MCC Log</span>
+                                                </div>
+                                            </div>
+                                            @endif --}}
+
+
+                                            <div class="btn-group m-1">
+                                                <div class="tooltip-wrapper">
+                                                    <a href="{{route('admin.mcc_violation_remarks', $item->id)}}" class="btn btn-sm btn-outline-warning position-relative">
+
+                                                        <i class="bi bi-chat-left-text"></i>
+
+                                                        @php
+                                                            $unreadRemarks = $item->Remarks()->where('is_read', 0)->count();
+                                                        @endphp
+
+                                                        @if($unreadRemarks > 0)
+                                                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                                                {{ $unreadRemarks }}
+                                                            </span>
+                                                        @endif
+
+                                                    </a>
+                                                    <span class="tooltip-text">View Remarks</span>
+                                                </div>
+                                            </div>
 
                                         </td>
                                     </tr>
@@ -435,176 +419,109 @@
             </div>
         </div>
 
-        <div wire:ignore class="modal fade" id="resolveModal" tabindex="-1">
-            <div class="modal-dialog modal-md">
-                <div class="modal-content">
-
-                    <div class="modal-header">
-                        <h5 class="modal-title">Status: Resolved</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-
-                    <div class="modal-body">
-                        <label>Remarks <span class="text-danger"></span></label>
-                        <textarea class="form-control" wire:model="remarks" rows="4"
-                            placeholder="Enter remarks here..."></textarea>
-                        @error('remarks') <small class="text-danger">{{ $message }}</small> @enderror
-                    </div>
-
-                    <div class="modal-body">
-                        <label>Attachment<span class="text-danger"></span></label>
-                        <input type="file" class="form-control" wire:model="attachment">
-                        @error('remarks') <small class="text-danger">{{ $message }}</small> @enderror
-                    </div>
-
-                    <div class="modal-footer">
-                        <button class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
-                        <button class="btn btn-success btn-sm" wire:click="saveResolution">Save</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="loader-container" wire:loading wire:target="save,openCampaignModal">
+        <div class="loader-container" wire:loading wire:target="save,openCampaignModal,edit">
             <div class="loader"></div>
         </div>
 
     </div>
-    @push('scripts')
-    <link rel="stylesheet" href="{{ asset('assets/css/component-chosen.css') }}">
-    {{-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script> --}}
-    <script src="{{ asset('assets/js/chosen.jquery.js') }}"></script>
-    <script>
-        window.addEventListener('toastr:error', e => toastr.error(e.detail.message));
-        window.addEventListener('toastr:success', e => toastr.success(e.detail.message));
-    </script>
+        @push('scripts')
+        <link rel="stylesheet" href="{{ asset('assets/css/component-chosen.css') }}">
+        {{-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script> --}}
+        <script src="{{ asset('assets/js/chosen.jquery.js') }}"></script>
+        <script>
+            window.addEventListener('toastr:error', e => toastr.error(e.detail.message));
+            window.addEventListener('toastr:success', e => toastr.success(e.detail.message));
+        </script>
 
-    <script>
-        function initChosen() {
-            $('.chosen-select').chosen({
-                width: '100%',
-                no_results_text: "No result found",
-                search_contains: true
-            })
-            .off('change')
-            .on('change', function () {
-                let model = $(this).attr('wire:model');
-                if (model) {
-                    @this.set(model, $(this).val());
-                }
-            });
-        }
-
-        document.addEventListener("DOMContentLoaded", () => {
-            initChosen();
-        });
-
-        Livewire.hook('morph.updated', () => {
-           
-            $('.chosen-select').each(function () {
-                const el = $(this);
-                const model = el.attr('wire:model');
-                const liveValue = @this.get(model);
-                
-                if (liveValue !== undefined && liveValue !== null) {
-                    el.val(liveValue).trigger('chosen:updated');
-                }
-            });
-            initChosen();
-        });
-
-        document.addEventListener('refreshChosen', () => {
-            const chosen = $('.chosen-select');
-
-            if (chosen.length) {
-                chosen.trigger('chosen:updated');
+        <script>
+            function initChosen() {
+                $('.chosen-select').chosen({
+                    width: '100%',
+                    no_results_text: "No result found",
+                    search_contains: true
+                })
+                .off('change')
+                .on('change', function () {
+                    let model = $(this).attr('wire:model');
+                    if (model) {
+                        @this.set(model, $(this).val());
+                    }
+                });
             }
-        });
 
-        document.addEventListener('resetField', () => {
-            document.querySelectorAll('input, textarea, select').forEach(el => el.value = '');
-        });
-        document.addEventListener('modelHide', () => {
-            $('#campaignerModal').modal('hide');
-        });
-
-    </script>
-
-    <script>
-        document.addEventListener('livewire:init', () => {
-            Livewire.on('refreshChosen', () => {
-                $(".chosen-select").trigger("chosen:updated");
+            document.addEventListener("DOMContentLoaded", () => {
+                initChosen();
             });
 
-            Livewire.on('open-edit-modal', () => {
+            Livewire.hook('morph.updated', () => {
+            
+                $('.chosen-select').each(function () {
+                    const el = $(this);
+                    const model = el.attr('wire:model');
+                    const liveValue = @this.get(model);
+                    
+                    if (liveValue !== undefined && liveValue !== null) {
+                        el.val(liveValue).trigger('chosen:updated');
+                    }
+                });
+                initChosen();
+            });
+
+            document.addEventListener('refreshChosen', () => {
+                const chosen = $('.chosen-select');
+
+                if (chosen.length) {
+                    chosen.trigger('chosen:updated');
+                }
+            });
+
+            document.addEventListener('resetField', () => {
+                document.querySelectorAll('input, textarea, select').forEach(el => el.value = '');
+            });
+            document.addEventListener('modelHide', () => {
+                $('#campaignerModal').modal('hide');
+            });
+
+        </script>
+
+        <script>
+            document.addEventListener('livewire:init', () => {
+                Livewire.on('refreshChosen', () => {
+                    $(".chosen-select").trigger("chosen:updated");
+                });
+
+
+                Livewire.on('modelHide', () => {
+                    $("#mccModal").modal('hide');
+
+                    document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+                    document.body.classList.remove('modal-open');
+                    document.body.style = "";
+                });
+            });
+
+        </script>
+
+        <script>
+            window.addEventListener('closeModal', () => {
+                $("#mccModal").modal('hide');
+                $("#importMccModal").modal('hide');
+            });
+            window.addEventListener('open-edit-modal', () => {
                 $("#mccModal").modal('show');
             });
-
-            Livewire.on('modelHide', () => {
-                $("#mccModal").modal('hide');
-
-                document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
-                document.body.classList.remove('modal-open');
-                document.body.style = "";
+            window.addEventListener('open-mcc-modal', () => {
+                $("#mccModal").modal('show');
             });
-        });
+        </script>
 
-    </script>
-
-    <script>
-        document.addEventListener('livewire:init', () => {
-
-            Livewire.on('open-escalation-modal', () => {
-                $("#escalationModal").modal('show');
+        <script>
+            window.addEventListener('clear-search-input', () => {
+                const input = document.querySelector('input[wire\\:model="search"]');
+                if (input) input.value = '';
             });
+        </script>
 
-            Livewire.on('close-escalation-modal', () => {
-                $("#escalationModal").modal('hide');
-
-                document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
-                document.body.classList.remove('modal-open');
-                document.body.style = "";
-                document.querySelector('#resolveModal input[type="text"]').value = '';
-            });
-
-        });
-    </script>
-
-    <script>
-        window.addEventListener('closeModal', event => {
-            var modal = bootstrap.Modal.getInstance(document.getElementById(event.detail.id));
-            modal.hide();
-            location.reload();
-           
-        });
-    </script>
-
-    <script>
-        window.addEventListener('clear-search-input', () => {
-            const input = document.querySelector('input[wire\\:model="search"]');
-            if (input) input.value = '';
-        });
-    </script>
-    <script>
-        document.addEventListener('livewire:init', () => {
-
-            Livewire.on('open-resolve-modal', () => {
-                $("#resolveModal").modal('show');
-            });
-
-            Livewire.on('close-resolve-modal', () => {
-
-                $("#resolveModal").modal('hide');
-
-                document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
-                document.body.classList.remove('modal-open');
-                document.body.style = "";
-                document.querySelector('#resolveModal textarea').value = '';
-            });
-
-        });
-    </script>
-
-    @endpush
+        @endpush
 </div>
 

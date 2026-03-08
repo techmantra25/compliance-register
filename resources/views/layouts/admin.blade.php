@@ -232,6 +232,14 @@
                     </div>
                 </li>
             @endif
+            @if(userAccess(Auth::guard('admin')->user()->id,'war_room'))
+                <li class="nav-item mb-2">
+                    <a href="{{ route('admin.war_room') }}"
+                    class="nav-link {{ request()->routeIs('admin.war_room') ? 'active' : '' }}">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i> War Room
+                    </a>
+                </li>
+            @endif
         </ul>
     </nav>
 

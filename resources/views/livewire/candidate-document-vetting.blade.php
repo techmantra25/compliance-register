@@ -87,7 +87,7 @@
                             <td>: {{ $phase ?? 'N/A' }}</td>
                         </tr>
                         <tr>
-                            <th class="text-nowrap pe-3">Last Date of Submission of Nomination Form</th>
+                            <th class="text-nowrap pe-3">Last Date of Nomination form Submission</th>
                             <td>
                                 : {{ $nomination_date
                                     ? \Carbon\Carbon::parse($nomination_date)->format('d M Y')

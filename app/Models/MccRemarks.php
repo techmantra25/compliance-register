@@ -7,10 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class MccRemarks extends Model
 {
     protected $fillable = [
-        'mcc_id',
-        'legal_associate_id',
-        'remarks',
-        'attachment',
+        'mcc_id', 'legal_associate_id', 'remarks', 'attachment', 'is_read', 'is_cancelled'
     ];
 
     public function mcc()

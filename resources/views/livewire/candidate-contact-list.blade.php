@@ -142,7 +142,7 @@
                                     <th>Assembly</th>
                                     <th>Documents</th>
                                     <th>Final Status</th>
-                                    <th>Last Date Of Nomination</th>
+                                    <th>Last Date of Nomination form Submission</th>
                                     <th style="max-width: 250px;" class="text-center">Action</th>
                                 </tr>
                             </thead>

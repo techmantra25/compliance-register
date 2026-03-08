@@ -32,12 +32,14 @@
                     <div class="d-flex align-items-center">
 
                         <input type="text"
-                            wire:model.live="search"
-                            wire:key="search-input-{{ $searchResetKey }}"
-                            class="form-control form-control-sm w-auto me-2"
-                            placeholder="Search documents...">
+                               wire:model.live="search"
+                               wire:key="search-input-{{ $searchResetKey }}"
+                               class="form-control form-control-sm w-auto me-2"
+                               placeholder="Search documents...">
 
-                        <button type="button" class="btn btn-sm btn-danger" wire:click="resetInputFields">
+                        <button type="button"
+                                class="btn btn-sm btn-danger"
+                                wire:click="resetInputFields">
                             Reset Filter
                         </button>
 
@@ -49,37 +51,46 @@
 
                     <div class="table-responsive">
 
-                        <table class="table align-middle mb-0">
+                       <table class="table align-middle mb-0">
 
                             <thead class="table-light">
                                 <tr>
                                     <th width="50">#</th>
                                     <th>Document Name</th>
-                                    <th>Key</th>
-                                    {{-- <th width="120">Status</th> --}}
                                     <th width="120">Actions</th>
+                                    <th width="40"></th>
                                 </tr>
                             </thead>
 
-
                             <tbody x-data="sortableTable(@this)" x-ref="tableBody" wire:ignore>
+
                                 @foreach($documents as $index => $doc)
+
                                 <tr data-id="{{ $doc->id }}" wire:key="item-{{ $doc->id }}">
+
                                     <td>{{ $index + 1 }}</td>
+
                                     <td>{{ $doc->name }}</td>
-                                    <td>{{ $doc->key }}</td>
-                                    {{-- <td>
-                                        <input type="checkbox" wire:click="toggleStatus({{ $doc->id }})" {{ $doc->status ? 'checked' : '' }}>
-                                    </td> --}}
+
                                     <td>
-                                        <button wire:click="edit({{ $doc->id }})" class="btn btn-sm btn-outline-primary">Edit</button>
+                                        @if(!in_array($doc->key, ['nomination_paper_form_2b','affidavit_form_26']))
+                                            <button onclick="editDocument({{ $doc->id }})"
+                                                    class="btn btn-sm btn-outline-primary">
+                                                Edit
+                                            </button>
+                                        @endif
                                     </td>
+                                    <td class="text-muted" style="cursor:move;">
+                                        <i class="bi bi-arrows-move me-1"></i>
+                                    </td>
+
                                 </tr>
+
                                 @endforeach
+
                             </tbody>
 
                         </table>
-
                     </div>
 
                 </div>
@@ -97,9 +108,7 @@
                 <div class="card-header bg-white">
 
                     <h5 class="fw-bold mb-0">
-
                         {{ $isEdit ? 'Edit Document Type' : 'Add Document Type' }}
-
                     </h5>
 
                 </div>
@@ -107,7 +116,8 @@
 
                 <div class="card-body">
 
-                    <form wire:submit.prevent="save" wire:key="document-form-{{ $editId ?? 'new' }}">
+                    <form wire:submit.prevent="save"
+                          wire:key="document-form-{{ $editId ?? 'new' }}">
 
                         <div class="mb-3">
 
@@ -118,21 +128,7 @@
                                    class="form-control">
 
                             @error('name')
-                            <small class="text-danger">{{ $message }}</small>
-                            @enderror
-
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Key</label>
-
-                            <input type="text"
-                                   wire:model="key"
-                                   class="form-control"
-                                   placeholder="Example: pan_card">
-
-                            @error('key')
-                            <small class="text-danger">{{ $message }}</small>
+                                <small class="text-danger">{{ $message }}</small>
                             @enderror
 
                         </div>
@@ -149,12 +145,14 @@
                             </button>
 
                             @if(childUserAccess(Auth::guard('admin')->user()->id,'master_view_add_nomination_documents'))
+
                                 <button type="submit"
                                         class="btn btn-primary btn-sm">
 
                                     {{ $isEdit ? 'Update' : 'Save' }}
 
                                 </button>
+
                             @endif
 
                         </div>
@@ -168,32 +166,65 @@
         </div>
 
     </div>
+
+
     @push('scripts')
+
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+
     <script>
+
         window.addEventListener('toastr:error', e => toastr.error(e.detail.message));
         window.addEventListener('toastr:success', e => toastr.success(e.detail.message));
+
     </script>
+
+
     <script>
+
     function sortableTable(livewireComponent) {
+
         return {
+
             init() {
+
                 let el = this.$refs.tableBody;
 
                 new Sortable(el, {
+
                     animation: 150,
                     handle: 'td',
+
                     onEnd: function () {
+
                         let items = [];
+
                         el.querySelectorAll('tr').forEach((row, index) => {
-                            items.push({ value: row.dataset.id, order: index + 1 });
+
+                            items.push({
+                                value: row.dataset.id,
+                                order: index + 1
+                            });
+
                         });
+
                         @this.call('updatePosition', items);
+
                     }
+
                 });
+
             }
+
         }
+
     }
+    function editDocument(id) {
+        @this.call('editData', id);
+    }
+
     </script>
+
     @endpush
+
 </div>
