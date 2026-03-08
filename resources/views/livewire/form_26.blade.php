@@ -204,8 +204,9 @@
 
                                         <div class="col-md-4">
                                             <label class="form-label text-primary small text-muted">Last ITR Filed (FY)</label>
-                                            <select class="form-select"
-                                                wire:model.defer="pan_details.{{ $index }}.last_filed_year">
+                                           <select class="form-select"
+                                                    wire:model="pan_details.{{ $index }}.last_filed_year"
+                                                    wire:change="updateIncomeYears({{ $index }})">
                                                 @foreach($financial_years as $year)
                                                     <option value="{{ $year }}">{{ $year }}</option>
                                                 @endforeach
@@ -221,7 +222,7 @@
                                     </label>
 
                                     <div class="row g-2">
-                                        @foreach ($financial_years as $year)
+                                        @foreach (($pan_details[$index]['income'] ?? []) as $year => $value)
                                             <div class="col-md-2">
                                                 <label class="small text-muted">{{ $year }}</label>
                                                 <input type="number"
