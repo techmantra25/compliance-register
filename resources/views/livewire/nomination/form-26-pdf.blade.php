@@ -315,8 +315,11 @@
 
                 @foreach($persons as $key => $label)
                     @php
-                        $panData = collect($panDetails)->firstWhere('type', $key);
-                        $incomeData = collect($incomes)->firstWhere('type', $key);
+                       $panIndex = collect($panDetails)->search(fn($p) => $p['type'] === $key);
+
+                        $panData = $panIndex !== false ? $panDetails[$panIndex] : null;
+                        $incomeData = $panIndex !== false ? ($incomes[$panIndex] ?? null) : null;
+
                         $yearlyIncome = $incomeData['income'] ?? [];
                     @endphp
 
@@ -676,7 +679,7 @@
                         'cash' => 'Cash in hand (As on Date)',
                         'bank_deposit' => 'Details of deposit in Bank accounts (FDRs, Term Deposits and all other types of deposits including saving accounts), Deposits with Financial Institutions, Non-Banking Financial Companies and Cooperative societies and the amount in each such deposit',
                         'securities' => 'Details of investment in Bonds, Debentures /shares land units in companies /Mutual funds and others and the amount',
-                        'postal_investment' => '	Details of investment in NSS, Postal Saving, Insurance policies and investment in any Financial instruments in Post office or Insurance Company and the amount',
+                        'postal_investment' => 'Details of investment in NSS, Postal Saving, Insurance policies and investment in any Financial instruments in Post office or Insurance Company and the amount',
                         'loan_given' => 'Personal loans/ advance given to any person or entity including firm, company, Trust etc., and other receivables from debtors and the amoun',
                         'vehicle' => 'Motor Vehicles/ Aircrafts/Yachts /Ships (Details of Make, registration number etc. year of purchase and amount)',
                         'jewellery' => 'Jewellery, bullion and valuable thing(s) (give Details of weight value)',
@@ -734,7 +737,6 @@
                                         <div>{{ $description }}</div>
                                     @endif
 
-                                    <div>Rs. {{ number_format((float)$amount, 2) }}</div>
                                 @else
                                     Not Applicable
                                 @endif
@@ -929,10 +931,6 @@
                         {{ $details }}
                         @endif
 
-                        @if(is_numeric($amount))
-                        <br>Rs. {{ number_format($amount,2) }}
-                        @endif
-
                         @if(!$details && !$amount)
                         Not Applicable
                         @endif
@@ -988,14 +986,47 @@
                         $holders = ['self','spouse','huf','dependent_1','dependent_2','dependent_3'];
                         $loanTotals = [];
 
-                        function getHolderLoans($loans,$holder){
+                        function getHolderLoans($loans,$holder,$type){
+
                             return collect($loans)
-                                ->where('holder',$holder)
-                                ->flatMap(function($item){
-                                    return $item['loans'] ?? [];
+                                ->where('type',$type)
+                                ->flatMap(function($loan) use ($holder){
+
+                                    return collect($loan['holders'] ?? [])
+                                        ->where('holder',$holder)
+                                        ->map(function($h){
+
+                                            return [
+                                                'description' => $h['description'] ?? '',
+                                                'amount' => $h['amount'] ?? 0
+                                            ];
+
+                                        });
+
                                 });
                         }
-                        @endphp
+
+                        function getGovDue($dues,$holder,$type){
+
+                            return collect($dues)
+                                ->where('type',$type)
+                                ->flatMap(function($item) use ($holder){
+
+                                    return collect($item['holders'] ?? [])
+                                        ->where('holder',$holder)
+                                        ->map(function($h){
+
+                                            return [
+                                                'description' => $h['description'] ?? '',
+                                                'amount' => $h['amount'] ?? 0
+                                            ];
+
+                                        });
+
+                                });
+                        }
+
+                    @endphp
 
                    <tr>
 
@@ -1010,8 +1041,7 @@
                         @foreach($holders as $holder)
 
                         @php
-                        $holderLoans = getHolderLoans($loans,$holder)
-                            ->where('type','bank');
+                        $holderLoans = getHolderLoans($loans,$holder,'bank');
 
                         $total = 0;
                         @endphp
@@ -1023,9 +1053,9 @@
                         @foreach($holderLoans as $loan)
 
                         <div>
-                        <strong>{{ $loan['name'] }}</strong><br>
-                        Nature: {{ $loan['nature'] }}<br>
-                        Amount: Rs. {{ number_format($loan['amount'],2) }}
+                        <strong>{{ $loan['description'] }}</strong><br>
+                        <br>
+                        {{-- Amount: Rs. {{ number_format($loan['amount'],2) }} --}}
                         </div>
 
                         @php
@@ -1059,8 +1089,7 @@
                         @foreach($holders as $holder)
 
                         @php
-                        $holderLoans = getHolderLoans($loans,$holder)
-                            ->where('type','individual');
+                        $holderLoans = getHolderLoans($loans,$holder,'individual');
 
                         $total = 0;
                         @endphp
@@ -1072,9 +1101,9 @@
                         @foreach($holderLoans as $loan)
 
                         <div>
-                        <strong>{{ $loan['name'] }}</strong><br>
-                        Nature: {{ $loan['nature'] }}<br>
-                        Amount: Rs. {{ number_format($loan['amount'],2) }}
+                        <strong>{{ $loan['description'] }}</strong><br>
+                        <br>
+                        {{-- Amount: Rs. {{ number_format($loan['amount'],2) }} --}}
                         </div>
 
                         @php
@@ -1202,7 +1231,7 @@
                         </td>
                     </tr>
 
-                   <tr>
+                  <tr>
 
                     <td>(iv)</td>
                     <td>Income Tax dues</td>
@@ -1210,17 +1239,22 @@
                     @foreach($holders as $holder)
 
                     @php
-                    $gov = collect($governmentDues)
-                            ->where('holder',$holder)
-                            ->first();
-
-                    $value = $gov['income_tax'] ?? null;
+                    $dues = getGovDue($governmentDues,$holder,'income_tax');
                     @endphp
 
                     <td style="text-align:center">
 
-                    @if($value)
-                    Rs. {{ number_format($value,2) }}
+                    @if($dues->count())
+
+                    @foreach($dues as $due)
+
+                    <div>
+                    <strong>{{ $due['description'] }}</strong><br>
+                    {{-- Rs. {{ number_format($due['amount'],2) }} --}}
+                    </div>
+
+                    @endforeach
+
                     @else
                     Not Applicable
                     @endif
@@ -1231,7 +1265,7 @@
 
                     </tr>
 
-                    <tr>
+                   <tr>
 
                     <td>(v)</td>
                     <td>GST dues</td>
@@ -1239,17 +1273,22 @@
                     @foreach($holders as $holder)
 
                     @php
-                    $gov = collect($governmentDues)
-                            ->where('holder',$holder)
-                            ->first();
-
-                    $value = $gov['gst'] ?? null;
+                    $dues = getGovDue($governmentDues,$holder,'gst');
                     @endphp
 
                     <td style="text-align:center">
 
-                    @if($value)
-                    Rs. {{ number_format($value,2) }}
+                    @if($dues->count())
+
+                    @foreach($dues as $due)
+
+                    <div>
+                    <strong>{{ $due['description'] }}</strong><br>
+                    {{-- Rs. {{ number_format($due['amount'],2) }} --}}
+                    </div>
+
+                    @endforeach
+
                     @else
                     Not Applicable
                     @endif
@@ -1258,27 +1297,31 @@
 
                     @endforeach
 
-                    </tr>
+                </tr>
 
-                    <tr>
-
+                <tr>
                     <td>(vi)</td>
                     <td>Municipal/Property tax dues</td>
 
                     @foreach($holders as $holder)
 
                     @php
-                    $gov = collect($governmentDues)
-                            ->where('holder',$holder)
-                            ->first();
-
-                    $value = $gov['property_tax'] ?? null;
+                    $dues = getGovDue($governmentDues,$holder,'property_tax');
                     @endphp
 
                     <td style="text-align:center">
 
-                    @if($value)
-                    Rs. {{ number_format($value,2) }}
+                    @if($dues->count())
+
+                    @foreach($dues as $due)
+
+                    <div>
+                    <strong>{{ $due['description'] }}</strong><br>
+                    {{-- Rs. {{ number_format($due['amount'],2) }} --}}
+                    </div>
+
+                    @endforeach
+
                     @else
                     Not Applicable
                     @endif
@@ -1287,27 +1330,31 @@
 
                     @endforeach
 
-                    </tr>
+                </tr>
 
-                    <tr>
-
+                <tr>
                     <td>(vii)</td>
                     <td>Any other dues</td>
 
                     @foreach($holders as $holder)
 
                     @php
-                    $gov = collect($governmentDues)
-                            ->where('holder',$holder)
-                            ->first();
-
-                    $value = $gov['other_dues'] ?? null;
+                    $dues = getGovDue($governmentDues,$holder,'other_dues');
                     @endphp
 
                     <td style="text-align:center">
 
-                    @if($value)
-                    Rs. {{ number_format($value,2) }}
+                    @if($dues->count())
+
+                    @foreach($dues as $due)
+
+                    <div>
+                    <strong>{{ $due['description'] }}</strong><br>
+                    {{-- Rs. {{ number_format($due['amount'],2) }} --}}
+                    </div>
+
+                    @endforeach
+
                     @else
                     Not Applicable
                     @endif
@@ -1316,45 +1363,44 @@
 
                     @endforeach
 
+                </tr>
+                <tr>
+                        <td>(viii)</td>
+                        <td>Grand total of all Government dues</td>
+
+                        @foreach($holders as $holder)
+
+                        @php
+
+                        $total = 0;
+
+                        $types = ['income_tax','gst','property_tax','other_dues'];
+
+                        foreach($types as $type){
+
+                            $dues = getGovDue($governmentDues,$holder,$type);
+
+                            foreach($dues as $d){
+                                $total += (float)$d['amount'];
+                            }
+
+                        }
+
+                        @endphp
+
+                        <td style="text-align:center">
+
+                        @if($total)
+                        Rs. {{ number_format($total,2) }}
+                        @else
+                        Not Applicable
+                        @endif
+
+                        </td>
+
+                        @endforeach
+
                     </tr>
-
-                    <tr>
-
-                    <td>(viii)</td>
-                    <td>Grand total of all Government dues</td>
-
-                    @foreach($holders as $holder)
-
-                    @php
-                    $gov = collect($governmentDues)
-                            ->where('holder',$holder)
-                            ->first();
-
-                    $total = 0;
-
-                    if($gov){
-                    $total =
-                        ($gov['income_tax'] ?? 0) +
-                        ($gov['gst'] ?? 0) +
-                        ($gov['property_tax'] ?? 0) +
-                        ($gov['other_dues'] ?? 0);
-                    }
-                    @endphp
-
-                    <td style="text-align:center">
-
-                    @if($total)
-                    Rs. {{ number_format($total,2) }}
-                    @else
-                    Not Applicable
-                    @endif
-
-                    </td>
-
-                    @endforeach
-
-                    </tr>
-                    <tr>
 
                 <td>(ix)</td>
                 <td>
@@ -1365,17 +1411,9 @@
 
                 @foreach($holders as $holder)
 
-                @php
-                $gov = collect($governmentDues)
-                        ->where('holder',$holder)
-                        ->first();
-
-                $value = $gov['dispute_details'] ?? null;
-                @endphp
-
                 <td style="text-align:center">
 
-                {{ $value ?: 'Not Applicable' }}
+                Not Applicable
 
                 </td>
 
