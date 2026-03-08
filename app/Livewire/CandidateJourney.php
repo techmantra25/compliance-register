@@ -35,7 +35,7 @@ class CandidateJourney extends Component
             $badgeColor = $this->getBadgeColor($log);
 
             $timeline[] = [
-                'time' => Carbon::parse($log->created_at)->format('H:i A'),
+                'time' => Carbon::parse($log->created_at)->format('h:i A'),
                 'date' => Carbon::parse($log->created_at)->format('M d, Y'),
                 'title' => $title,
                 'details' => $details,
