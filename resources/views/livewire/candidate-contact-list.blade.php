@@ -646,7 +646,7 @@
 
                             <div class="mb-3 col-md-12">
                                 <label class="form-label">Assemblies <span class="text-danger">*</span></label>
-                                <div wire:ignore.self>
+                                <div wire:ignore>
                                     <select wire:model="assembly_id" id="assembly_id" class="form-select chosen-select">
                                         <option value="">Select one</option>
                                         @foreach ($assemblies as $assembly)

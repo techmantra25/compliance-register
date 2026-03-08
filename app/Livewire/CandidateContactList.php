@@ -270,7 +270,7 @@ class CandidateContactList extends Component
             ->whereNotIn('id', $invalidId)
             ->get();
 
-        // 🔹 Trigger chosen refresh
+        // Trigger chosen refresh
     }
     
 
