@@ -617,7 +617,12 @@ class CandidateContactList extends Component
             ->when($this->filter_by_assembly, fn($q) => $q->where('assembly_id', $this->filter_by_assembly))
             ->when($this->filter_by_district, fn($q) => $q->whereHas('assembly.district', fn($d) => $d->where('id', $this->filter_by_district)))
             ->when($this->filter_by_phase, fn($q) => $q->whereHas('assembly.assemblyPhase', fn($p) => $p->where('phase_id', $this->filter_by_phase)))
-        ->with(['assembly.district', 'assembly.assemblyPhase.phase', 'documents']);
+        ->with([
+            'assembly.district',
+            'assembly.assemblyPhase.phase',
+            'documents',
+            'agents'
+        ]);
     }
 
     public function exportCsv()
@@ -647,40 +652,63 @@ class CandidateContactList extends Component
             'Election Date',
             'Last Date of MCC',
             'Document Pending',
-            'Final Status'
+            'Final Status',
+            'Agent Name',
+            'Agent Phone'
         ];
 
         $callback = function () use ($data, $columns) {
 
             $file = fopen('php://output', 'w');
 
-            // Header row
             fputcsv($file, $columns);
 
-            foreach ($data as $item) {
+                foreach ($data as $item) {
 
-                $assembly = $item->assembly;
-                $district = optional($assembly)->district;
-                $phase = optional(optional($assembly)->assemblyPhase)->phase;
+                    $assembly = $item->assembly;
+                    $district = optional($assembly)->district;
+                    $phase = optional(optional($assembly)->assemblyPhase)->phase;
 
-                // Count Pending Docs
-                $required = $this->required_document ?? 5; 
-                $uploaded = $item->documents->groupBy('type')->count();
-                $pending = max(0, $required - $uploaded);
+                    $required = $this->required_document ?? 5;
+                    $uploaded = $item->documents->groupBy('type')->count();
+                    $pending = max(0, $required - $uploaded);
 
-                fputcsv($file, [
-                    $item->name,
-                    $item->contact_number,
-                    $assembly ? $assembly->assembly_code . ' - ' . $assembly->assembly_name_en : '',
-                    $district->name_en ?? '',
-                    $phase->name ?? '',
-                    $phase->last_date_of_nomination ?? '',
-                    $phase->date_of_election ?? '',
-                    $phase->last_date_of_mcc ?? '',
-                    $pending,
-                    $item->document_collection_status ?? '',
-                ]);
-            }
+                    $agents = $item->agents;
+
+                    // Candidate row
+                    fputcsv($file, [
+                        $item->name,
+                        $item->contact_number,
+                        $assembly ? $assembly->assembly_code . ' - ' . $assembly->assembly_name_en : '',
+                        $district->name_en ?? '',
+                        $phase->name ?? '',
+                        $phase->last_date_of_nomination ?? '',
+                        $phase->date_of_election ?? '',
+                        $phase->last_date_of_mcc ?? '',
+                        $pending,
+                        $item->document_collection_status ?? '',
+                        '', ''
+                    ]);
+
+                    // Agent rows
+                    foreach ($agents as $agent) {
+
+                        fputcsv($file, [
+                            '',
+                            '',
+                            '',
+                            '',
+                            '',
+                            '',
+                            '',
+                            '',
+                            '',
+                            '',
+                            $agent->name,
+                            $agent->contact_number,
+                        ]);
+                    }
+                }
 
             fclose($file);
         };

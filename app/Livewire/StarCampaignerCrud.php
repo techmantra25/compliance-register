@@ -127,7 +127,7 @@ class StarCampaignerCrud extends Component
         $this->dispatch('reset-file-input');
     }
 
-    public function saveCampaigner()
+    public function importCampaigner()
     {
         try {
             $this->validate($this->campaignerRules);
@@ -157,16 +157,16 @@ class StarCampaignerCrud extends Component
                     $mobile = $row[1] ?? null;
                     $extra  = $row[2] ?? null;
 
-                    if (!preg_match('/^[0-9]{10}$/', $mobile)) {
-                        $errors[] = "Row $rowNumber: Mobile number '$mobile' must be exactly 10 digits.";
-                        continue;
-                    }
+                    // if (!preg_match('/^[0-9]{10}$/', $mobile)) {
+                    //     $errors[] = "Row $rowNumber: Mobile number '$mobile' must be exactly 10 digits.";
+                    //     continue;
+                    // }
 
-                    // Check duplicate mobile
-                    if (Campaigner::where('mobile', $mobile)->exists()) {
-                        $errors[] = "Row $rowNumber: Mobile number '$mobile' already exists.";
-                        continue;
-                    }
+                    // // Check duplicate mobile
+                    // if (Campaigner::where('mobile', $mobile)->exists()) {
+                    //     $errors[] = "Row $rowNumber: Mobile number '$mobile' already exists.";
+                    //     continue;
+                    // }
 
                     Campaigner::create([
                         'name'          => $name,

@@ -216,7 +216,7 @@
                             wire:click="resetForm">Close</button>
 
                         <button type="button" class="btn btn-primary"
-                            wire:click="saveCampaigner"
+                            wire:click="importCampaigner"
                             wire:loading.remove
                             wire:target="campaignerFile">
                             <i class="bi bi-upload me-1"></i>Upload
