@@ -674,7 +674,7 @@
                             imprisonment for two years or more.
                         </div>
                         <div style="margin-left: 15px;">
-                            <strong>{{ strtoupper($nomination->convicted ?? 'N/A') }}</strong>
+                            <strong>{{ strtoupper($nomination->convicted ?? 'Not Applicable') }}</strong>
                         </div>
                     </div>
                 </div>
@@ -686,85 +686,85 @@
                     <div style="margin-left: 20px; line-height: 1.21;">
                         (i) Case / First information report No./Nos.
                         <span class="input-field input-field-large">
-                            {{ $nomination->convicted_details['case_no'] ?? 'N/A' }}
+                            {{ $nomination->convicted_details['case_no'] ?? 'Not Applicable' }}
                         </span>
                     </div>
 
                     <div style="margin-left: 20px; line-height: 1.21;">
                         (ii) Police station(s)
                         <span class="input-field" style="width: 139px;">
-                            {{ ucwords($nomination->convicted_details['police_station'] ?? 'N/A') }}
+                            {{ ucwords($nomination->convicted_details['police_station'] ?? 'Not Applicable') }}
                         </span>
                         District(s)
                         <span class="input-field" style="width: 139px;">
-                            {{ ucwords($nomination->convicted_details['district'] ?? 'N/A') }}
+                            {{ ucwords($nomination->convicted_details['district'] ?? 'Not Applicable') }}
                         </span>
                         State(s)
                         <span class="input-field" style="width: 139px;">
-                            {{ ucwords($nomination->convicted_details['state'] ?? 'N/A') }}
+                            {{ ucwords($nomination->convicted_details['state'] ?? 'Not Applicable') }}
                         </span>
                     </div>
 
                     <div style="margin-left: 20px; line-height: 1.21;">
                         (iii) Section(s) of the concerned Act(s) and brief description of the offence(s)
                         <span class="input-field input-field-large">
-                            {{ $nomination->convicted_details['sections'] ?? 'N/A' }}
+                            {{ $nomination->convicted_details['sections'] ?? 'Not Applicable' }}
                         </span>
                     </div>
 
                     <div style="margin-left: 20px; line-height: 1.21;">
                         (iv) Date(s) of conviction(s)
                         <span class="input-field input-field-medium" style="width: 139px;">
-                            {{ $nomination->convicted_details['conviction_date'] ?? 'N/A' }}
+                            {{ $nomination->convicted_details['conviction_date'] ?? 'Not Applicable' }}
                         </span>
                     </div>
 
                     <div style="margin-left: 20px; line-height: 1.21;">
                         (v) Court(s) which convicted the candidate
                         <span class="input-field input-field-medium" style="width: 331px;">
-                            {{ $nomination->convicted_details['court'] ?? 'N/A' }}
+                            {{ $nomination->convicted_details['court'] ?? 'Not Applicable' }}
                         </span>
                     </div>
 
                     <div style="margin-left: 20px; line-height: 1.21;">
                         (vi) Punishment(s) imposed (imprisonment / fine)
                         <span class="input-field input-field-large">
-                            {{ $nomination->convicted_details['punishment'] ?? 'N/A' }}
+                            {{ $nomination->convicted_details['punishment'] ?? 'Not Applicable' }}
                         </span>
                     </div>
 
                     <div style="margin-left: 20px; line-height: 1.21;">
                         (vii) Date(s) of release from prison
                         <span class="input-field input-field-medium">
-                            {{ $nomination->convicted_details['release_date'] ?? 'N/A' }}
+                            {{ $nomination->convicted_details['release_date'] ?? 'Not Applicable' }}
                         </span>
                     </div>
 
                     <div style="margin-left: 20px; line-height: 1.21;">
                         (viii) Whether any appeal(s)/revision(s) filed
                         <strong>
-                            {{ ucfirst($convicted_details['appeal_filed'] ?? 'N/A') }}
+                            {{ ucfirst($convicted_details['appeal_filed'] ?? 'Not Applicable') }}
                         </strong>
                     </div>
 
                     <div style="margin-left: 20px; line-height: 1.21;">
                         (ix) Date and particulars of appeal(s)/revision(s)
                         <span class="input-field input-field-large">
-                            {{ $nomination->convicted_details['appeal_details'] ?? 'N/A' }}
+                            {{ ucwords($nomination->convicted_details['appeal_details']) ?? 'Not Applicable' }}
                         </span>
                     </div>
 
                     <div style="margin-left: 20px; line-height: 1.21;">
                         (x) Name of the court(s) where appeal(s) filed
                         <span class="input-field input-field-medium">
-                            {{ $nomination->convicted_details['appeal_court'] ?? 'N/A' }}
+                            {{ ucwords($nomination->convicted_details['appeal_court']) ?? 'Not Applicable' }}
                         </span>
                     </div>
 
                     <div style="margin-left: 20px; line-height: 1.21;">
                         (xi) Whether appeal(s) disposed of or pending
                         <span class="input-field input-field-medium">
-                            {{ $nomination->convicted_details['appeal_status'] ?? 'N/A' }}
+                            {{ ucwords($nomination->convicted_details['appeal_status']) ?? 'Not Applicable' }}
                         </span>
                     </div>
 
@@ -775,14 +775,14 @@
                     <div style="margin-left: 60px; line-height: 1.21;">
                         (a) Date(s) of disposal
                         <span class="input-field input-field-medium">
-                            {{ $nomination->convicted_details['disposal_date'] ?? 'N/A' }}
+                            {{ $nomination->convicted_details['disposal_date'] ?? 'Not Applicable' }}
                         </span>
                     </div>
 
                     <div style="margin-left: 60px; line-height: 1.21;">
                         (b) Nature of order(s) passed
                         <span class="input-field input-field-medium">
-                            {{ $nomination->convicted_details['order_nature'] ?? 'N/A' }}
+                            {{ ucwords($nomination->convicted_details['order_nature']) ?? 'Not Applicable' }}
                         </span>
                     </div>
                 @else

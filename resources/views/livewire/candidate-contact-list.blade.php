@@ -644,7 +644,6 @@
                                 @enderror
                             </div>
 
-                            {{-- ðŸ”¹ Agent --}}
                             <div class="mb-3 col-md-12">
                                 <label class="form-label">Assemblies <span class="text-danger">*</span></label>
                                 <div wire:ignore>
@@ -836,8 +835,14 @@
             $('#uploadcandidateModal').modal('hide');
         });
 
-        Livewire.on('refreshChosen', () => {
-            $('.chosen-select').trigger('chosen:updated');
+        Livewire.on('refreshChosen', (value) => {
+
+            setTimeout(() => {
+                $('#assembly_id')
+                    .val(value)
+                    .trigger('chosen:updated');
+            }, 100);
+
         });
 
         window.addEventListener('refreshChosen', () => {

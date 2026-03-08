@@ -1964,20 +1964,23 @@
                                                 <td style="text-align: center; font-weight: bold; border-top: 0; border-right:0; border-bottom: 0"></td>
                                             </tr>
                                             @php
-                                                function govtDueTotal($dues, $holder){
-                                                    $total = collect($dues)
-                                                        ->where('holder', $holder)
-                                                        ->sum(function($row){
-                                                            return
-                                                                ($row['income_tax'] ?? 0) +
-                                                                ($row['gst'] ?? 0) +
-                                                                ($row['property_tax'] ?? 0) +
-                                                                ($row['other_dues'] ?? 0);
-                                                        });
+                                                function govtDueTotal($dues, $holder)
+                                                    {
+                                                        $total = collect($dues)
+                                                            ->where('holder', $holder)
+                                                            ->sum(function ($row) {
 
-                                                    // Return null if total is 0 so that Blade can show 'Not Applicable'
-                                                    return $total > 0 ? $total : null;
-                                                }
+                                                                return
+                                                                    (float) ($row['income_tax'] ?? 0) +
+                                                                    (float) ($row['gst'] ?? 0) +
+                                                                    (float) ($row['property_tax'] ?? 0) +
+                                                                    (float) ($row['other_dues'] ?? 0);
+
+                                                            });
+
+                                                        // Return null if total is 0 so Blade shows 'Not Applicable'
+                                                        return $total > 0 ? $total : null;
+                                                    }
                                                 @endphp
                                             
                                             <tr>
