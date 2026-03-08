@@ -843,10 +843,10 @@
 
                     $descriptionMap = [
                         'location' => 'location_survey_number',
-                        'area' => 'area',
+                        'area' => 'area_acres',
                         'inherited' => 'inherited',
                         'purchase_date' => 'purchase_date',
-                        'cost' => 'cost',
+                        'cost' => 'purchase_cost',
                         'investment' => 'investment',
                         'market_value' => 'market_value',
                         'builtup' => 'builtup_area'

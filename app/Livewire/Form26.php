@@ -200,12 +200,12 @@ class Form26 extends Component
 
             'agricultural' => [
                 'location_survey_number' => 'Location(s) Survey number(s)',
-                'area_acres' => 'Area (total measurement in acres)',
+                'area_sqft' => 'Area (total measurement in acres)',
                 'inherited' => 'Whether inherited property (Yes or No)',
                 'purchase_date' => 'Date of purchase in case of self - acquired property',
                 'purchase_cost' => 'Cost of Land (in case of purchase) at the time of purchase',
                 'investment' => 'Any Invest ment on the land by way of develop ment, construction etc.',
-                'market_value' => 'Approxi mate Current market value',
+                'market_value' => 'Approximate Current market value',
             ],
 
             'non_agricultural' => [
