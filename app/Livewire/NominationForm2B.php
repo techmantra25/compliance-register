@@ -264,6 +264,10 @@ class NominationForm2B extends Component
 
     public function save()
     {
+        if ($this->criminal_check === 'Yes') {
+            $this->dispatch('toastr:error', message: 'Candidate has criminal offense. Form submission is blocked.');
+            return;
+        }
         try {
             $this->validate();
             $data = [
