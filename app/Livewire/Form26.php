@@ -200,12 +200,12 @@ class Form26 extends Component
 
             'agricultural' => [
                 'location_survey_number' => 'Location(s) Survey number(s)',
-                'area_acres' => 'Area (total measurement in acres)',
+                'area_sqft' => 'Area (total measurement in acres)',
                 'inherited' => 'Whether inherited property (Yes or No)',
                 'purchase_date' => 'Date of purchase in case of self - acquired property',
                 'purchase_cost' => 'Cost of Land (in case of purchase) at the time of purchase',
                 'investment' => 'Any Invest ment on the land by way of develop ment, construction etc.',
-                'market_value' => 'Approxi mate Current market value',
+                'market_value' => 'Approximate Current market value',
             ],
 
             'non_agricultural' => [
@@ -501,6 +501,33 @@ class Form26 extends Component
         ];
     }
 
+    public function updateIncomeYears($index)
+    {
+        $year = $this->pan_details[$index]['last_filed_year'];
+
+        if (!$year) return;
+
+        $startYear = (int) substr($year, 0, 4);
+
+        $years = [];
+
+        for ($i = 0; $i < 5; $i++) {
+            $y = $startYear - $i;
+            $years[] = $y . '-' . substr($y + 1, -2);
+        }
+
+        $oldIncome = $this->pan_details[$index]['income'] ?? [];
+
+        $newIncome = [];
+
+        foreach ($years as $fy) {
+            $newIncome[$fy] = $oldIncome[$fy] ?? '';
+        }
+
+        // overwrite with only 5 correct years
+        $this->pan_details[$index]['income'] = $newIncome;
+    }
+
     public function removePanRow($index)
     {
         unset($this->pan_details[$index]);
@@ -533,18 +560,33 @@ class Form26 extends Component
         $panOnly = [];
         $incomeOnly = [];
 
-        foreach ($this->pan_details as $pan) {
-            $incomeOnly[] = [
-                'type' => $pan['type'] ?? null,
-                'name' => $pan['name'] ?? null,
-                'income' => $pan['income'] ?? [],
-            ];
+        foreach ($this->pan_details as $index => $row) {
+
+            $lastYear = $row['last_filed_year'];
+            $startYear = (int) substr($lastYear, 0, 4);
+
+            $validYears = [];
+
+            for ($i = 0; $i < 5; $i++) {
+                $y = $startYear - $i;
+                $validYears[] = $y . '-' . substr($y + 1, -2);
+            }
+
+            $filteredIncome = [];
+
+            foreach ($validYears as $fy) {
+                $filteredIncome[$fy] = $row['income'][$fy] ?? '';
+            }
 
             $panOnly[] = [
-                'type' => $pan['type'] ?? null,
-                'name' => $pan['name'] ?? null,
-                'pan' => $pan['pan'] ?? null,
-                'last_filed_year' => $pan['last_filed_year'] ?? null,
+                'type' => $row['type'],
+                'name' => $row['name'],
+                'pan' => $row['pan'],
+                'last_filed_year' => $row['last_filed_year'],
+            ];
+
+            $incomeOnly[] = [
+                'income' => $filteredIncome
             ];
         }
 

@@ -61,7 +61,7 @@ class CampaignCrud extends Component
         'event_category_id'  => 'required|integer',
         'address'            => 'required|string|max:255',
         'campaign_date'      => 'required|date',
-        'last_date_of_permission'      => 'nullable|date',
+        'last_date_of_permission' => 'nullable|date|before:campaign_date',
         'remarks'            => 'nullable|string',
     ];
     
@@ -73,6 +73,7 @@ class CampaignCrud extends Component
         'campaign_date.required'     => 'Campaign date & time is required.',
         'campaign_date.date'         => 'Please enter a valid campaign date.',
         'last_date_of_permission.date'         => 'Please enter a valid last permission date.',
+        'last_date_of_permission.before' => 'Last permission date must be before campaign date.',
         'permission_status.required' => 'Please select permission status.',
     ];
 
@@ -367,16 +368,16 @@ class CampaignCrud extends Component
                     $mobile = $row[1] ?? null;
                     $extra  = $row[2] ?? null;
 
-                    if (!preg_match('/^[0-9]{10}$/', $mobile)) {
-                        $errors[] = "Row $rowNumber: Mobile number '$mobile' must be exactly 10 digits.";
-                        continue;
-                    }
+                    // if (!preg_match('/^[0-9]{10}$/', $mobile)) {
+                    //     $errors[] = "Row $rowNumber: Mobile number '$mobile' must be exactly 10 digits.";
+                    //     continue;
+                    // }
 
                     // Check duplicate mobile
-                    if (Campaigner::where('mobile', $mobile)->exists()) {
-                        $errors[] = "Row $rowNumber: Mobile number '$mobile' already exists.";
-                        continue;
-                    }
+                    // if (Campaigner::where('mobile', $mobile)->exists()) {
+                    //     $errors[] = "Row $rowNumber: Mobile number '$mobile' already exists.";
+                    //     continue;
+                    // }
 
                     Campaigner::create([
                         'name'          => $name,

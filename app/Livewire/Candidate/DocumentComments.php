@@ -30,6 +30,15 @@ class DocumentComments extends Component
 
     public function UpdateDocStatus($status, $document){
         $CandidateDocument = CandidateDocument::where('candidate_id', $this->document->candidate_id)->where('type', $document)->orderByDesc('id')->first();
+        
+        if ($CandidateDocument->status !== 'Pending') {
+            $this->dispatch('statusLocked', [
+                'status' => $CandidateDocument->status
+            ]);
+
+            return;
+        }
+        
         $CandidateDocument->status = $status;
         $CandidateDocument->vetted_by = Auth::guard('admin')->id();
         $CandidateDocument->vetted_on = $status=="Approved"?now():null;

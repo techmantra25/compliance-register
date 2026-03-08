@@ -560,6 +560,12 @@
                                                             {{$doc['comments_count']}}
                                                             </span>
                                                         </a>
+                                                        @else
+                                                        <a href="javascript:void(0)"
+                                                        class="text-decoration-none position-relative text-secondary"
+                                                        title="View Comments">
+                                                            <i class="bi bi-chat-dots fs-5"></i>
+                                                        </a>
                                                         @endif
                                                     </div>
 

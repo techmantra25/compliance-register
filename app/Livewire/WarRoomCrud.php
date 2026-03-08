@@ -215,6 +215,11 @@ class WarRoomCrud extends Component
         ->when($this->search,function($q){
 
             $q->where('booth_area','like','%'.$this->search.'%')
+            ->orWhere('severity','like','%'.$this->search.'%')
+            ->orWhere('incident_description','like','%'.$this->search.'%')
+            ->orWhere('contact_number','like','%'.$this->search.'%')
+            ->orWhere('status','like','%'.$this->search.'%')
+            ->orWhere('war_code','like','%'.$this->search.'%')
             ->orWhere('reported_by','like','%'.$this->search.'%')
             ->orWhere('incident_type','like','%'.$this->search.'%');
 
@@ -222,7 +227,6 @@ class WarRoomCrud extends Component
         ->when($this->filter_by_assembly, function ($q) {
                 $q->where('assembly_id', $this->filter_by_assembly);
             })
-
         ->when($this->filter_by_status, function ($q) {
             $q->where('status', $this->filter_by_status);
         })

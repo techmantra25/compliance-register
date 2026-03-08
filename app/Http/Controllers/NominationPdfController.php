@@ -73,7 +73,7 @@ class NominationPdfController extends Controller
         $loans            = $loansAndDues['loans'] ?? [];
         $governmentDues   = $loansAndDues['government_dues'] ?? [];
 
-        $sourceOfIncomes  = json_decode($form->source_of_incomes, true) ?? [];
+        $source_of_incomes  = json_decode($form->source_of_incomes, true) ?? [];
         $education        = json_decode($form->highest_educational_qualification, true) ?? [];
 
         $persons = ['self','spouse','huf','dependent_1','dependent_2','dependent_3'];
@@ -89,7 +89,7 @@ class NominationPdfController extends Controller
                 'immovableAssets',
                 'loans',
                 'governmentDues',
-                'sourceOfIncomes',
+                'source_of_incomes',
                 'education',
                 'persons',
                 'phones',

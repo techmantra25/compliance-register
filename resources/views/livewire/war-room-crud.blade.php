@@ -24,7 +24,7 @@
                 <div class="card-header bg-white d-flex justify-content-end align-items-center">
                     <div class="d-flex align-items-center">
                         <div wire:ignore class="me-2">
-                            <select wire:model="filter_by_status" class="form-select">
+                            <select wire:model="filter_by_status" class="form-select chosen-select">
                                 <option value="">Filter by Status</option>
                                 <option value="pending">Pending</option>
                                 <option value="inprogress">Inprogress</option>

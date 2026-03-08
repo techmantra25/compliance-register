@@ -157,25 +157,7 @@
                 </div>
                 @endif
 
-            <div class="card shadow-sm mb-4">
-                <div class="card-header">
-                    <h6 class="mb-3">Legal Comments ({{ count($comments) }})</h6>
-                </div>
-                <div class="card-body chart-body">
-                    @forelse($comments as $comment)
-                        <div class="border-bottom py-2">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <strong>{{ $comment->admin->name ?? 'Unknown Admin' }}</strong>
-                                <small class="text-muted">{{ \Carbon\Carbon::parse($comment->created_at)->format('d M Y, h:i A') }}</small>
-                            </div>
-                            <div class="mt-1 text-secondary">{{ $comment->comment }}</div>
-                        </div>
-                    @empty
-                        <div class="text-center text-muted py-3">No comments yet.</div>
-                    @endforelse
-                </div>
-            </div>
-            @if($authUser->role =="legal_associate")
+                @if($authUser->role =="legal_associate")
                 <div class="card shadow-sm mb-4">
                     <div class="card-body">
 
@@ -238,6 +220,24 @@
                 </div>
                 @endif
 
+            <div class="card shadow-sm mb-4">
+                <div class="card-header">
+                    <h6 class="mb-3">Legal Comments ({{ count($comments) }})</h6>
+                </div>
+                <div class="card-body chart-body">
+                    @forelse($comments as $comment)
+                        <div class="border-bottom py-2">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <strong>{{ $comment->admin->name ?? 'Unknown Admin' }}</strong>
+                                <small class="text-muted">{{ \Carbon\Carbon::parse($comment->created_at)->format('d M Y, h:i A') }}</small>
+                            </div>
+                            <div class="mt-1 text-secondary">{{ $comment->comment }}</div>
+                        </div>
+                    @empty
+                        <div class="text-center text-muted py-3">No comments yet.</div>
+                    @endforelse
+                </div>
+            </div>
         </div>
     </div>
 
@@ -271,6 +271,19 @@
                     @this.call('UpdateDocStatus', value, document);
                 } 
             });
+        });
+
+        window.addEventListener('statusLocked', function (event) {
+
+            let status = event.detail[0].status;
+
+            Swal.fire({
+                icon: 'error',
+                title: 'Status Locked',
+                text: `This document is already ${status}. Status cannot be changed.`,
+                confirmButtonColor: '#d33'
+            });
+
         });
     </script>
     @endpush
