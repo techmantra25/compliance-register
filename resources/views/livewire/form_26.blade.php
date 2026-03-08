@@ -816,3 +816,24 @@
         </div>
     </div>
 </div>
+@push('scripts')
+
+<script>
+document.addEventListener("livewire:initialized", () => {
+
+    Livewire.hook('morph.updated', () => {
+
+        let firstError = document.querySelector('.text-danger');
+
+        if(firstError){
+            firstError.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center'
+            });
+        }
+
+    });
+
+});
+</script>
+@endpush
