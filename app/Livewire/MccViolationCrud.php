@@ -159,6 +159,7 @@ class MccViolationCrud extends Component
             ]);
             $this->dispatch('toastr:success', message: 'MCC created successfully!');
             $this->dispatch('closeModal', id: 'mccModal');
+            $this->dispatch('modelHide');
             $this->resetInputFields();
 
         } catch (\Exception $e) {
@@ -221,7 +222,8 @@ class MccViolationCrud extends Component
                 'user_agent' => request()->header('User-Agent'),
             ]);
             $this->dispatch('toastr:success', message: 'MCC updated successfully!');
-            $this->dispatch('closeModal', id: 'mccModal');
+            // $this->dispatch('closeModal', id: 'mccModal');
+            $this->dispatch('modelHide');
             $this->resetInputFields();
 
         } catch (\Exception $e) {

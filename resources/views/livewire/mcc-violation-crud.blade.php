@@ -525,7 +525,7 @@
             document.querySelectorAll('input, textarea, select').forEach(el => el.value = '');
         });
         document.addEventListener('modelHide', () => {
-            $('#campaignerModal').modal('hide');
+            $('#mccModal').modal('hide');
         });
 
     </script>
