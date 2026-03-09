@@ -166,10 +166,10 @@ class CampaignCrud extends Component
 
 
             $this->dispatch('toastr:success', message: 'Campaign updated successfully!');
-            // $this->dispatch('refreshChosen');
-            // $this->dispatch('resetField');
-            // $this->dispatch('modelHide');
-            return redirect()->route('admin.campaigns');
+            $this->dispatch('refreshChosen');
+            $this->dispatch('resetField');
+            $this->dispatch('modelHide');
+            // return redirect()->route('admin.campaigns');
 
         } catch (\Exception $e) {
             // dd($e->getMessage());
@@ -211,10 +211,10 @@ class CampaignCrud extends Component
             ]);
 
             $this->dispatch('toastr:success', message: 'Campaign created successfully!');
-            // $this->dispatch('refreshChosen');
-            // $this->dispatch('resetField');
-            // $this->dispatch('modelHide');
-            return redirect()->route('admin.campaigns');
+            $this->dispatch('refreshChosen');
+            $this->dispatch('resetField');
+            $this->dispatch('modelHide');
+            // return redirect()->route('admin.campaigns');
 
         } catch (\Exception $e) {
             // dd($e->getMessage());
@@ -420,10 +420,9 @@ class CampaignCrud extends Component
             return;
         }
 
-        $this->reset('campaignerFile');
-        session()->flash('success', 'Campaigners Imported Successfully!');
-
-        $this->dispatch('close-modal', ['modalId' => 'uploadcampaignerModal']);
+        $this->dispatch('toastr:success', message: 'Campaigners Imported Successfully!');
+        return redirect()->route('admin.campaigns');
+        
     }
 
 

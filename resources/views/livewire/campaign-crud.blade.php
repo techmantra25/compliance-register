@@ -32,11 +32,11 @@
                 </ol>
             </div>
             <div>
-                @if(childUserAccess(Auth::guard('admin')->user()->id,'campaign_import_campaigner'))
+                {{-- @if(childUserAccess(Auth::guard('admin')->user()->id,'campaign_import_campaigner'))
                 <button class="btn btn-secondary btn-sm me-2" data-bs-toggle="modal" data-bs-target="#uploadcampaignerModal">
                     <i class="bi bi-upload me-1"></i> Import Campaigner
                 </button>
-                @endif
+                @endif --}}
                 @if(childUserAccess(Auth::guard('admin')->user()->id,'campaign_add_campaign'))
                 <button class="btn btn-primary btn-sm" wire:click="openCampaignModal" data-bs-toggle="modal"
                     data-bs-target="#campaignModal">
@@ -129,189 +129,193 @@
 
                 <div class="card-body p-2">
                     <div class="table-responsive">
-                        <table class="table mb-0 align-middle">
+                        <table class="table align-middle">
+
                             <thead class="table-light">
-                                <tr>
-                                    <th>#</th>
-                                    <th>Campaigner</th>
-                                    <th>Assembly</th>
-                                    <th>Event Type</th>
-                                    <th>Date & Time</th>
+                                <tr class="text-center">
+                                    <th width="50">#</th>
+                                    <th class="text-start">Campaign Details</th>
+                                    <th class="text-start">Campaigner</th>
                                     <th>Permissions</th>
-                                    <th width="15%">
-                                            <i class="bi bi-flag me-1"></i> Campaign Status
-                                    </th>
-                                    <th>Action</th>
+                                    <th width="160">Status</th>
+                                    <th width="120">Action</th>
                                 </tr>
                             </thead>
 
                             <tbody>
+
                                 @forelse($campaigns as $index => $camp)
-                                <tr class="text-center" wire:key="item-{{$index}}">
+
+                                <tr wire:key="item-{{$index}}">
 
                                     <!-- SL -->
-                                    <td class="fw-bold text-dark">
+                                    <td class="text-center fw-bold">
                                         {{ $campaigns->firstItem() + $index }}
                                     </td>
 
-                                    <!-- Campaigner -->
-                                    <td class="text-start">
-                                    @foreach($camp->campaigners as $campaigner)
-                                        <div class="fw-semibold">
-                                            {{ ucwords($campaigner->name) }}
-                                        </div>
-                                        <div class="text-muted small">
-                                            <i class="bi bi-telephone"></i> {{ $campaigner->mobile }}
-                                        </div>
-                                    @endforeach
-                                        <div class="small">{{ ucwords($camp->address) }}</div>
-                                    </td>
 
-                                    <!-- Assembly -->
+                                    <!-- Campaign Details -->
                                     <td class="text-start">
-                                        <div class="fw-semibold">{{ ucwords(optional($camp->assembly)->assembly_name_en ?? '_') }}</div>
-                                        <div class="text-muted small">Code: {{ optional($camp->assembly)->assembly_code ?? '-' }}</div>
-                                        <div class="small text-primary">
-                                            ({{ ucwords(optional(optional(optional($camp->assembly)->assemblyPhase)->phase)->name ?? 'N/A') }})
+
+                                        <div class="fw-semibold text-dark mb-1">
+                                            <i class="bi bi-megaphone text-primary me-1"></i>
+                                            {{ ucwords(optional($camp->category)->name) ?? '-' }}
                                         </div>
-                                    </td>
 
-                                    <!-- Event Type -->
-                                    <td class="fw-semibold">
-                                        {{ ucwords(optional($camp->category)->name) ?? '-' }}
-                                    </td>
+                                        <div class="small text-muted mb-1">
+                                            <i class="bi bi-geo-alt text-danger"></i>
+                                            {{ ucwords(optional($camp->assembly)->assembly_name_en ?? '-') }}
+                                        </div>
 
-                                    <!-- Dates -->
-                                    <td class="text-start">
-                                        <div class="mb-1">
-                                            <i class="bi bi-calendar-event text-primary me-1"></i>
-                                            <strong>Campaign:</strong>
+                                        <div class="small text-muted">
+
+                                            <i class="bi bi-calendar-event text-success me-1"></i>
+
                                             {{ date('d M Y, h:i A', strtotime($camp->campaign_date)) }}
+
                                         </div>
-                                        <div>
-                                            <i class="bi bi-calendar-check text-danger me-1"></i>
-                                            <strong>Last Permission:</strong>
-                                            {{ date('d M Y, h:i A', strtotime($camp->last_date_of_permission)) }}
+
+                                        <div class="small text-secondary">
+
+                                            Permission Last Date:
+
+                                            <strong>
+                                                {{ date('d M Y', strtotime($camp->last_date_of_permission)) }}
+                                            </strong>
+
                                         </div>
+
                                     </td>
 
-                                    <!-- Permission Count -->
-                                    @php
-                                        $required = $camp->category->permissions->count();
 
-                                        $approved = $camp->permissions
-                                            ->where('doc_type', 'approved_copy')
-                                            ->count();
+
+                                    <!-- Campaigner -->
+                                    <td>
+
+                                        @foreach($camp->campaigners as $campaigner)
+
+                                        <div class="d-flex align-items-center mb-2">
+
+                                            {{-- <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-2"
+                                                style="width:34px;height:34px;font-size:13px;font-weight:600">
+
+                                                {{ strtoupper(substr($campaigner->name,0,1)) }}
+
+                                            </div> --}}
+
+                                            <div>
+
+                                                <div class="fw-semibold">
+                                                    {{ ucwords($campaigner->name) }}
+                                                </div>
+
+                                                <div class="small text-muted">
+                                                    <i class="bi bi-telephone"></i>
+                                                    {{ $campaigner->mobile }}
+                                                </div>
+
+                                            </div>
+
+                                        </div>
+
+                                        @endforeach
+
+                                    </td>
+
+
+                                    <!-- Permissions -->
+                                    @php
+                                    $required = $camp->category->permissions->count();
+                                    $approved = $camp->permissions->where('doc_type','approved_copy')->count();
                                     @endphp
 
-                                    <td>
-                                        <span class="badge {{ $approved == $required ? 'bg-success' : 'bg-warning text-dark' }}">
+                                    <td class="text-center">
+
+                                        <div class="progress" style="height:7px">
+
+                                            <div class="progress-bar
+                    {{ $approved == $required ? 'bg-success' : 'bg-warning' }}"
+                                                style="width:{{ $required ? ($approved/$required)*100 : 0 }}%">
+                                            </div>
+
+                                        </div>
+
+                                        <div class="small fw-semibold mt-1">
                                             {{ $approved }}/{{ $required }}
-                                        </span>
+                                        </div>
+
                                     </td>
+
+
 
                                     <!-- Status -->
-                                   @if(childUserAccess(Auth::guard('admin')->user()->id,'campaign_campaign_status'))
                                     <td class="text-center">
 
-                                        @php
-                                                $current = $camp->status;
+                                        <select wire:change="statusChanged({{ $camp->id }}, $event.target.value)"
+                                            class="form-select form-select-sm rounded-pill fw-semibold text-center">
 
-                                                $rules = [
-                                                    'pending' => ['pending','rescheduled','cancelled','completed'],
-                                                    'rescheduled' => ['rescheduled','cancelled','completed'],
-                                                    'cancelled' => ['cancelled','completed'],
-                                                    'completed' => ['completed'],
-                                                ];
-                                                @endphp
+                                            <option value="pending" @selected($camp->status=='pending')>
+                                                ⏳ Pending
+                                            </option>
 
-                                        <div class="d-inline-block">
-                                            <select wire:change="statusChanged({{ $camp->id }}, $event.target.value)"
-                                                    class="form-select form-select-sm shadow-sm border-0 rounded-pill px-3 text-center fw-semibold status-dropdown"
-                                                    style="min-width:150px;"
-                                                >
+                                            <option value="rescheduled" @selected($camp->status=='rescheduled')>
+                                                🔄 Rescheduled
+                                            </option>
 
-                                                <option value="pending" 
-                                                    @selected($camp->status == 'pending')>
-                                                    ⏳ Pending
-                                                </option>
+                                            <option value="cancelled" @selected($camp->status=='cancelled')>
+                                                ❌ Cancelled
+                                            </option>
 
-                                                <option value="rescheduled" 
-                                                    @selected($camp->status == 'rescheduled')>
-                                                    🔄 Rescheduled
-                                                </option>
+                                            <option value="completed" @selected($camp->status=='completed')>
+                                                ✅ Completed
+                                            </option>
 
-                                                <option value="cancelled" 
-                                                    @selected($camp->status == 'cancelled')>
-                                                    ❌ Cancelled
-                                                </option>
-
-                                                <option value="completed" 
-                                                    @selected($camp->status == 'completed')>
-                                                    ✅ Completed
-                                                </option>
-                                            </select>
-                                        </div>
-
-                                        {{-- Status Meta Information --}}
-                                        @if($camp->status == 'rescheduled' && $camp->rescheduled_at)
-                                            <div class="alert alert-primary mt-2 py-1 px-2 small text-start shadow-sm rounded">
-                                                <i class="bi bi-clock-history me-1"></i>
-                                                Rescheduled On:
-                                                <strong>{{ date('d M Y, h:i A', strtotime($camp->rescheduled_at)) }}</strong>
-                                            </div>
-                                        @endif
-
-                                        @if($camp->status == 'cancelled' && $camp->cancelled_remarks)
-                                            <div class="alert alert-danger mt-2 py-1 px-2 small text-start shadow-sm rounded">
-                                                <i class="bi bi-x-circle me-1"></i>
-                                                {{ ucwords($camp->cancelled_remarks) }}
-                                            </div>
-                                        @endif
+                                        </select>
 
                                     </td>
-                                    @endif
 
 
-                                    <!-- Actions -->
+
+                                    <!-- Action -->
                                     <td class="text-center">
-                                        <div class="btn-group">
 
-                                            <!-- Edit -->
-                                            @if(childUserAccess(Auth::guard('admin')->user()->id,'campaign_update_campaign'))
-                                            <div class="tooltip-wrapper">
-                                                <button class="btn btn-sm btn-outline-primary"
-                                                    wire:click="edit({{ $camp->id }})"
-                                                    data-bs-toggle="modal" data-bs-target="#campaignModal">
-                                                    <i class="bi bi-pencil"></i>
-                                                </button>
-                                                <span class="tooltip-text">Edit Campaign</span>
-                                            </div>
-                                            @endif
+                                        <div class="btn-group btn-group-sm">
 
-                                            <!-- Permission -->
-                                            @if(childUserAccess(Auth::guard('admin')->user()->id,'campaign_campaign_permission'))
-                                            <div class="tooltip-wrapper">
-                                                <a href="{{ route('admin.campaigns.permission', $camp->id) }}"
-                                                    class="btn btn-sm btn-outline-success">
-                                                    <i class="bi bi-file-earmark-arrow-up"></i>
-                                                </a>
-                                                <span class="tooltip-text">View Permissions</span>
-                                            </div>
-                                            @endif
+                                            <button class="btn btn-outline-primary" wire:click="edit({{ $camp->id }})"
+                                                data-bs-toggle="modal" data-bs-target="#campaignModal">
+
+                                                <i class="bi bi-pencil"></i>
+
+                                            </button>
+
+
+                                            <a href="{{ route('admin.campaigns.permission',$camp->id) }}"
+                                                class="btn btn-outline-success">
+
+                                                <i class="bi bi-file-earmark-check"></i>
+
+                                            </a>
 
                                         </div>
+
                                     </td>
+
 
                                 </tr>
+
                                 @empty
+
                                 <tr>
-                                    <td colspan="8" class="text-center text-muted py-4">
-                                        <i class="bi bi-info-circle"></i> No campaigns found
+                                    <td colspan="6" class="text-center text-muted py-4">
+                                        <i class="bi bi-info-circle"></i>
+                                        No campaigns found
                                     </td>
                                 </tr>
+
                                 @endforelse
+
                             </tbody>
+
                         </table>
                     </div>
                 </div>
@@ -542,8 +546,9 @@
     </div>
     @push('scripts')
     <link rel="stylesheet" href="{{ asset('assets/css/component-chosen.css') }}">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    
     <script src="{{ asset('assets/js/chosen.jquery.js') }}"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script> -->
         <script>
             window.addEventListener('toastr:error', e => toastr.error(e.detail.message));
             window.addEventListener('toastr:success', e => toastr.success(e.detail.message));
@@ -600,16 +605,11 @@
             document.querySelectorAll('input, textarea, select').forEach(el => el.value = '');
         });
         document.addEventListener('modelHide', () => {
+            $('#uploadcampaignerModal').modal('hide');
             $('#campaignerModal').modal('hide');
+            $('#campaignModal').modal('hide');
         });
 
-    </script>
-    <script>
-        window.addEventListener('close-modal', event => {
-            let modalId = event.detail.modalId;
-            let modal = bootstrap.Modal.getInstance(document.getElementById(modalId));
-            modal.hide();
-        });
     </script>
     <script>
         document.addEventListener('livewire:init', function () {

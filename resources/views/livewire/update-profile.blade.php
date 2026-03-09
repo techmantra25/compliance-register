@@ -43,9 +43,12 @@
                 <label class="form-label">Role</label>
                 <select class="form-control" wire:model.defer="role">
                     <option value="">Select Role</option>
-                    <option value="admin">Admin</option>
-                    <option value="employee">Employee</option>
-                    <option value="legal_associate">Legal Associate</option>
+                    @if($role=="legal_associate")
+                        <option value="legal_associate">Legal Associate</option>
+                    @else
+                        <option value="admin">Admin</option>
+                        <option value="employee">Employee</option>
+                    @endif
                 </select>
                 @error('role') <small class="text-danger">{{ $message }}</small> @enderror
             </div>
