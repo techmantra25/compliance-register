@@ -24,6 +24,7 @@ use App\Livewire\{
     PermissionCampaignCrud,
     ForgetPassword,
     UpdateProfile,
+    ChangePassword,
     NotificationList,
     RolePermissions,
     StarCampaignerCrud,
@@ -95,6 +96,7 @@ Route::get('/forget/password',ForgetPassword::class)->name('forget.password');
 Route::prefix('/admin')->middleware('auth:admin')->group(function () {
     Route::get('/dashboard', AdminDashboard::class)->name('admin.dashboard')->middleware('employee.permission:view_dashboard');
     Route::get('/update/profile', UpdateProfile::class)->name('admin.update.profile');
+    Route::get('/change-password', ChangePassword::class)->name('admin.change.password');
     Route::get('/notifications', NotificationList::class)->name('admin.notifications');
     Route::get('phase/{phaseId}/district', PhaseWiseDistrict::class)->name('admin.phasewise.district');
     Route::get('phase/{phaseId}/mcc', PhaseWiseMcc::class)->name('admin.phasewise.mcc');

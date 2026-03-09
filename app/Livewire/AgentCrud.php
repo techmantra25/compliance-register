@@ -304,8 +304,11 @@ class AgentCrud extends Component
             $this->area = $agent->area;
         }
         
-         $this->dispatch('agent-edit-loaded', ['type' => $this->agent_type]);
-            $this->dispatch('refreshChosen');
+        //  $this->dispatch('agent-edit-loaded', ['type' => $this->agent_type]);
+        //     $this->dispatch('refreshChosen');
+
+        $this->dispatch('agent-edit-loaded', type: $this->agent_type);
+        $this->dispatch('refreshChosen');
 
     }
 

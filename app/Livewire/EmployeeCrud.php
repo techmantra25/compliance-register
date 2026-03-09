@@ -10,6 +10,9 @@ use App\Models\ChangeLog;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\EmployeeLoginMail;
 
 class EmployeeCrud extends Component
 {
@@ -24,7 +27,6 @@ class EmployeeCrud extends Component
         'mobile' => 'nullable|string|max:20',
         'role' => 'required|string',
         'zone_id'   => 'required|exists:zones,id',
-        'password' => 'required|min:6',
     ];
     public function resetInputFields()
     {
@@ -48,15 +50,21 @@ class EmployeeCrud extends Component
         // dd($this->all());
         $this->validate();
 
+        $password = Str::random(10);
+
        $employee = Admin::create([
             'name' => $this->name,
             'email' => $this->email,
             'mobile' => $this->mobile,
             'role' => $this->role,
             'zone_id' => $this->zone_id,
-            'password' => Hash::make($this->password),
+            'password' => Hash::make($password),
             'suspended_status' => 1,
         ]);
+
+        Mail::to($employee->email)->send(
+            new EmployeeLoginMail($employee, $password)
+        );
 
         ChangeLog::create([
             'module_name'  => 'create_employee',
@@ -84,7 +92,6 @@ class EmployeeCrud extends Component
         $this->mobile = $admin->mobile;
         $this->role = $admin->role;
         $this->zone_id = $admin->zone_id;
-        $this->password = '';
         $this->isEdit = true;
     }
 
@@ -92,7 +99,6 @@ class EmployeeCrud extends Component
     {
         $rules = $this->rules;
         $rules['email'] = 'required|email|unique:admins,email,' . $this->admin_id;
-        if (!$this->password) unset($rules['password']);
 
         $this->validate($rules);
 
@@ -105,9 +111,6 @@ class EmployeeCrud extends Component
             'zone_id' => $this->zone_id,
             'role' => $this->role,
         ];
-        if ($this->password) {
-            $data['password'] = Hash::make($this->password);
-        }
 
         $admin->update($data);
 

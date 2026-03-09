@@ -32,6 +32,7 @@ class MccViolationCrud extends Component
 
     public $legalAssociates = [];
     public $attachment;
+    public $viewMcc;
 
     protected $paginationTheme = "bootstrap";
 
@@ -265,6 +266,13 @@ class MccViolationCrud extends Component
     public function resetForm(){
         $this->reset(['mccFile']);
         session()->forget(['success', 'error']);
+    }
+
+    public function view($id)
+    {
+        $this->viewMcc = Mcc::with(['assembly','legalAssociate'])->findOrFail($id);
+
+        $this->dispatch('open-view-modal');
     }
 
     public function saveMcc()

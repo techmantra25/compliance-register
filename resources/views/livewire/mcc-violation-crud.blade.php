@@ -180,6 +180,16 @@
                                             </div>
                                             @endif --}}
 
+                                            <div class="btn-group m-1">
+                                                <div class="tooltip-wrapper">
+                                                    <button class="btn btn-sm btn-outline-success"
+                                                        wire:click="view({{ $item->id }})">
+                                                        <i class="bi bi-eye"></i>
+                                                    </button>
+                                                    <span class="tooltip-text">View Details</span>
+                                                </div>
+                                            </div>
+
 
                                             <div class="btn-group m-1">
                                                 <div class="tooltip-wrapper">
@@ -419,6 +429,86 @@
             </div>
         </div>
 
+        {{-- view modal --}}
+        <div wire:ignore.self class="modal fade" id="viewMccModal" tabindex="-1">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content shadow">
+
+                    <div class="modal-header bg-primary text-white">
+                        <h5 class="modal-title">MCC Details</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+
+                    <div class="modal-body">
+
+                        @if($viewMcc)
+
+                        <div class="row g-3">
+
+                            <div class="col-md-6">
+                                <strong class="text-primary">MCC Code:</strong>
+                                <div>{{ $viewMcc->mcc_code }}</div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <strong class="text-primary">Assembly:</strong>
+                                <div>{{ $viewMcc->assembly->assembly_name_en ?? 'N/A' }}</div>
+                                <div class="text-muted small">District: {{ optional(optional($item->assembly)->district)->name_en }}</div>
+                                <div class="small">
+                                    {{ ucwords(optional(optional(optional($item->assembly)->assemblyPhase)->phase)->name ?? 'N/A') }}
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <strong class="text-primary">Category:</strong>
+                                <div>{{ $viewMcc->category }}</div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <strong class="text-primary">Block:</strong>
+                                <div>{{ $viewMcc->block }}</div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <strong class="text-primary">GP:</strong>
+                                <div>{{ $viewMcc->gp }}</div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <strong class="text-primary">Complainer Detail</strong>
+                                <div>{{ $viewMcc->complainer_name }}</div>
+                                <div>Phone: {{ $viewMcc->complainer_phone }}</div>
+                            </div>
+
+                            <div class="col-md-12">
+                                <strong class="text-primary">Description:</strong>
+                                <div>{{ $viewMcc->complainer_description }}</div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <strong class="text-primary">Assigned To:</strong>
+                                <div>{{ $viewMcc->legalAssociate->name ?? 'N/A' }}</div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <strong class="text-primary">Date:</strong>
+                                <div>{{ $viewMcc->created_at->format('d-m-Y h:i A') }}</div>
+                            </div>
+
+                        </div>
+
+                        @endif
+
+                    </div>
+
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
         <div class="loader-container" wire:loading wire:target="save,openCampaignModal,edit">
             <div class="loader"></div>
         </div>
@@ -512,6 +602,9 @@
             });
             window.addEventListener('open-mcc-modal', () => {
                 $("#mccModal").modal('show');
+            });
+            window.addEventListener('open-view-modal', () => {
+                $("#viewMccModal").modal('show');
             });
         </script>
 

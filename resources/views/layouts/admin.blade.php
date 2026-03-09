@@ -313,6 +313,13 @@
                             <a class="dropdown-item" href="{{route('admin.update.profile')}}">{{ __('admin/sidebar.profile') }}</a>
                         </li>
                         <li>
+                            <a class="dropdown-item" href="{{ route('admin.change.password') }}">
+                                Change Password
+                            </a>
+                        </li>
+
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
                             <form method="POST" action="{{ route('admin.logout') }}">
                                 @csrf
                                 <button type="submit" class="dropdown-item">{{ __('admin/sidebar.logout') }}</button>

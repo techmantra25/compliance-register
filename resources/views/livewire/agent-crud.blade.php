@@ -84,7 +84,7 @@
                                         </button>
                                         @if(childUserAccess(Auth::guard('admin')->user()->id,'contact_update_contact'))
                                         <button class="btn btn-sm btn-outline-primary"
-                                            wire:click="edit({{ $agent->id }})" data-bs-toggle="modal"
+                                            wire:click.prevent="edit({{ $agent->id }})" data-bs-toggle="modal"
                                             data-bs-target="#agentModal">
                                             <i class="bi bi-pencil"></i>
                                         </button>
@@ -567,15 +567,10 @@
             // Reinitialize Chosen when modal is shown
             $('#agentModal').on('shown.bs.modal', function () {
                 setTimeout(() => {
-                    $('.chosen-select').chosen('destroy');
-                   initChosen();
-                    // const assemblyId = @this.get('assemblies_id');
-                    // if (assemblyId) {
-                    //     $('#assemblies_id').val(assemblyId).trigger('chosen:updated');
-                    // }
-                    
-                    // Restore the visible fields after Chosen reinitializes
-                    toggleCategoryFields();
+                    const assemblyId = @this.get('assemblies_id');
+                    if (assemblyId) {
+                        $('#assemblies_id').val(assemblyId).trigger('chosen:updated');
+                    }
                 }, 200);
             });
 
@@ -636,16 +631,6 @@
                 });
             });
 
-    </script>
-    <script>
-        document.addEventListener('livewire:init', () => {
-            Livewire.on('ResetFormData', () => {
-                // Clear all category-specific visible inputs (if needed)
-                document.querySelectorAll('[data-category-field]').forEach(el => {
-                    el.value = '';
-                });
-            });
-        });
     </script>
     <script>
         window.addEventListener('showConfirm', function (event) {

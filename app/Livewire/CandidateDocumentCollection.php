@@ -281,9 +281,10 @@ class CandidateDocumentCollection extends Component
     {
         $this->validate([
             'acknowledgment_file' => 'required|mimes:pdf,doc,docx,jpg,jpeg,png,webp|max:5120',
-            'final_submission_confirmation' => 'required|date',
-        ]);
-
+              'final_submission_confirmation' => 'required|date|before_or_equal:today',
+            ],[
+                'final_submission_confirmation.before_or_equal' => 'Final submission confirmation date cannot be a future date.',
+            ]);
         $timestamp = now()->format('Ymd_His');
         $ext = $this->acknowledgment_file->getClientOriginalExtension();
         $filename = "ack_{$this->candidateId}_{$timestamp}.{$ext}";
