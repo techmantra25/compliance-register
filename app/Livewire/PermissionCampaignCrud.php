@@ -18,7 +18,7 @@ class PermissionCampaignCrud extends Component
 
     public function mount($campaign_id)
     {
-        $this->camp = Campaign::with(['campaigner','assembly.assemblyPhase.phase','category'])
+        $this->camp = Campaign::with(['campaigners','assembly.assemblyPhase.phase','category'])
                         ->findOrFail($campaign_id);
 
         $this->requiredPermissions = EventRequiredPermission::where('category_id', $this->camp->event_category_id)

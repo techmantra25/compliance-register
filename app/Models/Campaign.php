@@ -14,9 +14,20 @@ class Campaign extends Model
     ];
 
 
-    public function campaigner(){
-        return $this->belongsTo(Campaigner::class, 'campaigner_id', 'id');
+    // public function campaigner(){
+    //     return $this->belongsTo(Campaigner::class, 'campaigner_id', 'id');
+    // }
+
+    public function campaigners()
+    {
+        return $this->belongsToMany(
+            Campaigner::class,
+            'event_campaigners',
+            'campaign_id',
+            'campaigner_id'
+        )->withTimestamps();
     }
+
     public function assembly(){
         return $this->belongsTo(Assembly::class, 'assembly_id', 'id');
     }

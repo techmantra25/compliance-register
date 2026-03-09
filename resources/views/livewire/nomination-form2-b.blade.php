@@ -67,7 +67,7 @@
 
     @if($criminal_check === 'Yes')
         <div class="alert alert-danger text-center fw-bold">
-            Candidate has criminal offense. Please contact upper level manager.
+            The candidate has a criminal offense record. Please contact the upper-level officer for further action.
         </div>
     @endif
 

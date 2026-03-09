@@ -28,8 +28,9 @@
                                     <label for="password" class="form-label">Password <span class="text-danger">*</span></label>
                                     <div class="input-group">
                                         <input wire:model.defer="password" type="password" id="password" class="form-control" placeholder="Enter password">
-                                        <span class="input-group-text bg-transparent">
-                                            <i class="bi bi-eye"></i>
+
+                                        <span class="input-group-text bg-transparent" style="cursor:pointer;" onclick="togglePassword()">
+                                            <i class="bi bi-eye" id="toggleIcon"></i>
                                         </span>
                                     </div>
                                     @error('password') <small class="text-danger">{{ $message }}</small> @enderror
@@ -66,4 +67,18 @@
             });
         </script>
     @endpush
+    <script>
+        function togglePassword() {
+            let passwordField = document.getElementById("password");
+            let icon = document.getElementById("toggleIcon");
+
+            if (passwordField.type === "password") {
+                passwordField.type = "text";
+                icon.classList.replace("bi-eye","bi-eye-slash");
+            } else {
+                passwordField.type = "password";
+                icon.classList.replace("bi-eye-slash","bi-eye");
+            }
+        }
+    </script>
 </div>

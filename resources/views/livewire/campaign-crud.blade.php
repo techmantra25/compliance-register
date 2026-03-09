@@ -156,8 +156,14 @@
 
                                     <!-- Campaigner -->
                                     <td class="text-start">
-                                        <div class="fw-semibold">{{ ucwords(optional($camp->campaigner)->name) }}</div>
-                                        <div class="text-muted small"><i class="bi bi-telephone"></i> {{ optional($camp->campaigner)->mobile }}</div>
+                                    @foreach($camp->campaigners as $campaigner)
+                                        <div class="fw-semibold">
+                                            {{ ucwords($campaigner->name) }}
+                                        </div>
+                                        <div class="text-muted small">
+                                            <i class="bi bi-telephone"></i> {{ $campaigner->mobile }}
+                                        </div>
+                                    @endforeach
                                         <div class="small">{{ ucwords($camp->address) }}</div>
                                     </td>
 
@@ -190,15 +196,34 @@
                                     </td>
 
                                     <!-- Permission Count -->
+                                    @php
+                                        $required = $camp->category->permissions->count();
+
+                                        $approved = $camp->permissions
+                                            ->where('doc_type', 'approved_copy')
+                                            ->count();
+                                    @endphp
+
                                     <td>
-                                        <span class="badge bg-danger">  
-                                            {{ $camp->category->permissions->count() ?? 0 }} Required
+                                        <span class="badge {{ $approved == $required ? 'bg-success' : 'bg-warning text-dark' }}">
+                                            {{ $approved }}/{{ $required }}
                                         </span>
                                     </td>
 
                                     <!-- Status -->
                                    @if(childUserAccess(Auth::guard('admin')->user()->id,'campaign_campaign_status'))
                                     <td class="text-center">
+
+                                        @php
+                                                $current = $camp->status;
+
+                                                $rules = [
+                                                    'pending' => ['pending','rescheduled','cancelled','completed'],
+                                                    'rescheduled' => ['rescheduled','cancelled','completed'],
+                                                    'cancelled' => ['cancelled','completed'],
+                                                    'completed' => ['completed'],
+                                                ];
+                                                @endphp
 
                                         <div class="d-inline-block">
                                             <select wire:change="statusChanged({{ $camp->id }}, $event.target.value)"
@@ -410,14 +435,19 @@
                                     @error('last_date_of_permission') <small class="text-danger">{{ $message }}</small> @enderror
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label">Event Campaigner</label>
-                                    <select class="form-control" wire:model="campaigner_id">
-                                        <option value="">Select Campaigner</option>
-                                        @foreach($campaigners as $camp)
-                                            <option value="{{ $camp->id }}">{{ ucwords($camp->name) }}({{$camp->mobile}})</option>
-                                        @endforeach
-                                    </select>
-                                    @error('campaigner_id') <small class="text-danger">{{ $message }}</small> @enderror
+                                    <div wire:ignore>
+                                        <select class="form-control chosen-select" multiple wire:model="campaigner_ids">
+                                            @foreach($campaigners as $camp)
+                                                <option value="{{ $camp->id }}">
+                                                    {{ ucwords($camp->name) }} ({{ $camp->mobile }})
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                        </div>
+
+                                        @error('campaigner_ids')
+                                        <small class="text-danger">{{ $message }}</small>
+                                        @enderror
                                 </div>
 
                                 <!-- Remarks -->
