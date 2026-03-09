@@ -49,228 +49,234 @@
         </div>
     </div>
     <div class="d-flex flex-wrap justify-content-between align-items-start mb-3">
-        <div class="col-md-7">
-            <div class="card shadow-sm border-0 p-3">
-                <table class="table table-sm table-borderless w-auto mb-0">
-                    <tbody>
-                        <tr>
-                            
-                            <th class="text-nowrap pe-3">Candidate Name</th>
-                            <td>: {{ ucwords($candidateName) ?? 'N/A' }}</td>
-                        </tr>
-                        <tr>
-                            <th class="text-nowrap pe-3">Assembly Name & No</th>
-                            <td>: {{ $assemblyName ?? 'N/A' }}</td>
-                        </tr>
-                        <tr>
-                            <th class="text-nowrap pe-3 align-top">Agent Details</th>
-                            <td>
-                                @if($candidateData->agents && $candidateData->agents->count() > 0)
-                                    <ul class="mb-0 ps-1">
-                                        @foreach($candidateData->agents as $agent)
-                                            <li>
-                                                <strong>{{ ucwords($agent->name) }}</strong>
-                                                — {{ $agent->contact_number ?? 'N/A' }}
-                                                @if(!empty($agent->contact_number_alt_1))
-                                                    , {{ $agent->contact_number_alt_1 }}
+        <div class="col-md-12">
+            <div class="card shadow-sm border-0 p-3 mb-3 mx-1">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class=" border-0 p-3">
+                            <table class="table table-sm table-borderless w-auto mb-0">
+                                <tbody>
+                                    <tr>
+                                        <th class="text-nowrap pe-3">Candidate Name</th>
+                                        <td>: {{ ucwords($candidateName) ?? 'N/A' }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th class="text-nowrap pe-3">Assembly Name & No</th>
+                                        <td>: {{ $assemblyName ?? 'N/A' }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th class="text-nowrap pe-3 align-top">Agent Details</th>
+                                        <td>
+                                            @if($candidateData->agents && $candidateData->agents->count() > 0)
+                                                <ul class="mb-0 ps-0">
+                                                    @foreach($candidateData->agents as $agent)
+                                                        <li>
+                                                            : <strong>{{ ucwords($agent->name) }}</strong>
+                                                            — {{ $agent->contact_number ?? 'N/A' }}
+                                                            @if(!empty($agent->contact_number_alt_1))
+                                                                , {{ $agent->contact_number_alt_1 }}
+                                                            @endif
+                                                        </li>
+                                                    @endforeach
+                                                </ul>
+                                            @else
+                                                : N/A
+                                            @endif
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th class="text-nowrap pe-3">Phase</th>
+                                        <td>: {{ $phase ?? 'N/A' }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th class="text-nowrap pe-3">Last Date of Nomination form Submission</th>
+                                        <td>
+                                            : {{ $nomination_date
+                                                ? \Carbon\Carbon::parse($nomination_date)->format('d M Y')
+                                                : 'N/A' }}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th class="text-nowrap pe-3">Final Status</th>
+                                        <td>
+                                            : {{ getFinalDocStatus($candidateData->document_collection_status, 'icon') }}
+                                            {{ getFinalDocStatus($candidateData->document_collection_status, 'label') }}
+                                        </td>
+                                    </tr>
+                                    @if($candidateData->is_special_case == 1)
+                                        <tr>
+                                            <th class="text-nowrap pe-3 align-top">Special Case Details</th>
+                                            <td>
+                                                <div class="border border-danger rounded p-3 bg-light shadow-sm">
+
+                                                    <!-- Label -->
+                                                    <div class="mb-1">
+                                                        <span class="badge bg-danger px-3 py-2 fs-6">
+                                                            <i class="bi bi-exclamation-diamond me-1"></i>
+                                                            {{ $candidateData->special_case_label ?? 'Special Case' }}
+                                                        </span>
+                                                    </div>
+
+                                                    <!-- Remarks -->
+                                                    @if($candidateData->clone_remarks)
+                                                    <div class="mt-2 text-muted small">
+                                                        <i class="bi bi-chat-left-quote me-1"></i>
+                                                        <strong>Remarks:</strong>
+                                                        <span class="ms-1">{{ $candidateData->clone_remarks }}</span>
+                                                    </div>
+                                                    @endif
+
+                                                    <!-- Clone Meta Info -->
+                                                    <div class="mt-2 text-muted small">
+
+                                                        @if($candidateData->clonedBy)
+                                                        <div>
+                                                            <i class="bi bi-person-check me-1"></i>
+                                                            <strong>Created By:</strong>
+                                                            {{ $candidateData->clonedBy->name }}
+                                                        </div>
+                                                        @endif
+
+                                                        @if($candidateData->cloned_at)
+                                                        <div>
+                                                            <i class="bi bi-clock-history me-1"></i>
+                                                            <strong>Created At:</strong>
+                                                            {{ \Carbon\Carbon::parse($candidateData->cloned_at)->format('d M Y, h:i A') }}
+                                                        </div>
+                                                        @endif
+                                                    </div>
+
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        @endif
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        @if($candidateData->document_collection_status=="verified_pending_submission" || $candidateData->document_collection_status=="verified_submitted_with_copy")
+                            <div class=" border-0 mb-3">
+                                <div class="card-body">
+
+                                    @if($acknowledgmentCopies)
+
+                                        <div class="border rounded p-3 mb-2 shadow-sm bg-light">
+
+                                            <!-- Header -->
+                                            <div class="d-flex justify-content-between">
+                                                <div>
+                                                    <i class="bi bi-file-earmark-text me-2"></i>
+                                                    <strong>Acknowledgement Copy (Latest)</strong>
+                                                </div>
+
+                                                <div>
+                                                    @if($acknowledgmentCopies->status == 'approved')
+                                                        <span class="badge bg-success px-2">Approved</span>
+                                                    @elseif($acknowledgmentCopies->status == 'rejected')
+                                                        <span class="badge bg-danger px-2">Rejected</span>
+                                                    @else
+                                                        <span class="badge bg-warning text-dark px-2">Pending</span>
+                                                    @endif
+                                                </div>
+                                            </div>
+
+                                            <!-- Uploaded details -->
+                                            <div class="text-muted small mt-2">
+
+                                                <div>
+                                                    <i class="bi bi-clock me-1"></i>
+                                                    Uploaded At:
+                                                    {{ \Carbon\Carbon::parse($acknowledgmentCopies->uploaded_at)->format('d M Y, h:i A') }}
+                                                </div>
+
+                                                <div>
+                                                    <i class="bi bi-person me-1"></i>
+                                                    Uploaded By:
+                                                    {{ $acknowledgmentCopies->uploader->name ?? 'N/A' }}
+                                                </div>
+
+                                                @if($acknowledgmentCopies->final_submission_confirmation)
+                                                <div>
+                                                    <i class="bi bi-calendar-check me-1"></i>
+                                                    Final Submission Confirmation:
+                                                    {{ \Carbon\Carbon::parse($acknowledgmentCopies->final_submission_confirmation)->format('d M Y') }}
+                                                </div>
                                                 @endif
-                                            </li>
-                                        @endforeach
-                                    </ul>
-                                @else
-                                    : N/A
-                                @endif
-                            </td>
-                        </tr>
-                        <tr>
-                            <th class="text-nowrap pe-3">Phase</th>
-                            <td>: {{ $phase ?? 'N/A' }}</td>
-                        </tr>
-                        <tr>
-                            <th class="text-nowrap pe-3">Last Date of Nomination form Submission</th>
-                            <td>
-                                : {{ $nomination_date
-                                    ? \Carbon\Carbon::parse($nomination_date)->format('d M Y')
-                                    : 'N/A' }}
-                            </td>
-                        </tr>
-                        <tr>
-                            <th class="text-nowrap pe-3">Final Status</th>
-                            <td>
-                                : {{ getFinalDocStatus($candidateData->document_collection_status, 'icon') }}
-                                {{ getFinalDocStatus($candidateData->document_collection_status, 'label') }}
-                            </td>
-                        </tr>
-                        @if($candidateData->is_special_case == 1)
-                            <tr>
-                                <th class="text-nowrap pe-3 align-top">Special Case Details</th>
-                                <td>
-                                    <div class="border border-danger rounded p-3 bg-light shadow-sm">
 
-                                        <!-- Label -->
-                                        <div class="mb-1">
-                                            <span class="badge bg-danger px-3 py-2 fs-6">
-                                                <i class="bi bi-exclamation-diamond me-1"></i>
-                                                {{ $candidateData->special_case_label ?? 'Special Case' }}
-                                            </span>
-                                        </div>
+                                            </div>
 
-                                        <!-- Remarks -->
-                                        @if($candidateData->clone_remarks)
-                                        <div class="mt-2 text-muted small">
-                                            <i class="bi bi-chat-left-quote me-1"></i>
-                                            <strong>Remarks:</strong>
-                                            <span class="ms-1">{{ $candidateData->clone_remarks }}</span>
-                                        </div>
-                                        @endif
+                                            <!-- Approved / Rejected Info -->
+                                            @if($acknowledgmentCopies->status != 'pending')
+                                            <div class="text-muted small mt-3">
 
-                                        <!-- Clone Meta Info -->
-                                        <div class="mt-2 text-muted small">
+                                                <div>
+                                                    <i class="bi bi-clock-history me-1"></i>
+                                                    {{ $acknowledgmentCopies->status == 'approved' ? 'Acknowledged At:' : 'Rejected At:' }}
+                                                    {{ \Carbon\Carbon::parse($acknowledgmentCopies->acknowledgment_at)->format('d M Y, h:i A') }}
+                                                </div>
 
-                                            @if($candidateData->clonedBy)
-                                            <div>
-                                                <i class="bi bi-person-check me-1"></i>
-                                                <strong>Created By:</strong>
-                                                {{ $candidateData->clonedBy->name }}
+                                                <div>
+                                                    <i class="bi bi-person-check me-1"></i>
+                                                    {{ $acknowledgmentCopies->status == 'approved' ? 'Acknowledged By:' : 'Rejected By:' }}
+                                                    {{ $acknowledgmentCopies->acknowledger->name ?? 'N/A' }}
+                                                </div>
+
+                                                @if($acknowledgmentCopies->status == 'rejected' && $acknowledgmentCopies->rejected_reason)
+                                                <div>
+                                                    <i class="bi bi-x-circle me-1"></i>
+                                                    Rejection Reason: {{ $acknowledgmentCopies->rejected_reason }}
+                                                </div>
+                                                @endif
+
                                             </div>
                                             @endif
 
-                                            @if($candidateData->cloned_at)
-                                            <div>
-                                                <i class="bi bi-clock-history me-1"></i>
-                                                <strong>Created At:</strong>
-                                                {{ \Carbon\Carbon::parse($candidateData->cloned_at)->format('d M Y, h:i A') }}
+                                            <!-- View Button -->
+                                            <div class="mt-3 d-flex flex-column flex-md-row justify-content-between align-items-start gap-2">
+
+                                                <!-- VIEW BUTTON (Left side) -->
+                                                <a href="{{ asset($acknowledgmentCopies->path) }}" target="_blank"
+                                                class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                                                    <i class="bi bi-eye"></i> View
+                                                </a>
+
+                                                <!-- Approve & Reject Buttons (Vertical / Up-Down) -->
+                                                @if($acknowledgmentCopies->status == 'pending')
+                                                    <div class="d-flex flex-column gap-2">
+
+                                                        <button class="btn btn-sm btn-success rounded-pill px-3"
+                                                                onclick="confirmApprove({{ $acknowledgmentCopies->id }})">
+                                                            <i class="bi bi-check2-circle"></i> Document is consistent with the vetted version
+                                                        </button>
+                                                        <button class="btn btn-sm btn-danger rounded-pill px-3"
+                                                                onclick="confirmReject({{ $acknowledgmentCopies->id }},{{$acknowledgmentCopies->candidate_id}})">
+                                                            <i class="bi bi-x-circle"></i> Inconsistent and needs to be revetted
+                                                        </button>
+
+                                                    </div>
+                                                @endif
+
                                             </div>
-                                            @endif
+
+
+
                                         </div>
 
-                                    </div>
-                                </td>
-                            </tr>
-                            @endif
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        @if($candidateData->document_collection_status=="verified_pending_submission" || $candidateData->document_collection_status=="verified_submitted_with_copy")
-            <div class="col-md-5">
-                <div class="card shadow-sm border-0 mb-3">
-                    <div class="card-body">
-
-                        @if($acknowledgmentCopies)
-
-                            <div class="border rounded p-3 mb-2 shadow-sm bg-light">
-
-                                <!-- Header -->
-                                <div class="d-flex justify-content-between">
-                                    <div>
-                                        <i class="bi bi-file-earmark-text me-2"></i>
-                                        <strong>Acknowledgement Copy (Latest)</strong>
-                                    </div>
-
-                                    <div>
-                                        @if($acknowledgmentCopies->status == 'approved')
-                                            <span class="badge bg-success px-2">Approved</span>
-                                        @elseif($acknowledgmentCopies->status == 'rejected')
-                                            <span class="badge bg-danger px-2">Rejected</span>
-                                        @else
-                                            <span class="badge bg-warning text-dark px-2">Pending</span>
-                                        @endif
-                                    </div>
-                                </div>
-
-                                <!-- Uploaded details -->
-                                <div class="text-muted small mt-2">
-
-                                    <div>
-                                        <i class="bi bi-clock me-1"></i>
-                                        Uploaded At:
-                                        {{ \Carbon\Carbon::parse($acknowledgmentCopies->uploaded_at)->format('d M Y, h:i A') }}
-                                    </div>
-
-                                    <div>
-                                        <i class="bi bi-person me-1"></i>
-                                        Uploaded By:
-                                        {{ $acknowledgmentCopies->uploader->name ?? 'N/A' }}
-                                    </div>
-
-                                    @if($acknowledgmentCopies->final_submission_confirmation)
-                                    <div>
-                                        <i class="bi bi-calendar-check me-1"></i>
-                                        Final Submission Confirmation:
-                                        {{ \Carbon\Carbon::parse($acknowledgmentCopies->final_submission_confirmation)->format('d M Y') }}
-                                    </div>
-                                    @endif
-
-                                </div>
-
-                                <!-- Approved / Rejected Info -->
-                                @if($acknowledgmentCopies->status != 'pending')
-                                <div class="text-muted small mt-3">
-
-                                    <div>
-                                        <i class="bi bi-clock-history me-1"></i>
-                                        {{ $acknowledgmentCopies->status == 'approved' ? 'Acknowledged At:' : 'Rejected At:' }}
-                                        {{ \Carbon\Carbon::parse($acknowledgmentCopies->acknowledgment_at)->format('d M Y, h:i A') }}
-                                    </div>
-
-                                    <div>
-                                        <i class="bi bi-person-check me-1"></i>
-                                        {{ $acknowledgmentCopies->status == 'approved' ? 'Acknowledged By:' : 'Rejected By:' }}
-                                        {{ $acknowledgmentCopies->acknowledger->name ?? 'N/A' }}
-                                    </div>
-
-                                    @if($acknowledgmentCopies->status == 'rejected' && $acknowledgmentCopies->rejected_reason)
-                                    <div>
-                                        <i class="bi bi-x-circle me-1"></i>
-                                        Rejection Reason: {{ $acknowledgmentCopies->rejected_reason }}
-                                    </div>
-                                    @endif
-
-                                </div>
-                                @endif
-
-                                <!-- View Button -->
-                               <div class="mt-3 d-flex flex-column flex-md-row justify-content-between align-items-start gap-2">
-
-                                    <!-- VIEW BUTTON (Left side) -->
-                                    <a href="{{ asset($acknowledgmentCopies->path) }}" target="_blank"
-                                    class="btn btn-sm btn-outline-primary rounded-pill px-3">
-                                        <i class="bi bi-eye"></i> View
-                                    </a>
-
-                                    <!-- Approve & Reject Buttons (Vertical / Up-Down) -->
-                                    @if($acknowledgmentCopies->status == 'pending')
-                                        <div class="d-flex flex-column gap-2">
-
-                                            <button class="btn btn-sm btn-success rounded-pill px-3"
-                                                    onclick="confirmApprove({{ $acknowledgmentCopies->id }})">
-                                                <i class="bi bi-check2-circle"></i> Document is consistent with the vetted version
-                                            </button>
-                                            <button class="btn btn-sm btn-danger rounded-pill px-3"
-                                                    onclick="confirmReject({{ $acknowledgmentCopies->id }},{{$acknowledgmentCopies->candidate_id}})">
-                                                <i class="bi bi-x-circle"></i> Inconsistent and needs to be revetted
-                                            </button>
-
+                                    @else
+                                        <div class="text-center text-muted py-4">
+                                            No acknowledgement copy uploaded yet.
                                         </div>
                                     @endif
 
                                 </div>
-
-
-
-                            </div>
-
-                        @else
-                            <div class="text-center text-muted py-4">
-                                No acknowledgement copy uploaded yet.
                             </div>
                         @endif
-
                     </div>
                 </div>
             </div>
-        @endif
+        </div>
+
     </div>
 
 
@@ -279,7 +285,7 @@
             <div class="table-responsive">
                 <table class="table mb-0 align-middle table-bordered">
                    <thead class="table-light">
-                        <tr class="text-center">
+                        <tr class="">
                             <th width="18%">Document Name</th>
                             <th width="8%">Documents</th>
                             <th width="20%">Remarks</th>
@@ -349,19 +355,19 @@
                                                     </span>
                                                 </td>
                                                 @if($index === 0)
-                                                    <td rowspan="{{ $rowspan }}" class="text-center">
+                                                    <td rowspan="{{ $rowspan }}" class="">
                                                         @php
                                                             $firstDocument = App\Models\CandidateDocument::where('type', $doc['type'])->where('candidate_id', $candidateId)->orderBy('id', 'Asc')->first();
                                                         @endphp
                                                         {{ $firstDocument?$firstDocument->created_at->format('d/m/Y h:i A'):"N/A" }}
                                                     </td>
-                                                    <td rowspan="{{ $rowspan }}" class="text-center">
+                                                    <td rowspan="{{ $rowspan }}" class="">
                                                         {{ $doc['vetted_on'] }}
                                                     </td>
                                                 @endif
 
                                                 {{-- Status --}}
-                                                <td class="text-center">
+                                                <td class="">
                                                     <span class="cursor-pointer badge
                                                         @if($doc['status'] == 'Approved') bg-lavel-success
                                                         @elseif($doc['status'] == 'Rejected') bg-lavel-danger text-danger
@@ -371,7 +377,7 @@
                                                     </span>
                                                 </td>
                                                 @if($index === 0)
-                                                    <td rowspan="{{ $rowspan }}" class="text-center">
+                                                    <td rowspan="{{ $rowspan }}" class="">
                                                         <div class="mx-2">
                                                             <a href="{{ route('admin.candidates.documents.comments', $doc['id']) }}"
                                                             class="btn btn-secondary btn-sm"
@@ -419,7 +425,7 @@
                                     {{-- No Documents Yet --}}
                                     <tr>
                                         <td><strong>{{ $label }}</strong></td>
-                                        <td colspan="5" class="text-center text-muted">
+                                        <td colspan="5" class=" text-muted">
                                             <i class="bi bi-inbox"></i> No documents uploaded yet
                                         </td>
                                     </tr>

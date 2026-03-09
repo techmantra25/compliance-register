@@ -23,10 +23,10 @@
     </div>
 </div>
 <div class="d-flex flex-wrap justify-content-between align-items-start mb-3">
-    <div class="col-md-8">
+    <div class="col-md-12">
         <div class="card shadow-sm border-0 p-3 mb-3 mx-1">
             <div class="card-body">
-                <table class="table table-sm table-borderless w-auto mb-0">
+                <table class="table table-sm table-borderless  mb-0">
                     <tbody>
 
                         <tr>
@@ -39,7 +39,8 @@
                                     </div>
 
                                     <div>
-                                        <i class="bi bi-person-circle me-1 text-primary"></i>
+                                        <!-- <i class="bi bi-person-circle me-1 text-primary"></i> -->
+                                        <i class="bi bi-phone me-1 text-primary"></i>
                                         <strong>Mobile: </strong> {{ $campaigner->mobile ?? 'N/A' }}
                                     </div>
                                 @endforeach
@@ -104,7 +105,7 @@
         <div class="table-responsive">
             <table class="table mb-0 align-middle table-bordered">
                 <thead class="table-light">
-                    <tr class="text-center">
+                    <tr class="">
                         <th width="5%">SL</th>
                         <th width="20%">Permission</th>
                         <th width="20%">Issuing Authority</th>
@@ -145,7 +146,7 @@
                                     <div class="p-2 mb-2 border rounded bg-light">
                                         
                                         {{-- HEADER --}}
-                                        <div class="d-flex justify-content-between">
+                                        <div class="d-flex justify-content-between align-items-center">
                                             <div>
                                                 <span class="fw-bold text-uppercase">
                                                     {{ str_replace('_', ' ', $row->doc_type) }}
