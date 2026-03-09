@@ -61,6 +61,24 @@ class MccViolationCrudRemarks extends Component
         $this->dispatch('ResetForm');
         $this->dispatch('toastr:success', message: 'Remark added successfully!');
     }
+    public function preConfirmResolve($id, $newStatus)
+    {
+        $this->dispatch('showStatusConfirm', [
+            'itemId' => $id,
+            'newStatus' => $newStatus
+        ]);
+    }
+
+    public function updateStatus($id, $newStatus)
+    {
+        $mcc = Mcc::find($id);
+        if ($mcc) {
+            $mcc->status = $newStatus;
+            $mcc->save();
+            $this->mcc = $mcc;
+            $this->dispatch('toastr:success', message: 'Status updated successfully.');
+        }
+    }
     public function addCancel($id){
         $this->dispatch('showConfirm', ['itemId' => $id]);
     }

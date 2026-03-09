@@ -436,7 +436,7 @@ class MccViolationCrud extends Component
             'GP',
             'Complainer Name',
             'Complainer Phone',
-            'Complainer Description',
+            'Complain Description',
             'Status'
         ];
 

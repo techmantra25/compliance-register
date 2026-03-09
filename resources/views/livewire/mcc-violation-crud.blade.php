@@ -292,7 +292,7 @@
                                 </div>
 
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label">Complainer Description</label>
+                                    <label class="form-label">Complain Description</label>
                                     <textarea class="form-control" wire:model="complainer_description" placeholder="Write your complain here"></textarea>
                                     @error('complainer_description') <small class="text-danger">{{ $message }}</small> @enderror
                                 </div>

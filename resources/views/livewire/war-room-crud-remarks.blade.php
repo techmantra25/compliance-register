@@ -97,34 +97,120 @@
 
         <!-- RIGHT : ADD REMARK -->
         @if($userRole=='legal_associate')
-        <div class="col-lg-4">
-            <div class="card shadow-sm border-0 p-3">
-                <div class="card-header bg-white">
-                    <h5 class="fw-bold mb-0">Add Remark</h5>
+            <div class="col-lg-4">
+
+                <!-- Status Card -->
+                <div class="card shadow-sm border-0 p-3 mb-3">
+
+                    <div class="card-header bg-white">
+                        <h5 class="fw-bold mb-0">Status</h5>
+                    </div>
+
+                    <div class="card-body">
+
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="fw-semibold">Current Status:</span>
+                            <span class="badge 
+                                @if($war->status == 'pending') bg-warning
+                                @elseif($war->status == 'inprogress') bg-info
+                                @elseif($war->status == 'resolved') bg-success
+                                @endif
+                                text-white">
+                                {{ ucfirst($war->status) }}
+                            </span>
+                        </div>
+
+                        <hr>
+
+                        @if($war->status == 'resolved')
+                            <!-- Already resolved -->
+                            <div class="alert alert-success mb-0">
+                                <i class="bi bi-check-circle"></i> This case is resolved. You cannot change status.
+                            </div>
+                        @else
+                            <!-- Status buttons -->
+                            <div class="d-flex justify-content-between">
+                                @foreach(['pending', 'inprogress', 'resolved'] as $statusOption)
+                                    @php
+                                        $activeClass = $war->status == $statusOption
+                                            ? match($statusOption) {
+                                                'pending' => 'btn-warning text-white',
+                                                'inprogress' => 'btn-info text-white',
+                                                'resolved' => 'btn-success text-white',
+                                                default => 'btn-secondary text-white',
+                                            }
+                                            : 'btn-outline-primary';
+                                    @endphp
+
+                                    <button 
+                                        wire:click="preConfirmResolve('{{ $war->id }}', '{{ $statusOption }}')" 
+                                        class="btn btn-sm {{ $activeClass }} me-1"
+                                    >
+                                        {{ ucfirst($statusOption) }}
+                                    </button>
+                                @endforeach
+                            </div>
+
+                            <!-- Resolve warning message -->
+                            <div id="resolve-warning" class="mt-2 text-danger text-sm fw-semibold" style="display:block;">
+                                <small>⚠️ Once you set this case as resolved, you <strong>cannot revert it back</strong>!</small>
+                            </div>
+                        @endif
+
+                    </div>
                 </div>
-                <div class="card-body">
-                    <form wire:submit.prevent="saveRemark">
-                        <div class="mb-3">
-                            <label class="form-label">Remark</label>
-                            <textarea wire:model.defer="remark" class="form-control" rows="4"></textarea>
-                            @error('remark') <small class="text-danger">{{ $message }}</small> @enderror
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Attachment</label>
-                            <input type="file" wire:model="attachment" class="form-control">
-                            @error('attachment') <small class="text-danger">{{ $message }}</small> @enderror
-                        </div>
-                        <div class="d-flex justify-content-end">
-                            <button type="submit" class="btn btn-primary btn-sm" wire:loading.attr="disabled">
-                                <span wire:loading.remove wire:target="saveRemark"><i class="bi bi-send"></i> Add Remark</span>
-                                <span wire:loading wire:target="saveRemark"><span class="spinner-border spinner-border-sm"></span> Saving...</span>
-                            </button>
-                        </div>
-                    </form>
+
+                <!-- Add Remark Card -->
+                <div class="card shadow-sm border-0 p-3">
+
+                    <div class="card-header bg-white">
+                        <h5 class="fw-bold mb-0">Add Remark</h5>
+                    </div>
+
+                    <div class="card-body">
+                        @if($war->status == 'resolved')
+                            <div class="alert alert-success mb-0">
+                                <i class="bi bi-check-circle"></i> This case is resolved. You cannot add remarks.
+                            </div>
+                        @else
+                            <form wire:submit.prevent="saveRemark">
+                                <div class="mb-3">
+                                    <label class="form-label">Remark</label>
+                                    <textarea wire:model.defer="remark" class="form-control" rows="4"></textarea>
+                                    @error('remark') <small class="text-danger">{{ $message }}</small> @enderror
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Attachment</label>
+                                    <input type="file" wire:model="attachment" class="form-control">
+                                    @error('attachment') <small class="text-danger">{{ $message }}</small> @enderror
+                                </div>
+
+                                <div class="d-flex justify-content-end">
+                                    <button type="submit"
+                                            class="btn btn-primary btn-sm"
+                                            wire:loading.attr="disabled"
+                                            wire:target="attachment,saveRemark">
+
+                                        <span wire:loading.remove wire:target="saveRemark">
+                                            <i class="bi bi-send"></i> Add Remark
+                                        </span>
+
+                                        <span wire:loading wire:target="saveRemark">
+                                            <span class="spinner-border spinner-border-sm"></span>
+                                            Saving...
+                                        </span>
+
+                                    </button>
+                                </div>
+                            </form>
+                        @endif
+                    </div>
+
                 </div>
+
             </div>
-        </div>
-        @endif
+            @endif
 
     </div>
 
@@ -136,6 +222,34 @@
     @push('scripts')
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
+        window.addEventListener('showStatusConfirm', event => {
+            let itemId = event.detail[0].itemId;
+            let newStatus = event.detail[0].newStatus;
+
+            if(newStatus === 'resolved') {
+                // Show card body warning
+                const warning = document.getElementById('resolve-warning');
+                warning.style.display = 'block';
+
+                Swal.fire({
+                    title: 'Are you sure?',
+                    html: 'Once you resolve this case, it cannot be reverted!',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#28a745',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Yes, resolve it',
+                    cancelButtonText: 'Cancel'
+                }).then((result) => {
+                    warning.style.display = 'none';
+                    if(result.isConfirmed){
+                        @this.call('updateStatus', itemId, newStatus);
+                    }
+                });
+            } else {
+                @this.call('updateStatus', itemId, newStatus);
+            }
+        });
         window.addEventListener('showConfirm', function (event) {
             let itemId = event.detail[0].itemId;
 
