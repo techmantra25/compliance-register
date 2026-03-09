@@ -29,6 +29,7 @@ use App\Livewire\{
     StarCampaignerCrud,
     EventWiseDistrict,
     MccViolationCrud,
+    MccViolationCrudRemarks,
     MccLogDetails,
     PhaseWiseMcc,
     NominationForm2B,
@@ -36,7 +37,9 @@ use App\Livewire\{
     Form26,
     Form26Preview,
     NominationDocumentCrud,
-    GradeWiseAssemblyCrud
+    GradeWiseAssemblyCrud,
+    WarRoomCrud,
+    WarRoomCrudRemarks,
 };
 use App\Http\Controllers\NominationPdfController;
 use App\Livewire\Candidate\DocumentComments;
@@ -144,7 +147,12 @@ Route::prefix('/admin')->middleware('auth:admin')->group(function () {
 
     Route::prefix('mcc-violation')->group(function (){
         Route::get('/', MccViolationCrud::class)->name('admin.mcc_violation')->middleware('employee.permission:mcc_view_mcc');
+        Route::get('/remarks/{id}', MccViolationCrudRemarks::class)->name('admin.mcc_violation_remarks')->middleware('employee.permission:mcc_violation_remarks');
         Route::get('/log-details/{id}', MccLogDetails::class)->name('admin.mcc_log_details');
+    });
+    Route::prefix('war-room')->group(function (){
+        Route::get('/', WarRoomCrud::class)->name('admin.war_room')->middleware('employee.permission:war_room_view');
+        Route::get('/remarks/{id}', WarRoomCrudRemarks::class)->name('admin.war_room_remarks')->middleware('employee.permission:war_room_remarks_view');
     });
 });
 

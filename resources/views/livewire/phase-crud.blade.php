@@ -50,7 +50,7 @@
                                             <div class="d-flex flex-column small">
                                                 <div>
                                                     <i class="bi bi-calendar-check text-success me-1"></i>
-                                                    <strong>Last Date of Nomination:</strong> 
+                                                    <strong>Last Date of Nomination form Submission:</strong> 
                                                     {{ \Carbon\Carbon::parse($phase->last_date_of_nomination)->format('d M Y') }}
                                                 </div>
                                                 <div class="mt-1">
@@ -118,7 +118,7 @@
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Last Date of Nomination</label>
+                            <label class="form-label">Last Date of Nomination form Submission</label>
                             <input type="date" wire:model.defer="last_date_of_nomination" class="form-control">
                             @error('last_date_of_nomination') <small class="text-danger">{{ $message }}</small> @enderror
                         </div>

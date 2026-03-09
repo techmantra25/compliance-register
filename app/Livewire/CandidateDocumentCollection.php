@@ -97,8 +97,13 @@ class CandidateDocumentCollection extends Component
         }
     }
 
-    public function updateAttachment($key, $attachedWith)
+    public function updateAttachment($key, $attachedWith, $parentKey)
     {
+        $existKey= CandidateDocument::where('candidate_id',$this->candidateId)->where('attached_with_slug',$key)->first();
+        if($existKey){
+            $this->dispatch('toastr:error', message: 'This document already has another document attached, so it cannot be skipped.');
+            return true;
+        }
         $create = CandidateDocument::updateOrCreate(
             [
                 'candidate_id' => $this->candidateId,
@@ -106,6 +111,7 @@ class CandidateDocumentCollection extends Component
             ],
             [
                 'attached_with' => $attachedWith,
+                'attached_with_slug' => $parentKey,
                 'uploaded_by' => Auth::guard('admin')->id(),
                 'status' => 'Skipped',
             ]

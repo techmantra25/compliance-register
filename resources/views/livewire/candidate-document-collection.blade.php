@@ -38,7 +38,7 @@
     <div class="d-flex flex-wrap justify-content-between align-items-start mb-3">
         {{-- Left Section: Title + Candidate Info --}}
         <div class="mb-2">
-            <h4 class="fw-bold mb-2 text-dark">Document Collections</h4>
+            <h4 class="fw-bold mb-2 text-dark">Document Repository</h4>
         </div>
         
         {{-- Right Section: Upload Acknowledgement Copy + Back Button --}}
@@ -88,7 +88,7 @@
                                 <td>: {{ $phase ?? 'N/A' }}</td>
                             </tr>
                             <tr>
-                                <th class="text-nowrap pe-3">Last Date of Submission of Nomination Form</th>
+                                <th class="text-nowrap pe-3">Last Date of Nomination form Submission</th>
                                 <td>
                                     : {{ $nomination_date
                                         ? \Carbon\Carbon::parse($nomination_date)->format('d M Y')
@@ -710,7 +710,7 @@
                                     </td>
                                     <td colspan="1" class="text-center">
                                         <!-- Step 1: Radio toggle -->
-                                        @if(!in_array($key, ['nomination_paper','affidavit']))
+                                        @if(!in_array($key, ['nomination_paper_form_2b','affidavit_form_26']))
                                             <div class="d-flex justify-content-center gap-3">
                                                 <label class="d-flex justify-content-center align-items-center cursor-pointer">
                                                     <input type="checkbox"
@@ -728,11 +728,12 @@
                                             <select class="form-select form-select-sm w-auto d-inline-block mt-2"
                                                     style="min-width: 180px;"
                                                     wire:model="attachedTo.{{ $key }}"
-                                                    onchange="confirmUpdateAttachment('{{$key}}', this.value)">
-                                                <option value="" > Select document</option>
+                                                    onchange="confirmUpdateAttachment('{{ $key }}', this)">
+                                                <option value="" > Document already included in</option>
                                                 @foreach($remainRequiredDocuments as $parent_key => $parent)
                                                     @if($parent_key !== $key)
-                                                        <option value="{{ $parent }}">{{ $parent }}
+                                                        <option value="{{ $parent }}" data-key="{{ $parent_key }}">
+                                                            {{ $parent }}
                                                         </option>
                                                     @endif
                                                 @endforeach
@@ -831,8 +832,10 @@
             });
 
         });
-        function confirmUpdateAttachment(key, value) {
-            if(value === "") {
+        function confirmUpdateAttachment(key, selectElement) {
+            let parentValue = selectElement.value;
+            let parentKey = selectElement.selectedOptions[0].dataset.key;
+            if(parentValue === "") {
                 toastr.success("Attachment reset.");
                 return;
             }
@@ -847,8 +850,7 @@
             }).then((result) => {
                 if (result.isConfirmed) {
                     // Livewire call to updateAttachment
-                    @this.call('updateAttachment', key, value);
-                    
+                    @this.call('updateAttachment', key, parentValue, parentKey);
                 } else {
                     // If cancelled, revert the dropdown
                     @this.set('attachedTo.' + key, '');
