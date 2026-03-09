@@ -11,4 +11,14 @@ class Campaigner extends Model
     protected $fillable = [
         'name', 'mobile', 'extra_details'
     ];
+
+    public function campaigns()
+    {
+        return $this->belongsToMany(
+            Campaign::class,
+            'event_campaigners',
+            'campaign_id',
+            'campaigner_id'
+        );
+    }
 }

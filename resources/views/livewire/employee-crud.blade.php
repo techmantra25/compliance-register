@@ -124,7 +124,7 @@
                                                     <span class="tooltip-text">Permissions</span>
                                                 </div>
 
-                                                @if(childUserAccess(Auth::guard('admin')->user()->id,'employee_delete_employee'))
+                                                {{-- @if(childUserAccess(Auth::guard('admin')->user()->id,'employee_delete_employee'))
                                                     @if ($admin->id !== 1)
                                                     <div class="tooltip-wrapper d-inline-block">
                                                         <button class="btn btn-sm btn-outline-danger"
@@ -134,7 +134,7 @@
                                                         <span class="tooltip-text">Delete</span>
                                                     </div>
                                                     @endif
-                                                @endif
+                                                @endif --}}
 
                                             </td>
                                             @else 

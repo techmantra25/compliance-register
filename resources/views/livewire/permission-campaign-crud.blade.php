@@ -32,10 +32,17 @@
                         <tr>
                             <th class="text-nowrap pe-3 align-top">Campaigner Details</th>
                             <td>
-                                <div><i class="bi bi-person me-1 text-primary"></i>
-                                    <strong>Name: </strong>{{ ucwords($camp->campaigner->name) }}</div>
-                                <div><i class="bi bi-person-circle me-1 text-primary"></i>
-                                    <strong>Mobile: </strong> {{ $camp->campaigner->mobile ?? 'N/A' }}</div>
+                               @foreach($camp->campaigners as $campaigner)
+                                    <div>
+                                        <i class="bi bi-person me-1 text-primary"></i>
+                                        <strong>Name: </strong> {{ ucwords($campaigner->name) }}
+                                    </div>
+
+                                    <div>
+                                        <i class="bi bi-person-circle me-1 text-primary"></i>
+                                        <strong>Mobile: </strong> {{ $campaigner->mobile ?? 'N/A' }}
+                                    </div>
+                                @endforeach
                             </td>
                         </tr>
 
@@ -231,27 +238,37 @@
                             </td>
 
                             <td class="text-center">
-                                @if($latestData)
-                                    <button class="btn btn-sm btn-danger"
-                                        onclick="confirmRevoke({{ $permission->id }})">
-                                        <i class="bi bi-arrow-counterclockwise me-1"></i> Revoke Skip
-                                    </button>
-                                @else
-                                    <button class="btn btn-sm btn-primary"
-                                    wire:click="uploadApplied({{ $permission->id }}, {{$camp->id}})">
-                                        <i class="bi bi-upload me-1"></i> Applied Copy
-                                    </button>
 
-                                    <button class="btn btn-sm btn-warning mt-1"
-                                        wire:click="uploadApproved({{ $permission->id }}, {{$camp->id}})">
-                                        <i class="bi bi-upload me-1"></i> Approved Copy
-                                    </button>
-                                    <button class="btn btn-sm btn-secondary mt-1"
-                                        onclick="confirmSkip({{ $permission->id }})">
-                                        <i class="bi bi-x-circle me-1"></i> Skip
-                                    </button>
+                                @if($camp->status == 'completed')
+
+                                       No Action Allowed
+
+                                @else
+
+                                    @if($latestData)
+                                        <button class="btn btn-sm btn-danger"
+                                            onclick="confirmRevoke({{ $permission->id }})">
+                                            <i class="bi bi-arrow-counterclockwise me-1"></i> Revoke Skip
+                                        </button>
+                                    @else
+                                        <button class="btn btn-sm btn-primary"
+                                        wire:click="uploadApplied({{ $permission->id }}, {{$camp->id}})">
+                                            <i class="bi bi-upload me-1"></i> Applied Copy
+                                        </button>
+
+                                        <button class="btn btn-sm btn-warning mt-1"
+                                            wire:click="uploadApproved({{ $permission->id }}, {{$camp->id}})">
+                                            <i class="bi bi-upload me-1"></i> Approved Copy
+                                        </button>
+
+                                        <button class="btn btn-sm btn-secondary mt-1"
+                                            onclick="confirmSkip({{ $permission->id }})">
+                                            <i class="bi bi-x-circle me-1"></i> Skip
+                                        </button>
+                                    @endif
+
                                 @endif
-                                
+
                             </td>
 
                         </tr>

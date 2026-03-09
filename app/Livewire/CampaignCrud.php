@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\DB;
 class CampaignCrud extends Component
 { 
     use WithPagination, WithFileUploads;
-    public $campaign_id, $campaigner_id, $assembly_id, $event_category_id, $address, $campaign_date, $remarks, $permission_status, $last_date_of_permission;
+    public $campaign_id, $assembly_id, $event_category_id, $address, $campaign_date, $remarks, $permission_status, $last_date_of_permission;
     public $isEdit = false;
     public $search = '';
     public $new_campaign_date;
@@ -36,6 +36,7 @@ class CampaignCrud extends Component
     public $districts = [];
     public $phases = [];
     public $zones = [];
+    public $campaigner_ids = [];
     public $statuses = [
         'pending',
         'rescheduled',
@@ -56,7 +57,8 @@ class CampaignCrud extends Component
     ];
 
     protected $rules = [
-        'campaigner_id'      => 'required|integer',
+        // 'campaigner_id'      => 'required|integer',
+        'campaigner_ids'     => 'required|array',
         'assembly_id'        => 'required|integer',
         'event_category_id'  => 'required|integer',
         'address'            => 'required|string|max:255',
@@ -66,7 +68,7 @@ class CampaignCrud extends Component
     ];
     
     protected $messages = [
-        'campaigner_id.required'       => 'Please select a campaigner.',
+        'campaigner_ids.required' => 'Please select at least one campaigner.',
         'assembly_id.required'       => 'Please select an assembly.',
         'event_category_id.required' => 'Please select an event category.',
         'address.required'           => 'Address is required.',
@@ -92,7 +94,7 @@ class CampaignCrud extends Component
         $this->dispatch('resetField');
     }
     public function resetInputFields(){
-        $this->reset(['campaigner_id','assembly_id', 'event_category_id', 'address', 'campaign_date', 'search']);
+        $this->reset(['campaigner_ids','assembly_id', 'event_category_id', 'address', 'campaign_date', 'search']);
         $this->isEdit = false;
         $this->dispatch('refreshChosen');
     }
@@ -108,13 +110,15 @@ class CampaignCrud extends Component
         $campaign = Campaign::findOrFail($id);
 
         $this->campaign_id = $campaign->id;
-        $this->campaigner_id = $campaign->campaigner_id;
+
         $this->assembly_id = $campaign->assembly_id;
         $this->event_category_id = $campaign->event_category_id;
         $this->address = $campaign->address;
         $this->campaign_date = $campaign->campaign_date;
         $this->last_date_of_permission = $campaign->last_date_of_permission;
         $this->remarks = $campaign->remarks;
+
+        $this->campaigner_ids = $campaign->campaigners->pluck('id')->toArray();
 
         $this->isEdit = true;
         $this->dispatch('refreshChosen');
@@ -135,7 +139,7 @@ class CampaignCrud extends Component
 
             $old = $campaign->toArray();
             $campaign->update([
-                'campaigner_id' => $this->campaigner_id,
+                // 'campaigner_id' => $this->campaigner_id,
                 'assembly_id' => $this->assembly_id,
                 'event_category_id' => $this->event_category_id,
                 'address' => $this->address,
@@ -145,6 +149,8 @@ class CampaignCrud extends Component
             ]);
 
             $new = $campaign->fresh()->toArray();
+
+            $campaign->campaigners()->sync($this->campaigner_ids);
 
             ChangeLog::create([
                 'module_name' => 'campaign',
@@ -166,7 +172,7 @@ class CampaignCrud extends Component
             return redirect()->route('admin.campaigns');
 
         } catch (\Exception $e) {
-            //dd($e->getMessage());
+            // dd($e->getMessage());
             $this->dispatch('toastr:error', message: 'Something went wrong while updating!');
             logger()->error('Campaign Update Error: ' . $e->getMessage());
         }
@@ -181,7 +187,7 @@ class CampaignCrud extends Component
         try {
 
             $campaign = Campaign::create([
-                'campaigner_id' => $this->campaigner_id,
+                // 'campaigner_id' => $this->campaigner_id,
                 'assembly_id' => $this->assembly_id,
                 'event_category_id' => $this->event_category_id,
                 'address' => $this->address,
@@ -189,6 +195,8 @@ class CampaignCrud extends Component
                 'last_date_of_permission' => $this->last_date_of_permission,
                 'remarks' => $this->remarks,
             ]);
+
+            $campaign->campaigners()->sync($this->campaigner_ids);
 
             ChangeLog::create([
                 'module_name' => 'campaign',
@@ -209,6 +217,7 @@ class CampaignCrud extends Component
             return redirect()->route('admin.campaigns');
 
         } catch (\Exception $e) {
+            // dd($e->getMessage());
             $this->dispatch('toastr:error', message: 'Something went wrong while creating!');
             logger()->error('Campaign Create Error: ' . $e->getMessage());
         }
@@ -220,61 +229,69 @@ class CampaignCrud extends Component
         $this->dispatch('reset-file-input');
     }
 
+     private function isValidStatusChange($current, $new)
+    {
+        $rules = [
+            'pending' => ['rescheduled', 'cancelled', 'completed'],
+            'rescheduled' => ['cancelled', 'completed'], // FIXED
+            'cancelled' => ['completed'],
+            'completed' => [],
+        ];
+
+        return in_array($new, $rules[$current] ?? []);
+    }
 
     public function statusChanged($id, $status)
     {
-        if($status=="completed"){
-            $campaign = Campaign::findOrFail($id);
-            $requiredDoc = $campaign->category->permissions->pluck('id')->toArray();
-            if (count($requiredDoc) > 0) {
+        $campaign = Campaign::findOrFail($id);
 
-                foreach ($requiredDoc as $permissionId) {
+        $currentStatus = $campaign->status;
 
-                    $data = CampaignWisePermission::where('campaign_id', $id)
-                        ->where('event_required_permission_id', $permissionId)
-                        ->latest('id')
-                        ->first();
+        if (!$this->isValidStatusChange($currentStatus, $status)) {
 
-                    // Not uploaded
-                    if (!$data) {
-                        $this->dispatch('toastr:error', message: "Required permission document is missing.");
+            $this->dispatch('toastr:error', message: "Status change from '$currentStatus' to '$status' is not allowed.");
 
-                        $this->dispatch('reload-page');
-
-                        return true;
-                    }
-
-                    // Rejected
-                    if ($data->status === "rejected") {
-                        $this->dispatch('toastr:error', message: "One or more permission documents are rejected. Please re-upload.");
-
-                        $this->dispatch('reload-page');
-
-                        return true;
-                    }
-                }
-            }
-            // CampaignWisePermission
+            $this->dispatch('reload-page');
+            return;
         }
-        $Campaign = Campaign::find($id);
+
+       if ($status == "completed") {
+
+            $required = $campaign->category->permissions->count();
+
+            $appliedCount = CampaignWisePermission::where('campaign_id', $id)
+                ->where('doc_type', 'applied_copy')
+                ->count();
+
+            $approvedCount = CampaignWisePermission::where('campaign_id', $id)
+                ->where('doc_type', 'approved_copy')
+                ->count();
+
+            if ($appliedCount < $required || $approvedCount < $required) {
+
+                $this->dispatch('toastr:error',
+                    message: "The campaign cannot be marked as Completed until all applied and approved copies are uploaded."
+                );
+
+                $this->dispatch('reload-page');
+                return;
+            }
+        }
+
         $this->selected_campaign_id = $id;
         $this->selected_status = $status;
-        $this->old_selected_status = $Campaign->status;
-        $this->rescheduled_at = null;
-        $this->cancelled_remark = null;
+        $this->old_selected_status = $campaign->status;
 
         if ($status == 'rescheduled' || $status == 'cancelled') {
             $this->dispatch('open-reschedule-modal');
         } else {
-           // Campaign::where('id', $id)->update(['status' => $status]);
-           $this->saveCampaignStatus();
+            $this->saveCampaignStatus();
         }
     }
 
     public function resetSelectField(){
         return redirect()->route('admin.campaigns');
     }
-
 
     public function saveCampaignStatus()
     {
@@ -436,8 +453,9 @@ class CampaignCrud extends Component
     {
         $campaigns = Campaign::with([
                 'assembly.assemblyPhase.phase',
-                'campaigner',
-                'category'
+                'campaigners',
+                'category',
+                'permissions'
             ])
             ->when($this->search, function ($query) {
                 $query->where(function ($q) {
@@ -452,7 +470,7 @@ class CampaignCrud extends Component
                     ->orWhereHas('category', function ($cat) {
                         $cat->where('name', "like", "%{$this->search}%");
                     })
-                    ->orWhereHas('campaigner', function ($camp) {
+                    ->orWhereHas('campaigners', function ($camp) {
                         $camp->where('name', "like", "%{$this->search}%");
                     });
                 });

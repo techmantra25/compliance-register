@@ -512,7 +512,7 @@
                                                     </select>
                                                 </div>
 
-                                                @foreach($loanType['holders'] as $hIndex => $holder)
+                                                @foreach($loanType['holders'] ?? [] as $hIndex => $holder)
 
                                                     <div class="border rounded p-3 mb-2">
 
@@ -628,7 +628,7 @@
 
 
                         {{-- HOLDERS --}}
-                        @foreach($due['holders'] as $hIndex => $holder)
+                        @foreach($due['holders'] ?? [] as $hIndex => $holder)
 
                         <div class="border rounded p-3 mb-2 position-relative">
 
