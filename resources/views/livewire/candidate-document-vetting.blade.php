@@ -549,7 +549,7 @@
 
         function openSpecialCaseModalWithReason(candidateId, remarks) {
             Swal.fire({
-                title: "Create Special Case Clone?",
+                title: "Do you want to clone this as a special case?",
                 input: "textarea",
                 inputLabel: "Remarks (Required)",
                 inputValue: remarks,

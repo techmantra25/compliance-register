@@ -48,6 +48,9 @@
             border-radius: 50%;
             border: 2px solid #fff;
             box-shadow: 0 0 0 4px rgba(0,0,0,.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         .timeline-badge i {
             line-height: 1;
@@ -100,7 +103,7 @@
             <div class="card border-0 shadow-sm">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h4 class="mb-0 text-primary">
+                        <h4 class="mb-0 text-primary text-capitalize">
                             <i class="bi bi-person-circle me-2"></i> {{ $candidate->name }}
                         </h4>
 
@@ -142,6 +145,7 @@
                     <div class="timeline">
                         @forelse ($timeline as $item)
                             <div class="timeline-item">
+
                                 <div class="timeline-badge {{ $item['badge_color'] }}">
                                     @if ($item['action'] == 'Insert')
                                         <i class="bi bi-plus-circle"></i>
@@ -168,6 +172,7 @@
                                         </p>
                                     </div>
                                 </div>
+
                             </div>
                         @empty
                             <div class="alert alert-info text-center">No journey logs found for this candidate.</div>

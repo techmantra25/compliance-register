@@ -56,7 +56,7 @@
                                         </td>
                                         <td>
                                             @if(childUserAccess(Auth::guard('admin')->user()->id,'master_update_event_category'))
-                                                <button class="btn btn-sm btn-outline-primary"
+                                                <button class="btn btn-sm btn-outline-primary mb-1"
                                                     wire:click="edit({{ $cat->id }})">
                                                     <i class="bi bi-pencil"></i>
                                                 </button>

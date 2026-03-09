@@ -25,6 +25,7 @@ use Illuminate\Support\Facades\Mail;
 use App\Mail\NominationVettingMail;
 use Carbon\Carbon;
 use App\Models\Admin;
+use App\Mail\NominationVettingCompletedMail;
 
 class CandidateContactList extends Component
 {
@@ -818,6 +819,49 @@ class CandidateContactList extends Component
         try {
 
             $candidate = Candidate::findOrFail($id);
+            $data = [
+                'candidate' => $candidate,
+
+                'ac' => optional($candidate->assembly)->assembly_code . ' | ' .
+                    optional($candidate->assembly)->assembly_name_en .
+                    ' (' . optional($candidate->assembly)->assembly_name_bn . ')',
+
+                'nominationDate' => optional(optional(optional($candidate->assembly)->assemblyPhase)->phase)->last_date_of_nomination
+                    ? Carbon::parse(optional(optional(optional($candidate->assembly)->assemblyPhase)->phase)->last_date_of_nomination)->format('d M Y')
+                    : 'N/A',
+
+                'electionDate' => optional(optional(optional($candidate->assembly)->assemblyPhase)->phase)->date_of_election
+                    ? Carbon::parse(optional(optional(optional($candidate->assembly)->assemblyPhase)->phase)->date_of_election)->format('d M Y')
+                    : 'N/A',
+
+                'link' => route('admin.candidates.documents.vetting',$candidate->id),
+            ];
+
+            foreach ($legal_associate as $email) {
+
+                Mail::to($email)->send(
+                    new NominationVettingMail($data)
+                );
+            }
+
+            DB::commit();
+
+            $this->dispatch('mail-sent-success');
+
+        } catch (\Exception $e) {
+            // dd($e->getMessage());
+            DB::rollBack();
+
+            $this->dispatch('mail-sent-failed', message: $e->getMessage());
+        }
+    }
+    public function ConfirmSendNotifyMailMail($id)
+    {
+        DB::beginTransaction();
+
+        try {
+
+            $candidate = Candidate::findOrFail($id);
 
             $data = [
                 'candidate' => $candidate,
@@ -834,18 +878,16 @@ class CandidateContactList extends Component
                     ? Carbon::parse(optional(optional(optional($candidate->assembly)->assemblyPhase)->phase)->date_of_election)->format('d M Y')
                     : 'N/A',
 
-                'link' => route('admin.candidates.documents.vetting', ['candidate' => $candidate->id]),
             ];
-
-            foreach ($legal_associate as $email) {
-
-                Mail::to($email)->send(
-                    new NominationVettingMail($data)
+            // send mail to candidate
+            if (!empty($candidate->email)) {
+                Mail::to($candidate->email)->send(
+                    new NominationVettingCompletedMail($data)
                 );
             }
+            
 
             DB::commit();
-
             $this->dispatch('mail-sent-success');
 
         } catch (\Exception $e) {

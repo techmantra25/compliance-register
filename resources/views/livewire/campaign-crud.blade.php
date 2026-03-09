@@ -49,14 +49,25 @@
 
         <!-- Table -->
         <div class="col-lg-12">
-            <div class="card shadow-sm border-0 p-3 filter-card">
+            <div class="card shadow-sm border-0 p-3 ">
 
                 <div class="card-header bg-white">
 
-                    {{-- ROW 1 : FILTERS --}}
-                    <div class="row g-2 mb-2">
+                    <div class="row g-2 mb-4 justify-content-center">
+                        <div class="col-md-6">
+                            <div class="canditate-search">
+                                <input type="text" wire:model="search" wire:keyup="filterCampaign($event.target.value)" class="form-control form-control-sm me-2" placeholder="Search here...">
+                                <span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-search"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
 
-                        <div class="col-md-3" wire:ignore>
+                    {{-- ROW 1 : FILTERS --}}
+                    <div class="row g-2 mb-2 justify-content-center">
+
+                        <div class="col-md-2" wire:ignore>
                             <select wire:model="filter_by_assembly" class="form-select chosen-select">
                                 <option value="">Filter by Assembly</option>
                                 @foreach ($assembly as $assemb)
@@ -67,7 +78,7 @@
                             </select>
                         </div>
 
-                        <div class="col-md-3" wire:ignore>
+                        <div class="col-md-2" wire:ignore>
                             <select wire:model="filter_by_district" class="form-select chosen-select">
                                 <option value="">Filter by District</option>
                                 @foreach ($districts as $district)
@@ -78,7 +89,7 @@
                             </select>
                         </div>
 
-                        <div class="col-md-3" wire:ignore>
+                        <div class="col-md-2" wire:ignore>
                             <select wire:model="filter_by_zone" class="form-select chosen-select">
                                 <option value="">Filter by Zone</option>
                                 @foreach ($zones as $z)
@@ -87,8 +98,8 @@
                             </select>
                         </div>
 
-                        <div class="col-md-3">
-                            <select wire:model="filter_by_status" class="form-select" wire:change="filterStatus($event.target.value)">
+                        <div class="col-md-2">
+                            <select wire:model="filter_by_status" class="form-select select-style" wire:change="filterStatus($event.target.value)">
                                 <option value="">Filter by Status</option>
                                 @foreach ($statuses as $status_item)
                                     <option value="{{ $status_item }}">{{ ucwords($status_item) }}</option>
@@ -96,17 +107,21 @@
                             </select>
                         </div>
 
+                        <div class="col-md-1 text-end">
+                            <button class="btn btn-sm btn-danger"
+                                wire:click="resetFilters">
+                                <i class="bi bi-arrow-clockwise"></i> Reset
+                            </button>
+                        </div>
+
                     </div>
 
                     {{-- ROW 2 : SEARCH + RESET --}}
                     <div class="d-flex align-items-center gap-2 justify-content-end">
 
-                        <input type="text" wire:model="search" wire:keyup="filterCampaign($event.target.value)" class="form-control form-control-sm w-auto me-2" placeholder="Search here...">
+                        
 
-                        <button class="btn btn-sm btn-danger"
-                            wire:click="resetFilters">
-                            <i class="bi bi-arrow-clockwise"></i> Reset
-                        </button>
+                        
 
                     </div>
 

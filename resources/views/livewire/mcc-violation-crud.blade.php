@@ -38,7 +38,7 @@
                 </button>
                 @endif
                 @if(childUserAccess(Auth::guard('admin')->user()->id,'mcc_import_mcc'))
-                <button class="btn btn-secondary btn-sm me-2" data-bs-toggle="modal" data-bs-target="#importMccModal">
+                <button class="btn btn-secondary btn-sm " data-bs-toggle="modal" data-bs-target="#importMccModal">
                     <i class="bi bi-upload me-1"></i> Import MCC
                 </button>
                 @endif
@@ -53,7 +53,7 @@
 
         <!-- Table -->
         <div class="col-lg-12">
-            <div class="card shadow-sm border-0 p-3 filter-card">
+            <div class="card shadow-sm border-0 p-3 ">
 
                 <div class="card-header bg-white d-flex justify-content-between align-items-center">
                     <h5 class="fw-bold mb-0">MCC</h5>
@@ -66,7 +66,7 @@
                                 <option value="resolved">Resolved</option>
                             </select>
                         </div>
-                        <div wire:ignore>
+                        <div wire:ignore class="me-2">
                             <select wire:model="filter_by_assembly" class="form-select chosen-select">
                                 <option value="">Filter by Assembly</option>
                                 @foreach ($assembly as $assemb)
@@ -135,7 +135,7 @@
                                             </div>
                                         </td>
                                         <td>{{ $item->created_at->format('d-m-Y h:i A') }}</td>
-                                        <td class="text-center">
+                                        <td class="">
                                             <span class="badge bg-lavel-success" title="Action Taken">
                                                 {{ ucwords($item->legalAssociate->name ?? 'N/A') }}
                                             </span>
@@ -153,7 +153,7 @@
                                             </span>
                                         </td>
 
-                                        <td class="text-center">
+                                        <td class="">
 
                                             <!-- Edit Button -->
                                             @if(childUserAccess(Auth::guard('admin')->user()->id,'mcc_update_mcc') && $item->status == "pending")

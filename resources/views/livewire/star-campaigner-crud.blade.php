@@ -38,7 +38,6 @@
                             class="form-control form-control-sm w-auto me-2"
                             placeholder="Search here...">
 
-
                         <button class="btn btn-sm btn-danger" wire:click="resetFilters">
                             <i class="bi bi-arrow-clockwise"></i> Reset
                         </button>
@@ -47,7 +46,7 @@
                 <div class="card-body p-2">
                     <div class="table-responsive">
                         <table class="table table-hover align-middle mb-0 shadow-sm rounded">
-                            <thead class="table-primary text-center">
+                            <thead class="table-primary">
                                 <tr>
                                     <th>#</th>
                                     <th>Name</th>
@@ -59,7 +58,7 @@
 
                             <tbody>
                                 @forelse($campaigners as $index => $camp)
-                                <tr class="text-center">
+                                <tr class="">
 
                                     <td class="fw-bold text-dark">
                                         {{ $loop->iteration }}
@@ -77,7 +76,7 @@
                                         {{ ucwords($camp->extra_details) ?? '-' }}
                                     </td>
 
-                                    <td class="text-center">
+                                    <td class="">
                                         <div class="btn-group">
                                             <!-- Edit -->
                                             @if(childUserAccess(Auth::guard('admin')->user()->id,'campaign_update_campaigner'))
@@ -99,7 +98,7 @@
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="8" class="text-center text-muted py-4">
+                                    <td colspan="8" class=" text-muted py-4">
                                         <i class="bi bi-info-circle"></i> No campaigns found
                                     </td>
                                 </tr>

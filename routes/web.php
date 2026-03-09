@@ -102,8 +102,7 @@ Route::prefix('/admin')->middleware('auth:admin')->group(function () {
 
     Route::get('/notifications/latest', [NotificationController::class, 'latest']);
     Route::post('/notifications/mark-read/{id}', [NotificationController::class, 'markRead']);
-
-
+    
     Route::prefix('master')->group(function () {
         Route::get('/zones', ZoneCrud::class)->name('admin.master.zones')->middleware('employee.permission:master_view_zones');
         Route::get('/phases', PhaseCrud::class)->name('admin.master.phases')->middleware('employee.permission:master_view_phases');
@@ -156,6 +155,13 @@ Route::prefix('/admin')->middleware('auth:admin')->group(function () {
     });
 });
 
+Route::post('/api/whatsapp/webhook', [NotificationController::class, 'receiveIncident']);
+Route::get('/api/whatsapp/webhook', function () {
+    return response()->json([
+        'status' => false,
+        'message' => 'Not Permission'
+    ], 403);
+});
 /*
 |--------------------------------------------------------------------------
 | API Route Example

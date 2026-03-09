@@ -31,7 +31,7 @@
                                 <option value="resolved">Resolved</option>
                             </select>
                         </div>
-                        <div wire:ignore>
+                        <div wire:ignore class="me-2">
                             <select wire:model="filter_by_assembly" class="form-select chosen-select">
                                 <option value="">Filter by Assembly</option>
                                 @foreach ($assemblies as $assemb)
@@ -77,7 +77,7 @@
                                             <strong>Reported By:</strong> {{ $item->reported_by }} 
                                             <i class="bi bi-telephone ms-1"></i> {{ $item->contact_number }}<br>
                                             <strong>Time:</strong> {{ $item->incident_time }} <br>
-                                            <strong>Severity:</strong><span class="badge 
+                                            <strong>Severity:</strong> <span class="badge 
                                                     @if($item->severity == 'critical') bg-danger
                                                     @elseif($item->severity == 'high') bg-warning
                                                     @elseif($item->severity == 'medium') bg-info

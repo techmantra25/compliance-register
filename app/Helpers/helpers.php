@@ -55,6 +55,10 @@ if (!function_exists('getFinalDocStatus')) {
                 'label' => 'Verified and Submitted with Received Copy',
                 'icon'  => '📄',
             ],
+            'completed_nomination' => [
+                'label' => 'Completed Nomination',
+                'icon'  => '🏁',
+            ],
             'not_received_form' => [
                 'label' => 'Have Not Received Form',
                 'icon'  => '⛔',

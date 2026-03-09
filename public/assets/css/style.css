@@ -706,3 +706,50 @@ body {
 .tooltip-wrapper:hover .tooltip-text {
     visibility: visible;
 }
+
+
+/*----Joy 09-03-26---*/
+
+
+.canditate-search {
+    position: relative;
+}
+
+.canditate-search input[type="text"] {
+    width:100%;
+    height: 45px;
+    padding: 0 42px 0 19px;
+}
+
+.canditate-search span {
+    position: absolute;
+    right:11px;
+    top:50%;
+    transform:translateY(-50%);
+}
+
+.canditate-search svg {
+    width:25px;
+    height: 25px;
+}
+
+.select-style {
+    height: 32px;
+    font-size: 12px;
+}
+
+.chosen-container-single .chosen-single {
+    font-size: 13px;
+}
+
+.chosen-container .chosen-results li {
+    font-size: 13px;
+}
+
+.chosen-container-active.chosen-with-drop .chosen-single div:after {
+    top: -1px !important;
+}
+
+.table th {
+    font-size: 13px;
+}

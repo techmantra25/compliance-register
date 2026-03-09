@@ -459,7 +459,7 @@ class CandidateDocumentCollection extends Component
                     ? Carbon::parse(optional(optional(optional($candidate->assembly)->assemblyPhase)->phase)->date_of_election)->format('d M Y')
                     : 'N/A',
 
-                'link' => route('admin.candidates.documents.vetting', ['candidate' => $candidate->id]),
+                'link' => route('admin.candidates.documents.vetting', $candidate->id),
             ];
 
             foreach ($legal_associate as $email) {

@@ -73,7 +73,7 @@
                                             <td class="text-center">
                                                 @php
                                                     $role_text = ucwords(str_replace('_', ' ', $admin->role));
-                                                    $role_class = $admin->role === 'admin' ? 'bg-primary-subtle text-primary' : 'bg-info-subtle text-info';
+                                                    $role_class = $admin->role === 'admin' ? 'badge text-danger border border-danger rounded-pill' : 'badge text-info border border-info rounded-pill';
                                                 @endphp
                                                 <span class="badge {{ $role_class }} px-2 py-1">
                                                     {{ $role_text }}
@@ -124,7 +124,7 @@
                                                     <span class="tooltip-text">Permissions</span>
                                                 </div>
 
-                                                @if(childUserAccess(Auth::guard('admin')->user()->id,'employee_delete_employee'))
+                                                {{-- @if(childUserAccess(Auth::guard('admin')->user()->id,'employee_delete_employee'))
                                                     @if ($admin->id !== 1)
                                                     <div class="tooltip-wrapper d-inline-block">
                                                         <button class="btn btn-sm btn-outline-danger"
@@ -134,7 +134,7 @@
                                                         <span class="tooltip-text">Delete</span>
                                                     </div>
                                                     @endif
-                                                @endif
+                                                @endif --}}
 
                                             </td>
                                             @else 
@@ -261,7 +261,7 @@
                                             <!-- District badge list -->
                                             <td>
                                                 @foreach($zone->district_list as $district)
-                                                    <span class="badge bg-primary text-dark me-1 mb-1">
+                                                    <span class="badge text-primary border border-primary rounded-pill me-1 mb-1">
                                                         {{ $district }}
                                                     </span>
                                                 @endforeach

@@ -9,6 +9,7 @@ use App\Models\District;
 use App\Models\ChangeLog;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 
 class EmployeeCrud extends Component
 {
@@ -134,7 +135,11 @@ class EmployeeCrud extends Component
         if ($admin) {
             $admin->suspended_status = $admin->suspended_status == 1 ? 0 : 1;
             $admin->save();
-
+            
+            // If suspended → delete all sessions
+            if ($admin->suspended_status == 0) {
+                DB::table('sessions')->where('user_id', $admin->id)->delete();
+            }
             $message = $admin->suspended_status 
                 ? "{$admin->name} is now Active." 
                 : "{$admin->name} has been Suspended.";

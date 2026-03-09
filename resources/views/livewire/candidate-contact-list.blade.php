@@ -50,13 +50,28 @@
 
         <!--  Main Content -->
         <div class="col-lg-12">
-            <div class="card shadow-sm border-0 p-3 filter-card">
+            <div class="card shadow-sm border-0 p-3 ">
                 <div class="card-header bg-white">
+
+                    <div class="row g-2 mb-4 justify-content-center">
+                        <div class="col-md-6">
+                            <div class="canditate-search">
+                                <input type="text"
+                                wire:model="search" wire:keyup="filterCandidates($event.target.value)"
+                                class="form-control form-control-sm"
+                                placeholder="Search candidate...">
+
+                                <span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-search"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
 
                     <!-- 🔹 Row 1 -->
                     <div class="row g-2 mb-2">
 
-                        <div class="col-md-4" wire:ignore>
+                        <div class="col-md-2" wire:ignore>
                             <select wire:model="filter_by_assembly" class="form-select form-select-sm chosen-select">
                                 <option value="">Filter by Assembly</option>
                                 @foreach ($assemblies as $assembly)
@@ -67,7 +82,7 @@
                             </select>
                         </div>
 
-                        <div class="col-md-4" wire:ignore>
+                        <div class="col-md-2" wire:ignore>
                             <select wire:model="filter_by_district" class="form-select form-select-sm chosen-select">
                                 <option value="">Filter by District</option>
                                 @foreach ($districts as $district)
@@ -78,7 +93,7 @@
                             </select>
                         </div>
 
-                        <div class="col-md-4" wire:ignore>
+                        <div class="col-md-2" wire:ignore>
                             <select wire:model="filter_by_phase" class="form-select form-select-sm chosen-select">
                                 <option value="">Filter by Phase</option>
                                 @foreach ($phases as $phase)
@@ -89,13 +104,9 @@
                                 @endforeach
                             </select>
                         </div>
-                    </div>
 
-                    <!-- 🔹 Row 2 -->
-                    <div class="row g-2 align-items-center">
-                        
-                        <div class="col-md-4">
-                            <select wire:model="filter_by_status" class="form-select form-select-sm" wire:change="filterByStatus($event.target.value)">
+                        <div class="col-md-2">
+                            <select wire:model="filter_by_status" class="form-select form-select-sm select-style" wire:change="filterByStatus($event.target.value)">
                                 <option value="">Filter by Final Status</option>
                                 @foreach (getFinalDocStatus() as $key => $status)
                                     <option value="{{ $key }}">
@@ -105,7 +116,40 @@
                             </select>
                         </div>
 
-                        <div class="col-md-3">
+                        <div class="col-md-2">
+                            <select wire:model="filter_by_document" class="form-select form-select-sm select-style" wire:change="filterByDocument($event.target.value)">
+                                <option value="">Filter by Document Status</option>
+                                <option value="all">All Documents Uploaded</option>
+                                <option value="personal_doc">Missing Personal Informations</option>
+                                <option value="missing">Missing Required Documents</option>
+                                <option value="partial">Partially Uploaded Documents</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-2">
+                            <button class="btn btn-sm btn-danger"
+                                    wire:click="resetForm">
+                                    Reset Filters
+                                {{-- <i class="bi bi-arrow-clockwise me-1"></i> --}}
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 🔹 Row 2 -->
+                    {{--<div class="row g-2 align-items-center">
+                        
+                        <div class="col-md-5">
+                            <select wire:model="filter_by_status" class="form-select form-select-sm" wire:change="filterByStatus($event.target.value)">
+                                <option value="">Filter by Final Status</option>
+                                @foreach (getFinalDocStatus() as $key => $status)
+                                    <option value="{{ $key }}">
+                                        {{ $status['icon'] }} {{ $status['label'] }}
+                                    </option>
+                                @endforeach 
+                            </select>
+                        </div>
+
+                        <div class="col-md-5">
                             <select wire:model="filter_by_document" class="form-select form-select-sm" wire:change="filterByDocument($event.target.value)">
                                 <option value="">Filter by Document Status</option>
                                 <option value="all">All Documents Uploaded</option>
@@ -114,20 +158,21 @@
                                 <option value="partial">Partially Uploaded Documents</option>
                             </select>
                         </div>
+
                         <div class="col-md-3">
                             <input type="text"
                                 wire:model="search" wire:keyup="filterCandidates($event.target.value)"
                                 class="form-control form-control-sm"
                                 placeholder="Search candidate...">
                         </div>
+
                         <div class="col-md-2 text-end">
                             <button class="btn btn-sm btn-danger"
                                     wire:click="resetForm">
                                     Reset Filters
-                                {{-- <i class="bi bi-arrow-clockwise me-1"></i> --}}
                             </button>
                         </div>
-                    </div>
+                    </div> --}}
 
                 </div>
 
@@ -272,6 +317,7 @@
                                             </div>
                                         </div>
                                     </td> --}}
+
                                     <td>
                                         <span>
                                             {{ $candidate->assembly->assembly_name_en ?? 'N/A' }}
@@ -281,6 +327,7 @@
                                             @endif
                                         </span>
                                     </td>
+
                                     <td>
                                        @php
                                             $uploaded = $candidate->VedifiedDocuments->groupBy('type')->count();
@@ -331,6 +378,7 @@
 
                                         @endif
                                     </td>
+
                                     <td>
                                         {{
                                             optional(optional(optional($candidate->assembly)->assemblyPhase)->phase)->last_date_of_nomination
@@ -345,18 +393,26 @@
                                         @if($authUser->role=='legal_associate')
                                             @if($uploaded == $required_document)
 
-                                            <div class="tooltip-wrapper">
-                                                <a href="{{route('admin.candidates.documents.vetting', $candidate->id)}}"
-                                                class="btn btn-sm btn-outline-success">
-                                                    @if($candidate->document_collection_status == 'rejected')
-                                                        <i class="bi bi-arrow-clockwise"></i> View Details
-                                                    @else   
-                                                         Verify
-                                                    @endif
-                                                </a>
-                                                <span class="tooltip-text">Verify Documents</span>
-                                            </div>
-
+                                                <div class="tooltip-wrapper">
+                                                    <a href="{{route('admin.candidates.documents.vetting', $candidate->id)}}"
+                                                    class="btn btn-sm btn-outline-success">
+                                                        @if($candidate->document_collection_status == 'rejected')
+                                                            <i class="bi bi-arrow-clockwise"></i> View Details
+                                                        @else   
+                                                            Verify
+                                                        @endif
+                                                    </a>
+                                                    <span class="tooltip-text">Verify Documents</span>
+                                                </div>
+                                                @if($candidate->document_collection_status == 'verified_pending_submission')
+                                                    <div class="tooltip-wrapper">
+                                                        <button type="button"
+                                                            class="btn btn-sm btn-outline-success" onclick="SendNotifyCandidateMail({{$candidate->id}})">
+                                                            <i class="bi bi-envelope-fill"></i>
+                                                        </button>
+                                                        <span class="tooltip-text"> Notify Candidate that Documents Have Been Verified</span>
+                                                    </div>
+                                                @endif
                                             @endif
                                         @else
 
@@ -405,7 +461,7 @@
                                             @if(childUserAccess(Auth::guard('admin')->user()->id,'nomination_candidate_journey_timeline'))
                                             <div class="tooltip-wrapper">
                                                 <a href="{{ route('admin.candidates.journey', $candidate->id) }}"
-                                                class="btn btn-sm btn-outline-success mt-1">
+                                                class="btn btn-sm btn-outline-success">
                                                 <i class="bi bi-clock-history"></i>
                                                 </a>
                                                 <span class="tooltip-text">Candidate Journey Timeline</span>
@@ -895,15 +951,43 @@
 
             });
         }
+        function SendNotifyCandidateMail(id) {
+            Swal.fire({
+                title: "Send Mail?",
+                text: "Are you sure you want to send the email to the Candidate?",
+                icon: "question",
+                showCancelButton: true,
+                confirmButtonColor: "#198754",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Yes, Send Mail"
+            }).then((result) => {
 
-          document.addEventListener('livewire:init', () => {
+                if (result.isConfirmed) {
+
+                    Swal.fire({
+                        title: "Sending Mail...",
+                        text: "Please wait while the email is being sent.",
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+
+                    @this.call('ConfirmSendNotifyMailMail', id);
+                }
+
+            });
+        }
+
+        document.addEventListener('livewire:init', () => {
 
             window.addEventListener('mail-sent-success', () => {
 
                 Swal.fire({
                     icon: "success",
                     title: "Mail Sent!",
-                    text: "Email successfully sent to the Legal Associate.",
+                    text: "Email successfully sent.",
                     confirmButtonColor: "#198754"
                 });
 
