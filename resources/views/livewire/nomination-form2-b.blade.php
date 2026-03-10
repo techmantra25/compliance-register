@@ -147,6 +147,7 @@
                                 @error('relation_name')
                                     <small class="text-danger d-block error-field" id="error-relation_name">{{ $message }}</small>
                                 @enderror
+                                
                         </div>
                     </div>
 
@@ -476,24 +477,27 @@
                         </label>
                         <div class="col-md-8">
                             <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" id="office_of_profit_yes" name="office_of_profit" wire:model="office_of_profit" value="Yes">
+                                <input class="form-check-input" type="radio" id="office_of_profit_yes" name="office_of_profit" wire:model="office_of_profit" value="1" wire:change="FieldToggle('office_of_profit', 1)">
                                 <label class="form-check-label" for="office_of_profit_yes">Yes</label>
                             </div>
                             <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" id="office_of_profit_no" name="office_of_profit" wire:model="office_of_profit" value="No">
+                                <input class="form-check-input" type="radio" id="office_of_profit_no" name="office_of_profit" wire:model="office_of_profit" value="0" wire:change="FieldToggle('office_of_profit', 0)">
                                 <label class="form-check-label" for="office_of_profit_no">No</label>
                             </div>
                         </div>
                     </div>
-
-                    {{-- @if($office_of_profit === "Yes") --}}
-                    <div class="row mb-3">
-                        <label class="col-md-4 col-form-label">Details of office held</label>
-                        <div class="col-md-8">
-                            <input type="text" class="form-control" wire:model.defer="holding_office_of_profit">
+                    {{-- Yes --}}
+                    @if($office_of_profit == 1 ) 
+                        <div class="row mb-3">
+                            <label class="col-md-4 col-form-label">Details of office held</label>
+                            <div class="col-md-8">
+                                <input type="text" class="form-control" wire:model.defer="holding_office_of_profit">
+                                @error('holding_office_of_profit')
+                                    <small class="text-danger d-block error-field" id="error-holding_office_of_profit">{{ $message }}</small>
+                                @enderror
+                            </div>
                         </div>
-                    </div>
-                    {{-- @endif --}}
+                    @endif
 
                     <div class="row mb-3">
                         <label class="col-md-4 col-form-label fw-semibold">
@@ -501,24 +505,27 @@
                         </label>
                         <div class="col-md-8">
                             <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" id="insolvent_yes" name="insolvent" wire:model="insolvent" value="Yes">
+                                <input class="form-check-input" type="radio" id="insolvent_yes" name="insolvent" wire:model="insolvent" value="1" wire:change="FieldToggle('insolvent', 1)">
                                 <label class="form-check-label" for="insolvent_yes">Yes</label>
                             </div>
                             <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" id="insolvent_no" name="insolvent" wire:model="insolvent" value="No">
+                                <input class="form-check-input" type="radio" id="insolvent_no" name="insolvent" wire:model="insolvent" value="0" wire:change="FieldToggle('insolvent', 0)">
                                 <label class="form-check-label" for="insolvent_no">No</label>
                             </div>
                         </div>
                     </div>
 
-                    {{-- @if($insolvent === "Yes") --}}
-                    <div class="row mb-3">
-                        <label class="col-md-4 col-form-label">Insolvency details</label>
-                        <div class="col-md-8">
-                            <input type="text" class="form-control" wire:model.defer="declared_insolvent">
+                    @if($insolvent == 1)
+                        <div class="row mb-3">
+                            <label class="col-md-4 col-form-label">Insolvency details</label>
+                            <div class="col-md-8">
+                                <input type="text" class="form-control" wire:model.defer="declared_insolvent">
+                                @error('declared_insolvent')
+                                    <small class="text-danger d-block error-field" id="error-declared_insolvent">{{ $message }}</small>
+                                @enderror
+                            </div>
                         </div>
-                    </div>
-                    {{-- @endif --}}
+                    @endif
 
                     <div class="row mb-3">
                         <label class="col-md-4 col-form-label fw-semibold">
@@ -526,24 +533,27 @@
                         </label>
                         <div class="col-md-8">
                             <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" id="foreign_allegiance_yes" name="foreign_allegiance" wire:model="foreign_allegiance" value="Yes">
+                                <input class="form-check-input" type="radio" id="foreign_allegiance_yes" name="foreign_allegiance" wire:model="foreign_allegiance" value="1" wire:change="FieldToggle('foreign_allegiance', 1)">
                                 <label class="form-check-label" for="foreign_allegiance_yes">Yes</label>
                             </div>
                             <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" id="foreign_allegiance_no" name="foreign_allegiance" wire:model="foreign_allegiance" value="No">
+                                <input class="form-check-input" type="radio" id="foreign_allegiance_no" name="foreign_allegiance" wire:model="foreign_allegiance" value="0" wire:change="FieldToggle('foreign_allegiance', 0)">
                                 <label class="form-check-label" for="foreign_allegiance_no">No</label> 
                             </div>
                         </div>
                     </div>
 
-                    {{-- @if($foreign_allegiance === "Yes") --}}
-                    <div class="row mb-3">
-                        <label class="col-md-4 col-form-label">Details</label>
-                        <div class="col-md-8">
-                            <input type="text" class="form-control" wire:model.defer="allegiance_to_foreign_country">
+                    @if($foreign_allegiance == 1)
+                        <div class="row mb-3">
+                            <label class="col-md-4 col-form-label">Details</label>
+                            <div class="col-md-8">
+                                <input type="text" class="form-control" wire:model.defer="allegiance_to_foreign_country">
+                                @error('allegiance_to_foreign_country')
+                                    <small class="text-danger d-block error-field" id="error-allegiance_to_foreign_country">{{ $message }}</small>
+                                @enderror
+                            </div>
                         </div>
-                    </div>
-                    {{-- @endif --}}
+                    @endif
 
 
                     <div class="row mb-3">
@@ -553,24 +563,24 @@
                         </label>
                         <div class="col-md-8">
                             <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" id="disqualified_president_yes" name="disqualified_president" wire:model="disqualified_president" value="Yes">
+                                <input class="form-check-input" type="radio" id="disqualified_president_yes" name="disqualified_president" wire:model="disqualified_president" value="1" wire:change="FieldToggle('disqualified_president', 1)">
                                 <label class="form-check-label" for="disqualified_president_yes">Yes</label>
                             </div>
                             <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" id="disqualified_president_no" name="disqualified_president" wire:model="disqualified_president" value="No">
+                                <input class="form-check-input" type="radio" id="disqualified_president_no" name="disqualified_president" wire:model="disqualified_president" value="0" wire:change="FieldToggle('disqualified_president', 0)">
                                 <label class="form-check-label" for="disqualified_president_no">No</label>
                             </div>
                         </div>
                     </div>
 
-                    {{-- @if($disqualified_president === "Yes") --}}
-                    <div class="row mb-3">
-                        <label class="col-md-4 col-form-label">If Yes, the period for which disqualified</label>
-                        <div class="col-md-8">
-                            <input type="text" class="form-control" wire:model.defer="disqualified_by_president">
+                    @if($disqualified_president == 1)
+                        <div class="row mb-3">
+                            <label class="col-md-4 col-form-label">If Yes, the period for which disqualified</label>
+                            <div class="col-md-8">
+                                <input type="text" class="form-control" wire:model.defer="disqualified_by_president">
+                            </div>
                         </div>
-                    </div>
-                    {{-- @endif --}}
+                    @endif
 
 
                     <div class="row mb-3">
@@ -580,25 +590,25 @@
                         <div class="col-md-8">
                             <div class="form-check form-check-inline">
                                 <input class="form-check-input" type="radio" id="dismissed_for_corruptions_yes" name="dismissed_for_corruptions"
-                                    wire:model="dismissed_for_corruptions" value="Yes">
+                                    wire:model="dismissed_for_corruptions" value="1" wire:change="FieldToggle('dismissed_for_corruptions', 1)">
                                 <label class="form-check-label" for="dismissed_for_corruptions_yes">Yes</label>
                             </div>
                             <div class="form-check form-check-inline">
                                 <input class="form-check-input" type="radio" id="dismissed_for_corruptions_no" name="dismissed_for_corruptions"
-                                    wire:model="dismissed_for_corruptions" value="No">
+                                    wire:model="dismissed_for_corruptions" value="0" wire:change="FieldToggle('dismissed_for_corruptions', 0)">
                                 <label class="form-check-label" for="dismissed_for_corruptions_no">No</label>
                             </div>
                         </div>
                     </div>
 
-                    {{-- @if($dismissed_for_corruptions === "Yes") --}}
-                    <div class="row mb-3">
-                        <label class="col-md-4 col-form-label">Date of dismissal</label>
-                        <div class="col-md-4">
-                            <input type="date" class="form-control" wire:model.defer="dismissed_for_corruption">
+                    @if($dismissed_for_corruptions == 1)
+                        <div class="row mb-3">
+                            <label class="col-md-4 col-form-label">Date of dismissal</label>
+                            <div class="col-md-4">
+                                <input type="date" class="form-control" wire:model.defer="dismissed_for_corruption">
+                            </div>
                         </div>
-                    </div>
-                    {{-- @endif --}}
+                    @endif
 
 
                     <div class="row mb-3">
@@ -608,29 +618,29 @@
                         <div class="col-md-8">
                             <div class="form-check form-check-inline">
                                 <input class="form-check-input" type="radio" id="govt_contract_yes" name="govt_contract"
-                                    wire:model="govt_contract" value="Yes">
+                                    wire:model="govt_contract" value="1" wire:change="FieldToggle('govt_contract', 1)">
                                 <label class="form-check-label" for="govt_contract_yes">Yes</label>
                             </div>
                             <div class="form-check form-check-inline">
                                 <input class="form-check-input" type="radio" id="govt_contract_no" name="govt_contract"
-                                    wire:model="govt_contract" value="No">
+                                    wire:model="govt_contract" value="0" wire:change="FieldToggle('govt_contract', 0)">
                                 <label class="form-check-label" for="govt_contract_no">No</label>
                             </div>
                         </div>
                     </div>
 
-                    {{-- @if($govt_contract === "Yes") --}}
-                    <div class="row mb-3">
-                        <label class="col-md-4 col-form-label">
-                            With which Government and details of subsisting contract(s)
-                        </label>
-                        <div class="col-md-8">
-                            <input type="text"
-                                class="form-control"
-                                wire:model.defer="subsisting_govt_contract">
+                    @if($govt_contract == 1)
+                        <div class="row mb-3">
+                            <label class="col-md-4 col-form-label">
+                                With which Government and details of subsisting contract(s)
+                            </label>
+                            <div class="col-md-8">
+                                <input type="text"
+                                    class="form-control"
+                                    wire:model.defer="subsisting_govt_contract">
+                            </div>
                         </div>
-                    </div>
-                    {{-- @endif --}}
+                    @endif
 
 
                     <div class="row mb-3">
@@ -640,29 +650,29 @@
                         <div class="col-md-8">
                             <div class="form-check form-check-inline">
                                 <input class="form-check-input" type="radio" id="company_position_yes" name="company_position"
-                                    wire:model="company_position" value="Yes">
+                                    wire:model="company_position" value="1" wire:change="FieldToggle('company_position', 1)">
                                 <label class="form-check-label" for="company_position_yes">Yes</label>
                             </div>
                             <div class="form-check form-check-inline">
                                 <input class="form-check-input" type="radio" id="company_position_no" name="company_position"
-                                    wire:model="company_position" value="No">
+                                    wire:model="company_position" value="0" wire:change="FieldToggle('company_position', 0)">
                                 <label class="form-check-label" for="company_position_no">No</label>
                             </div>
                         </div>
                     </div>
 
-                    {{-- @if($company_position === "Yes") --}}
-                    <div class="row mb-3">
-                        <label class="col-md-4 col-form-label">
-                            Details thereof
-                        </label>
-                        <div class="col-md-8">
-                            <input type="text"
-                                class="form-control"
-                                wire:model.defer="managing_agent_role">
+                    @if($company_position == 1)
+                        <div class="row mb-3">
+                            <label class="col-md-4 col-form-label">
+                                Details thereof
+                            </label>
+                            <div class="col-md-8">
+                                <input type="text"
+                                    class="form-control"
+                                    wire:model.defer="managing_agent_role">
+                            </div>
                         </div>
-                    </div>
-                    {{-- @endif --}}
+                    @endif
 
 
                     <div class="row mb-3">
@@ -672,29 +682,29 @@
                         <div class="col-md-8">
                             <div class="form-check form-check-inline">
                                 <input class="form-check-input" type="radio" id="commission_disqualified_yes" name="disqualified_by_commission"
-                                    wire:model="commission_disqualified" value="Yes">
+                                    wire:model="commission_disqualified" value="1" wire:change="FieldToggle('commission_disqualified', 1)">
                                 <label class="form-check-label" for="commission_disqualified_yes">Yes</label>
                             </div>
                             <div class="form-check form-check-inline">
                                 <input class="form-check-input" type="radio" id="commission_disqualified_no" name="disqualified_by_commission"
-                                    wire:model="commission_disqualified" value="No">
+                                    wire:model="commission_disqualified" value="0" wire:change="FieldToggle('commission_disqualified', 0)">
                                 <label class="form-check-label" for="commission_disqualified_no">No</label>
                             </div>
                         </div>
                     </div>
 
-                    {{-- @if($commission_disqualified === "Yes") --}}
-                    <div class="row mb-3">
-                        <label class="col-md-4 col-form-label">
-                            Date of disqualification
-                        </label>
-                        <div class="col-md-4">
-                            <input type="date"
-                                class="form-control"
-                                wire:model.defer="date_of_disqualification">
+                    @if($commission_disqualified == 1)
+                        <div class="row mb-3">
+                            <label class="col-md-4 col-form-label">
+                                Date of disqualification
+                            </label>
+                            <div class="col-md-4">
+                                <input type="date"
+                                    class="form-control"
+                                    wire:model.defer="date_of_disqualification">
+                            </div>
                         </div>
-                    </div>
-                    {{-- @endif --}}
+                    @endif
 
                      @if ($errors->any())
                         <div class="alert alert-danger">
@@ -727,7 +737,6 @@
         document.addEventListener('livewire:init', function () {
 
             Livewire.on('scroll-to-error', () => {
-
                 let firstError = document.querySelector('.error-field');
 
                 if (firstError) {
