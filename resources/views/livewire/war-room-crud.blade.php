@@ -43,8 +43,8 @@
                         </div>
                         
                         <input type="text" wire:model="search" wire:keyup="filterCampaign($event.target.value)"
-                            class="form-control form-control-sm w-auto me-2"
-                            placeholder="Search here...">
+                            class="form-control form-control-sm me-2"
+                            placeholder="Search here..." style="width: 420px;">
 
 
                         <button class="btn btn-sm btn-danger" wire:click="resetFilters">
@@ -54,52 +54,111 @@
                 </div>
                 <div class="card-body p-2">
                     <div class="table-responsive">
+
                         <table class="table table-hover align-middle">
+
                             <thead class="table-light">
                                 <tr>
-                                    <th>Incident Details</th>
-                                    <th>Status</th>
-                                    <th>Assigned To</th>
-                                    <th>Action</th>
+                                    <th width="15%">Incident</th>
+                                    <th width="25%">Location</th>
+                                    <th width="25%">Reporter</th>
+                                    <th width="10%">Status</th>
+                                    <th width="10%">Assigned</th>
+                                    <th width="10%">Action</th>
                                 </tr>
                             </thead>
+
                             <tbody>
+
                                 @forelse($warList as $item)
+
                                 <tr>
-                                    <!-- Incident Details -->
+
+                                    <!-- Incident -->
                                     <td>
-                                        <div class="fw-bold text-danger mb-1">{{ $item->war_code }}</div>
-                                        <div>
-                                            <strong>Assembly:</strong> {{ optional($item->assembly)->assembly_name_en }}<br>
-                                            <strong>District:</strong> <small class="text-muted">{{ optional($item->district)->name_en }}</small><br>
-                                            <strong>Booth/Area:</strong> {{ $item->booth_area }}<br>
-                                            <strong>Type:</strong> {{ $item->incident_type }}<br>
-                                            <strong>Reported By:</strong> {{ $item->reported_by }} 
-                                            <i class="bi bi-telephone ms-1"></i> {{ $item->contact_number }}<br>
-                                            <strong>Time:</strong> {{ $item->incident_time }} <br>
-                                            <strong>Severity:</strong> <span class="badge 
-                                                    @if($item->severity == 'critical') bg-danger
-                                                    @elseif($item->severity == 'high') bg-warning
-                                                    @elseif($item->severity == 'medium') bg-info
-                                                    @else bg-success
-                                                    @endif">
-                                                    {{ ucfirst($item->severity) }}
-                                                </span>
+
+                                        <div class="fw-bold text-danger">
+                                            {{ $item->war_code }}
                                         </div>
+
+                                        <div class="small text-muted">
+                                            {{ $item->created_at->format('d M Y h:i:A') }}
+                                        </div>
+
                                     </td>
 
-                                   <td>
-                                        <span class="badge 
-                                            @if($item->status == 'Pending') bg-warning
-                                            @elseif($item->status == 'In Progress') bg-info
-                                            @elseif($item->status == 'Resolved') bg-success
+
+                                    <!-- Location -->
+                                    <td class="small">
+
+                                        <div>
+                                            <strong>Assembly:</strong>
+                                            {{ optional($item->assembly)->assembly_name_en ?? '-' }}
+                                        </div>
+
+                                        <div>
+                                            <strong>District:</strong>
+                                            {{ optional($item->district)->name_en ?? '-' }}
+                                        </div>
+
+                                        <div>
+                                            <strong>Block:</strong> {{ $item->block_town ?? '-' }}
+                                        </div>
+
+                                        <div>
+                                            <strong>GP/Ward:</strong> {{ $item->gp_word ?? '-' }}
+                                        </div>
+
+                                        <div>
+                                            <strong>Booth:</strong> {{ $item->booth_area ?? '-' }}
+                                        </div>
+
+                                    </td>
+
+
+                                    <!-- Reporter -->
+                                    <td class="small">
+
+                                        <div>
+                                            <strong>Complainant:</strong>
+                                            {{ $item->reported_by ?? '-' }}
+                                        </div>
+
+                                        <div>
+                                            <strong>Phone:</strong>
+                                            {{ $item->contact_number ?? '-' }}
+                                        </div>
+
+                                        <div>
+                                            <strong>WhatsApp:</strong>
+                                            {{ $item->incident_from_name ?? '-' }}
+                                        </div>
+
+                                        <div class="text-muted">
+                                            {{ $item->incident_from_number ?? '-' }}
+                                        </div>
+
+                                    </td>
+
+
+                                    <!-- Status -->
+                                    <td>
+
+                                        <span class="badge
+                                            @if($item->status == 'pending') bg-warning
+                                            @elseif($item->status == 'inprogress') bg-info
+                                            @elseif($item->status == 'resolved') bg-success
                                             @else bg-secondary
                                             @endif">
-                                            {{ ucwords($item->status) }}
+
+                                            {{ ucfirst($item->status) }}
+
                                         </span>
+
                                     </td>
 
-                                    <!-- Assigned To -->
+
+                                    <!-- Assigned -->
                                     <td>
                                         @if($item->assigned_to)
 
@@ -111,7 +170,7 @@
 
                                             <button class="btn btn-sm btn-outline-primary"
                                                 wire:click="openAssignModal({{ $item->id }})">
-                                                <i class="bi bi-person-check"></i> Assign To
+                                                 Assign To
                                             </button>
 
                                         @endif
@@ -120,36 +179,55 @@
 
                                     <!-- Action -->
                                     <td>
-                                        <div class="d-flex flex-wrap gap-1">
+
+                                        <div class="d-flex gap-1">
+
                                             @if(childUserAccess(Auth::guard('admin')->user()->id,'war_room_update'))
-                                            <button class="btn btn-sm btn-outline-primary" wire:click="edit({{ $item->id }})">
+                                            <button class="btn btn-sm btn-outline-primary"
+                                                wire:click="edit({{ $item->id }})">
                                                 <i class="bi bi-pencil-square"></i>
                                             </button>
                                             @endif
 
-                                            <a href="{{ route('admin.war_room_remarks', $item->id) }}" 
-                                            class="btn btn-sm btn-outline-warning position-relative">
+
+                                            <a href="{{ route('admin.war_room_remarks',$item->id) }}"
+                                                class="btn btn-sm btn-outline-warning position-relative">
+
                                                 <i class="bi bi-chat-left-text"></i>
+
                                                 @php
-                                                    $unreadRemarks = $item->remarks()->where('is_read', 0)->count();
+                                                $unreadRemarks = $item->remarks()->where('is_read',0)->count();
                                                 @endphp
+
                                                 @if($unreadRemarks > 0)
-                                                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                                                        {{ $unreadRemarks }}
-                                                    </span>
+
+                                                <span
+                                                    class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                                    {{ $unreadRemarks }}
+                                                </span>
+
                                                 @endif
+
                                             </a>
+
                                         </div>
+
                                     </td>
+
                                 </tr>
+
                                 @empty
+
                                 <tr>
-                                    <td colspan="4" class="text-center text-danger fw-bold">
+                                    <td colspan="6" class="text-center text-danger fw-bold">
                                         No Records Found
                                     </td>
                                 </tr>
+
                                 @endforelse
+
                             </tbody>
+
                         </table>
 
                         <!-- Pagination -->
@@ -239,6 +317,19 @@
                                 @error('assembly_id') <small class="text-danger">{{ $message }}</small> @enderror
                             </div>
 
+                            <!-- Block / Town -->
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Block / Town<span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" wire:model="block_town" placeholder="Enter Block or Town">
+                                @error('block_town') <small class="text-danger">{{ $message }}</small> @enderror
+                            </div>
+
+                            <!-- GP / Word -->
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">GP / Word<span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" wire:model="gp_word" placeholder="Enter GP or Word">
+                                @error('gp_word') <small class="text-danger">{{ $message }}</small> @enderror
+                            </div>
                             <!-- Booth / Area -->
                             <div class="col-md-6">
                                 <label class="form-label fw-semibold">Booth / Area<span class="text-danger">*</span></label>
@@ -246,37 +337,9 @@
                                 @error('booth_area') <small class="text-danger">{{ $message }}</small> @enderror
                             </div>
 
-                            <!-- Incident Type -->
-                            <div class="col-md-6">
-                                <label class="form-label fw-semibold">Incident Type<span class="text-danger">*</span></label>
-                                <select class="form-control" wire:model="incident_type">
-                                    <option value="">Select Type</option>
-                                    <option value="Violence">Violence</option>
-                                    <option value="Booth Capture">Booth Capture</option>
-                                    <option value="Fake Voting">Fake Voting</option>
-                                    <option value="EVM Issue">EVM Issue</option>
-                                    <option value="Voter Intimidation">Voter Intimidation</option>
-                                    <option value="Other">Other</option>
-                                </select>
-                                @error('incident_type') <small class="text-danger">{{ $message }}</small> @enderror
-                            </div>
-
-                            <!-- Severity -->
-                            <div class="col-md-6">
-                                <label class="form-label fw-semibold">Severity<span class="text-danger">*</span></label>
-                                <select class="form-control" wire:model="severity">
-                                    <option value="">Select Severity</option>
-                                    <option value="low">Low</option>
-                                    <option value="medium">Medium</option>
-                                    <option value="high">High</option>
-                                    <option value="critical">Critical</option>
-                                </select>
-                                @error('severity') <small class="text-danger">{{ $message }}</small> @enderror
-                            </div>
-
                             <!-- Time of Incident -->
                             <div class="col-md-6">
-                                <label class="form-label fw-semibold">Time of Incident<span class="text-danger">*</span></label>
+                                <label class="form-label fw-semibold">Time of Incident</label>
                                 <input type="text" class="form-control" wire:model="incident_time" placeholder="Eg: 12:30 PM">
                                 @error('incident_time') <small class="text-danger">{{ $message }}</small> @enderror
                             </div>
@@ -299,7 +362,7 @@
                             <div class="col-md-6">
                                 <label class="form-label fw-semibold">Assign Legal Associate</label>
                                 <select class="form-control" wire:model="assigned_to">
-                                    <option value="">Select User</option>
+                                    <option value="">Select Associate</option>
                                     @foreach($legalAssociates as $user)
                                         <option value="{{ $user->id }}">{{ ucwords($user->name) }}</option>
                                     @endforeach

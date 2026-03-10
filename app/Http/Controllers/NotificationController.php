@@ -35,17 +35,41 @@ class NotificationController extends Controller
         ]);
     }
 
-   public function receiveIncident(Request $request)
+    public function receiveIncident(Request $request)
     {
-       // Log full request
-        Log::info('WhatsApp Webhook Request', [
-            'all_data' => $request->all(),
+        /*
+        |--------------------------------------------------------------------------
+        | Log Full Webhook Payload
+        |--------------------------------------------------------------------------
+        */
+
+        Log::info('WhatsApp Webhook Payload', [
+            'payload' => $request->all()
         ]);
 
-        $message = $request->input('message');
+        /*
+        |--------------------------------------------------------------------------
+        | Extract WhatsApp Data
+        |--------------------------------------------------------------------------
+        */
 
-        if (!$message) {
-            Log::warning('No message received in webhook');
+        $entry = $request->input('entry.0.changes.0.value');
+
+        if (!$entry) {
+            Log::warning('Invalid WhatsApp webhook structure');
+
+            return response()->json([
+                'status' => false,
+                'message' => 'Invalid webhook payload'
+            ]);
+        }
+
+        $contact = $entry['contacts'][0] ?? null;
+        $messageObj = $entry['messages'][0] ?? null;
+
+        if (!$messageObj) {
+
+            Log::warning('No message object found in webhook');
 
             return response()->json([
                 'status' => false,
@@ -53,42 +77,80 @@ class NotificationController extends Controller
             ]);
         }
 
-        $lines = explode("\n",$message);
+        /*
+        |--------------------------------------------------------------------------
+        | Sender Details
+        |--------------------------------------------------------------------------
+        */
+
+        $incidentFromName = $contact['profile']['name'] ?? null;
+        $incidentFromNumber = $messageObj['from'] ?? null;
+
+        /*
+        |--------------------------------------------------------------------------
+        | Message Body
+        |--------------------------------------------------------------------------
+        */
+
+        $message = $messageObj['text']['body'] ?? null;
+
+        if (!$message) {
+
+            Log::warning('Message body missing');
+
+            return response()->json([
+                'status' => false,
+                'message' => 'Empty message body'
+            ]);
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Parse Message Fields
+        |--------------------------------------------------------------------------
+        */
+
+        $lines = explode("\n", $message);
 
         $data = [];
 
-        foreach($lines as $line){
+        foreach ($lines as $line) {
 
-            if(str_contains($line,'Assembly:')){
-                $data['assembly'] = trim(str_replace('Assembly:','',$line));
+            $line = trim($line);
+
+            // AC -> Assembly
+            if (str_contains($line, 'AC:')) {
+                $data['assembly'] = trim(str_replace('AC:', '', $line));
             }
 
-            if(str_contains($line,'Booth / Area:')){
-                $data['booth_area'] = trim(str_replace('Booth / Area:','',$line));
+            // Block/Town
+            if (str_contains($line, 'Block/Town:')) {
+                $data['block_town'] = trim(str_replace('Block/Town:', '', $line));
             }
 
-            if(str_contains($line,'Incident Type:')){
-                $data['incident_type'] = trim(str_replace('Incident Type:','',$line));
+            // GP/Ward
+            if (str_contains($line, 'GP/Ward:')) {
+                $data['gp_word'] = trim(str_replace('GP/Ward:', '', $line));
             }
 
-            if(str_contains($line,'Severity:')){
-                $data['severity'] = trim(str_replace('Severity:','',$line));
+            // Booth No
+            if (str_contains($line, 'Booth No:')) {
+                $data['booth_area'] = trim(str_replace('Booth No:', '', $line));
             }
 
-            if(str_contains($line,'Incident Description:')){
-                $data['incident_description'] = trim(str_replace('Incident Description:','',$line));
+            // Complainant Name
+            if (str_contains($line, 'Name of complainant:')) {
+                $data['reported_by'] = trim(str_replace('Name of complainant:', '', $line));
             }
 
-            if(str_contains($line,'Reported By:')){
-                $data['reported_by'] = trim(str_replace('Reported By:','',$line));
+            // Phone
+            if (str_contains($line, 'Complainant phone no:')) {
+                $data['contact_number'] = trim(str_replace('Complainant phone no:', '', $line));
             }
 
-            if(str_contains($line,'Contact Number:')){
-                $data['contact_number'] = trim(str_replace('Contact Number:','',$line));
-            }
-
-            if(str_contains($line,'Incident Time:')){
-                $data['incident_time'] = trim(str_replace('Incident Time:','',$line));
+            // Complaint Details
+            if (str_contains($line, 'Complaint details:')) {
+                $data['incident_description'] = trim(str_replace('Complaint details:', '', $line));
             }
         }
 
@@ -97,23 +159,30 @@ class NotificationController extends Controller
         | Assembly Match
         |--------------------------------------------------------------------------
         */
-
+        
+        Log::info('Parsed WhatsApp Message', [
+            'from_name' => $incidentFromName,
+            'from_number' => $incidentFromNumber,
+            'message' => $message,
+            'data' => $data
+        ]);
+        
         $assembly = null;
 
-        if(!empty($data['assembly'])){
+        if (!empty($data['assembly'])) {
 
             $assemblyValue = trim($data['assembly']);
 
-            $assembly = Assembly::where('assembly_code',$assemblyValue)
-                ->orWhere('assembly_number',$assemblyValue)
-                ->orWhere('assembly_name_en','LIKE',"%{$assemblyValue}%")
-                ->orWhere('assembly_name_bn','LIKE',"%{$assemblyValue}%")
+            $assembly = Assembly::where('assembly_code', $assemblyValue)
+                ->orWhere('assembly_number', $assemblyValue)
+                ->orWhere('assembly_name_en', 'LIKE', "%{$assemblyValue}%")
+                ->orWhere('assembly_name_bn', 'LIKE', "%{$assemblyValue}%")
                 ->first();
         }
 
         /*
         |--------------------------------------------------------------------------
-        | War Code Generate
+        | Generate War Code
         |--------------------------------------------------------------------------
         */
 
@@ -121,22 +190,35 @@ class NotificationController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | Insert Incident
+        | Save Incident
         |--------------------------------------------------------------------------
         */
 
         $incident = WarRoom::create([
+
             'war_code' => $warCode,
+
+            'incident_from_name' => $incidentFromName,
+            'incident_from_number' => $incidentFromNumber,
+
             'assembly_id' => $assembly->id ?? null,
             'district_id' => $assembly->district_id ?? null,
+
+            'block_town' => $data['block_town'] ?? null,
+            'gp_word' => $data['gp_word'] ?? null,
             'booth_area' => $data['booth_area'] ?? null,
-            'incident_type' => $data['incident_type'] ?? null,
-            'severity' => $data['severity'] ?? null,
+
             'incident_description' => $data['incident_description'] ?? null,
+
             'reported_by' => $data['reported_by'] ?? null,
             'contact_number' => $data['contact_number'] ?? null,
-            'incident_time' => $data['incident_time'] ?? null,
+
             'status' => 'pending'
+        ]);
+
+        Log::info('Incident Stored', [
+            'war_code' => $warCode,
+            'incident_id' => $incident->id
         ]);
 
         /*
@@ -148,14 +230,20 @@ class NotificationController extends Controller
         $assemblyName = $assembly->assembly_name_en ?? 'Unknown Assembly';
 
         Notification::create([
-            'title' => 'New Election Incident from '.$assemblyName,
+            'title' => 'New Election Incident from ' . $assemblyName,
             'url' => route('admin.war_room'),
             'is_read' => 0
         ]);
 
+        /*
+        |--------------------------------------------------------------------------
+        | Response
+        |--------------------------------------------------------------------------
+        */
+
         return response()->json([
-            'status'=>true,
-            'message'=>'Incident captured successfully'
+            'status' => true,
+            'message' => 'Incident captured successfully'
         ]);
     }
 
