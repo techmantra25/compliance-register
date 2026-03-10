@@ -226,7 +226,7 @@
     </div>
 
     <div class="card shadow-sm border-0 p-3">
-        <div class="form-container">
+        <div id="printArea" class="form-container">
             <form>
                     <div class="keep-together">
                         <div class="pagenumber">
@@ -2237,7 +2237,7 @@
                     </p>
                 </div>
 
-                <div class="text-end mt-4">
+                <div class="text-end mt-4 no-print">
                 {{-- <button
                         type="button"
                         wire:click="downloadPdf"
@@ -2247,13 +2247,17 @@
                         <span wire:loading>Generating PDF...</span>
                     </button>
                     --}}
-                    <a 
+                    {{-- <a 
                         href="{{ route('admin.candidates.form26.pdf', $form->id) }}" 
                         target="_blank"
                         class="btn btn-success"
                     >
                         Generate PDF
-                    </a>
+                    </a> --}}
+
+                    <button type="button" onclick="printForm()" class="btn btn-success">
+                        Generate PDF
+                    </button>
 
                     <a href="{{ url()->previous() }}" class="btn btn-secondary">
                         Modify Details
@@ -2263,4 +2267,60 @@
             </form>
         </div>
     </div>
+@push('scripts')
+    <script>
+    function printForm() {
+
+        var content = document.getElementById('printArea').innerHTML;
+
+        var printWindow = window.open('', '', 'width=900,height=650');
+
+        printWindow.document.write(`
+            <html>
+            <head>
+                <title>Form 26</title>
+                <style>
+                    body{
+                        font-family:'Times New Roman', Times, serif;
+                        margin:20px;
+                    }
+
+                    @page{
+                        size:A4;
+                        margin:8mm;
+                    }
+
+                    table{
+                        width:100%;
+                        border-collapse:collapse;
+                    }
+
+                    table,th,td{
+                        border:1px solid #000;
+                    }
+
+                    th,td{
+                        padding:6px;
+                    }
+
+                    .no-print{
+                        display:none;
+                    }
+                </style>
+            </head>
+            <body>
+                ${content}
+            </body>
+            </html>
+        `);
+
+        printWindow.document.close();
+
+        setTimeout(function(){
+            printWindow.print();
+            printWindow.close();
+        },500);
+    }
+    </script>
+@endpush
 
