@@ -101,10 +101,22 @@
 
                                     <!-- Assigned To -->
                                     <td>
-                                        <span class="badge bg-primary">
-                                            {{ optional($item->assignedUser)->name ?? 'N/A' }}
-                                        </span>
-                                    </td>
+                                        @if($item->assigned_to)
+
+                                            <span class="badge bg-success">
+                                                {{ ucwords(optional($item->assignedUser)->name) }}
+                                            </span>
+
+                                        @else
+
+                                            <button class="btn btn-sm btn-outline-primary"
+                                                wire:click="openAssignModal({{ $item->id }})">
+                                                <i class="bi bi-person-check"></i> Assign To
+                                            </button>
+
+                                        @endif
+
+                                        </td>
 
                                     <!-- Action -->
                                     <td>
@@ -151,6 +163,52 @@
             </div>
         </div>
     </div>
+
+        <div wire:ignore.self class="modal fade" id="assignModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+
+                    <div class="modal-header bg-primary text-white">
+                        <h5 class="modal-title">Assign Legal Associate</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+
+                    <div class="modal-body">
+
+                        <div class="mb-3">
+                            <label class="form-label">Select Associate</label>
+
+                            <select class="form-control" wire:model="assigned_to">
+                                <option value="">Select</option>
+
+                                @foreach($legalAssociates as $user)
+                                <option value="{{ $user->id }}">
+                                    {{ ucwords($user->name) }}
+                                </option>
+                                @endforeach
+
+                            </select>
+
+                            @error('assigned_to')
+                            <small class="text-danger">{{ $message }}</small>
+                            @enderror
+                        </div>
+
+                    </div>
+
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" data-bs-dismiss="modal">
+                            Cancel
+                        </button>
+
+                        <button class="btn btn-success" wire:click="updateAssign">
+                            Assign
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
 
 
     <div wire:ignore.self class="modal fade" id="warModal" tabindex="-1" aria-labelledby="warModalLabel" aria-hidden="true" style="background: rgba(0,0,0,0.5);">
@@ -339,6 +397,14 @@
             });
             window.addEventListener('closeModal', () => {
                 $("#warModal").modal('hide');
+            });
+
+            window.addEventListener('open-assign-modal', () => {
+                $("#assignModal").modal('show');
+            });
+
+            window.addEventListener('closeAssignModal', () => {
+                $("#assignModal").modal('hide');
             });
 
             // Handle modal hide and remove backdrop properly

@@ -35,6 +35,7 @@ class WarRoomCrud extends Component
     public $search='';
     public $filter_by_assembly = '';
     public $filter_by_status = '';
+    public $selected_war_id;
 
     public $isEdit=false;
 
@@ -138,6 +139,33 @@ class WarRoomCrud extends Component
         $this->resetFields();
         $this->dispatch('closeModal'); // This will close the modal
     }
+
+    public function openAssignModal($id)
+    {
+        $war = WarRoom::findOrFail($id);
+
+        $this->selected_war_id = $id;
+        $this->assigned_to = $war->assigned_to;
+
+        $this->dispatch('open-assign-modal');
+    }
+
+    public function updateAssign()
+    {
+        $this->validate([
+            'assigned_to' => 'required|exists:admins,id'
+        ]);
+
+        $war = WarRoom::findOrFail($this->selected_war_id);
+
+        $war->update([
+            'assigned_to' => $this->assigned_to
+        ]);
+
+        $this->dispatch('toastr:success', message: 'Legal associate assigned successfully');
+
+        $this->dispatch('closeAssignModal');
+    }       
 
     public function updateWar()
     {

@@ -135,10 +135,21 @@
                                             </div>
                                         </td>
                                         <td>{{ $item->created_at->format('d-m-Y h:i A') }}</td>
-                                        <td class="">
-                                            <span class="badge bg-lavel-success" title="Action Taken">
-                                                {{ ucwords($item->legalAssociate->name ?? 'N/A') }}
-                                            </span>
+                                        <td>
+                                           @if($item->action_taken)
+
+                                                <span class="badge bg-success">
+                                                    {{ ucwords($item->legalAssociate->name ?? 'Assigned') }}
+                                                </span>
+
+                                            @else
+
+                                                <button class="btn btn-sm btn-outline-primary"
+                                                        wire:click="openAssignModal({{ $item->id }})">
+                                                    <i class="bi bi-person-check"></i> Assign To
+                                                </button>
+
+                                            @endif
                                         </td>
                                         <td>
                                             <span class="badge
@@ -179,7 +190,7 @@
                                                 </div>
                                             </div>
                                             @endif --}}
-
+{{-- 
                                             <div class="btn-group m-1">
                                                 <div class="tooltip-wrapper">
                                                     <button class="btn btn-sm btn-outline-success"
@@ -188,7 +199,7 @@
                                                     </button>
                                                     <span class="tooltip-text">View Details</span>
                                                 </div>
-                                            </div>
+                                            </div> --}}
 
 
                                             <div class="btn-group m-1">
@@ -244,8 +255,8 @@
                     </div>
 
                     <div class="modal-body">
-                        <form wire:submit.prevent="save"
-                            wire:key="mcc-form-{{ $mcc_id ?? 'new' }}">
+                        <form wire:submit.prevent="save" 
+                            wire:key="mcc-form-{{ $mcc_id ?? 'new' }}" enctype="multipart/form-data">
                             <div class="row">
                                 <!-- Assembly -->
                                 <div class="col-md-6 mb-3">
@@ -279,34 +290,28 @@
 
                                 <div class="col-md-6 mb-3">
                                     <label>Block/Municipality/Town<span class="text-danger">*</span></label>
-                                    <textarea class="form-control" wire:model="block" placeholder="Enter Block/Municipality/Town"></textarea>
+                                    <input class="form-control" wire:model="block" placeholder="Enter Block/Municipality/Town">
                                     @error('block') <small class="text-danger">{{ $message }}</small> @enderror
                                 </div>
 
                                 <div class="col-md-6 mb-3">
-                                    <label>GP/Word<span class="text-danger">*</span></label>
-                                    <textarea class="form-control" wire:model="gp" placeholder="Enter GP/Word"></textarea>
+                                    <label>GP/Ward<span class="text-danger">*</span></label>
+                                    <input class="form-control" wire:model="gp" placeholder="Enter GP/Word">
                                     @error('gp') <small class="text-danger">{{ $message }}</small> @enderror
                                 </div>
 
                                 <div class="col-md-6 mb-3">
                                     <label>Complainer Name<span class="text-danger">*</span></label>
-                                    <textarea class="form-control" wire:model="complainer_name" placeholder="Enter Complainer Name"></textarea>
+                                    <input class="form-control" wire:model="complainer_name" placeholder="Enter Complainer Name">
                                     @error('complainer_name') <small class="text-danger">{{ $message }}</small> @enderror
                                 </div>
 
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">Complainer Phone<span class="text-danger">*</span></label>
-                                    <input type="number" class="form-control" wire:model="complainer_phone">
+                                    <input type="text" maxlength="10" class="form-control" wire:model="complainer_phone">
                                     @error('complainer_phone') <small class="text-danger">{{ $message }}</small> @enderror
                                 </div>
-
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Complain Description</label>
-                                    <textarea class="form-control" wire:model="complainer_description" placeholder="Write your complain here"></textarea>
-                                    @error('complainer_description') <small class="text-danger">{{ $message }}</small> @enderror
-                                </div>
-
+                                
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">Assign To</label>
                                     <select class="form-control" wire:model="action_taken">
@@ -320,11 +325,41 @@
                                         @endforeach
 
                                     </select>
-
                                     @error('action_taken')
                                         <small class="text-danger">{{ $message }}</small>
                                     @enderror
                                 </div>
+
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Supporting Documents</label>
+                                    <input type="file" class="form-control" wire:model="supporting_documents" multiple>
+                                    <div wire:loading wire:target="supporting_documents" class="text-muted mt-2">
+                                        <span class="spinner-border spinner-border-sm me-1"></span> Uploading...
+                                    </div>
+                                    @error('supporting_documents.*') <small class="text-danger">{{ $message }}</small> @enderror
+                                    @if($isEdit && $mcc_id)
+                                        @php
+                                            $docs = \App\Models\MccSupportingDocument::where('mcc_id', $mcc_id)->get();
+                                        @endphp
+
+                                        @if($docs->count())
+                                            <div class="mt-2">
+                                                @foreach($docs as $doc)
+                                                    <a href="{{ asset($doc->file_path) }}" target="_blank" class="badge bg-secondary me-1">
+                                                        <i class="bi bi-paperclip"></i> View
+                                                    </a>
+                                                @endforeach
+                                            </div>
+                                        @endif
+                                    @endif
+                                </div>
+
+                                <div class="col-md-10 mb-3">
+                                    <label class="form-label">Complainer Description</label>
+                                    <textarea class="form-control" wire:model="complainer_description" placeholder="Write your complain here"></textarea>
+                                    @error('complainer_description') <small class="text-danger">{{ $message }}</small> @enderror
+                                </div>
+
                             </div>
 
                         </form>
@@ -430,7 +465,7 @@
         </div>
 
         {{-- view modal --}}
-        <div wire:ignore.self class="modal fade" id="viewMccModal" tabindex="-1">
+        {{-- <div wire:ignore.self class="modal fade" id="viewMccModal" tabindex="-1">
             <div class="modal-dialog modal-lg modal-dialog-centered">
                 <div class="modal-content shadow">
 
@@ -453,9 +488,9 @@
                             <div class="col-md-6">
                                 <strong class="text-primary">Assembly:</strong>
                                 <div>{{ $viewMcc->assembly->assembly_name_en ?? 'N/A' }}</div>
-                                <div class="text-muted small">District: {{ optional(optional($item->assembly)->district)->name_en }}</div>
+                                <div class="text-muted small">District: {{ optional(optional($viewMcc->assembly)->district)->name_en }}</div>
                                 <div class="small">
-                                    {{ ucwords(optional(optional(optional($item->assembly)->assemblyPhase)->phase)->name ?? 'N/A') }}
+                                    {{ ucwords(optional(optional(optional($viewMcc->assembly)->assemblyPhase)->phase)->name ?? 'N/A') }}
                                 </div>
                             </div>
 
@@ -507,9 +542,58 @@
 
                 </div>
             </div>
+        </div> --}}
+
+
+        <div wire:ignore.self class="modal fade" id="assignModal" tabindex="-1">
+            <div class="modal-dialog modal-md">
+                <div class="modal-content">
+
+                    <div class="modal-header bg-primary text-white">
+                        <h5 class="modal-title">Assign Legal Associate</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+
+                    <div class="modal-body">
+
+                        <div class="mb-3">
+                            <label class="fw-bold">Complainer Name</label>
+                            <div class="text-primary">{{ $complainer_name }}</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Assign To</label>
+
+                            <select class="form-control" wire:model="action_taken">
+                                <option value="">Select Legal Associate</option>
+
+                                @foreach($legalAssociates as $associate)
+                                    <option value="{{ $associate->id }}">
+                                        {{ ucwords($associate->name) }}
+                                    </option>
+                                @endforeach
+                            </select>
+
+                            @error('action_taken')
+                                <small class="text-danger">{{ $message }}</small>
+                            @enderror
+                        </div>
+
+                    </div>
+
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+
+                        <button class="btn btn-primary" wire:click="updateAssign">
+                            Assigned
+                        </button>
+                    </div>
+
+                </div>
+            </div>
         </div>
 
-        <div class="loader-container" wire:loading wire:target="save,openCampaignModal,edit">
+        <div class="loader-container" wire:loading wire:target="save,openMccModal,edit">
             <div class="loader"></div>
         </div>
 
@@ -566,7 +650,8 @@
             });
 
             document.addEventListener('resetField', () => {
-                document.querySelectorAll('input, textarea, select').forEach(el => el.value = '');
+                // document.querySelectorAll('input, textarea, select').forEach(el => el.value = '');
+                document.querySelectorAll('input:not([type="file"]), textarea, select').forEach(el => el.value = '');
             });
             document.addEventListener('modelHide', () => {
                 $('#campaignerModal').modal('hide');
@@ -596,6 +681,7 @@
             window.addEventListener('closeModal', () => {
                 $("#mccModal").modal('hide');
                 $("#importMccModal").modal('hide');
+                $("#assignModal").modal('hide'); 
             });
             window.addEventListener('open-edit-modal', () => {
                 $("#mccModal").modal('show');
@@ -603,8 +689,11 @@
             window.addEventListener('open-mcc-modal', () => {
                 $("#mccModal").modal('show');
             });
-            window.addEventListener('open-view-modal', () => {
-                $("#viewMccModal").modal('show');
+            // window.addEventListener('open-view-modal', () => {
+            //     $("#viewMccModal").modal('show');
+            // });
+            window.addEventListener('open-assign-modal', () => {
+                $("#assignModal").modal('show');
             });
         </script>
 

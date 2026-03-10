@@ -6,7 +6,9 @@ use Livewire\Component;
 use Livewire\WithFileUploads;
 use App\Models\Mcc;
 use App\Models\MccRemarks;
+use App\Models\MccSupportingDocument;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Admin;
 
 class MccViolationCrudRemarks extends Component
 {
@@ -106,7 +108,13 @@ class MccViolationCrudRemarks extends Component
             ->latest()
             ->get();
 
-        return view('livewire.mcc-violation-crud-remarks', compact('remarks'))
+        $supportingDocs = MccSupportingDocument::where('mcc_id', $this->mcc->id)->get();
+        $legalAssociate = null;
+        if ($this->mcc->action_taken) {
+            $legalAssociate = Admin::find($this->mcc->action_taken);
+        }
+
+        return view('livewire.mcc-violation-crud-remarks', compact('remarks', 'supportingDocs','legalAssociate'))
             ->layout('layouts.admin');
     }
 }

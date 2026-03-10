@@ -47,7 +47,7 @@
 
                         <div>
                             <h5 class="fw-bold mb-1">
-                                Remarks History
+                                MCC Details
                             </h5>
 
                             <div class="small text-muted">
@@ -70,24 +70,77 @@
 
                             </div>
 
-                            <div class="small text-muted mt-1">
+                           <div class="small text-muted mt-1">
 
                                 <span class="me-3">
                                     <strong>Complainer:</strong> {{ $mcc->complainer_name }}
                                 </span>
 
-                                <span>
+                                <span class="me-3">
                                     <strong>Phone:</strong> {{ $mcc->complainer_phone }}
                                 </span>
 
+                                @if($legalAssociate)
+                                <span class="me-3">
+                                    <strong>Assigned To:</strong> {{ $legalAssociate->name }}
+                                </span>
+                                @endif
+
+                                <span>
+                                    <strong>Status:</strong> {{ $mcc->status }}
+                                </span>
+
                             </div>
+
+                            @if($mcc->complainer_description)
+                            <div class="small text-muted mt-2">
+                                <strong>Description:</strong> {{ $mcc->complainer_description }}
+                            </div>
+                            @endif
+
+                           @if($supportingDocs->count())
+
+                            <div class="mt-2">
+                                <strong>Supporting Documents:</strong>
+
+                                <div class="mt-2 d-flex flex-wrap gap-2 align-items-center">
+
+                                    @foreach($supportingDocs as $doc)
+
+                                            @if(Str::endsWith($doc->file_path, ['jpg','jpeg','png','gif','webp','bmp']))
+
+                                                <img src="{{ asset($doc->file_path) }}"
+                                                    class="rounded border"
+                                                    style="width:90px; height:90px; object-fit:cover; cursor:pointer;"
+                                                    onclick="window.open('{{ asset($doc->file_path) }}','_blank')">
+
+                                            @else
+
+                                                <a href="{{ asset($doc->file_path) }}"
+                                                target="_blank"
+                                                class="btn btn-outline-secondary btn-sm px-2 py-1">
+                                                    <i class="bi bi-file-earmark"></i> File
+                                                </a>
+
+                                            @endif
+
+                                    @endforeach
+
+                                </div>
+                            </div>
+
+                            @endif
 
                         </div>
 
                     </div>
 
                 </div>
-                <div class="card-body">
+                
+                    <div class="card-body">
+                        <h5 class="fw-bold mb-1">
+                        Remarks History
+                    </h5>
 
                     @if($remarks->count())
 

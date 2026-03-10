@@ -188,6 +188,7 @@
                                     <th>Documents</th>
                                     <th>Final Status</th>
                                     <th>Last Date of Nomination form Submission</th>
+                                    <th>Form</th>
                                     <th style="max-width: 250px;" class="text-center">Action</th>
                                 </tr>
                             </thead>
@@ -320,11 +321,10 @@
 
                                     <td>
                                         <span>
-                                            {{ $candidate->assembly->assembly_name_en ?? 'N/A' }}
-
                                             @if(!empty($candidate->assembly->assembly_number))
                                                 ({{ $candidate->assembly->assembly_number }})
                                             @endif
+                                            {{ $candidate->assembly->assembly_name_en ?? 'N/A' }}
                                         </span>
                                     </td>
 
@@ -389,6 +389,28 @@
                                         }}
                                     </td>
 
+                                     <td class="text-center">
+                                         @if(childUserAccess(Auth::guard('admin')->user()->id,'nomination_document_collections'))
+                                            <div class="tooltip-wrapper">
+                                                <a href="{{ route('admin.candidates.documents', ['candidate' => $candidate->id]) }}"
+                                                class="btn btn-sm btn-outline-success">
+                                                Upload
+                                                </a>
+                                                <span class="tooltip-text">View Candidate Document Collections</span>
+                                            </div>
+                                        @endif
+                                        <div class="tooltip-wrapper">
+                                            <button
+                                                class="btn btn-sm btn-outline-primary mt-1"
+                                                wire:click="openFormModal({{ $candidate->id }})"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#formModal-{{ $candidate->id }}">
+                                                Generate
+                                            </button>
+                                            <span class="tooltip-text">Forms</span>
+                                        </div>
+                                    </td>
+
                                     <td class="text-center">
                                         @if($authUser->role=='legal_associate')
                                             @if($uploaded == $required_document)
@@ -448,15 +470,7 @@
 
                                             @endif
 
-                                            @if(childUserAccess(Auth::guard('admin')->user()->id,'nomination_document_collections'))
-                                            <div class="tooltip-wrapper">
-                                                <a href="{{ route('admin.candidates.documents', ['candidate' => $candidate->id]) }}"
-                                                class="btn btn-sm btn-outline-success">
-                                                <i class="bi bi-file-earmark-arrow-up"></i>
-                                                </a>
-                                                <span class="tooltip-text">View Candidate Document Collections</span>
-                                            </div>
-                                            @endif
+                                           
 
                                             @if(childUserAccess(Auth::guard('admin')->user()->id,'nomination_candidate_journey_timeline'))
                                             <div class="tooltip-wrapper">
@@ -467,17 +481,6 @@
                                                 <span class="tooltip-text">Candidate Journey Timeline</span>
                                             </div>
                                             @endif
-
-                                            <div class="tooltip-wrapper">
-                                                <button
-                                                    class="btn btn-sm btn-outline-success mt-1"
-                                                    wire:click="openFormModal({{ $candidate->id }})"
-                                                    data-bs-toggle="modal"
-                                                    data-bs-target="#formModal-{{ $candidate->id }}">
-                                                    <i class="bi bi-file-earmark-text"></i> FORM
-                                                </button>
-                                                <span class="tooltip-text">Forms</span>
-                                            </div>
 
                                             @if($candidate->document_collection_status=="ready_for_vetting")
                                             <div class="tooltip-wrapper">
