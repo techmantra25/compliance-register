@@ -10,17 +10,7 @@ class WarRoom extends Model
     use HasFactory;
 
     protected $fillable = [
-        'war_code',
-        'assembly_id',
-        'district_id',
-        'booth_area',
-        'incident_type',
-        'severity',
-        'incident_description',
-        'reported_by',
-        'contact_number',
-        'incident_time',
-        'assigned_to'
+        'war_code', 'incident_from_name', 'incident_from_number', 'assembly_id', 'district_id', 'booth_area', 'block_town', 'gp_word', 'incident_type', 'severity', 'incident_description', 'reported_by', 'contact_number', 'incident_time', 'status', 'assigned_to'
     ];
 
     // Relations

@@ -21,8 +21,8 @@ class WarRoomCrud extends Component
     public $district_id;
     public $booth_area;
 
-    public $incident_type;
-    public $severity;
+    public $gp_word;
+    public $block_town;
     public $incident_description;
 
     public $reported_by;
@@ -45,12 +45,12 @@ class WarRoomCrud extends Component
     protected $rules = [
         'assembly_id' => 'required',
         'booth_area' => 'required',
-        'incident_type' => 'required',
-        'severity' => 'required',
+        'gp_word' => 'required',
+        'block_town' => 'required',
         'incident_description' => 'required',
         'reported_by' => 'required',
         'contact_number' => 'required|digits:10|numeric',
-        'incident_time' => 'required',
+        'incident_time' => 'nullable',
     ];
 
     public function mount()
@@ -76,8 +76,8 @@ class WarRoomCrud extends Component
         $this->reset([
             'assembly_id',
             'booth_area',
-            'incident_type',
-            'severity',
+            'gp_word',
+            'block_town',
             'incident_description',
             'reported_by',
             'contact_number',
@@ -125,8 +125,8 @@ class WarRoomCrud extends Component
             'assembly_id' => $this->assembly_id,
             'district_id' => $assembly->district_id,
             'booth_area' => $this->booth_area,
-            'incident_type' => $this->incident_type,
-            'severity' => $this->severity,
+            'gp_word' => $this->gp_word,
+            'block_town' => $this->block_town,
             'incident_description' => $this->incident_description,
             'reported_by' => $this->reported_by,
             'contact_number' => $this->contact_number,
@@ -150,8 +150,8 @@ class WarRoomCrud extends Component
             'assembly_id' => $this->assembly_id,
             'district_id' => $assembly->district_id,
             'booth_area' => $this->booth_area,
-            'incident_type' => $this->incident_type,
-            'severity' => $this->severity,
+            'gp_word' => $this->gp_word,
+            'block_town' => $this->block_town,
             'incident_description' => $this->incident_description,
             'reported_by' => $this->reported_by,
             'contact_number' => $this->contact_number,
@@ -172,8 +172,8 @@ class WarRoomCrud extends Component
         $this->assembly_id = $data->assembly_id;
         $this->booth_area = $data->booth_area;
 
-        $this->incident_type = $data->incident_type;
-        $this->severity = $data->severity;
+        $this->gp_word = $data->gp_word;
+        $this->block_town = $data->block_town;
 
         $this->incident_description = $data->incident_description;
 
@@ -215,13 +215,15 @@ class WarRoomCrud extends Component
         ->when($this->search,function($q){
 
             $q->where('booth_area','like','%'.$this->search.'%')
-            ->orWhere('severity','like','%'.$this->search.'%')
+            ->orWhere('incident_from_name','like','%'.$this->search.'%')
+            ->orWhere('incident_from_number','like','%'.$this->search.'%')
+            ->orWhere('block_town','like','%'.$this->search.'%')
             ->orWhere('incident_description','like','%'.$this->search.'%')
             ->orWhere('contact_number','like','%'.$this->search.'%')
             ->orWhere('status','like','%'.$this->search.'%')
             ->orWhere('war_code','like','%'.$this->search.'%')
             ->orWhere('reported_by','like','%'.$this->search.'%')
-            ->orWhere('incident_type','like','%'.$this->search.'%');
+            ->orWhere('gp_word','like','%'.$this->search.'%');
 
         })
         ->when($this->filter_by_assembly, function ($q) {
