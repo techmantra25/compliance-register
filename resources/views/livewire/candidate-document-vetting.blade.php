@@ -52,7 +52,7 @@
         <div class="col-md-12">
             <div class="card shadow-sm border-0 p-3 mb-3 mx-1">
                 <div class="row">
-                    <div class="col-md-6">
+                    <div class="col-md-12">
                         <div class=" border-0 p-3">
                             <table class="table table-sm table-borderless w-auto mb-0">
                                 <tbody>
@@ -154,7 +154,7 @@
                             </table>
                         </div>
                     </div>
-                    <div class="col-md-6">
+                    {{-- <div class="col-md-6">
                         @if($candidateData->document_collection_status=="verified_pending_submission" || $candidateData->document_collection_status=="verified_submitted_with_copy")
                             <div class=" border-0 mb-3">
                                 <div class="card-body">
@@ -272,7 +272,7 @@
                                 </div>
                             </div>
                         @endif
-                    </div>
+                    </div> --}}
                 </div>
             </div>
         </div>

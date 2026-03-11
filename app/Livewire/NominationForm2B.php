@@ -330,28 +330,53 @@ class NominationForm2B extends Component
     
             $disqualifiedPresident = null;
             if ($this->disqualified_president == 1) {
+                $this->validate([
+                    'disqualified_by_president' => 'required'
+                ],[
+                    'disqualified_by_president.required' => 'Please provide details if the candidate has been disqualified under Section 8A of the Representation of the People Act by an order of the President.'
+                ]);
                 $disqualifiedPresident = $this->disqualified_by_president;
             }
 
             $dismissedForCorruption = null;
             if ($this->dismissed_for_corruptions == 1) {
+                $this->validate([
+                    'dismissed_for_corruption' => 'required'
+                ],[
+                    'dismissed_for_corruption.required' => 'Please provide details if the candidate was dismissed for corruption or disloyalty.'
+                ]);
                 $dismissedForCorruption = $this->dismissed_for_corruption;
             }
 
             
             $govtContract = null;
             if ($this->govt_contract == 1) {
+                $this->validate([
+                    'subsisting_govt_contract' => 'required'
+                ],[
+                    'subsisting_govt_contract.required' => 'Please provide details if the candidate has any subsisting contract(s) with the Government'
+                ]);
                 $govtContract = $this->subsisting_govt_contract;
             }
 
             $manageAgentRole = null;
             if ($this->company_position == 1) {
+                $this->validate([
+                    'managing_agent_role' => 'required'
+                ], [
+                    'managing_agent_role.required' => 'Please provide details if the candidate is a managing agent, manager or secretary of any company or corporation.'
+                ]);
                 $manageAgentRole = $this->managing_agent_role;
             }
             
 
             $commisionDisqualifiedDate = null;
             if ($this->commission_disqualified == 1) {
+                $this->validate([
+                    'date_of_disqualification' => 'required'
+                ], [
+                    'date_of_disqualification.required' => 'Please provide the date of disqualification by the Commission under Section 10A.'
+                ]);
                 $commisionDisqualifiedDate = $this->date_of_disqualification;
             }
 

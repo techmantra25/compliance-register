@@ -14,8 +14,9 @@
         }
         
         .form-container {
-            width: calc(210mm - 26mm) !important;
+            /* width: calc(210mm - 26mm) !important; */
             margin: 0 auto;
+            padding: 15px;
             background-color: white;
         }
         
@@ -260,7 +261,16 @@
                 overflow-wrap: anywhere;
                 /* border-bottom:1px dotted #000; */
             }
+            .strike-out{
+                text-decoration: line-through;
+            }
 
+        }
+        .action-buttons{
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 999;
         }
     </style>
     
@@ -308,7 +318,7 @@
                     <div class="section-title" style="text-align: center; font-weight: normal; margin-bottom: 7px;"> (To be used by candidate set up by recognised political party)</div>
                     <div style="font-size: 16px; line-height: 2; text-align: justify;">
                         I nominate as a candidate for election to the Legislative Assembly from the 
-                        <span class="flex-input">{{ optional($nomination->assembly)->assembly_name_en }}-{{ optional($nomination->assembly)->assembly_number }}</span>
+                        <span class="flex-input">{{ optional($nomination->assembly)->assembly_number }} {{ optional($nomination->assembly)->assembly_name_en }}</span>
                         {{-- <input type="text" class="input-field input-field-large" placeholder="" value="" style="width:228px;" readonly>  --}}
                         
                     </div>
@@ -361,7 +371,9 @@
                     
                     <div style="margin-top: 37px; display: flex; justify-content: space-between;">
                         <div style=" font-size: 16px; line-height: 2;">
-                            Date: <input type="text" class="input-field input-field-medium" style="width:105px;" readonly>
+                            Date: 
+                            <span class="flex-input"></span>
+                            {{-- <input type="text" class="input-field input-field-medium" style="width:105px;" readonly> --}}
                         </div>
                         
                         <div style=" font-size: 16px; line-height: 2;">
@@ -376,16 +388,31 @@
                         <div class="section-title" style="text-align: center; line-height: 1.21; font-weight: bold; font-size: 16px; margin-bottom: 0; ">PART II</div>
                         <div style="text-align: justify;">
                             We hereby nominate as candidate for election to the Legislative Assembly from the 
-                            <input type="text" class="input-field input-field-large"> Assembly Constituency.
+                            {{-- <input type="text" class="input-field input-field-large"> --}}
+                            <span class="flex-input"></span>
+                             Assembly Constituency.
                         </div>
                         
                         <div style="margin-top: 15px;">
-                            Candidate's name: <input type="text" class="input-field input-field-large">
-                            <span>Father's</span>/<span class="strike-out">mother's</span>/ <span class="strike-out">husband's</span> name: <input type="text" class="input-field input-field-medium">
-                            His postal address: <input type="text" class="input-field input-field-large" style="width: 400px;">
-                            His name is entered at Sl. No. <input type="text" class="input-field input-field-small"> in Part No. 
-                            <input type="text" class="input-field input-field-small"> of the electoral roll for 
-                            <input type="text" class="input-field input-field-medium"> Assembly constituency.
+                            Candidate's name: 
+                            <span class="flex-input"></span>
+                            {{-- <input type="text" class="input-field input-field-large"> --}}
+                            <span>Father's</span>/<span class="strike-out">mother's</span>/ <span class="strike-out">husband's</span> name: 
+                            <span class="flex-input"></span>
+                            {{-- <input type="text" class="input-field input-field-medium"> --}}
+                            His postal address: 
+                            <span class="flex-input"></span>
+                            {{-- <input type="text" class="input-field input-field-large" style="width: 400px;"> --}}
+                            His name is entered at Sl. No. 
+                            <span class="flex-input"></span>
+                            {{-- <input type="text" class="input-field input-field-small">  --}}
+                            in Part No. 
+                            <span class="flex-input"></span>
+                            {{-- <input type="text" class="input-field input-field-small"> --}}
+                             of the electoral roll for 
+                             <span class="flex-input"></span>
+                            {{-- <input type="text" class="input-field input-field-medium">  --}}
+                            Assembly constituency.
                         </div>
                     </div>
                 </div>
@@ -608,11 +635,11 @@
                             (ii) has been convicted for any other offence(s) for which he has been sentenced to imprisonment for two years or more.
                         </div>
                         <div style="padding-left: 8px;">
-                             <span class="{{ !$nomination->convicted ? 'strike-out' : '' }}">
+                            <span class="{{ strtolower($nomination->convicted) === 'yes' ? 'fw-bold' : 'strike-out' }}">
                                 {{ strtoupper('Yes') }}
                             </span> /
 
-                            <span class="{{ $nomination->convicted ? 'strike-out' : '' }}">
+                            <span class="{{ strtolower($nomination->convicted) === 'no' ? 'fw-bold' : 'strike-out' }}">
                                 {{ strtoupper('No') }}
                             </span>
                         </div>
@@ -729,13 +756,13 @@
             <!---keep togathor start-->
             <div class="keep-together">    
                 <div style="margin-top: 20px;">
-                    <div>(2) Whether the candidate is holding any office of profit under the Government of India or State Government? 
-                        <span class="">........</span> 
-                        <span class="{{ strtolower($nomination->holding_office_of_profit) == 'yes' ? 'fw-bold' : 'strike-out' }}">
+                    <div>(2) Whether the candidate is holding any office of profit under the Government of India or State Government?
+
+                        <span class="{{ $nomination->office_of_profit == 1 ? 'fw-bold' : 'strike-out' }}">
                             Yes
                         </span> /
 
-                        <span class="{{ strtolower($nomination->holding_office_of_profit) == 'no' ? 'fw-bold' : 'strike-out' }}">
+                        <span class="{{ $nomination->office_of_profit == 0 ? 'fw-bold' : 'strike-out' }}">
                             No
                         </span>
                     </div>
@@ -747,68 +774,116 @@
                     
                 <div style="margin-top: 15px;">
                     <div>(3) Whether the candidate has been declared insolvent by any Court?
-                        
-                        <span class="">........</span> 
-                        <span class="{{ $nomination->declared_insolvent ? 'fw-bold' : 'strike-out' }}">
+                       
+                        <span class="{{ $nomination->insolvent == 1 ? 'fw-bold' : 'strike-out' }}">
                             Yes
                         </span> /
 
-                        <span class="{{ !$nomination->declared_insolvent ? 'fw-bold' : 'strike-out' }}">
+                        <span class="{{ $nomination->insolvent == 0 ? 'fw-bold' : 'strike-out' }}">
                             No
                         </span>
-                        <span class="strike-out">Yes</span>/<span>No</span></div>
+                    </div>
                     <div style="margin-top: 10px;">
-                        - If Yes, has he been discharged from insolvency <input type="text" class="input-field input-field-medium" style="width:160px;" readonly placeholder="NOT APPLICABLE">
+                        - If Yes, has he been discharged from insolvency 
+                        <span class="flex-input">{{ $nomination->insolvent ? $nomination->declared_insolvent : 'Not Applicable' }}</span>
                     </div>
                 </div>
                     
                 <div style="margin-top: 15px;">
-                    <div>(4) Whether the candidate is under allegiance or adherence to any foreign country?<input type="text" class="input-field input-field-medium" style="width:90px;" readonly>(<span class="strike-out">Yes</span>/<span>No</span>)</div>
+                    <div>(4) Whether the candidate is under allegiance or adherence to any foreign country?
+                        <span class="{{ $nomination->foreign_allegiance == 1 ? 'fw-bold' : 'strike-out' }}">
+                            Yes
+                        </span> /
+
+                        <span class="{{ $nomination->foreign_allegiance == 0 ? 'fw-bold' : 'strike-out' }}">
+                            No
+                        </span>
+                    </div>
                     <div style="margin-top: 10px;">
-                        - If Yes, give details <input type="text" class="input-field input-field-large" readonly placeholder="NOT APPLICABLE">
+                        - If Yes, give details 
+                       <span class="flex-input">{{ ucwords($nomination->allegiance_to_foreign_country ?? 'Not Applicable') }}</span>
                     </div>
                 </div>
                     
                 <div style="margin-top: 15px;">
-                    <div>(5) Whether the candidate has been disqualified under section 8A of the said Act by an order of the President?<input type="text" class="input-field input-field-medium" style="width:90px;">(<span class="strike-out">Yes</span>/<span>No</span>)</div>
+                    <div>(5) Whether the candidate has been disqualified under section 8A of the said Act by an order of the President?
+                         <span class="{{ $nomination->disqualified_president == 1 ? 'fw-bold' : 'strike-out' }}">
+                            Yes
+                        </span> /
+
+                        <span class="{{ $nomination->disqualified_president == 0 ? 'fw-bold' : 'strike-out' }}">
+                            No
+                        </span>
+                    </div>
                     
                     <div style="margin-top: 10px;">
-                        - If Yes, the period for which disqualified <input type="text" class="input-field input-field-medium" readonly placeholder="NOT APPLICABLE">
+                        - If Yes, the period for which disqualified 
+                       <span class="flex-input">{{ ucwords($nomination->disqualified_by_president ?? 'Not Applicable') }}</span>
                     </div>
                 </div>
                     
                 <div style="margin-top: 8px;">
-                    <div style="line-height: 1.8;">(6) Whether the candidate was dismissed for corruption or for disloyalty while holding office under the Government of India or the Government of any State?<input type="text" class="input-field input-field-medium" style="width:90px;">(<span class="strike-out">Yes</span>/<span>No</span>) </div>
+                    <div style="line-height: 1.8;">(6) Whether the candidate was dismissed for corruption or for disloyalty while holding office under the Government of India or the Government of any State?
+                       <span class="{{ $nomination->dismissed_for_corruptions == 1 ? 'fw-bold' : 'strike-out' }}">
+                            Yes
+                        </span> /
+
+                        <span class="{{ $nomination->dismissed_for_corruptions == 0 ? 'fw-bold' : 'strike-out' }}">
+                            No
+                        </span>
+                    </div>
                     <div style="margin-top: 5px;">
-                        - If Yes, the date of such dismissal <input type="text" class="input-field input-field-medium" style="width: 143px;" readonly placeholder="NOT APPLICABLE">
+                        - If Yes, the date of such dismissal 
+                        <span class="flex-input">{{ ucwords($nomination->dismissed_for_corruption ?? 'Not Applicable') }}</span>
                     </div>
                 </div>
                     
                 <div style="margin-top: 8px;">
                     <div style="line-height: 1.8;">(7) Whether the candidate has any subsisting contract(s) with the Government either in individual capacity or by trust or partnership in which the candidate has a share for supply of any goods to that Government or for execution of works undertaken by that Government?
-                        <input type="text" class="input-field input-field-medium" style="width:90px;" readonly>(<span class="strike-out">Yes</span>/<span>No</span>)
+                        <span class="{{ $nomination->govt_contract == 1 ? 'fw-bold' : 'strike-out' }}">
+                            Yes
+                        </span> /
+
+                        <span class="{{ $nomination->govt_contract == 0 ? 'fw-bold' : 'strike-out' }}">
+                            No
+                        </span>
                     </div>
                     <div style="line-height: 1.8;">
-                        - If Yes, with which Government and details of subsisting contract(s) <input type="text" class="input-field input-field-large" style="width: 225px;" readonly placeholder="NOT APPLICABLE">
+                        - If Yes, with which Government and details of subsisting contract(s)
+                          <span class="flex-input">{{ ucwords($nomination->subsisting_govt_contract ?? 'Not Applicable') }}</span>
                     </div>
                 </div>
                     
                 <div style="margin-top: 8px;">
                     <div style="line-height: 1.8;">(8)  Whether the candidate is a managing agent, or manager or Secretary of any company or Corporation (other than a cooperative society) in the capital of which the Central Government or State Government has not less than twenty-five percent share? 
-                        <input type="text" class="input-field input-field-medium" style="width:90px;" readonly>(<span class="strike-out">Yes</span>/<span>No</span>) 
+                      <span class="{{ $nomination->company_position == 1 ? 'fw-bold' : 'strike-out' }}">
+                            Yes
+                        </span> /
+
+                        <span class="{{ $nomination->company_position == 0 ? 'fw-bold' : 'strike-out' }}">
+                            No
+                        </span>
                     </div>
 
                     <div style="line-height: 1.8;">
-                        - If Yes, with which Government and the details thereof <input type="text" class="input-field input-field-large" readonly placeholder="NOT APPLICABLE">
+                        - If Yes, with which Government and the details thereof 
+                         <span class="flex-input">{{ ucwords($nomination->managing_agent_role ?? 'Not Applicable') }}</span>
                     </div>
                 </div>
                     
                 <div style="margin-top: 8px;">
                     <div style="line-height: 1.8;">(9) Whether the candidate has been disqualified by the Commission under section 10A of the said Act 
-                        <input type="text" class="input-field input-field-medium" style="width:90px;" readonly>(<span class="strike-out">Yes</span>/<span>No</span>)
+                         <span class="{{ $nomination->commission_disqualified == 1 ? 'fw-bold' : 'strike-out' }}">
+                            Yes
+                        </span> /
+
+                        <span class="{{ $nomination->commission_disqualified == 0 ? 'fw-bold' : 'strike-out' }}">
+                            No
+                        </span>
                     </div>
                     <div style="line-height: 1.8;">
-                        - If yes, the date of disqualification <input type="text" class="input-field input-field-medium" readonly placeholder="NOT APPLICABLE">
+                        - If yes, the date of disqualification 
+                         <span class="flex-input">{{ $nomination->date_of_disqualification ?? 'Not Applicable' }}</span>
                     </div>
                 </div>
                     
@@ -830,7 +905,9 @@
                 <div class="section-title" style="text-align: center; margin-bottom: 0;">PART IV </div>
                 <div style="text-align: center; font-size: 13.3px;">(To be filled by the Returning Officer)</div> 
                 <div style="margin-top: 8px;">
-                    Serial No. of nomination paper <input type="text" class="input-field input-field-medium">
+                    Serial No. of nomination paper 
+                    <span class="flex-input"></span>
+                    {{-- <input type="text" class="input-field input-field-medium"> --}}
                 </div>
                 <div style="margin-top: 8px;">
                     This nomination was delivered to me at my office at 
@@ -887,23 +964,40 @@
                     <div style="text-align: center;">(To be handed over to the person presenting the Nomination Paper)</div>
                     
                     <div style="margin-top: 10px;">
-                        Serial No. of nomination paper <input type="text" class="input-field input-field-medium">
+                        Serial No. of nomination paper 
+                        <span class="flex-input"></span>
+                        {{-- <input type="text" class="input-field input-field-medium"> --}}
                     </div>
                     
                     <div style="margin-top: 10px; text-align: justify;">
-                        The nomination paper of <input type="text" class="input-field input-field-medium" placeholder="MAMATA BANERJEE"> a candidate for election from the 
-                        <input type="text" class="input-field input-field-medium" placeholder="210 NANDIGRAM"> Assembly constituency was delivered to me at my office at 
-                        <input type="text" class="input-field input-field-small" placeholder="">(hour) on 
-                        <input type="text" class="input-field input-field-medium" style="width: 136px;"> (date) by the 
+                        The nomination paper of 
+                        <span class="flex-input">{{ucwords($nomination->candidate->name)}}</span>
+                        
+                         a candidate for election from the 
+                         <span class="flex-input">{{ optional($nomination->assembly)->assembly_number }} {{ optional($nomination->assembly)->assembly_name_en }}</span>
+                         Assembly constituency was delivered to me at my office at 
+                         <span class="flex-input"></span>
+                        (hour) on 
+                        <span class="flex-input"></span>
+                        {{-- <input type="text" class="input-field input-field-medium" style="width: 136px;"> --}}
+                         (date) by the 
                         <span>candidate</span>/<span>proposer</span>. All nomination papers will be taken up for scrutiny at 
-                        <input type="text" class="input-field input-field-small">(hour) on 
-                        <input type="text" class="input-field input-field-medium" style="width: 136px;">(date) at 
-                        <input type="text" class="input-field input-field-medium">(place).
+                        <span class="flex-input"></span>
+                        {{-- <input type="text" class="input-field input-field-small"> --}}
+                        (hour) on 
+                        <span class="flex-input"></span>
+                        {{-- <input type="text" class="input-field input-field-medium" style="width: 136px;"> --}}
+                        (date) at 
+                        <span class="flex-input"></span>
+                        {{-- <input type="text" class="input-field input-field-medium"> --}}
+                        (place).
                     </div>
                     
                     <div style="display: flex; justify-content: space-between; margin-top: 40px;">
                         <div>
-                            Date: <input type="text" class="input-field input-field-medium" style="width: 110px;" readonly>
+                            Date: 
+                            <span class="flex-input"></span>
+                            {{-- <input type="text" class="input-field input-field-medium" style="width: 110px;" readonly> --}}
                         </div>
                         
                         <div >
@@ -923,11 +1017,7 @@
 
         </div>
     </div>
-    <div class="text-end mt-4 no-print">
-        {{-- <a href="{{ route('admin.candidates.form2B.pdf', ['id' => $nomination->id]) }}"
-        class="btn btn-success">
-            Generate PDF
-        </a> --}}
+    <div class="action-buttons no-print">
         <button onclick="printForm()" class="btn btn-success">
             Generate PDF
         </button>
@@ -947,7 +1037,7 @@ function printForm() {
     printWindow.document.write(`
         <html>
         <head>
-            <title>Form 2B</title>
+            <title>.</title>
             <style>
                 body{
                     font-family:'Times New Roman', Times, serif;

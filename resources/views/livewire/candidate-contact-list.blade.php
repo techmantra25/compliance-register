@@ -396,18 +396,15 @@
                                                 class="btn btn-sm btn-outline-success">
                                                 Upload
                                                 </a>
-                                                <span class="tooltip-text">View Candidate Document Collections</span>
+                                                <span class="tooltip-text">upload Candidate Documents</span>
                                             </div>
                                         @endif
                                         <div class="tooltip-wrapper">
-                                            <button
-                                                class="btn btn-sm btn-outline-primary mt-1"
-                                                wire:click="openFormModal({{ $candidate->id }})"
-                                                data-bs-toggle="modal"
-                                                data-bs-target="#formModal-{{ $candidate->id }}">
-                                                Generate
-                                            </button>
-                                            <span class="tooltip-text">Forms</span>
+                                            <a href="{{ route('admin.candidates.form2B', $candidate->id) }}"
+                                                class="btn btn-sm btn-outline-success">
+                                                Generate Form 2B
+                                            </a>
+                                            <span class="tooltip-text">Generate Form 2B PDF</span>
                                         </div>
                                         <div class="tooltip-wrapper">
                                             <a href="{{ route('observation.pdf', $candidate->id) }}"
@@ -431,7 +428,7 @@
                                                         @if($candidate->document_collection_status == 'rejected')
                                                             <i class="bi bi-arrow-clockwise"></i> View Details
                                                         @else   
-                                                            Verify
+                                                            Verify Documents
                                                         @endif
                                                     </a>
                                                     <span class="tooltip-text">Verify Documents</span>
