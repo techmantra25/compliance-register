@@ -440,6 +440,7 @@
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <div wire:ignore>
+                                        <label class="form-label">Event Campaigners</label>
                                         <select class="form-control chosen-select" multiple wire:model="campaigner_ids">
                                             @foreach($campaigners as $camp)
                                                 <option value="{{ $camp->id }}">
@@ -594,11 +595,34 @@
         });
 
         document.addEventListener('refreshChosen', () => {
-            const chosen = $('.chosen-select');
 
-            if (chosen.length) {
-                chosen.trigger('chosen:updated');
-            }
+            setTimeout(() => {
+
+                $('.chosen-select').each(function () {
+
+                    let el = $(this);
+                    let model = el.attr('wire:model');
+
+                    if (!model) return;
+
+                    let component = Livewire.find(
+                        el.closest('[wire\\:id]').attr('wire:id')
+                    );
+
+                    let value = component.get(model);
+
+                    if (el.prop('multiple')) {
+                        // multiple select (campaigners)
+                        el.val(value).trigger('chosen:updated');
+                    } else {
+                        // single select (assembly)
+                        el.val(value).trigger('chosen:updated');
+                    }
+
+                });
+
+            }, 200);
+
         });
 
         document.addEventListener('resetField', () => {
@@ -627,9 +651,6 @@
         });
     </script>
     <script>
-        window.addEventListener('refreshChosen', () => {
-            $('.chosen-select').val('').trigger('chosen:updated');
-        });
         document.addEventListener('DOMContentLoaded', function () {
             $('#RescheduleModal').on('hidden.bs.modal', function () {
                 location.reload();

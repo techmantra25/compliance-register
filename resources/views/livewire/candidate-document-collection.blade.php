@@ -163,7 +163,7 @@
                                 </tbody>
                             </table>
                         </div>
-                        <div class="col-md-6">
+                        {{-- <div class="col-md-6">
                             @if($candidateData->document_collection_status=="verified_pending_submission" || $candidateData->document_collection_status=="verified_submitted_with_copy")
                                 <div class="card shadow-sm border-0 mb-3">
                                     <div class="card-body">
@@ -481,7 +481,7 @@
                                     </div>
                                 </div>
                             @endif
-                        </div>
+                        </div> --}}
                     </div>
                 </div>
             </div>

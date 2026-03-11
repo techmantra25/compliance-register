@@ -409,6 +409,12 @@
                                             </button>
                                             <span class="tooltip-text">Forms</span>
                                         </div>
+                                         <div class="tooltip-wrapper">
+                                            <button type="button" class="btn btn-sm btn-outline-info">
+                                                <i class="bi bi-clipboard-check"></i>
+                                            </button>
+                                            <span class="tooltip-text">Observation Form</span>
+                                        </div>
                                     </td>
 
                                     <td class="text-center">
