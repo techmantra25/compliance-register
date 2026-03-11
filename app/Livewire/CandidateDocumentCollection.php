@@ -52,9 +52,9 @@ class CandidateDocumentCollection extends Component
         }
        $userRole = trim(strtolower(Auth::guard('admin')->user()->role));
 
-        if ($userRole == 'legal_associate') {
-            abort(403, 'You are not authorized to access this candidate.');
-        }
+        // if ($userRole == 'legal_associate') {
+        //     abort(403, 'You are not authorized to access this candidate.');
+        // }
 
         $this->nomination_date = $candidate?->assembly?->assemblyPhase?->phase?->last_date_of_nomination;
         $this->phase = $candidate?->assembly?->assemblyPhase?->phase?->name;
@@ -422,7 +422,7 @@ class CandidateDocumentCollection extends Component
             
             if ($this->candidateData->document_collection_status !== $newStatus) {
                 if($newStatus=="ready_for_vetting"){
-                    $this->SendMail($this->candidateId);
+                    // $this->SendMail($this->candidateId);
                 }
                 $this->candidateData->document_collection_status = $newStatus;
                 $this->candidateData->save();

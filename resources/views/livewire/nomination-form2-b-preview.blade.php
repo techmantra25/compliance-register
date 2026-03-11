@@ -14,8 +14,9 @@
         }
         
         .form-container {
-            width: calc(210mm - 26mm) !important;
+            /* width: calc(210mm - 26mm) !important; */
             margin: 0 auto;
+            padding: 15px;
             background-color: white;
         }
         
