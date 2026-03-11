@@ -291,8 +291,8 @@
                                     id="convicted_yes"
                                     name="convicted"
                                     wire:model="convicted"
-                                    value="Yes" wire:change="toggleConvicted('Yes')">
-                                <label class="form-check-label" for="convicted_yes">Yes</label>
+                                    value="Yes" wire:change="toggleConvicted('Yes')" @disabled(true)>
+                                <label class="form-check-label" for="convicted_yes" >Yes</label>
                             </div>
 
                             <div class="form-check form-check-inline">
@@ -578,6 +578,9 @@
                             <label class="col-md-4 col-form-label">If Yes, the period for which disqualified</label>
                             <div class="col-md-8">
                                 <input type="text" class="form-control" wire:model.defer="disqualified_by_president">
+                                @error('disqualified_by_president')
+                                    <small class="text-danger d-block error-field" id="error-disqualified_by_president">{{ $message }}</small>
+                                @enderror
                             </div>
                         </div>
                     @endif
@@ -606,6 +609,9 @@
                             <label class="col-md-4 col-form-label">Date of dismissal</label>
                             <div class="col-md-4">
                                 <input type="date" class="form-control" wire:model.defer="dismissed_for_corruption">
+                                @error('dismissed_for_corruption')
+                                    <small class="text-danger d-block error-field" id="error-dismissed_for_corruption">{{ $message }}</small>
+                                @enderror
                             </div>
                         </div>
                     @endif
@@ -638,6 +644,9 @@
                                 <input type="text"
                                     class="form-control"
                                     wire:model.defer="subsisting_govt_contract">
+                                    @error('subsisting_govt_contract')
+                                        <small class="text-danger d-block error-field" id="error-subsisting_govt_contract">{{ $message }}</small>
+                                    @enderror
                             </div>
                         </div>
                     @endif
@@ -670,6 +679,9 @@
                                 <input type="text"
                                     class="form-control"
                                     wire:model.defer="managing_agent_role">
+                                    @error('managing_agent_role')
+                                        <small class="text-danger d-block error-field" id="error-managing_agent_role">{{ $message }}</small>
+                                    @enderror
                             </div>
                         </div>
                     @endif
@@ -702,11 +714,14 @@
                                 <input type="date"
                                     class="form-control"
                                     wire:model.defer="date_of_disqualification">
+                                    @error('date_of_disqualification')
+                                        <small class="text-danger d-block error-field" id="error-date_of_disqualification">{{ $message }}</small>
+                                    @enderror
                             </div>
                         </div>
                     @endif
 
-                     @if ($errors->any())
+                     {{-- @if ($errors->any())
                         <div class="alert alert-danger">
                             <ul class="mb-0">
                                 @foreach ($errors->all() as $error)
@@ -714,7 +729,7 @@
                                 @endforeach
                             </ul>
                         </div>
-                    @endif
+                    @endif --}}
                     <div class="text-end">
                         <button type="submit" class="btn btn-primary" 
                             {{ $criminal_check === 'Yes' ? 'disabled' : '' }}>
