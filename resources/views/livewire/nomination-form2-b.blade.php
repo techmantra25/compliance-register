@@ -25,7 +25,7 @@
     <div class="card mb-3">
         <div class="card-body">
             <strong><h3>FORM 2B</h3></strong>
-            <p><strong>Assembly:</strong> {{ $candidate->assembly->assembly_name_en }} ({{ $candidate->assembly->assembly_number }})</p>
+            <p><strong>Assembly:</strong> ({{ $candidate->assembly->assembly_number }}) {{ $candidate->assembly->assembly_name_en }}</p>
         </div>
     </div>
 

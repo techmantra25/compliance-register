@@ -10,6 +10,7 @@ use App\Models\Mcc;
 use App\Models\Admin;
 use App\Models\ChangeLog;
 use App\Models\MccRemarks;
+use App\Models\MccSupportingDocument;
 
 class MccViolationCrud extends Component
 {
@@ -31,9 +32,8 @@ class MccViolationCrud extends Component
     public $filter_by_status = '';
 
     public $legalAssociates = [];
-    public $attachment;
-    public $viewMcc;
-
+    public $supporting_documents = [];
+    // public $viewMcc;
     protected $paginationTheme = "bootstrap";
 
     protected $rules = [
@@ -45,6 +45,7 @@ class MccViolationCrud extends Component
         'complainer_description' => 'nullable|string',
         'action_taken' => 'nullable|exists:admins,id',
         'category' => 'required',
+        'supporting_documents.*' => 'file|mimes:jpg,jpeg,png,pdf,doc,docx|max:2048'
     ];
 
     protected $messages = [
@@ -82,7 +83,8 @@ class MccViolationCrud extends Component
             'complainer_name',
             'complainer_phone',
             'complainer_description',
-            'category'
+            'category',
+            'supporting_documents'
         ]);
 
         $this->isEdit = false;
@@ -156,8 +158,31 @@ class MccViolationCrud extends Component
                 'complainer_phone' => $this->complainer_phone,
                 'complainer_description' => $this->complainer_description,
                 'action_taken' => $this->action_taken,
-                'mcc_code' => $mccCode
+                'mcc_code' => $mccCode,
             ]);
+
+            if ($this->supporting_documents) {
+
+                foreach ($this->supporting_documents as $file) {
+
+                    $timestamp = now()->format('Ymd_His');
+                    $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+                    $extension = $file->getClientOriginalExtension();
+
+                    $filename = "{$originalName}_{$timestamp}.{$extension}";
+
+                    $path = $file->storeAs(
+                        "mcc_files/{$this->assembly_id}",
+                        $filename,
+                        'public'
+                    );
+
+                    MccSupportingDocument::create([
+                        'mcc_id' => $mcc->id,
+                        'file_path' => "storage/{$path}"
+                    ]);
+                }
+            }
 
             ChangeLog::create([
                 'module_name' => 'mcc',
@@ -185,6 +210,34 @@ class MccViolationCrud extends Component
         }
     }
 
+    public function openAssignModal($id)
+    {
+        $mcc = Mcc::findOrFail($id);
+
+        $this->selected_mcc_id = $id;
+        $this->complainer_name = $mcc->complainer_name;
+        $this->action_taken = $mcc->action_taken;
+
+        $this->dispatch('open-assign-modal');
+    }
+
+    public function updateAssign()
+    {
+        $this->validate([
+            'action_taken' => 'required|exists:admins,id'
+        ]);
+
+        $mcc = Mcc::findOrFail($this->selected_mcc_id);
+
+        $mcc->update([
+            'action_taken' => $this->action_taken
+        ]);
+        $this->reset(['selected_mcc_id','action_taken']);
+        $this->dispatch('toastr:success', message: 'Legal associate assigned successfully');
+
+        $this->dispatch('closeModal');
+    }
+
     public function updateMcc()
     {
         $this->validate();
@@ -204,8 +257,31 @@ class MccViolationCrud extends Component
                 'complainer_phone' => $this->complainer_phone,
                 'complainer_description' => $this->complainer_description,
                 'action_taken' => $this->action_taken,
-                'mcc_code' => $mccCode
+                'mcc_code' => $mccCode,
             ]);
+
+            if ($this->supporting_documents) {
+
+                foreach ($this->supporting_documents as $file) {
+
+                    $timestamp = now()->format('Ymd_His');
+                    $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+                    $extension = $file->getClientOriginalExtension();
+
+                    $filename = "{$originalName}_{$timestamp}.{$extension}";
+
+                    $path = $file->storeAs(
+                        "mcc_files/{$this->assembly_id}",
+                        $filename,
+                        'public'
+                    );
+
+                    MccSupportingDocument::create([
+                        'mcc_id' => $mcc->id,
+                        'file_path' => "storage/{$path}"
+                    ]);
+                }
+            }
 
             $new = $mcc->fresh()->toArray();
 
@@ -268,12 +344,12 @@ class MccViolationCrud extends Component
         session()->forget(['success', 'error']);
     }
 
-    public function view($id)
-    {
-        $this->viewMcc = Mcc::with(['assembly','legalAssociate'])->findOrFail($id);
+    // public function view($id)
+    // {
+    //     $this->viewMcc = Mcc::with(['assembly','legalAssociate'])->findOrFail($id);
 
-        $this->dispatch('open-view-modal');
-    }
+    //     $this->dispatch('open-view-modal');
+    // }
 
     public function saveMcc()
     {
@@ -398,7 +474,8 @@ class MccViolationCrud extends Component
                 'assembly.assemblyPhase',
                 'assembly.assemblyPhase.phase',
                 'latestRemark',
-                'legalAssociate'
+                'legalAssociate',
+                'supportingDocuments'
             ])
 
             ->when($user->role == 'legal_associate', function ($query) use ($user) {

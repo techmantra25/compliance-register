@@ -9,28 +9,57 @@
                                 <div class="alert alert-success mt-2">{{ session('success') }}</div>
                             @endif
 
-                            <form wire:submit.prevent="forgetPassword">
+                            <form>
+
+                                @if($step == 1)
 
                                 <div class="mb-3">
-                                    <label>Email</label>
-                                    <input type="email" wire:model="email" class="form-control" placeholder="Enter your registered email">
-                                    @error('email') <small class="text-danger">{{ $message }}</small> @enderror
+                                <label>Email</label>
+                                <input type="email" wire:model="email" class="form-control">
+                                @error('email') <small class="text-danger">{{ $message }}</small> @enderror
                                 </div>
 
-                                <div class="mb-3">
-                                    <label>New Password</label>
-                                    <input type="password" wire:model="password" class="form-control" placeholder="Enter your password">
-                                    @error('password') <small class="text-danger">{{ $message }}</small> @enderror
-                                </div>
-
-                                <div class="mb-3">
-                                    <label>Confirm Password</label>
-                                    <input type="password" wire:model="password_confirmation" class="form-control" placeholder="Confirm your password">
-                                </div>
-
-                                <button class="btn btn-primary">
-                                    Reset Password
+                                <button type="button" wire:click="sendOtp" class="btn btn-primary">
+                                Send OTP
                                 </button>
+
+                                @endif
+
+
+                                @if($step == 2)
+
+                                <div class="mb-3">
+                                <label>Enter OTP</label>
+                                <input type="text" wire:model="otp" class="form-control">
+                                @error('otp') <small class="text-danger">{{ $message }}</small> @enderror
+                                </div>
+
+                                <button type="button" wire:click="verifyOtp" class="btn btn-primary">
+                                Verify OTP
+                                </button>
+
+                                @endif
+
+
+                                @if($step == 3)
+
+                                <div class="mb-3">
+                                <label>New Password</label>
+                                <input type="password" wire:model="password" class="form-control">
+                                @error('password') <small class="text-danger">{{ $message }}</small> @enderror
+                                </div>
+
+                                <div class="mb-3">
+                                <label>Confirm Password</label>
+                                <input type="password" wire:model="password_confirmation" class="form-control">
+                                </div>
+
+                                <button type="button" wire:click="resetPassword" class="btn btn-success">
+                                Reset Password
+                                </button>
+
+                                @endif
+
                             </form>
                         </div>
 
