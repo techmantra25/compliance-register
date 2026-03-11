@@ -54,8 +54,8 @@
                                                 @foreach($grade->assemblies as $assembly)
                                                     <span class="badge bg-light text-dark border rounded-pill px-3 py-2 shadow-sm">
                                                         <i class="bi bi-geo-alt-fill text-primary me-1"></i>
-                                                        {{ $assembly->assembly_name_en }}
                                                         ({{ $assembly->assembly_code }})
+                                                        {{ $assembly->assembly_name_en }}
                                                     </span>
                                                 @endforeach
                                             </div>
@@ -112,7 +112,7 @@
                             <div wire:ignore>
                                 <select wire:model="assembly_ids" multiple class="form-select chosen-select">
                                     @foreach($assemblies as $assembly)
-                                        <option value="{{ $assembly->id }}">{{ $assembly->assembly_name_en }}({{$assembly->assembly_code}})</option>
+                                        <option value="{{ $assembly->id }}">({{$assembly->assembly_code}}) {{ $assembly->assembly_name_en }}</option>
                                     @endforeach
                                 </select>
                             </div>

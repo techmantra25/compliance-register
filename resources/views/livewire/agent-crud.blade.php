@@ -121,9 +121,9 @@
                                                 </div>
                                                 @elseif($agent->type === 'political')
                                                 <div class="col-md-6">
-                                                    <p><strong>Assembly:</strong> {{
-                                                        $agent->assembliesDetails?->assembly_name_en ?? '-' }}
+                                                    <p><strong>Assembly:</strong> 
                                                         ({{ $agent->assembliesDetails?->assembly_code ?? '-' }})
+                                                        {{ $agent->assembliesDetails?->assembly_name_en ?? '-' }}
                                                     </p>
                                                     <p><strong>Name:</strong> {{ $agent->name ?? '-' }}</p>
                                                     <p><strong>Mobile No:</strong> {{ $agent->contact_number ?? '-' }}
@@ -287,7 +287,7 @@
                                            data-name="{{ $assembly->assembly_name_en }}"
                                            data-number="{{ $assembly->assembly_number }}"
                                            > 
-                                            {{$assembly->assembly_name_en}}({{ $assembly->assembly_code }})
+                                            ({{ $assembly->assembly_code }}) {{$assembly->assembly_name_en}}
                                         </option>
                                         @endforeach
                                     </select>

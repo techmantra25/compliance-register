@@ -628,7 +628,11 @@ class CandidateContactList extends Component
 
     public function exportCsv()
     {
-        $data = $this->getFilteredQuery()->get();
+        $data = $this->getFilteredQuery()
+            ->join('assemblies', 'candidates.assembly_id', '=', 'assemblies.id')
+            ->orderBy('assemblies.assembly_number', 'asc')
+            ->select('candidates.*') 
+            ->get();
 
         return $this->downloadCsv($data, 'candidates_export.csv');
     }

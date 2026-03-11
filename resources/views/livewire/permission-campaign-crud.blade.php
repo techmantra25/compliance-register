@@ -50,8 +50,8 @@
                         <tr>
                             <th class="text-nowrap pe-3">Assembly</th>
                             <td>
-                                : {{ ucwords($camp->assembly->assembly_name_en ?? 'N/A') }}
-                                ({{ $camp->assembly->assembly_code ?? 'N/A' }})
+                                : ({{ $camp->assembly->assembly_code ?? 'N/A' }})
+                                {{ ucwords($camp->assembly->assembly_name_en ?? 'N/A') }}
                             </td>
                         </tr>
 

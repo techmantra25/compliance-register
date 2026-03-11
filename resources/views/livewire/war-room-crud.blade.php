@@ -36,7 +36,7 @@
                                 <option value="">Filter by Assembly</option>
                                 @foreach ($assemblies as $assemb)
                                 <option value="{{ $assemb->id }}">
-                                    {{ $assemb->assembly_name_en }} ({{ $assemb->assembly_code }})
+                                    ({{ $assemb->assembly_code }}) {{ $assemb->assembly_name_en }}
                                 </option>
                                 @endforeach
                             </select>
@@ -310,7 +310,7 @@
                                     <select class="form-control chosen-select" wire:model="assembly_id">
                                         <option value="">Select Assembly</option>
                                         @foreach($assemblies as $a)
-                                            <option value="{{ $a->id }}">{{ $a->assembly_name_en }} ({{ $a->assembly_number }})</option>
+                                            <option value="{{ $a->id }}">({{ $a->assembly_number }}) {{ $a->assembly_name_en }}</option>
                                         @endforeach
                                     </select>
                                 </div>

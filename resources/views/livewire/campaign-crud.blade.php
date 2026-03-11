@@ -72,7 +72,7 @@
                                 <option value="">Filter by Assembly</option>
                                 @foreach ($assembly as $assemb)
                                     <option value="{{ $assemb->id }}">
-                                        {{ $assemb->assembly_name_en }} ({{ $assemb->assembly_code }})
+                                        ({{ $assemb->assembly_code }}) {{ $assemb->assembly_name_en }} 
                                     </option>
                                 @endforeach
                             </select>
@@ -398,7 +398,7 @@
                                             @foreach($assembly as $a)
                                                 <option value="{{ $a->id }}" data-code="{{ $a->assembly_code }}"
                                                     data-number="{{ $a->assembly_number }}">
-                                                    {{ $a->assembly_name_en }}({{$a->assembly_code}})
+                                                    ({{$a->assembly_code}}){{ $a->assembly_name_en }}
                                                 </option>
                                             @endforeach
                                         </select>

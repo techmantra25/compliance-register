@@ -74,7 +74,7 @@
                     <select wire:model="assembly" class="form-select chosen-select">
                         <option value=""></option>
                         @foreach($allAssemblies as $assembly_item)
-                            <option value="{{ $assembly_item->id }}">{{ $assembly_item->assembly_name_en }} ({{ $assembly_item->assembly_code }})</option>
+                            <option value="{{ $assembly_item->id }}">({{ $assembly_item->assembly_code }}) {{ $assembly_item->assembly_name_en }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -177,7 +177,7 @@
                         <option value=""></option>
                         @foreach($allAssemblies as $assembly_item)
                             <option value="{{ $assembly_item->id }}">
-                                {{ $assembly_item->assembly_name_en }} ({{ $assembly_item->assembly_code }})
+                                ({{ $assembly_item->assembly_code }}) {{ $assembly_item->assembly_name_en }}
                             </option>
                         @endforeach
                     </select>

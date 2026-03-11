@@ -136,6 +136,7 @@ Route::prefix('/admin')->middleware('auth:admin')->group(function () {
         Route::get('/documents', CandidateDocumentCollection::class)->name('admin.candidates.documents');
         Route::get('/documents/comments/{document}', DocumentComments::class)->name('admin.candidates.documents.comments');
         Route::get('/documents/vetting/{document}', CandidateDocumentVetting::class)->name('admin.candidates.documents.vetting');
+        Route::get('/observation-pdf/{id}', [NominationPdfController::class, 'observationPdf'])->name('observation.pdf');
 
     });
 

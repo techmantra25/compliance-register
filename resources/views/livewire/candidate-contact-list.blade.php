@@ -409,10 +409,14 @@
                                             </button>
                                             <span class="tooltip-text">Forms</span>
                                         </div>
-                                         <div class="tooltip-wrapper">
-                                            <button type="button" class="btn btn-sm btn-outline-info">
+                                        <div class="tooltip-wrapper">
+                                            <a href="{{ route('observation.pdf', $candidate->id) }}"
+                                            target="_blank"
+                                            class="btn btn-sm btn-outline-info">
+
                                                 <i class="bi bi-clipboard-check"></i>
-                                            </button>
+                                            </a>
+
                                             <span class="tooltip-text">Observation Form</span>
                                         </div>
                                     </td>

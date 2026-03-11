@@ -15,8 +15,8 @@
             <strong><h3>FORM 26</h3></strong>
             <p>
                 <strong>Assembly:</strong>
-                {{ $candidate->assembly->assembly_name_en ?? 'N/A' }}
                 ({{ $candidate->assembly->assembly_code ?? '' }})
+                {{ $candidate->assembly->assembly_name_en ?? 'N/A' }}
             </p>
         </div>
     </div>

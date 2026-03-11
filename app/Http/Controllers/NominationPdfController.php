@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\NominationForm;
 use App\Models\NominationLog;
+use App\Models\Candidate;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Auth;
 
@@ -106,6 +107,29 @@ class NominationPdfController extends Controller
         ]);
 
         return $pdf->stream('Nomination_Form_26.pdf');
+    }
+
+    public function observationPdf($id)
+    {
+        $candidate = Candidate::with('assembly')->findOrFail($id);
+
+        $pdf = Pdf::loadView(
+            'livewire.observation-form-pdf',
+            [
+                'candidate' => $candidate
+            ]
+        );
+
+        $timestamp = now()->format('Ymd_His');
+
+        return response($pdf->output(), 200)
+            ->header('Content-Type', 'application/pdf')
+            ->header(
+                'Content-Disposition',
+                'inline; filename="Observation_Report_' .
+                str_replace(' ', '_', $candidate->name) .
+                '_' . $timestamp . '.pdf"'
+            );
     }
 
 }

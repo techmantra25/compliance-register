@@ -140,7 +140,7 @@
                             <div wire:ignore>
                                 <select wire:model="assembly_ids" multiple class="form-select chosen-select">
                                     @foreach($assemblies as $assembly)
-                                        <option value="{{ $assembly->id }}">{{ $assembly->assembly_name_en }}({{$assembly->assembly_code}})</option>
+                                        <option value="{{ $assembly->id }}">({{$assembly->assembly_code}}) {{ $assembly->assembly_name_en }}</option>
                                     @endforeach
                                 </select>
                             </div>
