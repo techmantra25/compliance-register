@@ -177,53 +177,62 @@ class NominationForm2B extends Component
                 }
             }
 
-            $this->convicted = $form->convicted ?? 'No';
-            $this->office_of_profit = $form->office_of_profit ?? 'No';
-            $this->insolvent = $form->insolvent ?? 'No';
-            $this->foreign_allegiance = $form->foreign_allegiance ?? 'No';
-            $this->disqualified_president = $form->disqualified_president ?? 'No';
-            $this->dismissed_for_corruptions = $form->dismissed_for_corruptions ?? 'No';
-            $this->govt_contract = $form->govt_contract ?? 'No';
-            $this->company_position = $form->company_position ?? 'No';
-            $this->commission_disqualified = $form->commission_disqualified ?? 'No';
-        } 
+            $this->convicted = $form->convicted;
+            $this->office_of_profit = $form->office_of_profit;
+            $this->insolvent = $form->insolvent;
+            $this->foreign_allegiance = $form->foreign_allegiance;
+            $this->disqualified_president = $form->disqualified_president;
+            $this->dismissed_for_corruptions = $form->dismissed_for_corruptions;
+            $this->govt_contract = $form->govt_contract;
+            $this->company_position = $form->company_position;
+            $this->commission_disqualified = $form->commission_disqualified;
+        } else{
+            $this->convicted = "No";
+            $this->office_of_profit = 0;
+            $this->insolvent = 0;
+            $this->foreign_allegiance = 0;
+            $this->disqualified_president = 0;
+            $this->dismissed_for_corruptions = 0;
+            $this->govt_contract = 0;
+            $this->company_position = 0;
+            $this->commission_disqualified = 0;
+        }
 
          // Office of profit
-        $this->office_of_profit = $form?->holding_office_of_profit ? 'Yes' : 'No';
+        // $this->office_of_profit = $form?->holding_office_of_profit ? 'Yes' : 'No';
         $this->holding_office_of_profit = $form?->holding_office_of_profit;
 
         // Insolvent
-        $this->insolvent = $form?->declared_insolvent ? 'Yes' : 'No';
+        // $this->insolvent = $form?->declared_insolvent ? 'Yes' : 'No';
         $this->declared_insolvent = $form?->declared_insolvent;
 
         // Foreign allegiance
-        $this->foreign_allegiance = $form?->allegiance_to_foreign_country ? 'Yes' : 'No';
+        // $this->foreign_allegiance = $form?->allegiance_to_foreign_country ? 'Yes' : 'No';
         $this->allegiance_to_foreign_country = $form?->allegiance_to_foreign_country;
 
         // Disqualified by president
-        $this->disqualified_president = $form?->disqualified_by_president ? 'Yes' : 'No';
+        // $this->disqualified_president = $form?->disqualified_by_president ? 'Yes' : 'No';
         $this->disqualified_by_president = $form?->disqualified_by_president;
 
         // Dismissed
-        $this->dismissed_for_corruptions = $form?->dismissed_for_corruption ? 'Yes' : 'No';
+        // $this->dismissed_for_corruptions = $form?->dismissed_for_corruption ? 'Yes' : 'No';
         $this->dismissed_for_corruption = $form?->dismissed_for_corruption;
 
         // Govt contract
-        $this->govt_contract = $form?->subsisting_govt_contract ? 'Yes' : 'No';
+        // $this->govt_contract = $form?->subsisting_govt_contract ? 'Yes' : 'No';
         $this->subsisting_govt_contract = $form?->subsisting_govt_contract;
 
         // Company position
-        $this->company_position = $form?->managing_agent_role ? 'Yes' : 'No';
+        // $this->company_position = $form?->managing_agent_role ? 'Yes' : 'No';
         $this->managing_agent_role = $form?->managing_agent_role;
 
         // Commission disqualified
-        $this->commission_disqualified = $form?->date_of_disqualification ? 'Yes' : 'No';
+        // $this->commission_disqualified = $form?->date_of_disqualification ? 'Yes' : 'No';
         $this->date_of_disqualification = $form?->date_of_disqualification;
 
         $this->candidate_name = $this->titleCase($this->candidate->name);
         $this->assembly_name  =
-            $this->candidate->assembly->assembly_name_en
-            . ' (' . $this->candidate->assembly->assembly_number . ')';
+            $this->candidate->assembly->assembly_number. '-' .$this->candidate->assembly->assembly_name_en;
 
         $this->holding_office_of_profit      = $this->titleCase($this->holding_office_of_profit);
         $this->declared_insolvent            = $this->titleCase($this->declared_insolvent);
@@ -235,6 +244,10 @@ class NominationForm2B extends Component
         $this->formLocked = false;
     }
 
+
+    public function FieldToggle($field, $value){
+            $this->$field = $value;
+    }
     public function updatedCriminalCheck($value)
     {
         if ($value === 'Yes') {
@@ -282,44 +295,63 @@ class NominationForm2B extends Component
 
             $holdingOfficeOfProfit = null;
 
-            if ($this->office_of_profit === 'Yes') {
+            if ($this->office_of_profit == 1) {
+
+                $this->validate([
+                    'holding_office_of_profit' => 'required'
+                ],[
+                    'holding_office_of_profit.required' => 'Please provide details of the office of profit held by the candidate.'
+                ]);
+
                 $holdingOfficeOfProfit = $this->holding_office_of_profit;
+
             }
 
             $insolventDetails = null;
 
-            if ($this->insolvent === 'Yes') {
+            if ($this->insolvent == 1) {
+                $this->validate([
+                    'declared_insolvent' => 'required'
+                ],[
+                    'declared_insolvent.required' => 'Please provide details if the candidate has been declared insolvent by any Court.'
+                ]);
                 $insolventDetails = $this->declared_insolvent;
             }
-
+            
             $foreignDetails = null;
-            if ($this->foreign_allegiance === 'Yes') {
+            if ($this->foreign_allegiance == 1) {
+                $this->validate([
+                    'allegiance_to_foreign_country' => 'required'
+                ],[
+                    'allegiance_to_foreign_country.required' => 'Please provide details of the candidate\'s allegiance to the foreign country.'
+                ]);
                 $foreignDetails = $this->allegiance_to_foreign_country;
             }
-
+    
             $disqualifiedPresident = null;
-            if ($this->disqualified_president === 'Yes') {
+            if ($this->disqualified_president == 1) {
                 $disqualifiedPresident = $this->disqualified_by_president;
             }
 
             $dismissedForCorruption = null;
-            if ($this->dismissed_for_corruptions === 'Yes') {
+            if ($this->dismissed_for_corruptions == 1) {
                 $dismissedForCorruption = $this->dismissed_for_corruption;
             }
 
-
+            
             $govtContract = null;
-            if ($this->govt_contract === 'Yes') {
+            if ($this->govt_contract == 1) {
                 $govtContract = $this->subsisting_govt_contract;
             }
 
             $manageAgentRole = null;
-            if ($this->company_position === 'Yes') {
+            if ($this->company_position == 1) {
                 $manageAgentRole = $this->managing_agent_role;
             }
+            
 
             $commisionDisqualifiedDate = null;
-            if ($this->commission_disqualified === 'Yes') {
+            if ($this->commission_disqualified == 1) {
                 $commisionDisqualifiedDate = $this->date_of_disqualification;
             }
 
@@ -361,6 +393,14 @@ class NominationForm2B extends Component
                     'managing_agent_role' => $manageAgentRole,
                     'disqualified_by_commission' => $this->commission_disqualified,
                     'date_of_disqualification' => $commisionDisqualifiedDate,
+                    'office_of_profit' =>$this->office_of_profit,
+                    'insolvent' =>$this->insolvent,
+                    'company_position' =>$this->company_position,
+                    'dismissed_for_corruptions' =>$this->dismissed_for_corruptions,
+                    'commission_disqualified' =>$this->commission_disqualified,
+                    'govt_contract' =>$this->govt_contract,
+                    'disqualified_president' =>$this->disqualified_president,
+                    'foreign_allegiance' =>$this->foreign_allegiance,
                 ])
             );
 

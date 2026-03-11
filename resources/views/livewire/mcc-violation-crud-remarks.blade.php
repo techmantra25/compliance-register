@@ -174,7 +174,6 @@
                         <div class="mt-2">
                             {{ $r->remarks }}
                         </div>
-
                         @if($r->attachment)
 
                         <div class="mt-2">
@@ -222,7 +221,7 @@
         @if($userRole=='legal_associate')
             <div class="col-lg-4"> 
                 <!-- Status Card -->
-                <div class="card shadow-sm border-0 p-3 mb-3">
+                <div class="card shadow-sm border-0 p-3 mb-3 sticky-card">
 
                     <div class="card-header bg-white">
                         <h5 class="fw-bold mb-0">Status</h5>

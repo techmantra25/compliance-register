@@ -33,28 +33,20 @@ class MccViolationCrudRemarks extends Component
     {
         $this->validate();
 
-        $filePath = null;
-
+         $filePath = null;
         if ($this->attachment) {
-
             $file = $this->attachment;
-
             $timestamp = now()->format('Ymd_His');
             $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
             $extension = $file->getClientOriginalExtension();
 
             $filename = "{$originalName}_{$timestamp}.{$extension}";
-
-            $filePath = $file->storeAs(
-                "mcc_docs/{$this->mcc->id}",
-                $filename,
-                'public'
-            );
+            $filePath = $file->storeAs("mcc_docs/{$this->mcc->id}", $filename, 'public');
         }
         MccRemarks::create([
             'mcc_id' => $this->mcc->id,
             'remarks' => $this->remark,
-            'attachment' => 'storage/'.$filePath,
+            'attachment' => $filePath ? 'storage/'.$filePath : null,
             'legal_associate_id' => auth()->guard('admin')->id(),
             'is_read' => 0
         ]);
