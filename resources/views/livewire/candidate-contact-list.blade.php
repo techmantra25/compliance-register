@@ -125,8 +125,25 @@
                                 <option value="partial">Partially Uploaded Documents</option>
                             </select>
                         </div>
-
                         <div class="col-md-2">
+                            <select wire:model="filter_by_document" class="form-select form-select-sm select-style" wire:change="filterByDocument($event.target.value)">
+                                <option value="">Filter by type</option>
+                                <option value="without_criminal_full_generation">
+                                    Candidate without Criminal Offence (Full Generation)
+                                </option>
+
+                                <option value="without_criminal_observation_only">
+                                    Candidate without Criminal Offence (Observation Only)
+                                </option>
+
+                                <option value="with_criminal_offence">
+                                    Candidate with Criminal Offence
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row justify-content-end">
+                        <div class="col-md-2 text-end">
                             <button class="btn btn-sm btn-danger"
                                     wire:click="resetForm">
                                     Reset Filters
@@ -134,46 +151,6 @@
                             </button>
                         </div>
                     </div>
-
-                    <!-- 🔹 Row 2 -->
-                    {{--<div class="row g-2 align-items-center">
-                        
-                        <div class="col-md-5">
-                            <select wire:model="filter_by_status" class="form-select form-select-sm" wire:change="filterByStatus($event.target.value)">
-                                <option value="">Filter by Final Status</option>
-                                @foreach (getFinalDocStatus() as $key => $status)
-                                    <option value="{{ $key }}">
-                                        {{ $status['icon'] }} {{ $status['label'] }}
-                                    </option>
-                                @endforeach 
-                            </select>
-                        </div>
-
-                        <div class="col-md-5">
-                            <select wire:model="filter_by_document" class="form-select form-select-sm" wire:change="filterByDocument($event.target.value)">
-                                <option value="">Filter by Document Status</option>
-                                <option value="all">All Documents Uploaded</option>
-                                <option value="personal_doc">Missing Personal Informations</option>
-                                <option value="missing">Missing Required Documents</option>
-                                <option value="partial">Partially Uploaded Documents</option>
-                            </select>
-                        </div>
-
-                        <div class="col-md-3">
-                            <input type="text"
-                                wire:model="search" wire:keyup="filterCandidates($event.target.value)"
-                                class="form-control form-control-sm"
-                                placeholder="Search candidate...">
-                        </div>
-
-                        <div class="col-md-2 text-end">
-                            <button class="btn btn-sm btn-danger"
-                                    wire:click="resetForm">
-                                    Reset Filters
-                            </button>
-                        </div>
-                    </div> --}}
-
                 </div>
 
                 <div class="card-body p-2">
@@ -229,100 +206,10 @@
                                         </div>
                                     </td>
 
-                                    {{-- <td class="text-center">
-                                        @if ($candidate->agents->isNotEmpty())
-                                            <button class="btn btn-sm btn-outline-primary"
-                                                    data-bs-toggle="modal"
-                                                    data-bs-target="#agentModal-{{ $candidate->id }}">
-                                                <i class="bi bi-eye me-1"></i> View
-                                            </button>
-                                        @else
-                                            N/A
-                                        @endif
-
-                                        <div class="modal fade"
-                                            id="agentModal-{{ $candidate->id }}"
-                                            tabindex="-1"
-                                            aria-hidden="true"
-                                            wire:ignore.self>
-
-                                            <div class="modal-dialog modal-lg modal-dialog-centered">
-                                                <div class="modal-content border-0 shadow">
-
-                                                    <!-- Header -->
-                                                    <div class="modal-header bg-primary text-white">
-                                                        <h5 class="modal-title">
-                                                            <i class="bi bi-people-fill me-1"></i>
-                                                            Agent Details
-                                                        </h5>
-                                                        <button type="button"
-                                                                class="btn-close btn-close-white"
-                                                                data-bs-dismiss="modal"></button>
-                                                    </div>
-
-                                                    <!-- Body -->
-                                                    <div class="modal-body">
-
-                                                        <div class="table-responsive">
-                                                            <table class="table table-bordered align-middle">
-                                                                <thead class="table-light">
-                                                                    <tr>
-                                                                        <th>Name</th>
-                                                                        <th>Phone</th>
-                                                                        <th>Email</th>
-                                                                    </tr>
-                                                                </thead>
-                                                                <tbody>
-                                                                    @foreach ($candidate->agents as $agent)
-                                                                        <tr>
-                                                                            <td>
-                                                                                <i class="bi bi-person-badge text-primary me-1"></i>
-                                                                                {{ ucwords($agent->name) }}
-                                                                            </td>
-
-                                                                            <td>
-                                                                                <div class="d-flex align-items-center gap-2">
-
-                                                                                    <span id="phone-{{ $agent->id }}">
-                                                                                        {{ $agent->contact_number }}
-                                                                                        @if($agent->contact_number_alt_1)
-                                                                                            / {{ $agent->contact_number_alt_1 }}
-                                                                                        @endif
-                                                                                    </span>
-
-                                                                                    <button class="btn btn-sm btn-outline-secondary"
-                                                                                            onclick="copyToClipboard('phone-{{ $agent->id }}')">
-                                                                                        <i class="bi bi-clipboard"></i>
-                                                                                    </button>
-
-                                                                                </div>
-                                                                            </td>
-
-                                                                            <td>
-                                                                                @if($agent->email)
-                                                                                    <i class="bi bi-envelope-fill text-primary me-1"></i>
-                                                                                    {{ $agent->email }}
-                                                                                @else
-                                                                                    -
-                                                                                @endif
-                                                                            </td>
-                                                                        </tr>
-                                                                    @endforeach
-                                                                </tbody>
-                                                            </table>
-                                                        </div>
-
-                                                    </div>
-
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </td> --}}
-
                                     <td>
                                         <span>
                                             @if(!empty($candidate->assembly->assembly_number))
-                                                ({{ $candidate->assembly->assembly_number }})
+                                                {{ $candidate->assembly->assembly_number }} 
                                             @endif
                                             {{ $candidate->assembly->assembly_name_en ?? 'N/A' }}
                                         </span>
@@ -390,37 +277,34 @@
                                     </td>
 
                                      <td class="text-center">
-                                         @if(childUserAccess(Auth::guard('admin')->user()->id,'nomination_document_collections'))
-                                            <div class="tooltip-wrapper">
-                                                <a href="{{ route('admin.candidates.documents', ['candidate' => $candidate->id]) }}"
-                                                class="btn btn-sm btn-outline-success">
-                                                Upload
+                                            {{-- @if(childUserAccess(Auth::guard('admin')->user()->id,'nomination_document_collections')) --}}
+                                                <div class="tooltip-wrapper m-1">
+                                                    <a href="{{ route('admin.candidates.documents', ['candidate' => $candidate->id]) }}"
+                                                    class="btn btn-sm btn-outline-success">
+                                                    Upload
+                                                    </a>
+                                                    <span class="tooltip-text">upload Candidate Documents</span>
+                                                </div>
+                                            {{-- @endif --}}
+                                            <div class="tooltip-wrapper m-1">
+                                                <a href="{{ route('admin.candidates.form2B', $candidate->id) }}"
+                                                    class="btn btn-sm btn-outline-success">
+                                                    Generate Form 2B
                                                 </a>
-                                                <span class="tooltip-text">upload Candidate Documents</span>
+                                                <span class="tooltip-text">Generate Form 2B PDF</span>
                                             </div>
-                                        @endif
-                                        <div class="tooltip-wrapper">
-                                            <a href="{{ route('admin.candidates.form2B', $candidate->id) }}"
+                                            <div class="tooltip-wrapper m-1">
+                                                <a href="{{ route('admin.candidates.observation.form', $candidate->id) }}"
                                                 class="btn btn-sm btn-outline-success">
-                                                Generate Form 2B
-                                            </a>
-                                            <span class="tooltip-text">Generate Form 2B PDF</span>
-                                        </div>
-                                        <div class="tooltip-wrapper">
-                                            <a href="{{ route('admin.candidates.observation.form', $candidate->id) }}"
-                                            class="btn btn-sm btn-outline-info">
-
-                                                <i class="bi bi-clipboard-check"></i>
-                                            </a>
-
-                                            <span class="tooltip-text">Observation Form</span>
-                                        </div>
+                                                    Observation Form
+                                                </a>
+                                                <span class="tooltip-text">Generate Observation Form</span>
+                                            </div>
                                     </td>
 
                                     <td class="text-center">
                                         @if($authUser->role=='legal_associate')
                                             @if($uploaded == $required_document)
-
                                                 <div class="tooltip-wrapper">
                                                     <a href="{{route('admin.candidates.documents.vetting', $candidate->id)}}"
                                                     class="btn btn-sm btn-outline-success">
@@ -443,11 +327,10 @@
                                                 @endif
                                             @endif
                                         @else
-
                                             @if($candidate->document_collection_status !== 'rejected')
 
                                                 @if(childUserAccess(Auth::guard('admin')->user()->id,'nomination_assign_agents'))
-                                                <div class="tooltip-wrapper">
+                                                <div class="tooltip-wrapper m-1">
                                                     <button 
                                                         class="btn btn-sm btn-outline-{{ count($candidate->agents) > 0 ? 'primary' : 'danger' }}"
                                                         wire:click="openAgentModal({{ $candidate->id }})"
@@ -463,7 +346,7 @@
                                                 @endif
 
                                                 @if(childUserAccess(Auth::guard('admin')->user()->id,'nomination_update_candidate'))
-                                                <div class="tooltip-wrapper">
+                                                <div class="tooltip-wrapper m-1">
                                                     <button class="btn btn-sm btn-outline-success"
                                                         wire:click="edit({{ $candidate->id }})"
                                                         data-bs-toggle="modal"
@@ -476,29 +359,23 @@
 
                                             @endif
 
-                                           
-
                                             @if(childUserAccess(Auth::guard('admin')->user()->id,'nomination_candidate_journey_timeline'))
-                                            <div class="tooltip-wrapper">
-                                                <a href="{{ route('admin.candidates.journey', $candidate->id) }}"
-                                                class="btn btn-sm btn-outline-success">
-                                                <i class="bi bi-clock-history"></i>
-                                                </a>
-                                                <span class="tooltip-text">Candidate Journey Timeline</span>
-                                            </div>
+                                                <div class="tooltip-wrapper m-1">
+                                                    <a href="{{ route('admin.candidates.journey', $candidate->id) }}"
+                                                    class="btn btn-sm btn-outline-success">
+                                                    <i class="bi bi-clock-history"></i>
+                                                    </a>
+                                                    <span class="tooltip-text">Candidate Journey Timeline</span>
+                                                </div>
                                             @endif
-
-                                            @if($candidate->document_collection_status=="ready_for_vetting")
-                                            <div class="tooltip-wrapper">
-                                                <button type="button"
-                                                    class="btn btn-sm btn-outline-success mt-1" onclick="SendMail({{$candidate->id}})">
-                                                    <i class="bi bi-envelope-fill"></i>
-                                                </button>
-                                                <span class="tooltip-text">Send Email to Legal Associate to Start Vetting</span>
-                                            </div>
-                                            @endif
-
                                         @endif
+                                            <div class="tooltip-wrapper m-1">
+                                                <button class="btn btn-sm btn-success"
+                                                    wire:click="changeStatus({{ $candidate->id }})">
+                                                    <i class="bi bi-flag"></i>
+                                                </button>
+                                                <span class="tooltip-text">Update Status</span>
+                                            </div>
                                         </td>
 
                                     <!-- modal -->
@@ -741,6 +618,110 @@
             </div>
         </div>
     </div>
+    {{-- Status Model --}}
+    <div wire:ignore.self class="modal fade" id="statusModal">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg rounded-3">
+                
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="statusModalLabel">
+                        Update Candidate Status
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white"
+                        data-bs-dismiss="modal"
+                        wire:click="resetForm"></button>
+                </div>
+
+                <form wire:submit.prevent="updateStatus">
+                    <div class="modal-body">
+
+                        <div class="row">
+                            @if($selectedCandidate)
+                                {{-- Candidate Information --}}
+                                <div class="col-md-12 mb-3">
+                                    <div class="border rounded p-3 bg-light">
+
+                                        <h6 class="fw-bold mb-3">Candidate Details</h6>
+
+                                        <div class="row">
+
+                                            <div class="col-md-6 mb-2">
+                                                <strong>Name :</strong>
+                                                {{ $selectedCandidate->name }}
+                                            </div>
+
+                                            <div class="col-md-6 mb-2">
+                                                <strong>Email :</strong>
+                                                {{ $selectedCandidate->email }}
+                                            </div>
+
+                                            <div class="col-md-6 mb-2">
+                                                <strong>Contact :</strong>
+                                                {{ $selectedCandidate->contact_number }}
+                                            </div>
+
+                                            <div class="col-md-6 mb-2">
+                                                <strong>Assembly :</strong>
+                                                {{ $selectedCandidate->assembly->assembly_number ?? '' }}
+                                                -
+                                                {{ $selectedCandidate->assembly->assembly_name_en ?? '' }}
+                                                ({{ $selectedCandidate->assembly->assembly_name_bn ?? '' }})
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                                @endif
+                            <div class="mb-3 col-md-12">
+                                <label class="form-label">
+                                    Candidate Status <span class="text-danger">*</span>
+                                </label>
+                                <select wire:model="candidate_status" class="form-control">
+                                    <option value="">Select Status</option>
+
+                                    <option value="without_criminal_full_generation" {{$candidate_status=="without_criminal_full_generation"?"selected":""}}>
+                                        Candidate without Criminal Offence (Full Generation)
+                                    </option>
+
+                                    <option value="without_criminal_observation_only" {{$candidate_status=="without_criminal_observation_only"?"selected":""}}>
+                                        Candidate without Criminal Offence (Observation Only)
+                                    </option>
+
+                                    <option value="with_criminal_offence" {{$candidate_status=="with_criminal_offence"?"selected":""}}>
+                                        Candidate with Criminal Offence
+                                    </option>
+
+                                </select>
+
+                                @error('candidate_status')
+                                    <small class="text-danger">{{ $message }}</small>
+                                @enderror
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button"
+                            class="btn btn-secondary btn-sm"
+                            data-bs-dismiss="modal"
+                            wire:click="resetForm">
+                            Cancel
+                        </button>
+
+                        <button type="submit" class="btn btn-primary btn-sm">
+                            Update Status
+                        </button>
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+    </div>
 
     <div wire:ignore.self class="modal fade" id="assignAgentModal" tabindex="-1" aria-labelledby="assignAgentModalLabel"
         aria-hidden="true">
@@ -821,7 +802,7 @@
             </div>
         </div>
     </div>
-    <div class="loader-container" wire:loading wire:target="saveCandidate">
+    <div class="loader-container" wire:loading wire:target="saveCandidate,changeStatus">
         <div class="loader"></div>
     </div>
     @push('scripts')
@@ -899,7 +880,6 @@
         window.addEventListener('close-upload-modal', () => {
             $('#uploadcandidateModal').modal('hide');
         });
-
         Livewire.on('refreshChosen', (value) => {
 
             setTimeout(() => {
@@ -988,6 +968,13 @@
 
             });
         }
+
+        window.addEventListener('openStatusModel', () => {
+            $('#statusModal').modal('show');
+        });
+        window.addEventListener('closeStatusModel', () => {
+            $('#statusModal').modal('hide');
+        });
 
         document.addEventListener('livewire:init', () => {
 

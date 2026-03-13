@@ -9,7 +9,7 @@ class Candidate extends Model
    protected $table = "candidates";
     
    protected $fillable = [
-        'name', 'designation', 'email', 'contact_number', 'contact_number_alt_1', 'contact_number_alt_2', 'type', 'assembly_id', 'document_collection_status', 'parent_candidate_id', 'cloned_by', 'cloned_at', 'clone_remarks', 'is_special_case', 'special_case_label', 'observation_description'
+        'name', 'designation', 'email', 'contact_number', 'contact_number_alt_1', 'contact_number_alt_2', 'type', 'assembly_id', 'document_collection_status','status', 'parent_candidate_id', 'cloned_by', 'cloned_at', 'clone_remarks', 'is_special_case', 'special_case_label', 'observation_description'
    ];
 
    public function documents()

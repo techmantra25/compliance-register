@@ -11,8 +11,15 @@ class AssemblyList extends Component
 {
     use WithPagination;
 
-    public $district_id;
-    public $search;
+    public $district_id, $selected_id;
+    public $assembly_name_en;
+    public $assembly_name_bn;
+
+    protected $rules = [
+        'assembly_name_en' => 'required|string|max:255',
+        'assembly_name_bn' => 'required|string|max:255',
+    ];
+    public $search, $selectedAssembly;
 
     protected $paginationTheme = 'bootstrap';
 
@@ -32,6 +39,41 @@ class AssemblyList extends Component
     {
         $this->reset(['district_id', 'search']);
         $this->dispatch('ResetForm');
+    }
+     public function editItem($assembly_id)
+    {
+        $assembly = Assembly::findOrFail($assembly_id);
+
+        $this->selected_id = $assembly->id;
+        $this->assembly_name_en = $assembly->assembly_name_en;
+        $this->assembly_name_bn = $assembly->assembly_name_bn;
+
+        $this->dispatch('openUpdateModel');
+    }
+
+    public function updateStatus()
+    {
+        $this->validate();
+
+        $assembly = Assembly::findOrFail($this->selected_id);
+
+        $assembly->update([
+            'assembly_name_en' => $this->assembly_name_en,
+            'assembly_name_bn' => $this->assembly_name_bn,
+        ]);
+
+        $this->dispatch('closeUpdateModel');
+
+        session()->flash('message','Assembly Updated Successfully');
+
+        $this->resetFormData();
+    }
+
+    public function resetFormData()
+    {
+        $this->selected_id = null;
+        $this->assembly_name_en = '';
+        $this->assembly_name_bn = '';
     }
 
     public function render()
