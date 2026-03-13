@@ -66,6 +66,7 @@
                                     <th>{{ __('admin/assemblies.table_name_bn') }}</th>
                                     <th>{{ __('admin/assemblies.table_district') }}</th>
                                     <th>{{ __('admin/assemblies.table_status') }}</th>
+                                    <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -87,13 +88,22 @@
                                                 ? ($assembly->district->name_bn ?? 'N/A') 
                                                 : ($assembly->district->name_en ?? 'N/A') }}
                                         </td>
-
                                         <td>
-                                            <span class="badge bg-{{ $assembly->status == 'active' ? 'success' : 'secondary' }}">
-                                                {{ $assembly->status == 'active' 
-                                                    ? __('admin/assemblies.status_active') 
-                                                    : __('admin/assemblies.status_inactive') }}
-                                            </span>
+                                            <div class="tooltip-wrapper m-1">
+                                                <span class="badge bg-{{ $assembly->status == 'active' ? 'success' : 'secondary' }}">
+                                                    {{ $assembly->status == 'active' 
+                                                        ? __('admin/assemblies.status_active') 
+                                                        : __('admin/assemblies.status_inactive') }}
+                                                </span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="tooltip-wrapper m-1">
+                                                <button class="btn btn-sm btn-outline-success" wire:click="editItem({{$assembly->id}})">
+                                                    <i class="bi bi-pencil"></i>
+                                                </button>
+                                                <span class="tooltip-text">Edit Candidate</span>
+                                            </div>
                                         </td>
                                     </tr>
                                 @empty
@@ -115,9 +125,86 @@
             </div>
         </div>
     </div>
+    <div  class="modal fade" id="updateModal">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg rounded-3">
 
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">
+                        Update Assembly
+                    </h5>
+
+                    <button type="button"
+                            class="btn-close btn-close-white"
+                            data-bs-dismiss="modal"
+                            wire:click="resetForm">
+                    </button>
+                </div>
+
+                <form wire:submit.prevent="updateStatus">
+                    <div class="modal-body">
+
+                        <div class="row">
+
+                            <!-- English Name -->
+                            <div class="mb-3 col-md-6">
+                                <label class="form-label">
+                                    Assembly Name (English)
+                                    <span class="text-danger">*</span>
+                                </label>
+
+                                <input type="text"
+                                    class="form-control"
+                                    wire:model="assembly_name_en" value="{{$assembly_name_en}}">
+
+                                @error('assembly_name_en')
+                                    <small class="text-danger">{{ $message }}</small>
+                                @enderror
+                            </div>
+
+                            <!-- Bengali Name -->
+                            <div class="mb-3 col-md-6">
+                                <label class="form-label">
+                                    Assembly Name (Bengali)
+                                    <span class="text-danger">*</span>
+                                </label>
+
+                                <input type="text"
+                                    class="form-control"
+                                    wire:model="assembly_name_bn" value="{{$assembly_name_bn}}">
+
+                                @error('assembly_name_bn')
+                                    <small class="text-danger">{{ $message }}</small>
+                                @enderror
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="modal-footer">
+
+                        <button type="button"
+                                class="btn btn-secondary btn-sm"
+                                data-bs-dismiss="modal"
+                                wire:click="resetForm">
+                            Cancel
+                        </button>
+
+                        <button type="submit"
+                                class="btn btn-primary btn-sm">
+                            Update
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+    </div>
     <!-- Loading Spinner -->
-    <div class="loader-container" wire:loading wire:target="edit,resetFilters">
+    <div class="loader-container" wire:loading wire:target="resetFilters,editItem">
         <div class="loader"></div>
     </div>
 
@@ -166,6 +253,14 @@
 
             $(document).ready(function () {
                 initChosen();
+            });
+
+            window.addEventListener('openUpdateModel', () => {
+                $('#updateModal').modal('show');
+            });
+
+            window.addEventListener('closeUpdateModel', () => {
+                $('#updateModal').modal('hide');
             });
         </script>
 

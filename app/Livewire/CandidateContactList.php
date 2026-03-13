@@ -32,6 +32,8 @@ class CandidateContactList extends Component
     use WithPagination, WithFileUploads;
 
     public $search = '';
+    public $candidate_status;
+    public $selectedCandidate;
     public $filter_by_status,$name,$filter_by_document, $designation, $email, $contact_number, $contact_number_alt_1, $contact_number_alt_2, $assembly_id, $type = 'Candidate';
     public $assemblies,$districts,$phases;
     public $editMode = false;
@@ -250,6 +252,26 @@ class CandidateContactList extends Component
             ->get();
 
         $this->dispatch('refreshChosen', $this->assembly_id);
+    }
+
+    public function changeStatus($candidate_id){
+        $this->selectedCandidate = Candidate::findOrFail($candidate_id);
+        $this->candidate_status = $this->selectedCandidate->status;
+        $this->dispatch('openStatusModel');
+    }
+    public function updateStatus(){
+        $this->validate([
+            'candidate_status' => 'required'
+        ]);
+        Candidate::where('id', $this->selectedCandidate->id)
+        ->update([
+            'status' => $this->candidate_status
+        ]);
+
+        $this->dispatch('closeStatusModel');
+
+        $this->dispatch('toastr:success', message: 'Status updated successfully.');
+        $this->resetForm();
     }
 
     protected function getInvalidAssembly($excludeId)
