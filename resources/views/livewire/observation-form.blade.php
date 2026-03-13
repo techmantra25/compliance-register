@@ -72,12 +72,14 @@ th{
 
 <!-- PAGE 1 -->
 
-<div class="page">
+<div>
 
-<div class="title">NOMINATION COMPLIANCE & OBSERVATION REPORT</div>
+<form method="POST" action="{{ route('observation.pdf', $candidate->id) }}">
+@csrf
+
+<h2>NOMINATION COMPLIANCE & OBSERVATION REPORT</h2>
 
 <p><strong>Issued by:</strong> Fox & Mandal (WBLA 26)</p>
-<p class="subtitle"><strong>Project:</strong> West Bengal Assembly Elections 2026</p>
 
 <table>
 
@@ -92,45 +94,42 @@ th{
 </tr>
 
 <tr>
-<td>
-<strong>
-Assembly <br>
-Constituency (AC)
-</strong>
-</td>
+<td><strong>Assembly Constituency (AC)</strong></td>
 <td>
 {{ $candidate->assembly->assembly_number }}
 ({{ $candidate->assembly->assembly_name_en }})
 </td>
 </tr>
 
-<tr>
-<td><strong>Date & Time</strong></td>
-<td>
-{{ \Carbon\Carbon::now()->format('F d, Y') }}<br><br>
-{{ \Carbon\Carbon::now()->format('H:i') }}
-</td>
-</tr>
-
 </table>
 
+<br>
 
-<div class="section">
+<div style="margin-top:20px;">
 
-<p>
-1. The nomination papers (Form 2B and Form 26) have been reviewed for structural completeness and are cleared for formal filing.
-</p>
+<strong style="display:block;margin-bottom:8px;">
+OBSERVATIONS (if any):
+</strong>
 
-<strong>OBSERVATIONS (if any):</strong>
+<textarea
+name="observation_description"
+placeholder="Enter observation here"
+style="width:100%;height:180px;border:1px solid #000;padding:10px;font-size:14px;resize:none;">
+{{ $candidate->observation_description }}
+</textarea>
 
-<div class="observation-box">
-    {{ $candidate->observation_description }}
 </div>
 
-</div>
+<br><br>
+
+<button type="submit" style="padding:10px 25px;background:#000;color:#fff;border:none;">
+Generate PDF
+</button>
+
+</form>
+
 
 </div>
-
 
 
 <!-- PAGE 2 -->
