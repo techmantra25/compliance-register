@@ -407,8 +407,7 @@
                                             <span class="tooltip-text">Generate Form 2B PDF</span>
                                         </div>
                                         <div class="tooltip-wrapper">
-                                            <a href="{{ route('observation.form', $candidate->id) }}"
-                                            target="_blank"
+                                            <a href="{{ route('admin.candidates.observation.form', $candidate->id) }}"
                                             class="btn btn-sm btn-outline-info">
 
                                                 <i class="bi bi-clipboard-check"></i>

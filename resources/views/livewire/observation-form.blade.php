@@ -74,7 +74,7 @@ th{
 
 <div>
 
-<form method="POST" action="{{ route('observation.pdf', $candidate->id) }}">
+<form method="POST" action="{{ route('admin.candidates.observation.pdf', $candidate->id) }}" target="_blank">
 @csrf
 
 <h2>NOMINATION COMPLIANCE & OBSERVATION REPORT</h2>
