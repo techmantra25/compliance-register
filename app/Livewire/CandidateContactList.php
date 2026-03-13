@@ -925,9 +925,16 @@ class CandidateContactList extends Component
     }
     public function render()
     {
-        $candidates = $this->getFilteredQuery()
-        ->orderByDesc('id')
-        ->paginate(20);
+        $query = $this->getFilteredQuery();
+
+        // Show only criminal candidates for legal associate
+        if ($this->authUser->role === "legal_associate") {
+            $query->whereNotNull('criminal_case_id');
+        }
+
+        $candidates = $query
+            ->orderByDesc('id')
+            ->paginate(20);
 
         // if ($this->authUser->role === "legal_associate") {
         //     $collection = $candidates->getCollection();

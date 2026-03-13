@@ -1,8 +1,4 @@
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<title>Nomination Compliance & Observation Report</title>
+<div>
 
 <style>
 
@@ -64,11 +60,26 @@ th{
     display:inline-block;
 }
 
+.form-container {
+    margin: 0 auto;
+    padding: 15px;
+    background-color: white;
+}
+
 </style>
 </head>
 
 <body>
+    
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
+    <div>
+        <h4 class="fw-bold mb-1 text-dark">
+            Preview
+        </h4>
+    </div>
+</div>
 
+<div class="form-container">
 
 <!-- PAGE 1 -->
 
@@ -217,9 +228,5 @@ Name: <span class="signature-line"></span>
 Date / Time: <span class="signature-line"></span>
 </p>
 
-
 </div>
-
-
-</body>
-</html>
+</div>

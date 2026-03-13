@@ -667,9 +667,29 @@
                                                     @elseif($lastDocument['status'] == 'Approved')
                                                         <span class="badge bg-success">Verified</span>
                                                     @else
-                                                        <a href="{{ route('admin.candidates.documents.comments', $doc['id']) }}" class="btn btn-secondary btn-sm"> 
-                                                            View <i class="bi bi-eye-slash"></i>
-                                                        </a>
+                                                        @if($authUser->role == "legal_associate")
+                                                            <a href="{{ route('admin.candidates.documents.comments', $doc['id']) }}" class="btn btn-secondary btn-sm"> 
+                                                                View <i class="bi bi-eye-slash"></i>
+                                                            </a>
+                                                        @else
+                                                        <div style="min-width:100px;">
+                                                            <select class="form-select form-select-sm"
+                                                                    onchange="confirmStatusUpdate(this, {{ $doc['id'] }})">
+                                                                <option value="Approved" {{ $doc['status'] == 'Approved' ? 'selected' : '' }}>
+                                                                    Approved
+                                                                </option>
+
+                                                                <option value="Rejected" {{ $doc['status'] == 'Rejected' ? 'selected' : '' }}>
+                                                                    Rejected
+                                                                </option>
+
+                                                                <option value="Pending" {{ $doc['status'] == 'Pending' ? 'selected' : '' }}>
+                                                                    Pending
+                                                                </option>
+
+                                                            </select>
+                                                        </div>
+                                                        @endif      
                                                     @endif
                                                 </td>
                                             @endif
@@ -766,7 +786,37 @@
 
                 </table>
             </div>
+
+      
         </div>
+       @if($showObservationButton && $authUser->role !== "legal_associate")
+        <div class="d-flex justify-content-end align-items-end gap-3 mb-3">
+            <div>
+                <a href="{{ route('admin.candidates.observation.form', $candidateId) }}"
+                class="btn btn-success mt-4">
+                    <i class="bi bi-clipboard-check"></i>
+                    Observation Form
+                </a>
+            </div>
+            <div style="min-width:320px;">
+                <select wire:model="candidate_status" wire:change="updateStatus" class="form-control">
+                    <option value="">Candidate Status</option>
+
+                    <option value="without_criminal_full_generation">
+                        Candidate without Criminal Offence (Full Generation)
+                    </option>
+
+                    <option value="without_criminal_observation_only">
+                        Candidate without Criminal Offence (Observation Only)
+                    </option>
+
+                    <option value="with_criminal_offence">
+                        Candidate with Criminal Offence
+                    </option>
+                </select>
+            </div>
+        </div>
+        @endif
         <div wire:ignore.self class="modal fade" id="DocumentModal" tabindex="-1" aria-labelledby="DocumentModalLabel" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered">
                     <div class="modal-content border-0 shadow-lg rounded-3">
@@ -906,6 +956,30 @@
                     toastr.error(event.message);
                 });
             });
+
+            function confirmStatusUpdate(selectElement, documentId) {
+
+                let value = selectElement.value;
+
+                Swal.fire({
+                    title: "Update Document Status?",
+                    text: `You are changing status to "${value}".`,
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#3085d6",
+                    cancelButtonColor: "#d33",
+                    confirmButtonText: "Yes, update it!"
+                }).then((result) => {
+
+                    if (result.isConfirmed) {
+                        @this.call('updateDocumentStatus', value, documentId);
+                    } else {
+                        location.reload(); // revert selection
+                    }
+
+                });
+
+            }
         </script>
     @endpush
 

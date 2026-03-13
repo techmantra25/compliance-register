@@ -109,21 +109,13 @@ class NominationPdfController extends Controller
         return $pdf->stream('Nomination_Form_26.pdf');
     }
 
-   public function observationForm($id)
-    {
-        $candidate = Candidate::with('assembly')->findOrFail($id);
-
-        return view('livewire.observation-form', [
-            'candidate' => $candidate
-        ]);
-    }
-
     public function observationPdf(Request $request, $id)
     {
         $candidate = Candidate::with('assembly')->findOrFail($id);
 
         // Save observation in candidates table
         $candidate->observation_description = $request->observation_description;
+        $candidate->last_created_observation_form = now();
         $candidate->save();
 
         $pdf = Pdf::loadView(

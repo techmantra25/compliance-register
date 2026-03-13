@@ -41,6 +41,7 @@ use App\Livewire\{
     GradeWiseAssemblyCrud,
     WarRoomCrud,
     WarRoomCrudRemarks,
+    ObservationFormPreview,
 };
 use App\Http\Controllers\NominationPdfController;
 use App\Livewire\Candidate\DocumentComments;
@@ -136,7 +137,8 @@ Route::prefix('/admin')->middleware('auth:admin')->group(function () {
         Route::get('/documents', CandidateDocumentCollection::class)->name('admin.candidates.documents');
         Route::get('/documents/comments/{document}', DocumentComments::class)->name('admin.candidates.documents.comments');
         Route::get('/documents/vetting/{document}', CandidateDocumentVetting::class)->name('admin.candidates.documents.vetting');
-        Route::get('/observation-form/{id}', [NominationPdfController::class, 'observationForm'])->name('admin.candidates.observation.form');
+        // Route::get('/observation-form/{id}', [NominationPdfController::class, 'observationForm'])->name('admin.candidates.observation.form');
+        Route::get('/observation-form/{id}', ObservationFormPreview::class)->name('admin.candidates.observation.form');
         Route::post('/observation-pdf/{id}', [NominationPdfController::class, 'observationPdf'])->name('admin.candidates.observation.pdf');
 
     });

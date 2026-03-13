@@ -293,13 +293,6 @@
                                                 </a>
                                                 <span class="tooltip-text">Generate Form 2B PDF</span>
                                             </div>
-                                            <div class="tooltip-wrapper m-1">
-                                                <a href="{{ route('admin.candidates.observation.form', $candidate->id) }}"
-                                                class="btn btn-sm btn-outline-success">
-                                                    Observation Form
-                                                </a>
-                                                <span class="tooltip-text">Generate Observation Form</span>
-                                            </div>
                                     </td>
 
                                     <td class="text-center">

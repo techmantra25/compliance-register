@@ -38,6 +38,9 @@ class CandidateDocumentCollection extends Component
     public $attachedTo = [];
     public $remainRequiredDocuments = [];
     public $documents_approved_by;
+    public $showObservationButton = false;
+    public $candidate_status;
+    public $authUser;
 
     public function mount(Request $request)
     {
@@ -58,11 +61,11 @@ class CandidateDocumentCollection extends Component
 
         $this->nomination_date = $candidate?->assembly?->assemblyPhase?->phase?->last_date_of_nomination;
         $this->phase = $candidate?->assembly?->assemblyPhase?->phase?->name;
-
         // Store only serializable data
         $this->candidateData = $candidate;
         $this->candidateId = $candidate->id;
         $this->candidateName = $candidate->name;
+        $this->candidate_status = $candidate->status;
         $this->assemblyName =optional( $candidate->assembly)->assembly_name_en.'('.optional($candidate->assembly)->assembly_number.')';
         $this->agentName =optional($candidate->agent)->name;
         $this->agentId =optional($candidate->agent)->id;
@@ -434,6 +437,46 @@ class CandidateDocumentCollection extends Component
             }
         }
     }
+    
+    public function updateStatus()
+    {
+        $this->validate([
+            'candidate_status' => 'required'
+        ]);
+
+        $this->candidateData->status = $this->candidate_status;
+        // If candidate has criminal offence
+        if ($this->candidate_status === 'with_criminal_offence') {
+            $this->candidateData->criminal_case_id = $this->candidateData->id;
+        }
+        $this->candidateData->save();
+
+        $this->dispatch('toastr:success', message: 'Candidate Status updated successfully.');
+    }
+
+    public function updateDocumentStatus($status, $documentId)
+    {
+        $document = CandidateDocument::find($documentId);
+
+        if (!$document) {
+            $this->dispatch('toastr:error', message: 'Document not found.');
+            return;
+        }
+
+        if ($document->status !== 'Pending') {
+            $this->dispatch('toastr:error', message: 'Status already locked.');
+            return;
+        }
+
+        $document->status = $status;
+        $document->vetted_by = Auth::guard('admin')->id();
+        $document->vetted_on = $status == "Approved" ? now() : null;
+        $document->save();
+
+        $this->loadDocuments();
+
+        $this->dispatch('toastr:success', message: 'Document status updated successfully.');
+    }
 
     protected function SendMail($id){
         
@@ -484,9 +527,21 @@ class CandidateDocumentCollection extends Component
     }
     public function render()
     {
+        $this->authUser = Auth::guard('admin')->user();
         $this->remainRequiredDocuments = $this->remainDocuments();
         $this->getAcknowledgmentCopies();
         $this->FinalStatusUpdate();
+
+        // $this->showObservationButton = $this->candidateData->document_collection_status === "ready_for_vetting";
+        $allowedStatuses = [
+            'ready_for_vetting',
+            'verified_pending_submission'
+        ];
+
+        $this->showObservationButton = in_array(
+            $this->candidateData->document_collection_status,
+            $allowedStatuses
+        );
         return view('livewire.candidate-document-collection')->layout('layouts.admin');
     }
 }

@@ -11,6 +11,7 @@ use App\Models\EventCategory;
 use App\Models\Candidate;
 use App\Models\Campaign;
 use App\Models\CampaignWisePermission;
+use Illuminate\Support\Facades\Auth;  
 
 
 class AdminDashboard extends Component
@@ -23,9 +24,11 @@ class AdminDashboard extends Component
     public $approvedCopyReceived;
     public $cancelledOrRescheduled;
     public $phaseWiseStatus;
+    public $authUser;
 
     public function mount()
     {
+        $this->authUser = Auth::guard('admin')->user();
         $this->totalScheduled = Campaign::count();
         $campaigns = Campaign::with(['category.permissions', 'permissions'])->get();
 

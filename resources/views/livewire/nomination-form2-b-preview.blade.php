@@ -242,7 +242,6 @@
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
                 transform: rotate(45deg);
-
             }
             .flex-input {
                 display: inline;
@@ -1046,6 +1045,130 @@ function printForm() {
 
                 .no-print{
                     display:none !important;
+                }
+
+                .input-field:focus{
+                    outline: none;
+                }
+
+                .form-header {
+                    text-align: center;
+                    margin-bottom: 12px;
+                }
+                
+                .input-field-small {
+                    /* width: 80px; */
+                    /* min-width: 80px; */
+                    width: fit-content;
+                }
+                
+                .input-field-medium {
+                    /* width: 200px; */
+                    /* min-width: 200px; */
+                    width: fit-content;
+                }
+                
+                .input-field-large {
+                    /* width: 300px; */
+                    width: fit-content;
+                }
+                
+                .strike-instruction {
+                    color: #000000;
+                    margin: 10px 0;
+                }
+                
+                table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin: 15px 0;
+                    border:0;
+                }
+                
+                th, td {
+                    text-align: left;
+                    vertical-align: top;
+                    font-weight: normal;
+                }
+
+                td {
+                    padding: 0 8px;
+                    font-size: 16px;
+                }
+                
+                th {
+                    font-size: 16px;
+                    text-align: center;
+                    padding: 0 8px;
+                }
+
+                .input-field {
+                    border-bottom: 1px dotted #000;
+                    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='2' viewBox='0 0 100 2'%3E%3Cline x1='0' y1='1' x2='100' y2='1' stroke='%23000' stroke-width='1' stroke-dasharray='2,2'/%3E%3C/svg%3E");
+                    background-repeat: repeat-x;
+                    background-position: bottom;
+                    border-top:none;
+                    border-left:none;
+                    border-right:none;
+                }
+
+                .full-strike2:after {
+                    top: -83px;
+                }
+
+                .full-strike, .full-strike2 {
+                    position: relative;
+                    z-index: 1;
+                }
+
+                .full-strike:after, .full-strike2:after {
+                    content: "";
+                    position: absolute;
+                    left: 50%;
+                    top: -29px;
+                    bottom: 0;
+                    width: 2px;
+                    background: #000;
+                    transform: rotate(40deg);
+                    height: 136%;
+                    -webkit-print-color-adjust: exact;
+                    print-color-adjust: exact;
+                }
+                .full-strike2:after {
+                    top: -83px;
+                }
+
+                .strike-out{
+                    text-decoration: line-through;
+                }
+
+                .flex-input {
+                    display: inline;
+                    min-width: 80px;
+                    max-width: 100%;
+                    white-space: normal;
+                    outline: none;
+                    padding: 0 4px;
+                    font-size: 16px;
+                    line-height: 1.21;
+                    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='2' viewBox='0 0 100 2'%3E%3Cline x1='0' y1='1' x2='100' y2='1' stroke='%23000' stroke-width='1' stroke-dasharray='2,2'/%3E%3C/svg%3E");
+                    background-repeat: repeat-x;
+                    background-position: bottom;
+                    font-weight: bold;
+                    word-break: break-word;
+                    overflow-wrap: anywhere;
+                    border-bottom:1px dotted #000;
+                }
+                .strike-out{
+                    text-decoration: line-through;
+                }
+
+                .keep-together {
+                    page-break-inside: avoid !important;
+                    break-inside: avoid !important;
+                    -webkit-column-break-inside: avoid !important;
+                    
+                    overflow: hidden !important;
                 }
 
                 @page{

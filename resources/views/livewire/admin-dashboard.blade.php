@@ -1,6 +1,7 @@
 <div>
     <section class="dash-wrapper">
         <div class="container">
+            @if($authUser->role !== "legal_associate")
             <div class="row mb-4">
                 <div class="col-md-6 mb-4">
                     <div class="inner-wrapper">
@@ -95,6 +96,7 @@
                     </div>
                 </div>
             </div>
+            @endif
         </div>
     </section>
 
