@@ -55,6 +55,7 @@ th{
 .observation-box{
     border:1px solid #000;
     height:90px;
+    padding:2px;
     margin-top:8px;
 }
 
