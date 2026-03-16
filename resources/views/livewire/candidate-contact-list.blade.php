@@ -125,7 +125,14 @@
                                 <option value="partial">Partially Uploaded Documents</option>
                             </select>
                         </div>
-                        <div class="col-md-2">
+                        <div class="col-md-2 text-end">
+                            <button class="btn btn-sm btn-danger"
+                                    wire:click="resetForm">
+                                    Reset Filters
+                                {{-- <i class="bi bi-arrow-clockwise me-1"></i> --}}
+                            </button>
+                        </div>
+                        {{-- <div class="col-md-2">
                             <select wire:model="filter_by_document" class="form-select form-select-sm select-style" wire:change="filterByDocument($event.target.value)">
                                 <option value="">Filter by type</option>
                                 <option value="without_criminal_full_generation">
@@ -140,16 +147,15 @@
                                     Candidate with Criminal Offence
                                 </option>
                             </select>
-                        </div>
+                        </div> --}}
                     </div>
                     <div class="row justify-content-end">
-                        <div class="col-md-2 text-end">
+                        {{-- <div class="col-md-2 text-end">
                             <button class="btn btn-sm btn-danger"
                                     wire:click="resetForm">
                                     Reset Filters
-                                {{-- <i class="bi bi-arrow-clockwise me-1"></i> --}}
                             </button>
-                        </div>
+                        </div> --}}
                     </div>
                 </div>
 
@@ -165,7 +171,9 @@
                                     <th>Documents</th>
                                     <th>Final Status</th>
                                     <th>Last Date of Nomination form Submission</th>
-                                    <th>Form</th>
+                                    @if($authUser->role!=='legal_associate')
+                                        <th>Form</th>
+                                    @endif
                                     <th style="max-width: 250px;" class="text-center">Action</th>
                                 </tr>
                             </thead>
@@ -231,38 +239,22 @@
                                         {{ getFinalDocStatus($candidate->document_collection_status, 'icon') }}
                                         {{ getFinalDocStatus($candidate->document_collection_status, 'label') }}
                                         <br>
-                                        @if($candidate->is_special_case==1)
-                                            <span class="badge bg-warning text-dark ms-1">Special Case</span>
-                                        @endif
-                                         <!-- REJECTED DETAILS -->
-                                        @if($candidate->document_collection_status == 'rejected')
+                                        @if($candidate->is_criminal_offence == 1)
+                                            <span class="badge bg-warning text-dark ms-1">
+                                                Criminal Offence Case
+                                            </span>
 
-                                            <div class="mt-1 small text-danger">
-
-                                                <div>
-                                                    <i class="bi bi-person-x me-1"></i>
-                                                    <strong>Rejected By:</strong> 
-                                                    {{ optional($candidate->clonedBy)->name ?? 'Legal Associate' }}
-                                                </div>
-
-                                                @if($candidate->cloned_at)
-                                                <div>
-                                                    <i class="bi bi-clock-history me-1"></i>
-                                                    <strong>Rejected At:</strong>
-                                                    {{ \Carbon\Carbon::parse($candidate->cloned_at)->format('d M Y, h:i A') }}
-                                                </div>
+                                            @if($authUser->role!=='legal_associate')
+                                                @if($candidate->legalAssociate)
+                                                    <div class="small text-muted mt-1">
+                                                        Handled by: <strong>{{ $candidate->legalAssociate->name }}</strong>
+                                                    </div>
+                                                @else
+                                                    <div class="small text-danger mt-1">
+                                                        Legal Associate not assigned
+                                                    </div>
                                                 @endif
-
-                                                @if($candidate->clone_remarks)
-                                                <div class="mt-1">
-                                                    <i class="bi bi-chat-left-quote me-1"></i>
-                                                    <strong>Remarks:</strong> 
-                                                    {{ $candidate->clone_remarks }}
-                                                </div>
-                                                @endif
-
-                                            </div>
-
+                                            @endif
                                         @endif
                                     </td>
 
@@ -275,50 +267,70 @@
                                             : 'N/A'
                                         }}
                                     </td>
+                                    @if($authUser->role!=='legal_associate')
+                                        <td class="text-center">
 
-                                     <td class="text-center">
-                                            {{-- @if(childUserAccess(Auth::guard('admin')->user()->id,'nomination_document_collections')) --}}
+                                            {{-- Default when status is NULL --}}
+                                            @if(is_null($candidate->status))
                                                 <div class="tooltip-wrapper m-1">
                                                     <a href="{{ route('admin.candidates.documents', ['candidate' => $candidate->id]) }}"
                                                     class="btn btn-sm btn-outline-success">
                                                     Upload
                                                     </a>
-                                                    <span class="tooltip-text">upload Candidate Documents</span>
+                                                    <span class="tooltip-text">Upload Candidate Documents</span>
                                                 </div>
-                                            {{-- @endif --}}
+
+                                            {{-- Re-upload condition --}}
+                                            @elseif($candidate->status == "without_criminal_rejected_observation_only")
+                                                <div class="tooltip-wrapper m-1">
+                                                    <a href="{{ route('admin.candidates.documents', ['candidate' => $candidate->id]) }}"
+                                                    class="btn btn-sm btn-outline-success">
+                                                    Re-upload
+                                                    </a>
+                                                    <span class="tooltip-text">Upload Candidate Documents</span>
+                                                </div>
+
+                                            {{-- Preview condition --}}
+                                            @elseif($candidate->status == "without_criminal_full_generation")
+                                                <div class="tooltip-wrapper m-1">
+                                                    <a href="{{ route('admin.candidates.documents.preview', $candidate->id) }}"
+                                                    class="btn btn-sm btn-outline-success">
+                                                    Preview
+                                                    </a>
+                                                    <span class="tooltip-text">Preview Candidate Documents</span>
+                                                </div>
+
+                                            {{-- Fallback --}}
+                                            @else
+                                                <div class="tooltip-wrapper m-1">
+                                                    <a href="{{ route('admin.candidates.documents', ['candidate' => $candidate->id]) }}"
+                                                    class="btn btn-sm btn-outline-success">
+                                                    Upload
+                                                    </a>
+                                                    <span class="tooltip-text">Upload Candidate Documents</span>
+                                                </div>
+                                            @endif
+
                                             <div class="tooltip-wrapper m-1">
                                                 <a href="{{ route('admin.candidates.form2B', $candidate->id) }}"
-                                                    class="btn btn-sm btn-outline-success">
-                                                    Generate Form 2B
+                                                class="btn btn-sm btn-outline-success">
+                                                Generate Form 2B
                                                 </a>
                                                 <span class="tooltip-text">Generate Form 2B PDF</span>
                                             </div>
-                                    </td>
+
+                                        </td>
+                                    @endif
 
                                     <td class="text-center">
                                         @if($authUser->role=='legal_associate')
-                                            @if($uploaded == $required_document)
-                                                <div class="tooltip-wrapper">
-                                                    <a href="{{route('admin.candidates.documents.vetting', $candidate->id)}}"
-                                                    class="btn btn-sm btn-outline-success">
-                                                        @if($candidate->document_collection_status == 'rejected')
-                                                            <i class="bi bi-arrow-clockwise"></i> View Details
-                                                        @else   
-                                                            Verify Documents
-                                                        @endif
-                                                    </a>
-                                                    <span class="tooltip-text">Verify Documents</span>
+                                            <div class="tooltip-wrapper">
+                                                <a href="{{ route('admin.candidates.documents.preview', $candidate->id) }}"
+                                                class="btn btn-sm btn-outline-success">
+                                                    Preview <i class="bi bi-arrow-right-circle ms-1"></i>
+                                                </a>
+                                                <span class="tooltip-text">Preview Documents</span>
                                                 </div>
-                                                @if($candidate->document_collection_status == 'verified_pending_submission')
-                                                    <div class="tooltip-wrapper">
-                                                        <button type="button"
-                                                            class="btn btn-sm btn-outline-success" onclick="SendNotifyCandidateMail({{$candidate->id}})">
-                                                            <i class="bi bi-envelope-fill"></i>
-                                                        </button>
-                                                        <span class="tooltip-text"> Notify Candidate that Documents Have Been Verified</span>
-                                                    </div>
-                                                @endif
-                                            @endif
                                         @else
                                             @if($candidate->document_collection_status !== 'rejected')
 
@@ -362,13 +374,13 @@
                                                 </div>
                                             @endif
                                         @endif
-                                            <div class="tooltip-wrapper m-1">
+                                            {{-- <div class="tooltip-wrapper m-1">
                                                 <button class="btn btn-sm btn-success"
                                                     wire:click="changeStatus({{ $candidate->id }})">
                                                     <i class="bi bi-flag"></i>
                                                 </button>
                                                 <span class="tooltip-text">Update Status</span>
-                                            </div>
+                                            </div> --}}
                                         </td>
 
                                     <!-- modal -->
@@ -608,110 +620,6 @@
                         </button>
                     </div>
                 </form>
-            </div>
-        </div>
-    </div>
-    {{-- Status Model --}}
-    <div wire:ignore.self class="modal fade" id="statusModal">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content border-0 shadow-lg rounded-3">
-                
-                <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title" id="statusModalLabel">
-                        Update Candidate Status
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white"
-                        data-bs-dismiss="modal"
-                        wire:click="resetForm"></button>
-                </div>
-
-                <form wire:submit.prevent="updateStatus">
-                    <div class="modal-body">
-
-                        <div class="row">
-                            @if($selectedCandidate)
-                                {{-- Candidate Information --}}
-                                <div class="col-md-12 mb-3">
-                                    <div class="border rounded p-3 bg-light">
-
-                                        <h6 class="fw-bold mb-3">Candidate Details</h6>
-
-                                        <div class="row">
-
-                                            <div class="col-md-6 mb-2">
-                                                <strong>Name :</strong>
-                                                {{ $selectedCandidate->name }}
-                                            </div>
-
-                                            <div class="col-md-6 mb-2">
-                                                <strong>Email :</strong>
-                                                {{ $selectedCandidate->email }}
-                                            </div>
-
-                                            <div class="col-md-6 mb-2">
-                                                <strong>Contact :</strong>
-                                                {{ $selectedCandidate->contact_number }}
-                                            </div>
-
-                                            <div class="col-md-6 mb-2">
-                                                <strong>Assembly :</strong>
-                                                {{ $selectedCandidate->assembly->assembly_number ?? '' }}
-                                                -
-                                                {{ $selectedCandidate->assembly->assembly_name_en ?? '' }}
-                                                ({{ $selectedCandidate->assembly->assembly_name_bn ?? '' }})
-                                            </div>
-
-                                        </div>
-
-                                    </div>
-                                </div>
-
-                                @endif
-                            <div class="mb-3 col-md-12">
-                                <label class="form-label">
-                                    Candidate Status <span class="text-danger">*</span>
-                                </label>
-                                <select wire:model="candidate_status" class="form-control">
-                                    <option value="">Select Status</option>
-
-                                    <option value="without_criminal_full_generation" {{$candidate_status=="without_criminal_full_generation"?"selected":""}}>
-                                        Candidate without Criminal Offence (Full Generation)
-                                    </option>
-
-                                    <option value="without_criminal_observation_only" {{$candidate_status=="without_criminal_observation_only"?"selected":""}}>
-                                        Candidate without Criminal Offence (Observation Only)
-                                    </option>
-
-                                    <option value="with_criminal_offence" {{$candidate_status=="with_criminal_offence"?"selected":""}}>
-                                        Candidate with Criminal Offence
-                                    </option>
-
-                                </select>
-
-                                @error('candidate_status')
-                                    <small class="text-danger">{{ $message }}</small>
-                                @enderror
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                    <div class="modal-footer">
-                        <button type="button"
-                            class="btn btn-secondary btn-sm"
-                            data-bs-dismiss="modal"
-                            wire:click="resetForm">
-                            Cancel
-                        </button>
-
-                        <button type="submit" class="btn btn-primary btn-sm">
-                            Update Status
-                        </button>
-                    </div>
-
-                </form>
-
             </div>
         </div>
     </div>
@@ -962,12 +870,6 @@
             });
         }
 
-        window.addEventListener('openStatusModel', () => {
-            $('#statusModal').modal('show');
-        });
-        window.addEventListener('closeStatusModel', () => {
-            $('#statusModal').modal('hide');
-        });
 
         document.addEventListener('livewire:init', () => {
 

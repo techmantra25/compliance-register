@@ -15,6 +15,7 @@ class Admin extends Authenticatable
         'mobile',
         'password',
         'zone_id',
+        'assemblies',
         'role',
         'suspended_status',
     ];

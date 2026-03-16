@@ -1,0 +1,314 @@
+<div>
+    <style>
+
+    .document-tabs a{
+        cursor:pointer;
+    }
+
+    .preview-box{
+        height: 600px;
+        border:1px solid #ddd;
+        background:#fafafa;
+        overflow:hidden;
+        display:flex;
+    }
+    .section-header{
+        font-weight: 600;
+        padding: 10px 12px;
+        border-bottom: 2px solid #dee2e6;
+        background: #f8f9fa;
+        margin-bottom: 15px;
+    }
+
+    #editor{
+        min-height:400px;
+    }
+
+    </style>
+    <div class="d-flex flex-wrap justify-content-between align-items-start mb-3">
+        {{-- Left Section: Title + Candidate Info --}}
+        <div class="mb-2">
+            <h4 class="fw-bold mb-2 text-dark">Document Preview</h4>
+        </div>
+        
+        {{-- Right Section: Upload Acknowledgement Copy + Back Button --}}
+        <div class="d-flex flex-column align-items-end gap-2">
+            {{-- Back Button --}}
+            <a href="{{ route('admin.candidates.contacts') }}" class="btn btn-sm btn-danger shadow-sm">
+                <i class="bi bi-arrow-left-circle me-1"></i> Back
+            </a>
+        </div>
+    </div>
+    <div class="card shadow-sm border-0 p-3 mt-4">
+        <div class="">
+
+            <div class="mt-3">
+
+                <table class="table table-sm table-borderless mb-0">
+
+                    <tr>
+                        <th class="text-nowrap pe-3">Candidate Name</th>
+                        <td>: {{ $candidateName ?? 'N/A' }}</td>
+                    </tr>
+
+                    <tr>
+                        <th class="text-nowrap pe-3">Assembly Name & No</th>
+                        <td>: {{ $assemblyName ?? 'N/A' }}</td>
+                    </tr>
+
+                    <tr>
+                        <th class="text-nowrap pe-3">Phase</th>
+                        <td>: {{ $phase ?? 'N/A' }}</td>
+                    </tr>
+
+                    <tr>
+                        <th class="text-nowrap pe-3">Last Date of Nomination form Submission</th>
+                        <td>
+                            : {{ $nomination_date
+                                ? \Carbon\Carbon::parse($nomination_date)->format('d M Y')
+                                : 'N/A' }}
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th class="text-nowrap pe-3">Final Status</th>
+                        <td>
+                            :
+                            {!! getFinalDocStatus($candidateData->document_collection_status, 'icon') !!}
+                            {{ getFinalDocStatus($candidateData->document_collection_status, 'label') }}
+                        </td>
+                    </tr>
+
+                </table>
+
+            </div>
+
+        </div>
+
+        <div class="card-body px-0">
+
+            <div class="row">
+
+                <!-- Document List -->
+                <div class="col-md-2 border-end">
+
+                    <h6 class="section-header">Document List</h6>
+
+                   <div class="list-group document-tabs">
+                       @foreach ($availableDocuments as $index => $item)
+
+                       <a href="javascript:void(0)"
+                           class="list-group-item list-group-item-action {{ $active_tab==$index ? 'active' : '' }}"
+                           wire:click="ChangeDocument('{{ $index }}')">
+
+                           {{ $item }}
+
+                       </a>
+
+                       @endforeach
+                   </div>
+
+                </div>
+
+
+                <!-- Preview -->
+                <div class="col-md-6 border-end">
+
+                    <h6 class="section-header">Preview</h6>
+
+                    <div class="preview-box">
+                        {{-- {{dd($active_file)}} --}}
+                        @if($active_file)
+
+                            @php
+                                $extension = strtolower(pathinfo($active_file, PATHINFO_EXTENSION));
+                            @endphp
+
+                            {{-- PDF --}}
+                            @if($extension == 'pdf')
+
+                                <iframe 
+                                    src="{{ asset($active_file) }}" 
+                                     width="100%" style="border:none; height:600px">
+                                </iframe>
+
+                            {{-- Image --}}
+                            @else
+
+                                <img 
+                                    src="{{ asset($active_file) }}" 
+                                    class="img-fluid m-auto rounded">
+
+                            @endif
+
+                        @else
+
+                        <div class="text-center text-muted py-5">
+                            No document available
+                        </div>
+
+                        @endif
+
+                        </div>
+
+                </div>
+
+
+                <!-- CKEditor -->
+                <div class="col-md-4" wire:ignore>
+
+                    <h6 class="section-header">Observation</h6>
+
+                    <textarea
+                        id="editor"
+                        class="form-control"
+                        rows="10"
+                    >{{ $observation_description }}</textarea>
+
+                </div>
+
+            </div>
+
+        </div>
+        <div class="card-footer d-flex justify-content-end gap-2 align-items-center">
+
+            {{-- APPROVED --}}
+            @if($candidateData->status == "without_criminal_full_generation")
+
+            <span class="badge bg-success me-auto">
+                <i class="bi bi-check-circle"></i>
+                Candidate Approved — Acknowledgment Form Generated
+            </span>
+
+            <button class="btn btn-success" wire:click="downloadAcknowledgement">
+
+                <i class="bi bi-download"></i>
+                Download Acknowledgment Form
+
+            </button>
+
+
+            {{-- REJECTED --}}
+            @elseif($candidateData->status == "without_criminal_rejected_observation_only")
+
+            <span class="badge bg-danger me-auto">
+                <i class="bi bi-x-circle"></i>
+                Candidate Rejected — Observation Memo Generated
+            </span>
+
+            <button class="btn btn-danger" wire:click="downloadObservationMemo">
+
+                <i class="bi bi-download"></i>
+                Download Observation Memo
+
+            </button>
+
+
+
+            {{-- DEFAULT (STATUS NULL / NOT PROCESSED) --}}
+            @else
+
+            <button class="btn btn-outline-success" onclick="confirmApprove()">
+
+                <i class="bi bi-check-circle"></i>
+                Approved & Generate Acknowledgment Form
+
+            </button>
+
+            <button class="btn btn-outline-danger" onclick="confirmReject()">
+
+                <i class="bi bi-x-circle"></i>
+                Reject & Generate Observation Memo
+
+            </button>
+
+            @endif
+
+        </div>
+    </div>
+    <div class="loader-container" wire:loading wire:target="downloadAcknowledgement, downloadObservationMemo">
+        <div class="loader"></div>
+    </div>
+@push('scripts')
+<script src="{{ asset('build/ckeditor/ckeditor.js') }}"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    document.addEventListener('livewire:init', () => {
+        Livewire.on('toastr:success', (event) => {
+            toastr.success(event.message);
+        });
+        
+        Livewire.on('toastr:error', (event) => {
+            toastr.error(event.message);
+        });
+    });
+    document.addEventListener("DOMContentLoaded", function () {
+
+        let editor = CKEDITOR.replace('editor', {
+            height: 600,
+            toolbar: [
+                { name: 'styles', items: ['Format','Font','FontSize'] },
+                { name: 'basicstyles', items: ['Bold','Italic'] },
+                { name: 'paragraph', items: ['NumberedList','BulletedList'] }
+            ]
+        });
+
+        editor.on('change', function () {
+
+            let data = editor.getData();
+
+            @this.set('observation_description', data);
+
+        });
+
+    });
+
+    function confirmApprove() {
+
+        Swal.fire({
+            title: "Generate Acknowledgment Form?",
+            text: "Are you sure you want to approve this candidate and generate the acknowledgment form?",
+            icon: "question",
+            showCancelButton: true,
+            confirmButtonColor: "#198754",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, Approve"
+        }).then((result) => {
+
+            if (result.isConfirmed) {
+
+                @this.call('GenerateAcknowledgementForm');
+
+            }
+
+        });
+
+    }
+
+
+    function confirmReject() {
+
+        Swal.fire({
+            title: "Generate Observation Memo?",
+            text: "Are you sure you want to reject and generate the observation memo?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#6c757d",
+            confirmButtonText: "Yes, Reject"
+        }).then((result) => {
+
+            if (result.isConfirmed) {
+
+                @this.call('GenerateObservationMemo');
+
+            }
+
+        });
+
+    }
+
+</script>
+@endpush
+</div>

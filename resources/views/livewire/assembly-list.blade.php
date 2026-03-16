@@ -125,7 +125,7 @@
             </div>
         </div>
     </div>
-    <div  class="modal fade" id="updateModal">
+    <div class="modal fade" id="updateModal" wire:ignore.self>
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content border-0 shadow-lg rounded-3">
 
@@ -137,7 +137,7 @@
                     <button type="button"
                             class="btn-close btn-close-white"
                             data-bs-dismiss="modal"
-                            wire:click="resetForm">
+                            wire:click="resetFormData">
                     </button>
                 </div>
 
@@ -155,7 +155,7 @@
 
                                 <input type="text"
                                     class="form-control"
-                                    wire:model="assembly_name_en" value="{{$assembly_name_en}}">
+                                    wire:model="assembly_name_en" id="assembly_name_en">
 
                                 @error('assembly_name_en')
                                     <small class="text-danger">{{ $message }}</small>
@@ -171,7 +171,7 @@
 
                                 <input type="text"
                                     class="form-control"
-                                    wire:model="assembly_name_bn" value="{{$assembly_name_bn}}">
+                                    wire:model="assembly_name_bn" id="assembly_name_bn">
 
                                 @error('assembly_name_bn')
                                     <small class="text-danger">{{ $message }}</small>
@@ -187,7 +187,7 @@
                         <button type="button"
                                 class="btn btn-secondary btn-sm"
                                 data-bs-dismiss="modal"
-                                wire:click="resetForm">
+                                wire:click="resetFormData">
                             Cancel
                         </button>
 
@@ -210,6 +210,11 @@
 
     @push('scripts')
         <script>
+            window.addEventListener('toastr:success', event => toastr.success(event.detail.message));
+            window.addEventListener('toastr:error', event => toastr.error(event.detail.message));
+        </script>
+        <script>
+            
             window.addEventListener('ResetForm', event => {
                 document.querySelectorAll('input, textarea, select').forEach(el => el.value = '');
                 const chosen = $('.chosen-select');
@@ -255,7 +260,10 @@
                 initChosen();
             });
 
-            window.addEventListener('openUpdateModel', () => {
+            window.addEventListener('openUpdateModel', (event) => {
+                $('#assembly_name_en').val(event.detail[0].assembly_name_en);
+                $('#assembly_name_bn').val(event.detail[0].assembly_name_bn);
+
                 $('#updateModal').modal('show');
             });
 

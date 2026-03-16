@@ -254,26 +254,6 @@ class CandidateContactList extends Component
         $this->dispatch('refreshChosen', $this->assembly_id);
     }
 
-    public function changeStatus($candidate_id){
-        $this->selectedCandidate = Candidate::findOrFail($candidate_id);
-        $this->candidate_status = $this->selectedCandidate->status;
-        $this->dispatch('openStatusModel');
-    }
-    public function updateStatus(){
-        $this->validate([
-            'candidate_status' => 'required'
-        ]);
-        Candidate::where('id', $this->selectedCandidate->id)
-        ->update([
-            'status' => $this->candidate_status
-        ]);
-
-        $this->dispatch('closeStatusModel');
-
-        $this->dispatch('toastr:success', message: 'Status updated successfully.');
-        $this->resetForm();
-    }
-
     protected function getInvalidAssembly($excludeId)
     {
         return Candidate::where('type', 'Candidate')->whereNot('assembly_id', $excludeId)->pluck('assembly_id')->toArray();
@@ -575,10 +555,25 @@ class CandidateContactList extends Component
 
     private function getFilteredQuery()
     {
-        return Candidate::query()
-            // ->where('id',7)
-            ->where('type', 'Candidate')
-            ->when($this->search, function ($q) { 
+        $query = Candidate::query()
+            ->where('type', 'Candidate');
+
+        if ($this->authUser->role === 'employee') {
+
+            $assemblies = $this->authUser->assemblies
+                ? array_map('intval', explode(',', $this->authUser->assemblies))
+                : [];
+
+            $query->whereIn('assembly_id', $assemblies);
+        }
+
+        if ($this->authUser->role === 'legal_associate') {
+
+            $query->where('legal_associate_id', $this->authUser->id);
+        }
+
+        return $query
+            ->when($this->search, function ($q) {
                 $q->where(function ($sub) {
                     $sub->where('name', 'like', "%{$this->search}%")
                         ->orWhere('email', 'like', "%{$this->search}%")
@@ -600,52 +595,22 @@ class CandidateContactList extends Component
                                 ->orWhere('email', 'like', "%{$this->search}%")
                                 ->orWhere('contact_number', 'like', "%{$this->search}%")
                                 ->orWhere('contact_number_alt_1', 'like', "%{$this->search}%");
-                    });
+                        });
                 });
             })
             ->when($this->filter_by_status, fn($q) => $q->where('document_collection_status', $this->filter_by_status))
             ->when(!empty($this->filter_by_document_array), fn($q) =>
                 $q->whereIn('document_collection_status', $this->filter_by_document_array)
             )
-
-            ->when($this->filter_by_personal_document, function ($q) {
-
-                $q->where(function ($query) {
-
-                    // Case 1
-                    $query->where(function ($sub) {
-                        $sub->whereNull('contact_number')
-                            ->orWhere('contact_number', '')
-                            ->whereDoesntHave('agents');
-                    })
-
-                    // Case 2
-                    ->orWhere(function ($sub) {
-                        $sub->whereNotNull('contact_number')
-                            ->where('contact_number', '!=', '')
-                            ->whereDoesntHave('agents');
-                    })
-
-                    // Case 3
-                    ->orWhere(function ($sub) {
-                        $sub->where(function ($c) {
-                            $c->whereNull('contact_number')
-                            ->orWhere('contact_number', '');
-                        })->whereHas('agents');
-                    });
-
-                });
-
-            })
             ->when($this->filter_by_assembly, fn($q) => $q->where('assembly_id', $this->filter_by_assembly))
             ->when($this->filter_by_district, fn($q) => $q->whereHas('assembly.district', fn($d) => $d->where('id', $this->filter_by_district)))
             ->when($this->filter_by_phase, fn($q) => $q->whereHas('assembly.assemblyPhase', fn($p) => $p->where('phase_id', $this->filter_by_phase)))
-        ->with([
-            'assembly.district',
-            'assembly.assemblyPhase.phase',
-            'documents',
-            'agents'
-        ]);
+            ->with([
+                'assembly.district',
+                'assembly.assemblyPhase.phase',
+                'documents',
+                'agents'
+            ]);
     }
 
     public function exportCsv()
@@ -923,33 +888,16 @@ class CandidateContactList extends Component
             $this->dispatch('mail-sent-failed', message: $e->getMessage());
         }
     }
-    public function render()
+   public function render()
     {
         $query = $this->getFilteredQuery();
-
-        // Show only criminal candidates for legal associate
-        if ($this->authUser->role === "legal_associate") {
-            $query->whereNotNull('criminal_case_id');
-        }
 
         $candidates = $query
             ->orderByDesc('id')
             ->paginate(20);
 
-        // if ($this->authUser->role === "legal_associate") {
-        //     $collection = $candidates->getCollection();
-
-        //     $filtered = $collection->filter(function ($candidate) {
-        //         if (!$candidate) return false;
-
-        //         $uploaded_documents = $candidate->documents->groupBy('type')->count();
-        //         return $uploaded_documents == $this->required_document;
-        //     })->values();
-
-        //     $candidates->setCollection($filtered);
-        // }
-
         $this->dispatch('resetTooltip');
+
         return view('livewire.candidate-contact-list', [
             'candidates' => $candidates,
             'assemblies' => $this->assemblies,

@@ -61,7 +61,7 @@ For security reasons, it is recommended to change your password after first logi
 <table cellpadding="0" cellspacing="0" style="margin:25px 0;">
 <tr>
 <td align="center">
-<a href="{{ url('/admin/login') }}"
+<a href="{{ url('/') }}"
 style="background:#1f4e79;color:#ffffff;padding:12px 22px;text-decoration:none;font-size:14px;border-radius:4px;display:inline-block;">
 Login to System
 </a>

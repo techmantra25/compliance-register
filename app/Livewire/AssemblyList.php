@@ -48,7 +48,10 @@ class AssemblyList extends Component
         $this->assembly_name_en = $assembly->assembly_name_en;
         $this->assembly_name_bn = $assembly->assembly_name_bn;
 
-        $this->dispatch('openUpdateModel');
+        $this->dispatch('openUpdateModel', [
+            'assembly_name_en' => $this->assembly_name_en,
+            'assembly_name_bn' => $this->assembly_name_bn
+        ]);
     }
 
     public function updateStatus()
@@ -63,8 +66,7 @@ class AssemblyList extends Component
         ]);
 
         $this->dispatch('closeUpdateModel');
-
-        session()->flash('message','Assembly Updated Successfully');
+        $this->dispatch('toastr:success', message: 'Assembly Updated Successfully');
 
         $this->resetFormData();
     }

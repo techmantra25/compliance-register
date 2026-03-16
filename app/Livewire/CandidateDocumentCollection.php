@@ -24,6 +24,7 @@ class CandidateDocumentCollection extends Component
     use WithFileUploads;
 
     public $candidateId;
+    public $legalAssociate;
     public $candidateName,$assemblyName,$agentName,$agentNumber,$agentId,$phase =1,$nomination_date;
     public $documents = [];
     // public $newFiles = [];
@@ -38,26 +39,37 @@ class CandidateDocumentCollection extends Component
     public $attachedTo = [];
     public $remainRequiredDocuments = [];
     public $documents_approved_by;
-    public $showObservationButton = false;
+    public $showPreviewButton = false;
     public $candidate_status;
     public $authUser;
+    public $sameAsBefore = false;
+    public $withCriminal = false;
+    public $assignedLegalAssociate;
 
     public function mount(Request $request)
     {
-        // Get the candidate ID from the route
         $candidateId = $request->query('candidate');
-        
-        // Fetch the candidate or abort if not found
+
         $candidate = Candidate::find($candidateId);
 
         if (!$candidate) {
             abort(404, 'Candidate not found.');
         }
-       $userRole = trim(strtolower(Auth::guard('admin')->user()->role));
 
-        // if ($userRole == 'legal_associate') {
-        //     abort(403, 'You are not authorized to access this candidate.');
-        // }
+        $admin = Auth::guard('admin')->user();
+        $userRole = trim(strtolower($admin->role));
+
+        // If employee, check assembly permission
+        if ($userRole === 'employee') {
+
+            $employeeAssemblies = $admin->assemblies
+                ? array_map('intval', explode(',', $admin->assemblies))
+                : [];
+
+            if (!in_array($candidate->assembly_id, $employeeAssemblies)) {
+                abort(403, 'You are not authorized to access this candidate.');
+            }
+        }
 
         $this->nomination_date = $candidate?->assembly?->assemblyPhase?->phase?->last_date_of_nomination;
         $this->phase = $candidate?->assembly?->assemblyPhase?->phase?->name;
@@ -66,7 +78,9 @@ class CandidateDocumentCollection extends Component
         $this->candidateId = $candidate->id;
         $this->candidateName = $candidate->name;
         $this->candidate_status = $candidate->status;
-        $this->assemblyName =optional( $candidate->assembly)->assembly_name_en.'('.optional($candidate->assembly)->assembly_number.')';
+        $this->assemblyName = optional($candidate->assembly)->assembly_number 
+        ? optional($candidate->assembly)->assembly_number . '-' . optional($candidate->assembly)->assembly_name_en
+        : '';
         $this->agentName =optional($candidate->agent)->name;
         $this->agentId =optional($candidate->agent)->id;
         $this->agentNumber =optional( $candidate->agent)->contact_number;
@@ -77,16 +91,53 @@ class CandidateDocumentCollection extends Component
         $this->loadDocuments();
         $this->documents_approved_by = $this->candidateData
         ->documents
-        ->where('status', 'Approved')
+        ->where('status', 'Uploaded')
         ->load('vettedBy')
         ->pluck('vettedBy.name')      
         ->filter()                    
         ->unique()                    
         ->values()                   
-        ->implode(', ');             
+        ->implode(', ');    
+        $this->withCriminal = $this->candidateData->is_criminal_offence=="1"?true:false;
+        $this->assignedLegalAssociate = $this->candidateData->legal_associate_id;
+        $this->legalAssociate = Admin::where('role', 'legal_associate')->where('suspended_status', 1)->orderBy('name')->get();
 
     }
 
+    public function toggleCriminalStatus()
+    {
+        
+        if ($this->withCriminal) {
+            $this->candidateData->is_criminal_offence = 1;
+            $this->candidateData->save();
+
+        } else {
+
+            $this->candidateData->is_criminal_offence = 0;
+            $this->assignedLegalAssociate = null;
+            $this->candidateData->save();
+        }
+    }
+
+    public function assignLegalAssociate()
+    {
+        if ($this->assignedLegalAssociate) {
+
+            $this->candidateData->legal_associate_id = $this->assignedLegalAssociate;
+            $this->candidateData->save();
+
+            $this->dispatch('toastr:success', message: 'Legal Associate assigned successfully!');
+
+        } else {
+
+            $this->candidateData->legal_associate_id = null;
+            $this->candidateData->save();
+
+            $this->dispatch('toastr:error', message: 'Legal Associate removed.');
+        }
+
+        $this->loadDocuments();
+    }
 
     public function toggleSkip($key, $checked)
     {
@@ -156,8 +207,8 @@ class CandidateDocumentCollection extends Component
                     'updated_at' => $document->updated_at->format('d/m/Y h:i A'), 
                     'uploaded_by_name' => $document->uploadedBy->name ?? 'System',
                     'attached_with' => $document->attached_with,
-                    'vetted_by_name' => $document->vettedBy->name ?? 'N/A',
-                    'vetted_on' => $document->vetted_on?$document->vetted_on->format('d/m/Y h:i A'):"N/A",
+                    'vetted_by_name' => $document->uploadedBy->name ?? 'System',
+                    'vetted_on' => $document->updated_at->format('d/m/Y h:i A'),
                     'uploaded_by_id' => $document->uploaded_by,
                     'comments_count' => $document->comments->where('is_viewed',0)->count(),
                     'status' => $document->status,
@@ -177,29 +228,50 @@ class CandidateDocumentCollection extends Component
     }
     public function save()
     {
-        $this->validate([
+        $rules = [
             "type" => 'required|string',
-            'newFile' => 'required|file|mimes:pdf,jpg,jpeg,png,gif,bmp,webp|max:5120',
             "remarks" => 'nullable|string|max:500',
-        ]);
+        ];
+
+        if (!$this->sameAsBefore) {
+            $rules['newFile'] = 'required|file|mimes:pdf,jpg,jpeg,png,gif,bmp,webp|max:5120';
+        }
+
+        $this->validate($rules);
 
         try {
-            $file = $this->newFile;
-            
-            // Generate a unique filename with timestamp
-            $timestamp = now()->format('Ymd_His');
-            $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-            $extension = $file->getClientOriginalExtension();
-            $filename = "{$originalName}_{$timestamp}.{$extension}";
 
-            // Store file in public/candidate_docs/{id}/
-            $path = $file->storeAs("candidate_docs/{$this->candidateId}", $filename, 'public');
-
-            // First check same type
+            // Check existing document of same type
             $existingDoc = CandidateDocument::where('candidate_id', $this->candidateId)
-            ->where('type', $this->type)
-            ->first();
-            // Save record in DB
+                ->where('type', $this->type)
+                ->latest()
+                ->first();
+
+            if ($this->sameAsBefore) {
+                if (!$existingDoc || empty($existingDoc->path)) {
+
+                    $this->addError('remarks', 'Sorry, previous file not found. Please upload the document again.');
+                    return;
+                }
+
+                // Reuse old path
+                $path = str_replace('storage/', '', $existingDoc->path);
+                $filename = basename($path);
+
+            } else {
+
+                $file = $this->newFile;
+
+                $timestamp = now()->format('Ymd_His');
+                $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+                $extension = $file->getClientOriginalExtension();
+
+                $filename = "{$originalName}_{$timestamp}.{$extension}";
+
+                $path = $file->storeAs("candidate_docs/{$this->candidateId}", $filename, 'public');
+            }
+
+            // Save record
             CandidateDocument::create([
                 'candidate_id' => $this->candidateId,
                 'type' => $this->type,
@@ -208,9 +280,9 @@ class CandidateDocumentCollection extends Component
                 'uploaded_by' => Auth::guard('admin')->id(),
             ]);
 
-            // Detect Upload or Re-Upload
+            // Detect Upload / Reupload
             $actionText = $existingDoc ? 'Re-Uploaded' : 'Uploaded';
-        
+
             $logData = [
                 'module_name'   => 'Document',
                 'module_id'     => $this->candidateId,
@@ -221,19 +293,17 @@ class CandidateDocumentCollection extends Component
                     'type' => $this->type,
                     'path' => 'storage/'.$path,
                     'remarks' => $this->remarks,
+                    'same_as_before' => $this->sameAsBefore
                 ]),
                 'document_name' => $this->availableDocuments[$this->type],
-                'link'          => asset("candidate_docs/{$this->candidateId}/{$filename}"),
+                'link'          => asset("storage/{$path}"),
             ];
+
             logChange($logData);
 
+            // Reset form
+            $this->reset(['newFile', 'remarks', 'sameAsBefore']);
 
-            // Reset file and remarks for this type
-            unset($this->newFile);
-            unset($this->remarks);
-
-
-            // Reload documents
             $this->loadDocuments();
             $this->dispatch(['ResetFormData']);
 
@@ -241,8 +311,7 @@ class CandidateDocumentCollection extends Component
             return redirect()->route('admin.candidates.documents', ['candidate'=>$this->candidateId]);
 
         } catch (\Exception $e) {
-            // dd($e->getMessage());
-            $this->dispatch('toastr:error', message: 'Error uploading document: ' . $e->getMessage());
+            $this->dispatch('toastr:error', message: 'Error uploading document: '.$e->getMessage());
         }
     }
     
@@ -311,49 +380,6 @@ class CandidateDocumentCollection extends Component
         $this->dispatch('toastr:success', message: 'Acknowledgment uploaded successfully');
     }
 
-    // public function uploadAcknowledgmentCopy(){
-    //     $this->validate([
-    //         'acknowledgment_file' => 'required|file|mimes:pdf,doc,docx,jpg,jpeg,png,gif,bmp,webp|max:5120',
-    //         'final_submission_confirmation' => 'required|date',
-    //     ]);
-    //     DB::beginTransaction();
-
-    //     try {
-    //     // Get file instance
-    //     $file = $this->acknowledgment_file;
-
-    //     // Create unique filename
-    //     $timestamp = now()->format('Ymd_His');
-    //     $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-    //     $extension = $file->getClientOriginalExtension();
-    //     $filename = "{$originalName}_{$timestamp}.{$extension}";
-
-    //     // Store file in public/candidate_docs/{id}/
-    //     $path = $file->storeAs("candidate_docs/{$this->candidateId}", $filename, 'public');
-
-    //     // Save record in DB
-    //     CandidateAcknoledgmentCopy::create([
-    //         'candidate_id' => $this->candidateId,
-    //         'path' => 'storage/'.$path,
-    //     ]);
-
-    //    $candidateUpdate = Candidate::findOrFail($this->candidateId);
-    //    $candidateUpdate->acknowledgment_file = 'storage/'.$path;
-    //    $candidateUpdate->acknowledgment_by = Auth::guard('admin')->id();
-    //    $candidateUpdate->final_submission_confirmation = $this->final_submission_confirmation;
-    //    $candidateUpdate->document_collection_status = "verified_submitted_with_copy";
-    //    $candidateUpdate->acknowledgment_at = now();
-    //    $candidateUpdate->save();
-
-    //     DB::commit();
-    //     session()->flash('success', 'Document uploaded successfully!');
-    //     return redirect()->route('admin.candidates.documents', ['candidate'=>$this->candidateId]);
-
-    //    } catch (\Exception $e) {
-    //         // dd($e->getMessage());
-    //         $this->dispatch('toastr:error', message: 'Error uploading document: ' . $e->getMessage());
-    //     }
-    // }
     public function FinalStatusUpdate(){
         $required_documents = $this->getDocumentTypes();
         $documentsData = CandidateDocument::with('uploadedBy')
@@ -373,14 +399,14 @@ class CandidateDocumentCollection extends Component
             ->get()
             ->groupBy('type')->toArray();
         if(count($required_documents) == count($documentsData)){
-            if($this->candidateData->document_collection_status=="verified_submitted_with_copy" ||$this->candidateData->document_collection_status=="rejected"){
+            if($this->candidateData->document_collection_status=="verified_submitted_with_copy" ||$this->candidateData->document_collection_status=="rejected" ||$this->candidateData->document_collection_status=="approved"){
                 return true;
             }
-            // $approvedCount = count(array_filter($documentsData, fn($status)=> $status === "Approved")) + count($skipOption);
+            // $approvedCount = count(array_filter($documentsData, fn($status)=> $status === "Uploaded")) + count($skipOption);
             // $pendingCount = count(array_filter($documentsData, fn($status)=> $status === "Pending"));
             $approvedOnlyCount = count(array_filter(
                 $documentsData,
-                fn($status) => $status === "Approved"
+                fn($status) => $status === "Uploaded"
             ));
 
             $pendingOnlyCount = count(array_filter(
@@ -394,23 +420,6 @@ class CandidateDocumentCollection extends Component
             ));
 
             $totalRequired = count($required_documents);
-            // if (($approvedOnlyCount + $skippedCount) === $totalRequired) {
-
-            //     $this->candidateData->document_collection_status = "verified_pending_submission";
-
-            // }
-            // elseif (($pendingOnlyCount + $skippedCount) === $totalRequired && $approvedOnlyCount === 0) {
-
-            //     $this->candidateData->document_collection_status = "ready_for_vetting";
-
-            // }
-            // else {
-
-            //     $this->candidateData->document_collection_status = "vetting_in_progress";
-
-            // }
-
-            // $this->candidateData->save();
             $newStatus = null;
 
             if (($approvedOnlyCount + $skippedCount) === $totalRequired) {
@@ -418,6 +427,7 @@ class CandidateDocumentCollection extends Component
             }
             elseif (($pendingOnlyCount + $skippedCount) === $totalRequired && $approvedOnlyCount === 0) {
                 $newStatus = "ready_for_vetting";
+
             }
             else {
                 $newStatus = "vetting_in_progress";
@@ -425,7 +435,11 @@ class CandidateDocumentCollection extends Component
             
             if ($this->candidateData->document_collection_status !== $newStatus) {
                 if($newStatus=="ready_for_vetting"){
+                    $this->candidateData->status = NULL;
                     // $this->SendMail($this->candidateId);
+                }
+                if($newStatus=="verified_pending_submission"){
+                    $this->candidateData->status = NULL;
                 }
                 $this->candidateData->document_collection_status = $newStatus;
                 $this->candidateData->save();
@@ -438,21 +452,6 @@ class CandidateDocumentCollection extends Component
         }
     }
     
-    public function updateStatus()
-    {
-        $this->validate([
-            'candidate_status' => 'required'
-        ]);
-
-        $this->candidateData->status = $this->candidate_status;
-        // If candidate has criminal offence
-        if ($this->candidate_status === 'with_criminal_offence') {
-            $this->candidateData->criminal_case_id = $this->candidateData->id;
-        }
-        $this->candidateData->save();
-
-        $this->dispatch('toastr:success', message: 'Candidate Status updated successfully.');
-    }
 
     public function updateDocumentStatus($status, $documentId)
     {
@@ -470,7 +469,7 @@ class CandidateDocumentCollection extends Component
 
         $document->status = $status;
         $document->vetted_by = Auth::guard('admin')->id();
-        $document->vetted_on = $status == "Approved" ? now() : null;
+        $document->vetted_on = $status == "Uploaded" ? now() : null;
         $document->save();
 
         $this->loadDocuments();
@@ -525,6 +524,14 @@ class CandidateDocumentCollection extends Component
     public function getAcknowledgmentCopies(){
         $this->acknowledgmentCopies = CandidateAcknowledgmentCopy::where('candidate_id', $this->candidateId)->orderBy('uploaded_at', 'desc')->get();
     }
+
+
+    public function toggleSameAsBefore()
+    {
+        if ($this->sameAsBefore) {
+            $this->newFile = null;
+        }
+    }
     public function render()
     {
         $this->authUser = Auth::guard('admin')->user();
@@ -532,13 +539,12 @@ class CandidateDocumentCollection extends Component
         $this->getAcknowledgmentCopies();
         $this->FinalStatusUpdate();
 
-        // $this->showObservationButton = $this->candidateData->document_collection_status === "ready_for_vetting";
         $allowedStatuses = [
             'ready_for_vetting',
             'verified_pending_submission'
         ];
 
-        $this->showObservationButton = in_array(
+        $this->showPreviewButton = in_array(
             $this->candidateData->document_collection_status,
             $allowedStatuses
         );

@@ -36,7 +36,7 @@ if (!function_exists('getFinalDocStatus')) {
     {
         $statuses = [
             'verified_pending_submission' => [
-                'label' => 'Vetting completed, pending for submission',
+                'label' => 'Vetting completed',
                 'icon'  => '✅',
             ],
             'ready_for_vetting' => [
@@ -53,6 +53,10 @@ if (!function_exists('getFinalDocStatus')) {
             ],
             'verified_submitted_with_copy' => [
                 'label' => 'Verified and Submitted with Received Copy',
+                'icon'  => '📄',
+            ],
+            'approved' => [
+                'label' => 'Approved',
                 'icon'  => '📄',
             ],
             'completed_nomination' => [
