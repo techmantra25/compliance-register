@@ -15,6 +15,8 @@ class PhaseCrud extends Component
     public $isEdit = false;
     public $search = '';
 
+    public $active_tab = 1; // TAB CONTROL
+
     protected $rules = [
         'name' => 'required|string|max:255',
         'last_date_of_nomination' => 'required|date',
@@ -28,6 +30,8 @@ class PhaseCrud extends Component
         $this->reset(['name', 'last_date_of_nomination', 'date_of_election', 'last_date_of_mcc', 'assembly_ids','search']);
         $this->phase_id = null;
         $this->isEdit = false;
+        $this->active_tab = 1;
+
         $this->dispatch('ResetForm');
     }
 
@@ -35,7 +39,6 @@ class PhaseCrud extends Component
     {
         $assemblyIds = is_array($assemblyIds) ? $assemblyIds : [$assemblyIds];
 
-  
         $query = PhaseWiseAssembly::whereIn('assembly_id', $assemblyIds);
 
         if ($this->isEdit && $this->phase_id) {
@@ -45,29 +48,35 @@ class PhaseCrud extends Component
         $conflicts = $query->pluck('assembly_id')->toArray();
 
         if (!empty($conflicts)) {
-           
-            $conflictNames = Assembly::whereIn('id', $conflicts)->pluck('assembly_name_en')->implode(', ');
 
-          
+            $conflictNames = Assembly::whereIn('id', $conflicts)
+                ->pluck('assembly_name_en')
+                ->implode(', ');
+
             $this->dispatch('toastr:error', message: "⚠️ These assemblies are already assigned to another phase: {$conflictNames}");
 
-           
             $this->assembly_ids = array_diff($assemblyIds, $conflicts);
+
         } else {
-       
+
             $this->assembly_ids = $assemblyIds;
         }
     }
 
     public function save()
-    { 
+    {
         $this->rules['name'] = 'required|string|max:255|unique:phases,name,' . ($this->phase_id ?? 'NULL') . ',id';
+
         $this->validate();
 
         DB::beginTransaction();
+
         try {
+
             if ($this->isEdit) {
+
                 $phase = Phase::findOrFail($this->phase_id);
+
                 $phase->update([
                     'name' => $this->name,
                     'last_date_of_nomination' => $this->last_date_of_nomination,
@@ -75,9 +84,10 @@ class PhaseCrud extends Component
                     'last_date_of_mcc' => $this->last_date_of_mcc,
                 ]);
 
-                // delete old mappings
                 PhaseWiseAssembly::where('phase_id', $phase->id)->delete();
+
             } else {
+
                 $phase = Phase::create([
                     'name' => $this->name,
                     'last_date_of_nomination' => $this->last_date_of_nomination,
@@ -87,6 +97,7 @@ class PhaseCrud extends Component
             }
 
             foreach ($this->assembly_ids as $assemblyId) {
+
                 PhaseWiseAssembly::create([
                     'phase_id' => $phase->id,
                     'assembly_id' => $assemblyId,
@@ -95,30 +106,41 @@ class PhaseCrud extends Component
 
             DB::commit();
 
-              $message = $this->isEdit
-            ? 'Phase updated successfully!'
-            : 'Phase added successfully!';
+            $message = $this->isEdit
+                ? 'Phase updated successfully!'
+                : 'Phase added successfully!';
 
-        $this->dispatch('toastr:success', message: $message);
+            $this->dispatch('toastr:success', message: $message);
+
             $this->resetInputFields();
-        } catch (\Exception $e) {
-            DB::rollBack();
-            $message= 'Something went wrong: ' . $e->getMessage();
 
-            $this->dispatch('toastr:error', message: $message);
+            $this->active_tab = 1;
+
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+
+            $this->dispatch('toastr:error', message: 'Something went wrong: ' . $e->getMessage());
         }
     }
 
     public function edit($id)
     {
         $phase = Phase::findOrFail($id);
+
         $this->phase_id = $phase->id;
         $this->name = $phase->name;
         $this->last_date_of_nomination = $phase->last_date_of_nomination;
         $this->date_of_election = $phase->date_of_election;
         $this->last_date_of_mcc = $phase->last_date_of_mcc;
-        $this->assembly_ids = PhaseWiseAssembly::where('phase_id', $id)->pluck('assembly_id')->toArray();
+
+        $this->assembly_ids = PhaseWiseAssembly::where('phase_id', $id)
+            ->pluck('assembly_id')
+            ->toArray();
+
         $this->isEdit = true;
+
+        $this->active_tab = 2;
     }
 
     public function confirmDelete($id)
@@ -129,9 +151,12 @@ class PhaseCrud extends Component
     public function delete($id)
     {
         DB::transaction(function () use ($id) {
+
             PhaseWiseAssembly::where('phase_id', $id)->delete();
+
             Phase::findOrFail($id)->delete();
         });
+
         $this->dispatch('toastr:show', [
             'type' => 'success',
             'message' => 'Phase deleted successfully!',
@@ -142,29 +167,40 @@ class PhaseCrud extends Component
     {
         $this->search = $searchTerm;
     }
+
     public function render()
     {
         $assemblies = Assembly::orderBy('assembly_name_en')->get();
 
         $phases = Phase::query()
+
             ->when($this->search, function ($query) {
+
                 $query->where('name', 'like', '%' . $this->search . '%')
+
                     ->orWhereHas('assemblies', function ($q) {
+
                         $q->where('assembly_name_en', 'like', '%' . $this->search . '%')
-                        ->orWhere('assembly_code', 'like', '%' . $this->search . '%')
+                        ->orWhere('assembly_number', 'like', '%' . $this->search . '%')
                         ->orWhere('assembly_number', 'like', '%' . $this->search . '%');
                     });
+
             })
+
             ->with(['assemblies'])
-            // ->orderBy('last_date_of_nomination', 'asc')
-            // ->orderBy('date_of_election', 'asc')
+
             ->get();
 
         foreach ($phases as $phase) {
+
             $assemblyIds = PhaseWiseAssembly::where('phase_id', $phase->id)->pluck('assembly_id');
-            $phase->assemblies = Assembly::whereIn('id', $assemblyIds)->pluck('assembly_name_en','assembly_code')->toArray();
+
+            $phase->assemblies = Assembly::whereIn('id', $assemblyIds)
+                ->pluck('assembly_name_en','assembly_number')
+                ->toArray();
         }
 
-        return view('livewire.phase-crud', compact('phases', 'assemblies'))->layout('layouts.admin');
+        return view('livewire.phase-crud', compact('phases', 'assemblies'))
+            ->layout('layouts.admin');
     }
 }

@@ -5,6 +5,7 @@ namespace App\Livewire;
 use Livewire\Component;
 use Livewire\WithPagination;
 use App\Models\Assembly;
+use App\Models\Phase;
 use App\Models\PhaseWiseAssembly;
 use App\Models\District;
 
@@ -81,15 +82,11 @@ class AssemblyList extends Component
 
     public function exportCsv()
     {
-        $assemblies = Assembly::with(['district', 'assemblyPhase.phase'])
-            ->get()
-            ->sortBy([
-                fn ($a) => optional(optional($a->assemblyPhase)->phase)->name,
-                fn ($a) => optional($a->district)->name_en,
-                fn ($a) => $a->assembly_number
-            ]);
+        $phases = Phase::with(['assemblies.district'])
+            ->orderBy('id', 'ASC')
+            ->get();
 
-        $filename = "assemblies.csv";
+        $filename = "assemblies_phase_wise.csv";
 
         $headers = [
             "Content-type" => "text/csv",
@@ -99,30 +96,29 @@ class AssemblyList extends Component
             "Expires" => "0"
         ];
 
-        $columns = ['Phase', 'District', 'Assembly Code', 'Assembly Name (EN)'];
+        $columns = ['Phase', 'District', 'AC Code', 'AC Name'];
 
-        $callback = function () use ($assemblies, $columns) {
+        $callback = function () use ($phases, $columns) {
 
             $file = fopen('php://output', 'w');
 
             // CSV Header
             fputcsv($file, $columns);
 
-           foreach ($assemblies as $assembly) {
+            foreach ($phases as $phase) {
 
-                $phase = '';
-                if ($assembly->assemblyPhase && $assembly->assemblyPhase->phase) {
-                    $phase = $assembly->assemblyPhase->phase->name;
+                foreach ($phase->assemblies->sortBy('assembly_number') as $assembly) {
+
+                    $district = optional($assembly->district)->name_en ?? '';
+
+                    fputcsv($file, [
+                        $phase->name,
+                        $district,
+                        $assembly->assembly_number,
+                        $assembly->assembly_name_en
+                    ]);
                 }
 
-                $district = $assembly->district ? $assembly->district->name_en : '';
-
-                fputcsv($file, [
-                    $phase,
-                    $district,
-                    $assembly->assembly_code,
-                    $assembly->assembly_name_en
-                ]);
             }
 
             fclose($file);
@@ -136,7 +132,7 @@ class AssemblyList extends Component
             ->when($this->search, fn($q) =>
                 $q->where('assembly_name_en', 'like', "%{$this->search}%")
                   ->orWhere('assembly_name_bn', 'like', "%{$this->search}%")
-                  ->orWhere('assembly_code', 'like', "%{$this->search}%"))
+                  ->orWhere('assembly_number', 'like', "%{$this->search}%"))
             ->when($this->district_id, fn($q) =>
                 $q->where('district_id', $this->district_id))
             ->orderBy('assembly_number')
