@@ -5,6 +5,7 @@ namespace App\Livewire;
 use Livewire\Component;
 use Livewire\WithPagination;
 use App\Models\Assembly;
+use App\Models\PhaseWiseAssembly;
 use App\Models\District;
 
 class AssemblyList extends Component
@@ -78,6 +79,57 @@ class AssemblyList extends Component
         $this->assembly_name_bn = '';
     }
 
+    public function exportCsv()
+    {
+        $assemblies = Assembly::with(['district', 'assemblyPhase.phase'])
+            ->get()
+            ->sortBy([
+                fn ($a) => optional(optional($a->assemblyPhase)->phase)->name,
+                fn ($a) => optional($a->district)->name_en,
+                fn ($a) => $a->assembly_number
+            ]);
+
+        $filename = "assemblies.csv";
+
+        $headers = [
+            "Content-type" => "text/csv",
+            "Content-Disposition" => "attachment; filename=$filename",
+            "Pragma" => "no-cache",
+            "Cache-Control" => "must-revalidate",
+            "Expires" => "0"
+        ];
+
+        $columns = ['Phase', 'District', 'Assembly Code', 'Assembly Name (EN)'];
+
+        $callback = function () use ($assemblies, $columns) {
+
+            $file = fopen('php://output', 'w');
+
+            // CSV Header
+            fputcsv($file, $columns);
+
+           foreach ($assemblies as $assembly) {
+
+                $phase = '';
+                if ($assembly->assemblyPhase && $assembly->assemblyPhase->phase) {
+                    $phase = $assembly->assemblyPhase->phase->name;
+                }
+
+                $district = $assembly->district ? $assembly->district->name_en : '';
+
+                fputcsv($file, [
+                    $phase,
+                    $district,
+                    $assembly->assembly_code,
+                    $assembly->assembly_name_en
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
     public function render()
     {
         $assemblies = Assembly::with('district')

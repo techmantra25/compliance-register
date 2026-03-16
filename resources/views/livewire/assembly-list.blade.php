@@ -1,25 +1,32 @@
 <div>
     <div class="row g-4">
         <!-- Header -->
-        <div class="d-flex flex-wrap justify-content-between align-items-center">
-            <div>
-                <h4 class="fw-bold mb-1 text-dark">
-                    <i class="bi bi-building me-2 text-primary"></i> {{ __('admin/assemblies.title') }}
-                </h4>
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb mb-0 small">
-                        <li class="breadcrumb-item">
-                            <a href="#" class="text-decoration-none text-muted">
-                                <i class="bi bi-grid-fill me-1"></i> {{ __('admin/assemblies.breadcrumb_admin') }}
-                            </a>
-                        </li>
-                        <li class="breadcrumb-item active text-primary" aria-current="page">
-                            {{ __('admin/assemblies.breadcrumb_assemblies') }}
-                        </li>
-                    </ol>
-                </nav>
-            </div>
-        </div>
+       <div class="d-flex flex-wrap justify-content-between align-items-center">
+    
+    <div>
+        <h4 class="fw-bold mb-1 text-dark">
+            <i class="bi bi-building me-2 text-primary"></i> {{ __('admin/assemblies.title') }}
+        </h4>
+
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0 small">
+                <li class="breadcrumb-item">
+                    <a href="#" class="text-decoration-none text-muted">
+                        <i class="bi bi-grid-fill me-1"></i> {{ __('admin/assemblies.breadcrumb_admin') }}
+                    </a>
+                </li>
+                <li class="breadcrumb-item active text-primary" aria-current="page">
+                    {{ __('admin/assemblies.breadcrumb_assemblies') }}
+                </li>
+            </ol>
+        </nav>
+    </div>
+
+    <button class="btn btn-success" wire:click="exportCsv">
+        Export CSV
+    </button>
+
+</div>
 
         <div class="col-lg-12">
             <div class="card shadow-sm border-0 p-3">
