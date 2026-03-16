@@ -54,7 +54,7 @@
                 <div class="card-header bg-white">
 
                     <div class="row g-2 mb-4 justify-content-center">
-                        <div class="col-md-6">
+                        <div class="col-md-12 col-lg-6">
                             <div class="canditate-search">
                                 <input type="text" wire:model="search" wire:keyup="filterCampaign($event.target.value)" class="form-control form-control-sm me-2" placeholder="Search here...">
                                 <span>
@@ -67,7 +67,7 @@
                     {{-- ROW 1 : FILTERS --}}
                     <div class="row g-2 mb-2 justify-content-center">
 
-                        <div class="col-md-2" wire:ignore>
+                        <div class="col-md-6 col-lg-2" wire:ignore>
                             <select wire:model="filter_by_assembly" class="form-select chosen-select">
                                 <option value="">Filter by Assembly</option>
                                 @foreach ($assembly as $assemb)
@@ -78,7 +78,7 @@
                             </select>
                         </div>
 
-                        <div class="col-md-2" wire:ignore>
+                        <div class="col-md-6 col-lg-2" wire:ignore>
                             <select wire:model="filter_by_district" class="form-select chosen-select">
                                 <option value="">Filter by District</option>
                                 @foreach ($districts as $district)
@@ -89,7 +89,7 @@
                             </select>
                         </div>
 
-                        <div class="col-md-2" wire:ignore>
+                        <div class="col-md-6 col-lg-2" wire:ignore>
                             <select wire:model="filter_by_zone" class="form-select chosen-select">
                                 <option value="">Filter by Zone</option>
                                 @foreach ($zones as $z)
@@ -98,7 +98,7 @@
                             </select>
                         </div>
 
-                        <div class="col-md-2">
+                        <div class="col-md-6 col-lg-2">
                             <select wire:model="filter_by_status" class="form-select select-style" wire:change="filterStatus($event.target.value)">
                                 <option value="">Filter by Status</option>
                                 @foreach ($statuses as $status_item)
@@ -107,7 +107,7 @@
                             </select>
                         </div>
 
-                        <div class="col-md-1 text-end">
+                        <div class="col-md-3 col-lg-2 text-md-center text-end">
                             <button class="btn btn-sm btn-danger"
                                 wire:click="resetFilters">
                                 <i class="bi bi-arrow-clockwise"></i> Reset
@@ -426,19 +426,19 @@
                                 </div>
 
                                 <!-- Campaign Date -->
-                                <div class="col-md-3 mb-3">
+                                <div class="col-md-6 col-lg-3 mb-3">
                                     <label class="form-label">Campaign Date</label>
                                     <input type="datetime-local" class="form-control" wire:model="campaign_date">
                                     @error('campaign_date') <small class="text-danger">{{ $message }}</small> @enderror
                                 </div>
 
                                 <!-- Last date of permission -->
-                                <div class="col-md-3 mb-3">
+                                <div class="col-md-6 col-lg-3 mb-3">
                                     <label class="form-label">Last Date Of Permission</label>
                                     <input type="datetime-local" class="form-control" wire:model="last_date_of_permission">
                                     @error('last_date_of_permission') <small class="text-danger">{{ $message }}</small> @enderror
                                 </div>
-                                <div class="col-md-6 mb-3">
+                                <div class="col-md-12 col-lg-6 mb-3">
                                     <div wire:ignore>
                                         <label class="form-label">Event Campaigners</label>
                                         <select class="form-control chosen-select" multiple wire:model="campaigner_ids">

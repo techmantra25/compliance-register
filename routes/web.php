@@ -136,7 +136,7 @@ Route::prefix('/admin')->middleware('auth:admin')->group(function () {
         Route::get('/nominations', CandidateContactList::class)->name('admin.candidates.contacts')->middleware('employee.permission:nomination_view_candidate');
         Route::get('/social-media', DiscrepancyReportCrud::class)->name('admin.candidates.discrepancies.report');
         Route::get('/documents', CandidateDocumentCollection::class)->name('admin.candidates.documents')->middleware('employee.permission:nomination_document_repository');
-        Route::get('/documents/preview/{document}', CandidateDocumentPreview::class)->name('admin.candidates.documents.preview')->middleware('employee.permission:nomination_document_preview');
+        Route::get('/documents/preview', CandidateDocumentPreview::class)->name('admin.candidates.documents.preview')->middleware('employee.permission:nomination_document_preview');
         Route::get('/documents/comments/{document}', DocumentComments::class)->name('admin.candidates.documents.comments');
         Route::get('/documents/vetting/{document}', CandidateDocumentVetting::class)->name('admin.candidates.documents.vetting');
         // Route::get('/observation-form/{id}', [NominationPdfController::class, 'observationForm'])->name('admin.candidates.observation.form');

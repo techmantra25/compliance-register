@@ -12,13 +12,7 @@
         overflow:hidden;
         display:flex;
     }
-    .section-header{
-        font-weight: 600;
-        padding: 10px 12px;
-        border-bottom: 2px solid #dee2e6;
-        background: #f8f9fa;
-        margin-bottom: 15px;
-    }
+
 
     #editor{
         min-height:400px;
@@ -28,13 +22,13 @@
     <div class="d-flex flex-wrap justify-content-between align-items-start mb-3">
         {{-- Left Section: Title + Candidate Info --}}
         <div class="mb-2">
-            <h4 class="fw-bold mb-2 text-dark">Document Preview</h4>
+            <h4 class="fw-bold mb-2 text-dark">Document Preview @if($versionData) (V-{{$versionData->version}}) @endif</h4>
         </div>
         
         {{-- Right Section: Upload Acknowledgement Copy + Back Button --}}
         <div class="d-flex flex-column align-items-end gap-2">
             {{-- Back Button --}}
-            <a href="{{ route('admin.candidates.contacts') }}" class="btn btn-sm btn-danger shadow-sm">
+            <a href="{{ route('admin.candidates.documents', ['candidate'=>$candidateId]) }}" class="btn btn-sm btn-danger shadow-sm">
                 <i class="bi bi-arrow-left-circle me-1"></i> Back
             </a>
         </div>
@@ -42,47 +36,71 @@
     <div class="card shadow-sm border-0 p-3 mt-4">
         <div class="">
 
-            <div class="mt-3">
+            <div class="row">
+                <div class="col-md-6 col-lg-3 mb-4 mb-lg-0">
+                    <strong class="title-text">Candidate Name</strong>
+                    <h6>{{ $candidateName ?? 'N/A' }}</h6>
+                </div>
+                <div class="col-md-6 col-lg-2 mb-4 mb-lg-0">
+                    <strong class="title-text">Assembly Name & No</strong>
+                    <h6>{{ $assemblyName ?? 'N/A' }}</h6>
+                </div>
 
-                <table class="table table-sm table-borderless mb-0">
+                <div class="col-md-6 col-lg-1 mb-4 mb-lg-0">
+                    <strong class="title-text">Phase</strong>
+                    <h6>{{ $phase ?? 'N/A' }}</h6>
+                </div>
 
-                    <tr>
-                        <th class="text-nowrap pe-3">Candidate Name</th>
-                        <td>: {{ $candidateName ?? 'N/A' }}</td>
-                    </tr>
-
-                    <tr>
-                        <th class="text-nowrap pe-3">Assembly Name & No</th>
-                        <td>: {{ $assemblyName ?? 'N/A' }}</td>
-                    </tr>
-
-                    <tr>
-                        <th class="text-nowrap pe-3">Phase</th>
-                        <td>: {{ $phase ?? 'N/A' }}</td>
-                    </tr>
-
-                    <tr>
-                        <th class="text-nowrap pe-3">Last Date of Nomination form Submission</th>
-                        <td>
-                            : {{ $nomination_date
-                                ? \Carbon\Carbon::parse($nomination_date)->format('d M Y')
-                                : 'N/A' }}
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <th class="text-nowrap pe-3">Final Status</th>
-                        <td>
-                            :
-                            {!! getFinalDocStatus($candidateData->document_collection_status, 'icon') !!}
-                            {{ getFinalDocStatus($candidateData->document_collection_status, 'label') }}
-                        </td>
-                    </tr>
-
-                </table>
-
+                <div class="col-md-6 col-lg-2 mb-4 mb-lg-0">
+                    <strong class="title-text">Last Date of Nomination</strong>
+                    <h6>{{ $nomination_date
+                            ? \Carbon\Carbon::parse($nomination_date)->format('d M Y')
+                            : 'N/A' }}</h6>
+                </div>
+                <div class="col-md-6 col-lg-2">
+                    <strong class="title-text">Final Status</strong>
+                    <h6>
+                        {!! getFinalDocStatus($candidateData->document_collection_status, 'icon') !!}
+                        {{ getFinalDocStatus($candidateData->document_collection_status, 'label') }}
+                    </h6>
+                </div>
             </div>
+            <!-- <table class="table table-sm table-borderless mb-0">
 
+                <tr>
+                    <th class="text-nowrap pe-3">Candidate Name</th>
+                    <td>: {{ $candidateName ?? 'N/A' }}</td>
+                </tr>
+
+                <tr>
+                    <th class="text-nowrap pe-3">Assembly Name & No</th>
+                    <td>: {{ $assemblyName ?? 'N/A' }}</td>
+                </tr>
+
+                <tr>
+                    <th class="text-nowrap pe-3">Phase</th>
+                    <td>: {{ $phase ?? 'N/A' }}</td>
+                </tr>
+
+                <tr>
+                    <th class="text-nowrap pe-3">Last Date of Nomination form Submission</th>
+                    <td>
+                        : {{ $nomination_date
+                            ? \Carbon\Carbon::parse($nomination_date)->format('d M Y')
+                            : 'N/A' }}
+                    </td>
+                </tr>
+
+                <tr>
+                    <th class="text-nowrap pe-3">Final Status</th>
+                    <td>
+                        :
+                        {!! getFinalDocStatus($candidateData->document_collection_status, 'icon') !!}
+                        {{ getFinalDocStatus($candidateData->document_collection_status, 'label') }}
+                    </td>
+                </tr>
+
+            </table> -->
         </div>
 
         <div class="card-body px-0">
@@ -90,16 +108,44 @@
             <div class="row">
 
                 <!-- Document List -->
-                <div class="col-md-2 border-end">
+                <div class="col-md-3 col-lg-2 border-end">
 
                     <h6 class="section-header">Document List</h6>
+                     @if(count($versions) > 0)
+                        <div class="dropdown mb-3">
+                            <button class="btn btn-outline-primary dropdown-toggle w-100"
+                                    type="button"
+                                    data-bs-toggle="dropdown"
+                                    aria-expanded="false">
+                                Version {{ $version_index }}
+                            </button>
 
+                            <div class="dropdown-menu w-100">
+
+                                @foreach($versions as $version_item)
+                                    <a class="dropdown-item {{ $version_item->version == $version_index ? 'active' : '' }}"
+                                    href="{{ route('admin.candidates.documents.preview', ['candidate'=>$candidateId,'version'=>$version_item->version]) }}"
+                                    title="Uploaded by {{ $version_item->generatedBy->name ?? 'N/A' }} at {{ $version_item->created_at->format('d M Y H:i') }}">
+                                        
+                                        V{{ $version_item->version }} Preview
+                                        
+                                        @if($version_item->version == $version_index)
+                                            ✓
+                                        @endif
+                                    </a>
+                                @endforeach
+
+                                <div class="dropdown-divider"></div>
+
+                            </div>
+                        </div>
+                        @endif
                    <div class="list-group document-tabs">
                        @foreach ($availableDocuments as $index => $item)
 
                        <a href="javascript:void(0)"
                            class="list-group-item list-group-item-action {{ $active_tab==$index ? 'active' : '' }}"
-                           wire:click="ChangeDocument('{{ $index }}')">
+                           wire:click="ChangeDocument('{{ $index }}',{{$version_index}})">
 
                            {{ $item }}
 
@@ -112,7 +158,7 @@
 
 
                 <!-- Preview -->
-                <div class="col-md-6 border-end">
+                <div class="col-md-6 col-lg-7 border-end">
 
                     <h6 class="section-header">Preview</h6>
 
@@ -155,7 +201,7 @@
 
 
                 <!-- CKEditor -->
-                <div class="col-md-4" wire:ignore>
+                <div class="col-md-3 col-lg-3" wire:ignore>
 
                     <h6 class="section-header">Observation</h6>
 
@@ -170,59 +216,64 @@
             </div>
 
         </div>
+        
         <div class="card-footer d-flex justify-content-end gap-2 align-items-center">
+                {{-- APPROVED --}}
+                @if($candidateData->status == "without_criminal_full_generation")
 
-            {{-- APPROVED --}}
-            @if($candidateData->status == "without_criminal_full_generation")
+                <span class="badge bg-success me-auto">
+                    <i class="bi bi-check-circle"></i>
+                    Candidate Approved — Acknowledgment Form Generated
+                </span>
 
-            <span class="badge bg-success me-auto">
-                <i class="bi bi-check-circle"></i>
-                Candidate Approved — Acknowledgment Form Generated
-            </span>
+                <button class="btn btn-success" wire:click="downloadAcknowledgement">
 
-            <button class="btn btn-success" wire:click="downloadAcknowledgement">
+                    <i class="bi bi-download"></i>
+                    Download Acknowledgment Form
 
-                <i class="bi bi-download"></i>
-                Download Acknowledgment Form
-
-            </button>
-
-
-            {{-- REJECTED --}}
-            @elseif($candidateData->status == "without_criminal_rejected_observation_only")
-
-            <span class="badge bg-danger me-auto">
-                <i class="bi bi-x-circle"></i>
-                Candidate Rejected — Observation Memo Generated
-            </span>
-
-            <button class="btn btn-danger" wire:click="downloadObservationMemo">
-
-                <i class="bi bi-download"></i>
-                Download Observation Memo
-
-            </button>
+                </button>
+                <button class="btn btn-danger" wire:click="downloadObservationMemo">
+                    <i class="bi bi-download"></i>
+                    Download Observation Memo
+                </button>
 
 
+                {{-- REJECTED --}}
+                @elseif($candidateData->status == "without_criminal_rejected_observation_only")
 
-            {{-- DEFAULT (STATUS NULL / NOT PROCESSED) --}}
-            @else
+                    <span class="badge bg-danger me-auto">
+                        <i class="bi bi-x-circle"></i>
+                        Candidate Rejected — Observation Memo Generated
+                    </span>
 
-            <button class="btn btn-outline-success" onclick="confirmApprove()">
+                    <button class="btn btn-danger" wire:click="downloadObservationMemo">
 
-                <i class="bi bi-check-circle"></i>
-                Approved & Generate Acknowledgment Form
+                        <i class="bi bi-download"></i>
+                        Download Observation Memo
 
-            </button>
+                    </button>
 
-            <button class="btn btn-outline-danger" onclick="confirmReject()">
 
-                <i class="bi bi-x-circle"></i>
-                Reject & Generate Observation Memo
 
-            </button>
+                {{-- DEFAULT (STATUS NULL / NOT PROCESSED) --}}
+                @else
 
-            @endif
+                    <button class="btn btn-outline-success" onclick="confirmApprove()">
+
+                        <i class="bi bi-check-circle"></i>
+                        Approved & Generate Acknowledgment Form
+
+                    </button>
+
+                    <button class="btn btn-outline-danger" onclick="confirmReject()">
+
+                        <i class="bi bi-x-circle"></i>
+                        Reject & Generate Observation Memo
+
+                    </button>
+
+                @endif
+            
 
         </div>
     </div>

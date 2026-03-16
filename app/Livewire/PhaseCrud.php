@@ -69,6 +69,26 @@ class PhaseCrud extends Component
 
         $this->validate();
 
+        // 🔍 Check if assembly already assigned to another phase
+        $query = PhaseWiseAssembly::whereIn('assembly_id', $this->assembly_ids);
+
+        if ($this->isEdit && $this->phase_id) {
+            $query->where('phase_id', '!=', $this->phase_id);
+        }
+
+        $conflicts = $query->pluck('assembly_id')->toArray();
+
+        if (!empty($conflicts)) {
+
+            $conflictNames = Assembly::whereIn('id', $conflicts)
+                ->pluck('assembly_name_en')
+                ->implode(', ');
+
+            $this->dispatch('toastr:error', message: "⚠️ These assemblies are already assigned to another phase: {$conflictNames}");
+
+            return;
+        }
+
         DB::beginTransaction();
 
         try {
@@ -170,7 +190,7 @@ class PhaseCrud extends Component
 
     public function render()
     {
-        $assemblies = Assembly::orderBy('assembly_name_en')->get();
+        $assemblies = Assembly::orderBy('assembly_number')->get();
 
         $phases = Phase::query()
 
@@ -182,7 +202,7 @@ class PhaseCrud extends Component
 
                         $q->where('assembly_name_en', 'like', '%' . $this->search . '%')
                         ->orWhere('assembly_number', 'like', '%' . $this->search . '%')
-                        ->orWhere('assembly_number', 'like', '%' . $this->search . '%');
+                        ->orWhere('assembly_code', 'like', '%' . $this->search . '%');
                     });
 
             })

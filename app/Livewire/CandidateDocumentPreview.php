@@ -4,16 +4,20 @@ namespace App\Livewire;
 
 use Livewire\Component;
 use App\Models\Candidate;
+use Illuminate\Http\Request;
 use App\Models\CandidateDocumentType;
 use App\Models\CandidateDocument;
+use App\Models\CandidateObservationStep;
 use Illuminate\Support\Facades\Auth;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class CandidateDocumentPreview extends Component
 {
     public $candidateData;
     public $candidateId;
+    public $versions;
     public $candidateName;
     public $nomination_date;
     public $phase;
@@ -22,14 +26,48 @@ class CandidateDocumentPreview extends Component
     public $assemblyName;
     public $date_of_election;
     public $active_file;
+    public $versionData;
+    public $version_index = 1;
     public $observation_description;
-    public function mount($document)
+     public function mount(Request $request)
     {
-        $candidate = Candidate::with('assembly.assemblyPhase.phase')->find($document);
+        $candidateId = $request->query('candidate');
+        $version_id = $request->query('version');
+
+        $candidate = Candidate::with('assembly.assemblyPhase.phase')->find($candidateId);
 
         if (!$candidate) {
             abort(404, 'Candidate not found.');
         }
+
+        $versionData = null;
+
+        // Try to get requested version
+        if ($version_id) {
+            $versionData = CandidateObservationStep::where('candidate_id', $candidate->id)
+                ->where('version', $version_id)
+                ->first();
+        }
+
+        // If requested version not found, get latest
+        if (!$versionData) {
+            $versionData = CandidateObservationStep::where('candidate_id', $candidate->id)
+                // ->where('version', '>', $version_id)
+                ->orderByDesc('version')
+                ->first();
+        }
+
+        if ($versionData) {
+            $this->version_index = $versionData->version;
+            $this->versionData = $versionData;
+            $this->observation_description = $versionData->observations;
+        } else {
+            $this->version_index = 1;
+            $this->versionData = null;
+            $this->observation_description = $candidate->observation_description;
+        }
+       
+
         $allowedStatuses = ['verified_pending_submission', 'approved'];
 
         // if (!in_array($candidate->document_collection_status, $allowedStatuses)) {
@@ -83,13 +121,12 @@ class CandidateDocumentPreview extends Component
         $this->candidateData = $candidate;
         $this->candidateId = $candidate->id;
         $this->candidateName = $candidate->name;
-        $this->observation_description = $candidate->observation_description;
 
         $this->availableDocuments = $this->getDocumentTypes();
 
         $firstKey = array_key_first($this->availableDocuments);
 
-        $this->ChangeDocument($firstKey);
+        $this->ChangeDocument($firstKey, $this->version_index);
     }
     public function updatedObservationDescription($value)
     {
@@ -99,18 +136,28 @@ class CandidateDocumentPreview extends Component
             ]);
     }
 
-    public function ChangeDocument($key)
+    public function ChangeDocument($key, $version)
     {
         $this->active_tab = $key;
 
         $this->active_file = CandidateDocument::where('candidate_id', $this->candidateId)
             ->where('type', $key)
+            ->where('version', $version)
             ->orderByDesc('id')
             ->value('path');
     }
     protected function getDocumentTypes()
     {
-        return CandidateDocumentType::orderBy('position','ASC')->pluck('name', 'key')->toArray();
+        $version = $this->versionData 
+            ? $this->versionData->version 
+            : CandidateDocument::where('candidate_id', $this->candidateId)->max('version');
+
+        $vetedFiles = CandidateDocument::where('candidate_id', $this->candidateId)
+            ->whereIn('status', ['Uploaded','Rejected'])
+            ->where('version', $version)
+            ->pluck('type')
+            ->toArray();
+        return CandidateDocumentType::orderBy('position','ASC')->whereIn('key', $vetedFiles)->pluck('name', 'key')->toArray();
     }
 
     public function GenerateAcknowledgementForm()
@@ -130,24 +177,60 @@ class CandidateDocumentPreview extends Component
             return;
         }
 
-        // Update status
-        $candidate->status = "without_criminal_full_generation";
-        $candidate->document_collection_status = "approved";
-        $candidate->save();
+        DB::beginTransaction();
 
-        $this->candidateData = $candidate;
+        try {
 
-        $this->dispatch(
-            'toastr:success',
-            message: 'Acknowledgement generated successfully!'
-        );
+            // Update candidate status
+            $candidate->status = "without_criminal_full_generation";
+            $candidate->document_collection_status = "verified_pending_submission";
+
+            // Get latest document version
+            $latestVersion = CandidateDocument::where('candidate_id', $this->candidateId)
+                ->max('version');
+
+            // Save observation step
+             CandidateObservationStep::updateOrCreate(
+                [
+                    'candidate_id' => $this->candidateId,
+                    'version' => $latestVersion,
+                ],
+                [
+                    'observations' => $candidate->observation_description,
+                    'generated_by' => Auth::guard('admin')->id(),
+                ]
+            );
+
+            $candidate->observation_description = null;
+
+            $candidate->save();
+
+            DB::commit();
+
+            $this->candidateData = $candidate;
+
+            $this->dispatch(
+                'toastr:success',
+                message: 'Acknowledgement generated successfully!'
+            );
+            return redirect()->route('admin.candidates.documents.preview', ['candidate'=>$this->candidateId, 'version'=>$latestVersion]);
+
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+
+            $this->dispatch(
+                'toastr:error',
+                message: 'Error generating acknowledgement: ' . $e->getMessage()
+            );
+        }
     }
     public function downloadAcknowledgement()
     {
         $data = [
             'candidateName'   => $this->candidateName,
             'assemblyName'    => $this->assemblyName,
-            'Examination'     => now(),
+            'Examination'     => $this->versionData->created_at,
             'nomination_date' => $this->nomination_date,
         ];
 
@@ -161,38 +244,67 @@ class CandidateDocumentPreview extends Component
     }
 
     public function GenerateObservationMemo(){
-        $latestDocs = CandidateDocument::where('candidate_id', $this->candidateId)
-        ->selectRaw('MAX(id) as id')
-        ->groupBy('type')
-        ->pluck('id');
+        DB::beginTransaction();
 
-        $docs = CandidateDocument::whereIn('id', $latestDocs)->get();
-        foreach ($docs as $item) {
+        try {
 
-            if ($item->status == "Uploaded") {
+            $latestDocs = CandidateDocument::where('candidate_id', $this->candidateId)
+                ->selectRaw('MAX(id) as id')
+                ->groupBy('type')
+                ->pluck('id');
 
-                $item->status = "Rejected";
-                $item->save();
+            $docs = CandidateDocument::whereIn('id', $latestDocs)->get();
 
-            } elseif ($item->status == "Skipped") {
+            foreach ($docs as $item) {
 
-                $item->delete();
+                if ($item->status == "Uploaded") {
 
-            } else {
+                    $item->status = "Rejected";
+                    $item->save();
 
-                // If already Rejected or other status
-                $item->status = "Rejected";
-                $item->save();
+                } elseif ($item->status == "Skipped") {
+
+                    $item->delete();
+
+                } else {
+
+                    $item->status = "Rejected";
+                    $item->save();
+                }
             }
 
+            $update = Candidate::findOrFail($this->candidateId);
+            $update->status = "without_criminal_rejected_observation_only";
+            $update->document_collection_status = "incomplete_additional_required";
+
+            $latestVersion = CandidateDocument::where('candidate_id', $this->candidateId)->max('version');
+
+            CandidateObservationStep::updateOrCreate(
+                [
+                    'candidate_id' => $this->candidateId,
+                    'version' => $latestVersion,
+                ],
+                [
+                    'observations' => $update->observation_description,
+                    'generated_by' => Auth::guard('admin')->id(),
+                ]
+            );
+
+            $update->observation_description = null;
+            $update->save();
+
+            DB::commit();
+
+            $this->candidateData = $update;
+
+            return redirect()->route('admin.candidates.documents.preview', ['candidate'=>$this->candidateId, 'version'=>$latestVersion]);
+
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+
+            $this->dispatch('toastr:error', message: 'Error generating observation memo: '.$e->getMessage());
         }
-
-        $update = Candidate::findOrFail($this->candidateId);
-        $update->status = "without_criminal_rejected_observation_only";
-        $update->document_collection_status = "incomplete_additional_required";
-        $update->save();
-        $this->candidateData = $update;
-
     }
 
    public function downloadObservationMemo()
@@ -201,9 +313,9 @@ class CandidateDocumentPreview extends Component
         $data = [
             'candidateName'   => $this->candidateName,
             'assemblyName'    => $this->assemblyName,
-            'examinationDate' => now(),
+            'examinationDate' => $this->versionData->created_at,
             'nomination_date' => $this->nomination_date,
-            'observations'    => $update->observation_description ?? '',
+            'observations'    => $this->observation_description,
         ];
 
         $pdf = Pdf::loadView('pdf.observation_memo', $data)
@@ -217,6 +329,7 @@ class CandidateDocumentPreview extends Component
 
     public function render()
     {
+        $this->versions = CandidateObservationStep::where('candidate_id', $this->candidateId)->orderBy('version', 'ASC')->get();
         return view('livewire.candidate-document-preview')
             ->layout('layouts.admin');
     }

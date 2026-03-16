@@ -55,40 +55,65 @@
         <div class="col-lg-12">
             <div class="card shadow-sm border-0 p-3 ">
 
-                <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                    <h5 class="fw-bold mb-0">MCC</h5>
-                    <div class="d-flex align-items-center">
-                        <div wire:ignore class="me-2">
-                            <select wire:model="filter_by_status" class="form-select chosen-select">
-                                <option value="">Filter by Status</option>
-                                <option value="pending">Pending</option>
-                                <option value="inprogress">Inprogress</option>
-                                <option value="resolved">Resolved</option>
-                            </select>
+                <div class="card-header bg-white">
+                    <div class="row g-2 mb-4 justify-content-center">
+                        <div class="col-md-12 col-lg-6">
+                            <div class="canditate-search">
+                                <input type="text" wire:model="search" wire:keyup="filterCampaign($event.target.value)"
+                                class="form-control form-control-sm"
+                                placeholder="Search here...">
+                                
+                                <span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-search"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                                </span>
+                            </div>
                         </div>
-                        <div wire:ignore class="me-2">
-                            <select wire:model="filter_by_assembly" class="form-select chosen-select">
-                                <option value="">Filter by Assembly</option>
-                                @foreach ($assembly as $assemb)
-                                <option value="{{ $assemb->id }}">
-                                    ({{ $assemb->assembly_code }}) {{ $assemb->assembly_name_en }}
-                                </option>
-                                @endforeach
-                            </select>
+                    </div>
+
+                    <div class="row justify-content-center mb-2">
+                        <div class="col-md-4 col-lg-3">
+                            <div wire:ignore class="">
+                                <select wire:model="filter_by_status" class="form-select chosen-select">
+                                    <option value="">Filter by Status</option>
+                                    <option value="pending">Pending</option>
+                                    <option value="inprogress">Inprogress</option>
+                                    <option value="resolved">Resolved</option>
+                                </select>
+                            </div>
                         </div>
+                        <div class="col-md-4 col-lg-3">
+                            <div wire:ignore class="">
+                                <select wire:model="filter_by_assembly" class="form-select chosen-select">
+                                    <option value="">Filter by Assembly</option>
+                                    @foreach ($assembly as $assemb)
+                                    <option value="{{ $assemb->id }}">
+                                        ({{ $assemb->assembly_code }}) {{ $assemb->assembly_name_en }}
+                                    </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-2 col-lg-1">
+                            <button class="btn btn-sm btn-danger" wire:click="resetFilters">
+                                <i class="bi bi-arrow-clockwise"></i> Reset
+                            </button>
+                        </div>
+                    </div>
+
+                   <!-- <div class="d-flex align-items-center">
+
+
                         
-                        <input type="text" wire:model="search" wire:keyup="filterCampaign($event.target.value)"
+                         <input type="text" wire:model="search" wire:keyup="filterCampaign($event.target.value)"
                             class="form-control form-control-sm w-auto me-2"
                             placeholder="Search here...">
 
 
-                        <button class="btn btn-sm btn-danger" wire:click="resetFilters">
-                            <i class="bi bi-arrow-clockwise"></i> Reset
-                        </button>
-                    </div>
+                        
+                    </div> -->
                 </div>
 
-                <div class="card-body p-2">
+                <div class="card-body p-0">
                     <div class="table-responsive">
                         <table class="table mb-0 align-middle">
                             <thead class="table-light">

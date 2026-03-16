@@ -71,10 +71,16 @@ body {
     transition: all 0.3s ease;
     position: fixed;
     top: 0;
-    left: 0;
+    /* left: 0; */
+    left: calc(-1 * var(--sidebar-width));
     z-index: 1040;
     padding-top: 1rem;
 }
+
+.sidebar.active {
+    left: 0;
+}
+
 .cursor-pointer{
   cursor: pointer;
 }
@@ -120,12 +126,13 @@ body {
     background: transparent;
     font-size: 1.5rem;
     color: var(--primary-color);
-    display: none;
+    display: inline-block;
 }
 
 /* Main content */
 .main-content {
-    margin-left: var(--sidebar-width);
+    /* margin-left: var(--sidebar-width); */
+     margin-left:0;
     padding: 2rem;
     min-height: 100vh;
     transition: all 0.3s ease;
@@ -145,21 +152,21 @@ body {
 
 /* Mobile view */
 @media (max-width: 992px) {
-    .sidebar {
+    /* .sidebar {
         left: calc(-1 * var(--sidebar-width));
-    }
+    } */
 
-    .sidebar.active {
+    /* .sidebar.active {
         left: 0;
-    }
+    } */
 
-    .main-content {
+    /* .main-content {
         margin-left: 0;
-    }
+    } */
 
-    .topbar .menu-toggle {
+    /* .topbar .menu-toggle {
         display: inline-block;
-    }
+    } */
 }
 
 
@@ -401,12 +408,14 @@ body {
 }
 .title-head {
     text-align: center;
-    background: #dadada;
+    background: #00990017;;
     color: #000000;
-    padding: 14px 0;
-    line-height: 1;
+    padding: 14px 0;    line-height: 1;
     width: 100%;
     font-size: 18px;
+    /* background: linear-gradient(to bottom,  rgba(255,153,0,1) 0%,rgba(255,255,255,1) 50%,rgba(0,153,0,1) 100%);  */
+
+
 }
 .wrappper-bpdy {
     padding:20px;
@@ -752,4 +761,78 @@ body {
 
 .table th {
     font-size: 13px;
+    background: #00990017;
+    color: #090;
+}
+
+.form-select {
+    font-size: 12px;
+}
+
+.table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.btn-sm {
+    font-size: 13px !important;
+}
+
+
+/*---- New Button Style------*/
+
+.btm-small {
+    background: #009900 !important;
+    color:#fff !important;
+}
+header button {
+    background: inherit !important;
+    color:#000  !important;
+}
+
+.title-text {
+    margin-bottom: 6px;
+    color: #009900;
+    display: block;
+}
+
+.section-header{
+    font-weight: 600;
+    padding: 10px 12px;
+    border-bottom: 2px solid #090;
+    background: #00990017;
+    margin-bottom: 15px;
+}
+
+.list-group-item.active {
+  background-color: #2CAA2C;
+  border-color: #2CAA2C;
+}
+
+/*-----responsive----*/
+
+@media(max-width:1025px) {}
+
+@media(max-width:769px) {
+    .title-head {
+        font-size: 15px;
+    }
+    .color-grid {
+        text-align: left;
+    }
+    .table td {
+        font-size: 13px !important;
+    }
+    .form-control {
+        font-size: 13px !important;
+    }
+    .list-group-item + .list-group-item {
+        font-size: 12px;
+    }
+    .section-header {
+        font-size: 13px;
+    }
+    .form-label {
+    font-size: 13px;
+    }
 }

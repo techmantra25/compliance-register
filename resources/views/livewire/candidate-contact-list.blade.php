@@ -1,6 +1,6 @@
 <div>
     <div class="row g-4">
-        <div class="d-flex flex-wrap justify-content-between align-items-center">
+        <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 mb-md-5 mb-lg-4">
             <div>
                 <h4 class="fw-bold mb-1 text-dark">
                     <i class="bi bi-person-lines-fill me-2 text-primary"></i> Candidate Nomination List
@@ -19,7 +19,7 @@
                 </nav>
             </div>
         </div> 
-        <div class="d-flex flex-wrap justify-content-end align-items-center" style="margin-top: -10px;">
+        <div class="d-flex flex-wrap justify-content-md-center justify-content-lg-end align-items-center" style="margin-top: -10px;">
             <div>
                 @if(childUserAccess(Auth::guard('admin')->user()->id,'nomination_export_candidate'))
                     @if($filter_by_document=='partial')
@@ -54,7 +54,7 @@
                 <div class="card-header bg-white">
 
                     <div class="row g-2 mb-4 justify-content-center">
-                        <div class="col-md-6">
+                        <div class="col-md-12 col-lg-6">
                             <div class="canditate-search">
                                 <input type="text"
                                 wire:model="search" wire:keyup="filterCandidates($event.target.value)"
@@ -71,7 +71,7 @@
                     <!-- 🔹 Row 1 -->
                     <div class="row g-2 mb-2">
 
-                        <div class="col-md-2" wire:ignore>
+                        <div class="col-md-4 col-lg-2" wire:ignore>
                             <select wire:model="filter_by_assembly" class="form-select form-select-sm chosen-select">
                                 <option value="">Filter by Assembly</option>
                                 @foreach ($assemblies as $assembly)
@@ -82,7 +82,7 @@
                             </select>
                         </div>
 
-                        <div class="col-md-2" wire:ignore>
+                        <div class="col-md-4 col-lg-2" wire:ignore>
                             <select wire:model="filter_by_district" class="form-select form-select-sm chosen-select">
                                 <option value="">Filter by District</option>
                                 @foreach ($districts as $district)
@@ -93,7 +93,7 @@
                             </select>
                         </div>
 
-                        <div class="col-md-2" wire:ignore>
+                        <div class="col-md-4 col-lg-2" wire:ignore>
                             <select wire:model="filter_by_phase" class="form-select form-select-sm chosen-select">
                                 <option value="">Filter by Phase</option>
                                 @foreach ($phases as $phase)
@@ -105,7 +105,7 @@
                             </select>
                         </div>
 
-                        <div class="col-md-2">
+                        <div class="col-md-4 col-lg-2">
                             <select wire:model="filter_by_status" class="form-select form-select-sm select-style" wire:change="filterByStatus($event.target.value)">
                                 <option value="">Filter by Final Status</option>
                                 @foreach (getFinalDocStatus() as $key => $status)
@@ -116,7 +116,7 @@
                             </select>
                         </div>
 
-                        <div class="col-md-2">
+                        <div class="col-md-4 col-lg-2">
                             <select wire:model="filter_by_document" class="form-select form-select-sm select-style" wire:change="filterByDocument($event.target.value)">
                                 <option value="">Filter by Document Status</option>
                                 <option value="all">All Documents Uploaded</option>
@@ -159,8 +159,8 @@
                     </div>
                 </div>
 
-                <div class="card-body p-2">
-                    <div class="table_responsive">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
                         <table class="table mb-0 align-middle">
                             <thead class="table-light">
                                 <tr>
@@ -169,8 +169,8 @@
                                     {{-- <th>Agent</th> --}}
                                     <th>Assembly</th>
                                     <th>Documents</th>
-                                    <th>Final Status</th>
-                                    <th>Last Date of Nomination form Submission</th>
+                                    <th >Final Status</th>
+                                    <th style="min-width:100px;">Last Date of Nomination</th>
                                     @if($authUser->role!=='legal_associate')
                                         <th>Form</th>
                                     @endif
@@ -268,7 +268,7 @@
                                         }}
                                     </td>
                                     @if($authUser->role!=='legal_associate')
-                                        <td class="text-center">
+                                        <td class="">
 
                                             {{-- Default when status is NULL --}}
                                             @if(is_null($candidate->status))
@@ -293,11 +293,18 @@
                                             {{-- Preview condition --}}
                                             @elseif($candidate->status == "without_criminal_full_generation")
                                                 <div class="tooltip-wrapper m-1">
-                                                    <a href="{{ route('admin.candidates.documents.preview', $candidate->id) }}"
+                                                    <a href="{{ route('admin.candidates.documents', ['candidate' => $candidate->id]) }}"
                                                     class="btn btn-sm btn-outline-success">
                                                     Preview
                                                     </a>
                                                     <span class="tooltip-text">Preview Candidate Documents</span>
+                                                </div>
+                                                <div class="tooltip-wrapper m-1">
+                                                    <button wire:click="downloadAcknowledgement({{ $candidate->id }})"
+                                                            class="btn btn-sm btn-outline-primary">
+                                                        <i class="bi bi-download me-1"></i> Acknowledgment
+                                                    </button>
+                                                    <span class="tooltip-text">Download Acknowledgment</span>
                                                 </div>
 
                                             {{-- Fallback --}}
@@ -322,10 +329,10 @@
                                         </td>
                                     @endif
 
-                                    <td class="text-center">
+                                    <td class="">
                                         @if($authUser->role=='legal_associate')
                                             <div class="tooltip-wrapper">
-                                                <a href="{{ route('admin.candidates.documents.preview', $candidate->id) }}"
+                                                <a href="{{ route('admin.candidates.documents', ['candidate' => $candidate->id]) }}"
                                                 class="btn btn-sm btn-outline-success">
                                                     Preview <i class="bi bi-arrow-right-circle ms-1"></i>
                                                 </a>
@@ -703,7 +710,7 @@
             </div>
         </div>
     </div>
-    <div class="loader-container" wire:loading wire:target="saveCandidate,changeStatus">
+    <div class="loader-container" wire:loading wire:target="saveCandidate,changeStatus,downloadAcknowledgement">
         <div class="loader"></div>
     </div>
     @push('scripts')

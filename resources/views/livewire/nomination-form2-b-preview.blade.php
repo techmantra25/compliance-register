@@ -1158,6 +1158,7 @@ function printForm() {
                     word-break: break-word;
                     overflow-wrap: anywhere;
                     border-bottom:1px dotted #000;
+                    text-transform:uppercase;
                 }
                 .strike-out{
                     text-decoration: line-through;
@@ -1167,9 +1168,29 @@ function printForm() {
                     page-break-inside: avoid !important;
                     break-inside: avoid !important;
                     -webkit-column-break-inside: avoid !important;
-                    
                     overflow: hidden !important;
                 }
+                body::after {
+                    content: "Fox & Mandal Not for Submission";
+                    position: fixed;
+                    top:30%;
+                    left:50%;
+                    transform:tranalate(-50%, -50%);
+                    font-size: 50px;
+                    color: rgba(128, 128, 128, 0.3);
+                    transform: rotate(-45deg);
+                    z-index: 9999;
+                    white-space: pre;
+                    
+                    /* Critical for printing */
+                    -webkit-print-color-adjust: exact;
+                    print-color-adjust: exact;
+                    
+                    /* Ensure it spans the entire page */
+                    display: block;
+                    width: 100%;
+                    height: 100%;
+                    }
 
                 @page{
                     size:A4;

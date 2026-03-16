@@ -9,7 +9,7 @@
                         <div class="wrappper-bpdy">
                             <div class="row">
                                 @foreach($this->phases as $key => $phase)
-                                    <div class="col-md-3">
+                                    <div class="col-md-6 col-lg-6">
                                         <div class="inner-grid">
                                             <div class="chrat-place phase-click"
                                                 data-url="{{ route('admin.phasewise.district', $phase->id) }}">
@@ -37,16 +37,16 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-6 mb-4">
                     <div class="inner-wrapper">
-                        <div class="title-head" style="color: #3e0b0f;">
+                        <div class="title-head">
                             MCC Complaints (State-view) - {{ $this->phases->count() }} Phases
                         </div>
 
                         <div class="wrappper-bpdy">
                             <div class="row">
                                 @foreach($this->phases as $phase)
-                                    <div class="col-md-3 mb-4">
+                                    <div class="col-md-6 col-lg-6">
                                         <div class="inner-grid">
                                             <div class="chrat-place">
                                                 <canvas 

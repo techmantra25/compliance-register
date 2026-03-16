@@ -1,5 +1,23 @@
 <div>
+    <style>
 
+    .assemblies-box{
+        max-height:120px;
+        overflow-y:auto;
+        display:flex;
+        flex-wrap:wrap;
+        gap:4px;
+        }
+
+        .assembly-badge{
+        font-size:11px;
+        padding:3px 6px;
+        background:#f8f9fa;
+        border:1px solid #dee2e6;
+        color:#333;
+        border-radius:10px;
+    }
+    </style>
     <div class="card shadow-sm border-0">
 
         <div class="card-header bg-white">
@@ -51,120 +69,120 @@
                 </div>
 
             </div>
+           <div class="table-responsive">
 
-            <div class="table-responsive">
+            <table class="table table-sm align-middle table-bordered">
 
-                <table class="table align-middle">
+                <thead class="table-light">
 
-                    <thead class="table-light">
+                    <tr>
 
-                        <tr>
+                        <th width="10%">Phase</th>
 
-                            <th width="10%">Phase</th>
+                        <th width="20%">Dates</th>
 
-                            <th>Dates</th>
+                        <th width="55%">Assemblies</th>
 
-                            <th>Assemblies</th>
+                        <th width="15%">Actions</th>
 
-                            <th>Actions</th>
+                    </tr>
 
-                        </tr>
+                </thead>
 
-                    </thead>
+                <tbody>
 
-                    <tbody>
+                    @forelse($phases as $phase)
 
-                        @forelse($phases as $phase)
+                    @php
+                    $assemblies = $phase->assemblies;
+                    @endphp
 
-                        <tr wire:key="phase-{{ $phase->id }}">
+                    <tr wire:key="phase-{{ $phase->id }}">
 
-                            <td>{{ ucwords($phase->name) }}</td>
+                        <td class="fw-semibold">
+                            {{ ucwords($phase->name) }}
+                        </td>
 
-                            <td>
+                        <td>
 
-                                <div class="small">
+                            <div class="small">
 
-                                    <div>
-                                        <strong>Last Date of Nomination:</strong>
-                                        {{ \Carbon\Carbon::parse($phase->last_date_of_nomination)->format('d M Y') }}
-                                    </div>
-
-                                    <div>
-                                        <strong>Date of Election:</strong>
-                                        {{ \Carbon\Carbon::parse($phase->date_of_election)->format('d M Y') }}
-                                    </div>
-
-                                    <div>
-                                        <strong>Silent Period:</strong>
-                                        {{ \Carbon\Carbon::parse($phase->last_date_of_mcc)->format('d M Y') }}
-                                    </div>
-
+                                <div class="mb-1">
+                                    <strong>Nomination:</strong>
+                                    {{ \Carbon\Carbon::parse($phase->last_date_of_nomination)->format('d M Y') }}
                                 </div>
 
-                            </td>
-
-                            <td width="45%">
-
-                                @if(!empty($phase->assemblies))
-
-                                <div class="d-flex flex-wrap gap-2">
-
-                                    @foreach($phase->assemblies as $key=>$assembly)
-
-                                    <span class="badge bg-light text-dark border rounded-pill px-3 py-2 shadow-sm">
-
-                                        <i class="bi bi-geo-alt-fill text-primary me-1"></i>
-
-                                        {{ $assembly }} ({{$key}})
-
-                                    </span>
-
-                                    @endforeach
-
+                                <div class="mb-1">
+                                    <strong>Election:</strong>
+                                    {{ \Carbon\Carbon::parse($phase->date_of_election)->format('d M Y') }}
                                 </div>
 
-                                @endif
-
-                                <div class="mt-2">
-
-                                    <span class="badge bg-info text-dark px-2 py-2">
-
-                                        {{ count($phase->assemblies) }}
-
-                                    </span>
-
+                                <div>
+                                    <strong>Silent Period:</strong>
+                                    {{ \Carbon\Carbon::parse($phase->last_date_of_mcc)->format('d M Y') }}
                                 </div>
 
-                            </td>
+                            </div>
 
-                            <td>
+                        </td>
 
-                                <button wire:click="edit({{ $phase->id }})" class="btn btn-sm btn-outline-primary">
+                        <td>
 
-                                    <i class="bi bi-pencil"></i>
+                            <div class="assemblies-box">
 
-                                </button>
+                                @foreach($assemblies as $key=>$assembly)
 
-                            </td>
+                                <span class="badge assembly-badge">
 
-                        </tr>
+                                    {{ $assembly }} ({{$key}})
 
-                        @empty
+                                </span>
 
-                        <tr>
-                            <td colspan="4" class="text-center text-muted">
-                                No phases found
-                            </td>
-                        </tr>
+                                @endforeach
 
-                        @endforelse
+                            </div>
 
-                    </tbody>
+                            <div class="mt-1">
 
-                </table>
+                                <span class="badge bg-info text-dark">
 
-            </div>
+                                    Total: {{ count($assemblies) }}
 
+                                </span>
+
+                            </div>
+
+                        </td>
+
+                        <td>
+
+                            <button wire:click="edit({{ $phase->id }})" class="btn btn-sm btn-outline-primary">
+
+                                <i class="bi bi-pencil"></i>
+
+                            </button>
+
+                        </td>
+
+                    </tr>
+
+                    @empty
+
+                    <tr>
+
+                        <td colspan="4" class="text-center text-muted py-4">
+                            No phases found
+                        </td>
+
+                    </tr>
+
+                    @endforelse
+
+                </tbody>
+
+            </table>
+
+        </div>
             @endif
 
 
@@ -183,39 +201,47 @@
 
                 <form wire:submit.prevent="save">
 
-                    <div class="mb-3">
+                    <div class="row">
 
-                        <label class="form-label">Phase Name</label>
+                        <div class="col-md-6 mb-3">
 
-                        <input type="text" wire:model.defer="name" class="form-control">
+                            <label class="form-label">Phase Name</label>
 
-                        @error('name')
-                        <small class="text-danger">{{ $message }}</small>
-                        @enderror
+                            <input type="text" wire:model.defer="name" class="form-control">
 
-                    </div>
+                            @error('name')
+                            <small class="text-danger">{{ $message }}</small>
+                            @enderror
 
-                    <div class="mb-3">
+                        </div>
 
-                        <label class="form-label">Last Date of Nomination form Submission</label>
+                        <div class="col-md-6 mb-3">
 
-                        <input type="date" wire:model.defer="last_date_of_nomination" class="form-control">
+                            <label class="form-label">Last Date of Nomination</label>
 
-                    </div>
+                            <input type="date" wire:model.defer="last_date_of_nomination" class="form-control">
 
-                    <div class="mb-3">
-
-                        <label class="form-label">Date of Election</label>
-
-                        <input type="date" wire:model.defer="date_of_election" class="form-control">
+                        </div>
 
                     </div>
 
-                    <div class="mb-3">
+                    <div class="row">
 
-                        <label class="form-label">Silent Period Start</label>
+                        <div class="col-md-6 mb-3">
 
-                        <input type="date" wire:model.defer="last_date_of_mcc" class="form-control">
+                            <label class="form-label">Date of Election</label>
+
+                            <input type="date" wire:model.defer="date_of_election" class="form-control">
+
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+
+                            <label class="form-label">Silent Period Start</label>
+
+                            <input type="date" wire:model.defer="last_date_of_mcc" class="form-control">
+
+                        </div>
 
                     </div>
 

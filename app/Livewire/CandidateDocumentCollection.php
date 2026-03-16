@@ -10,6 +10,7 @@ use App\Models\CandidateAcknowledgmentCopy;
 use Illuminate\Support\Facades\DB;
 use App\Models\ChangeLog;
 use App\Models\CandidateAcknoledgmentCopy;
+use App\Models\CandidateObservationStep;
 use App\Models\CandidateDocumentType;
 use App\Models\CandidateDocument;
 use Illuminate\Support\Facades\Auth;
@@ -18,12 +19,15 @@ use Illuminate\Support\Facades\Mail;
 use App\Mail\NominationVettingMail;
 use Carbon\Carbon;
 use App\Models\Admin;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Storage;
 
 class CandidateDocumentCollection extends Component
 {
     use WithFileUploads;
 
     public $candidateId;
+    public $versions;
     public $legalAssociate;
     public $candidateName,$assemblyName,$agentName,$agentNumber,$agentId,$phase =1,$nomination_date;
     public $documents = [];
@@ -158,6 +162,17 @@ class CandidateDocumentCollection extends Component
             $this->dispatch('toastr:error', message: 'This document already has another document attached, so it cannot be skipped.');
             return true;
         }
+        $latestVersion = CandidateDocument::where('type', $this->type)->where('candidate_id', $this->candidateId)
+                ->max('version');
+        $newVersion = 1;
+        if($latestVersion){
+            $newVersion = $latestVersion + 1;
+        }else{
+            $otherLatestVersion = CandidateDocument::where('candidate_id', $this->candidateId)->max('version');
+            if($otherLatestVersion){
+                $newVersion = $otherLatestVersion;
+            }
+        }
         $create = CandidateDocument::updateOrCreate(
             [
                 'candidate_id' => $this->candidateId,
@@ -168,6 +183,7 @@ class CandidateDocumentCollection extends Component
                 'attached_with_slug' => $parentKey,
                 'uploaded_by' => Auth::guard('admin')->id(),
                 'status' => 'Skipped',
+                'version' => $newVersion,
             ]
         );
         $this->dispatch('toastr:success', message: 'Attachment updated successfully!');
@@ -226,6 +242,7 @@ class CandidateDocumentCollection extends Component
     public function SetDocType($value){
         $this->type = $value;
     }
+
     public function save()
     {
         $rules = [
@@ -234,7 +251,8 @@ class CandidateDocumentCollection extends Component
         ];
 
         if (!$this->sameAsBefore) {
-            $rules['newFile'] = 'required|file|mimes:pdf,jpg,jpeg,png,gif,bmp,webp|max:5120';
+            $rules['newFile'] = 'required';
+            $rules['newFile.*'] = 'file|mimes:pdf,jpg,jpeg,png,gif,bmp,webp|max:5120';
         }
 
         $this->validate($rules);
@@ -248,27 +266,71 @@ class CandidateDocumentCollection extends Component
                 ->first();
 
             if ($this->sameAsBefore) {
-                if (!$existingDoc || empty($existingDoc->path)) {
 
+                if (!$existingDoc || empty($existingDoc->path)) {
                     $this->addError('remarks', 'Sorry, previous file not found. Please upload the document again.');
                     return;
                 }
 
-                // Reuse old path
                 $path = str_replace('storage/', '', $existingDoc->path);
                 $filename = basename($path);
 
             } else {
 
-                $file = $this->newFile;
+                $files = is_array($this->newFile) ? $this->newFile : [$this->newFile];
 
                 $timestamp = now()->format('Ymd_His');
-                $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-                $extension = $file->getClientOriginalExtension();
 
-                $filename = "{$originalName}_{$timestamp}.{$extension}";
+                // If single PDF uploaded
+                if (count($files) == 1 && $files[0]->getClientOriginalExtension() == 'pdf') {
 
-                $path = $file->storeAs("candidate_docs/{$this->candidateId}", $filename, 'public');
+                    $originalName = pathinfo($files[0]->getClientOriginalName(), PATHINFO_FILENAME);
+                    $filename = "{$originalName}_{$timestamp}.pdf";
+
+                    $path = $files[0]->storeAs("candidate_docs/{$this->candidateId}", $filename, 'public');
+
+                } else {
+
+                    // Convert images to PDF
+                    $html = '';
+
+                    foreach ($files as $file) {
+
+                        $imgPath = $file->store("candidate_docs/temp", 'public');
+
+                        $fullPath = storage_path("app/public/".$imgPath);
+
+                        $base64 = base64_encode(file_get_contents($fullPath));
+
+                        $mime = mime_content_type($fullPath);
+
+                        $html .= '
+                            <div style="page-break-after: always; text-align:center;">
+                                <img src="data:'.$mime.';base64,'.$base64.'" style="width:100%;">
+                            </div>';
+                    }
+
+                    $pdf = Pdf::loadHTML($html);
+
+                    $filename = "document_{$timestamp}.pdf";
+
+                    $path = "candidate_docs/{$this->candidateId}/".$filename;
+
+                    Storage::disk('public')->put($path, $pdf->output());
+                }
+            }
+
+            $latestVersion = CandidateDocument::where('type', $this->type)->where('candidate_id', $this->candidateId)
+                ->max('version');
+            // dd($latestVersion);
+            $newVersion = 1;
+            if($latestVersion){
+                $newVersion = $latestVersion + 1;
+            }else{
+                $otherLatestVersion = CandidateDocument::where('candidate_id', $this->candidateId)->max('version');
+                if($otherLatestVersion){
+                    $newVersion = $otherLatestVersion;
+                }
             }
 
             // Save record
@@ -277,6 +339,7 @@ class CandidateDocumentCollection extends Component
                 'type' => $this->type,
                 'path' => 'storage/'.$path,
                 'remarks' => $this->remarks ?? null,
+                'version' => $newVersion,
                 'uploaded_by' => Auth::guard('admin')->id(),
             ]);
 
@@ -301,16 +364,18 @@ class CandidateDocumentCollection extends Component
 
             logChange($logData);
 
-            // Reset form
             $this->reset(['newFile', 'remarks', 'sameAsBefore']);
 
             $this->loadDocuments();
+
             $this->dispatch(['ResetFormData']);
 
             $this->dispatch('toastr:success', message: 'Document uploaded successfully!');
+
             return redirect()->route('admin.candidates.documents', ['candidate'=>$this->candidateId]);
 
         } catch (\Exception $e) {
+            // dd($e->getMessage());
             $this->dispatch('toastr:error', message: 'Error uploading document: '.$e->getMessage());
         }
     }
@@ -382,29 +447,26 @@ class CandidateDocumentCollection extends Component
 
     public function FinalStatusUpdate(){
         $required_documents = $this->getDocumentTypes();
+        $latestVersion = CandidateDocument::where('candidate_id', $this->candidateId)
+            ->max('version');
+
         $documentsData = CandidateDocument::with('uploadedBy')
             ->where('candidate_id', $this->candidateId)
-            ->orderBy('id', 'desc')
+            ->where('version', $latestVersion)
             ->get()
-            ->groupBy('type')
-            ->map(function ($group) {
-                $latest = $group->sortByDesc('id')->first(); 
-                return $latest->status; 
+            ->keyBy('type')
+            ->map(function ($doc) {
+                return $doc->status;
             })
             ->toArray();
-        $skipOption = CandidateDocument::with('uploadedBy')
-            ->where('candidate_id', $this->candidateId)
-            ->where('status', 'Skipped')
-            ->orderBy('id', 'desc')
-            ->get()
-            ->groupBy('type')->toArray();
-        if(count($required_documents) == count($documentsData)){
-            if($this->candidateData->document_collection_status=="verified_submitted_with_copy" ||$this->candidateData->document_collection_status=="rejected" ||$this->candidateData->document_collection_status=="approved"){
+
+
+        // if(count($required_documents) == count($documentsData)){
+            if($this->candidateData->document_collection_status=="verified_pending_submission" ||$this->candidateData->document_collection_status=="rejected" ||$this->candidateData->document_collection_status=="approved"){
                 return true;
             }
-            // $approvedCount = count(array_filter($documentsData, fn($status)=> $status === "Uploaded")) + count($skipOption);
-            // $pendingCount = count(array_filter($documentsData, fn($status)=> $status === "Pending"));
-            $approvedOnlyCount = count(array_filter(
+
+            $uploadedOnlyCount = count(array_filter(
                 $documentsData,
                 fn($status) => $status === "Uploaded"
             ));
@@ -422,34 +484,35 @@ class CandidateDocumentCollection extends Component
             $totalRequired = count($required_documents);
             $newStatus = null;
 
-            if (($approvedOnlyCount + $skippedCount) === $totalRequired) {
-                $newStatus = "verified_pending_submission";
-            }
-            elseif (($pendingOnlyCount + $skippedCount) === $totalRequired && $approvedOnlyCount === 0) {
+            $totalCompleted = $uploadedOnlyCount + $skippedCount;
+            // dd($totalCompleted);
+            if ($totalCompleted === $totalRequired) {
                 $newStatus = "ready_for_vetting";
-
-            }
-            else {
+            } 
+            elseif ($totalCompleted > 0) {
                 $newStatus = "vetting_in_progress";
+            } 
+            else {
+                $newStatus = "incomplete_additional_required";
             }
             
             if ($this->candidateData->document_collection_status !== $newStatus) {
                 if($newStatus=="ready_for_vetting"){
                     $this->candidateData->status = NULL;
-                    // $this->SendMail($this->candidateId);
                 }
-                if($newStatus=="verified_pending_submission"){
-                    $this->candidateData->status = NULL;
-                }
+                // if($newStatus=="verified_pending_submission"){
+                //     $this->candidateData->status = NULL;
+                // }
                 $this->candidateData->document_collection_status = $newStatus;
                 $this->candidateData->save();
             }
-        }else{
-            if(count($documentsData)>0){
-                $this->candidateData->document_collection_status = "incomplete_additional_required";
-                $this->candidateData->save();
-            }
-        }
+        // }else{
+        //     if(empty($documentsData)){
+        //         $this->candidateData->document_collection_status = "incomplete_additional_required";
+        //         $this->candidateData->status = NULL;
+        //         $this->candidateData->save();
+        //     }
+        // }
     }
     
 
@@ -534,6 +597,7 @@ class CandidateDocumentCollection extends Component
     }
     public function render()
     {
+        $this->versions = CandidateObservationStep::where('candidate_id', $this->candidateId)->orderBy('version', 'ASC')->get();
         $this->authUser = Auth::guard('admin')->user();
         $this->remainRequiredDocuments = $this->remainDocuments();
         $this->getAcknowledgmentCopies();

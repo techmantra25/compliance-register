@@ -24,83 +24,68 @@
 </div>
 <div class="d-flex flex-wrap justify-content-between align-items-start mb-3">
     <div class="col-md-12">
-        <div class="card shadow-sm border-0 p-3 mb-3 mx-1">
+        <div class="card shadow-sm border-0 mb-3 mx-1">
             <div class="card-body">
-                <table class="table table-sm table-borderless  mb-0">
-                    <tbody>
-
-                        <tr>
-                            <th class="text-nowrap pe-3 align-top">Campaigner Details</th>
-                            <td>
-                               @foreach($camp->campaigners as $campaigner)
-                                    <div>
-                                        <i class="bi bi-person me-1 text-primary"></i>
-                                        <strong>Name: </strong> {{ ucwords($campaigner->name) }}
-                                    </div>
-
-                                    <div>
-                                        <!-- <i class="bi bi-person-circle me-1 text-primary"></i> -->
-                                        <i class="bi bi-phone me-1 text-primary"></i>
-                                        <strong>Mobile: </strong> {{ $campaigner->mobile ?? 'N/A' }}
-                                    </div>
-                                @endforeach
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <th class="text-nowrap pe-3">Assembly</th>
-                            <td>
-                                : ({{ $camp->assembly->assembly_code ?? 'N/A' }})
-                                {{ ucwords($camp->assembly->assembly_name_en ?? 'N/A') }}
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <th class="text-nowrap pe-3">Phase</th>
-                            <td>
-                                : {{ optional(optional($camp->assembly->assemblyPhase)->phase)->name ?? 'N/A' }}
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <th class="text-nowrap pe-3">Event Type</th>
-                            <td>: {{ ucwords($camp->category->name ?? 'N/A') }}</td>
-                        </tr>
-
-                        <tr>
-                            <th class="text-nowrap pe-3">Place</th>
-                            <td>: {{ ucwords($camp->address) }}</td>
-                        </tr>
-
-                        <tr>
-                            <th class="text-nowrap pe-3">Date & Time</th>
-                            <td>
-                                <div class="mb-1">
-                                    <i class="bi bi-calendar-event me-1 text-primary"></i>
-                                    <strong>Campaign Date:</strong>
-                                    {{ date('d M Y, h:i A', strtotime($camp->campaign_date)) }}
+                <div class="row">
+                    <div class="col-md-4 col-lg-3 mb-4">
+                        <strong class="title-text">Campaigner Details</strong>
+                            @foreach($camp->campaigners as $campaigner)
+                                <div class="mb-2">
+                                    <i class="bi bi-person me-1 text-primary"></i>
+                                    <strong>Name: </strong> {{ ucwords($campaigner->name) }}
                                 </div>
-                                    <div>
-                                        <i class="bi bi-calendar-check me-1 text-danger"></i>
-                                        <strong>Last Date of Permission:</strong>
-                                        {{ date('d M Y, h:i A', strtotime($camp->last_date_of_permission)) }}
-                                    </div>
-                            </td>
-                        </tr>
 
-                        <tr>
-                            <th class="text-nowrap pe-3">Remarks</th>
-                            <td>: {{ $camp->remarks ?? 'N/A' }}</td>
-                        </tr>
+                                <div class="mb-2">
+                                    <i class="bi bi-phone me-1 text-primary"></i>
+                                    <strong>Mobile: </strong> {{ $campaigner->mobile ?? 'N/A' }}
+                                </div>
+                            @endforeach
+                    </div>
+                    <div class="col-md-4 col-lg-2 mb-4">
+                        <strong class="title-text">Assembly</strong>
+                        ({{ $camp->assembly->assembly_code ?? 'N/A' }})
+                        {{ ucwords($camp->assembly->assembly_name_en ?? 'N/A') }}
 
-                    </tbody>
-                </table>
+                    </div>
+                    <div class="col-md-4 col-lg-2 mb-4">
+                        <strong class="title-text">Phase</strong>
+                        {{ optional(optional($camp->assembly->assemblyPhase)->phase)->name ?? 'N/A' }}
+                    </div>
+                    <div class="col-md-4 col-lg-3 mb-4">
+                        <strong class="title-text">Event Type</strong>
+                        {{ ucwords($camp->category->name ?? 'N/A') }}
+                    </div>
+                    <div class="col-md-4 col-lg-2 mb-4"> 
+                        <strong class="title-text">Place</strong>
+                        {{ ucwords($camp->address) }}
+
+                    </div>
+                    <div class="col-md-4 col-lg-3">
+                        <strong class="title-text">Date & Time</strong>
+                        <div class="mb-1">
+                            <i class="bi bi-calendar-event me-1 text-primary"></i>
+                            <strong>Campaign Date:</strong>
+                            {{ date('d M Y, h:i A', strtotime($camp->campaign_date)) }}
+                        </div>
+                        <div>
+                            <i class="bi bi-calendar-check me-1 text-danger"></i>
+                            <strong>Last Date of Permission:</strong>
+                            {{ date('d M Y, h:i A', strtotime($camp->last_date_of_permission)) }}
+                        </div>
+                    </div>
+
+                    <div class="col-md-4 col-lg-3">
+                        <strong class="title-text">Remarks</strong>
+                        {{ $camp->remarks ?? 'N/A' }}
+                    </div>
+
+                </div>
             </div>
         </div>
     </div>
 </div>
 
-<div class="card shadow-sm border-0 p-3 mt-4">
+<div class="card shadow-sm border-0  mt-4">
     <div class="card-body">
         <div class="table-responsive">
             <table class="table mb-0 align-middle table-bordered">

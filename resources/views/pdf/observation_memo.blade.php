@@ -60,7 +60,7 @@
 
         <tr>
             <td><strong>Date of Examination</strong></td>
-            <td>: {{ \Carbon\Carbon::parse($examinationDate)->format('d M Y') }}</td>
+            <td>: {{ \Carbon\Carbon::parse($examinationDate)->format('d M Y h:i A') }}</td>
         </tr>
 
         <tr>

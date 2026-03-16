@@ -9,7 +9,7 @@ class CandidateDocument extends Model
     
     protected $table = "candidate_documents";
     protected $fillable = [
-        'candidate_id', 'type', 'path', 'remarks', 'uploaded_by', 'vetted_by', 'vetted_on', 'status', 'attached_with','attached_with_slug'
+        'candidate_id','version', 'type', 'path', 'remarks', 'uploaded_by', 'vetted_by', 'vetted_on', 'status', 'attached_with','attached_with_slug'
     ];
 
     protected $casts = [

@@ -22,7 +22,7 @@
         </nav>
     </div>
 
-    <button class="btn btn-success" wire:click="exportCsv">
+    <button class="btn btn-sm btn-success" wire:click="exportCsv">
         Export CSV
     </button>
 
@@ -30,12 +30,12 @@
 
         <div class="col-lg-12">
             <div class="card shadow-sm border-0 p-3">
-                <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                    <h5 class="fw-bold mb-0">{{ __('admin/assemblies.list_title') }}</h5>
-                    <div class="d-flex justify-content-end align-items-center">
+                <div class="card-header bg-white">
+                    <!-- <h5 class="fw-bold mb-0">{{ __('admin/assemblies.list_title') }}</h5> -->
+                    <div class="row justify-content-end align-items-center">
                         <!-- District filter -->
-                        <div class="mx-2" style="width: 300px;" wire:ignore>
-                            <select wire:model="district_id" class="form-select form-select-sm w-auto chosen-select"  data-placeholder="Select Assembly">
+                        <div class="col-md-4" wire:ignore>
+                            <select wire:model="district_id" class="form-select form-select-sm chosen-select"  data-placeholder="Select Assembly">
                                 <option value="">{{ __('admin/assemblies.filter_district') }}</option>
                                 @foreach($districts as $district)
                                     <option value="{{ $district->id }}">{{ app()->getLocale() === 'bn' ? $district->name_bn : $district->name_en }}</option>
@@ -46,23 +46,25 @@
                             @enderror
                         </div>
 
-                        <!-- Search -->
-                        <input type="text"
+                        <div class="col-md-4">
+                            <input type="text"
                             wire:model="search"
-                            class="form-control form-control-sm w-auto"
+                            class="form-control form-control-sm"
                             placeholder="{{ __('admin/assemblies.search_placeholder') }}"
                             wire:keyup="filterData($event.target.value)">
+                        </div>
 
-                        <!-- Reset -->
+                        <div class="col-auto text-right">
                         <button class="btn btn-sm btn-danger ms-2" wire:click="resetFilters">
                             <i class="bi bi-x"></i> {{ __('admin/assemblies.reset_button') }}
                         </button>
+                        </div>
                     </div>
                 </div>
 
 
                 <!-- Table -->
-                <div class="card-body p-2">
+                <div class="card-body p-0">
                     <div class="table-responsive">
                         <table class="table mb-0 align-middle">
                             <thead class="table-light">

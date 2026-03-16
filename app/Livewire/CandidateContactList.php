@@ -7,6 +7,7 @@ use App\Models\District;
 use App\Models\Assembly;
 use App\Models\Phase;
 use App\Models\Agent;
+use App\Models\CandidateObservationStep;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\WithFileUploads;
@@ -25,6 +26,7 @@ use Illuminate\Support\Facades\Mail;
 use App\Mail\NominationVettingMail;
 use Carbon\Carbon;
 use App\Models\Admin;
+use Barryvdh\DomPDF\Facade\Pdf;
 use App\Mail\NominationVettingCompletedMail;
 
 class CandidateContactList extends Component
@@ -801,6 +803,27 @@ class CandidateContactList extends Component
         );
     }
 
+    public function downloadAcknowledgement($candidate_id)
+    {
+        $candidate = Candidate::findOrFail($candidate_id);
+        $versionData = CandidateObservationStep::where('candidate_id', $candidate->id)
+                ->orderByDesc('version')
+                ->first();
+        $data = [
+            'candidateName'   => $candidate->name,
+            'assemblyName'    => $candidate->assembly->assembly_number.'-'.$candidate->assembly->assembly_name_en,
+            'Examination'     => $versionData->created_at,
+            'nomination_date' => $candidate?->assembly?->assemblyPhase?->phase?->last_date_of_nomination,
+        ];
+
+        $pdf = Pdf::loadView('pdf.acknowledgement', $data)
+            ->setPaper('A4', 'portrait');
+
+        return response()->streamDownload(
+            fn () => print($pdf->output()),
+            "acknowledgement_form.pdf"
+        );
+    }
     public function ConfirmSendMail($id)
     {
         $legal_associate = Admin::where('role','legal_associate')->pluck('email')->toArray();
