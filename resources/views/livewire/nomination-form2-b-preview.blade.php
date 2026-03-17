@@ -279,6 +279,12 @@
                 Preview
             </h4>
         </div>
+
+        <div>
+            <a href="{{ url()->previous() }}" class="btn btn-sm btn-danger shadow-sm">
+                <i class="bi bi-arrow-left-circle me-1"></i> Back
+            </a>
+        </div>
     </div>
     <div id="printArea">
         <div class="form-container">
@@ -296,11 +302,11 @@
 
                 </div>
 
-                <div style="text-align: right; overflow: auto; margin-bottom: 16px;">
-                    @if($profile_image && $profile_image->path)
+                <div style="text-align: right; height:152px; margin-bottom: 16px; padding-right:3px;">
+                    @if($profile_image && $profile_image->image)
                         <div style="float:right; width:114px; height:145px;">
-                            <img src="{{ asset($profile_image->path) }}"
-                                style="width:100%; height:100%; object-fit:cover; border:1px solid #000;">
+                            <img src="{{ asset($profile_image->image) }}"
+                                style="width:100%; height:100%; object-fit:cover; border:1px solid #000; border-right:1px solid #000;">
                         </div>
                     @else
                         <div style="font-size: 12px; line-height:1.35; font-style: italic; text-align: justify; border:1px solid #000; width:114px; height:145px; padding:5px; font-weight: bold; float: right; display: flex; align-items:center; justify-content: center;">
@@ -1110,13 +1116,13 @@ function printForm() {
                 }
 
                 .input-field {
-                    border-bottom: 1px dotted #000;
                     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='2' viewBox='0 0 100 2'%3E%3Cline x1='0' y1='1' x2='100' y2='1' stroke='%23000' stroke-width='1' stroke-dasharray='2,2'/%3E%3C/svg%3E");
                     background-repeat: repeat-x;
                     background-position: bottom;
                     border-top:none;
                     border-left:none;
                     border-right:none;
+                    border-bottom: 1px dotted #000;
                 }
 
                 .full-strike2:after {
@@ -1178,12 +1184,13 @@ function printForm() {
                     overflow: hidden !important;
                 }
                 body::after {
-                    content: "Fox & Mandal Not for Submission";
+                    content: "Fox & Mandal";
                     position: fixed;
+                    white-space: pre;
                     top:30%;
-                    left:50%;
+                    left:10%;
                     transform:tranalate(-50%, -50%);
-                    font-size: 50px;
+                    font-size: 70px;
                     color: rgba(128, 128, 128, 0.3);
                     transform: rotate(-45deg);
                     z-index: 9999;
@@ -1196,8 +1203,27 @@ function printForm() {
                     /* Ensure it spans the entire page */
                     display: block;
                     width: 100%;
-                    height: 100%;
-                    }
+                    /*height: 100%;*/
+                }
+
+                body::before {
+                    content: "Not for Submission";
+                    position: fixed;
+                    top: calc(35% + 60px);  /* Adjust vertical spacing */
+                    left: 65%;
+                    transform: translate(-50%, -50%) rotate(-45deg);
+                    font-size: 70px;
+                    color: rgba(128, 128, 128, 0.3);
+                    z-index: 9999;
+                    white-space: pre;
+                    
+                    /* Critical for printing */
+                    -webkit-print-color-adjust: exact;
+                    print-color-adjust: exact;
+                    
+                    display: block;
+                    width: 100%;
+                }
 
                 @page{
                     size:A4;
