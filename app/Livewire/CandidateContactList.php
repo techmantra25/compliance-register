@@ -711,6 +711,25 @@ class CandidateContactList extends Component
         return response()->stream($callback, 200, $headers);
     }
 
+    // public function openFormModal($candidateId)
+    // {
+    //     $this->candidateId = $candidateId;
+
+    //     $this->form2bLogs = NominationLog::whereHas('nomination', function ($q) use ($candidateId) {
+    //         $q->where('candidate_id', $candidateId)
+    //         ->where('form_type', 'form_2b');
+    //     })
+    //     ->latest()
+    //     ->get();
+
+    //     $this->form26Logs = NominationLog::whereHas('nomination', function ($q) use ($candidateId) {
+    //         $q->where('candidate_id', $candidateId)
+    //         ->where('form_type', 'form_26');
+    //     })
+    //     ->latest()
+    //     ->get();
+    // }
+
     public function openFormModal($candidateId)
     {
         $this->candidateId = $candidateId;
@@ -718,13 +737,6 @@ class CandidateContactList extends Component
         $this->form2bLogs = NominationLog::whereHas('nomination', function ($q) use ($candidateId) {
             $q->where('candidate_id', $candidateId)
             ->where('form_type', 'form_2b');
-        })
-        ->latest()
-        ->get();
-
-        $this->form26Logs = NominationLog::whereHas('nomination', function ($q) use ($candidateId) {
-            $q->where('candidate_id', $candidateId)
-            ->where('form_type', 'form_26');
         })
         ->latest()
         ->get();
@@ -912,6 +924,14 @@ class CandidateContactList extends Component
             $this->dispatch('mail-sent-failed', message: $e->getMessage());
         }
     }
+
+    public function openPrintPreview($logId)
+    {
+        $url = route('admin.form2b.preview.log', $logId);
+
+        $this->dispatch('openNewTab', url: $url);
+    }
+
    public function render()
     {
         $query = $this->getFilteredQuery();
