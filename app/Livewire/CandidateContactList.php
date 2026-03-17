@@ -639,12 +639,12 @@ class CandidateContactList extends Component
         $columns = [
             'Candidate Name',
             'Candidate Phone',
-            'Assembly Code',
+            'AC Number',
+            'Ac Name',
             'District',
             'Phase',
             'Last Date of Nomination',
             'Election Date',
-            'Last Date of MCC',
             'Document Pending',
             'Final Status',
             'Agent Name',
@@ -673,14 +673,15 @@ class CandidateContactList extends Component
                     fputcsv($file, [
                         $item->name,
                         $item->contact_number,
-                        $assembly ? $assembly->assembly_code . ' - ' . $assembly->assembly_name_en : '',
+                        $assembly->assembly_number,
+                        $assembly->assembly_name_en,
                         $district->name_en ?? '',
                         $phase->name ?? '',
                         $phase->last_date_of_nomination ?? '',
                         $phase->date_of_election ?? '',
-                        $phase->last_date_of_mcc ?? '',
+                        // $phase->last_date_of_mcc ?? '',
                         $pending,
-                        $item->document_collection_status ?? '',
+                        getFinalDocStatus($item->document_collection_status, 'label'),
                         '', ''
                     ]);
 

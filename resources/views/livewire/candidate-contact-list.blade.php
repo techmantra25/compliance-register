@@ -131,6 +131,11 @@
                                     Reset Filters
                                 {{-- <i class="bi bi-arrow-clockwise me-1"></i> --}}
                             </button>
+                            <button class="btn btn-sm btn-success"
+                                    wire:click="resetForm">
+                                    Daily Report
+                               <i class="bi bi-envelope-fill text-light me-1"></i>
+                            </button>
                         </div>
                         {{-- <div class="col-md-2">
                             <select wire:model="filter_by_document" class="form-select form-select-sm select-style" wire:change="filterByDocument($event.target.value)">
@@ -302,9 +307,9 @@
                                                 <div class="tooltip-wrapper m-1">
                                                     <button wire:click="downloadAcknowledgement({{ $candidate->id }})"
                                                             class="btn btn-sm btn-outline-primary">
-                                                        <i class="bi bi-download me-1"></i> Acknowledgment
+                                                        <i class="bi bi-download me-1"></i> Acknowledgement
                                                     </button>
-                                                    <span class="tooltip-text">Download Acknowledgment</span>
+                                                    <span class="tooltip-text">Download Acknowledgement</span>
                                                 </div>
 
                                             {{-- Fallback --}}

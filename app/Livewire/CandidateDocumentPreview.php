@@ -49,6 +49,7 @@ class CandidateDocumentPreview extends Component
                 ->first();
         }
 
+        
         // If requested version not found, get latest
         if (!$versionData) {
             $versionData = CandidateObservationStep::where('candidate_id', $candidate->id)
@@ -56,16 +57,24 @@ class CandidateDocumentPreview extends Component
                 ->orderByDesc('version')
                 ->first();
         }
-
-        if ($versionData) {
-            $this->version_index = $versionData->version;
-            $this->versionData = $versionData;
-            $this->observation_description = $versionData->observations;
-        } else {
-            $this->version_index = 1;
-            $this->versionData = null;
-            $this->observation_description = $candidate->observation_description;
+        if($candidate->document_collection_status =="ready_for_vetting" && !$version_id){
+            $latestVersion = CandidateDocument::where('candidate_id', $candidate->id)
+                ->max('version');
+                $this->version_index = $latestVersion;
+                $this->versionData = null;
+                $this->observation_description = null;
+        }else{
+            if ($versionData) {
+                $this->version_index = $versionData->version;
+                $this->versionData = $versionData;
+                $this->observation_description = $versionData->observations;
+            } else {
+                $this->version_index = 1;
+                $this->versionData = null;
+                $this->observation_description = $candidate->observation_description;
+            }
         }
+        
        
 
         $allowedStatuses = ['verified_pending_submission', 'approved'];
@@ -232,6 +241,7 @@ class CandidateDocumentPreview extends Component
             'assemblyName'    => $this->assemblyName,
             'Examination'     => $this->versionData->created_at,
             'nomination_date' => $this->nomination_date,
+            'authorizedBy' => Auth::guard('admin')->user()->name,
         ];
 
         $pdf = Pdf::loadView('pdf.acknowledgement', $data)
@@ -316,6 +326,7 @@ class CandidateDocumentPreview extends Component
             'examinationDate' => $this->versionData->created_at,
             'nomination_date' => $this->nomination_date,
             'observations'    => $this->observation_description,
+            'authorizedBy' => Auth::guard('admin')->user()->name,
         ];
 
         $pdf = Pdf::loadView('pdf.observation_memo', $data)

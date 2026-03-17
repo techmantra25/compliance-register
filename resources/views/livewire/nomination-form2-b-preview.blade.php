@@ -297,14 +297,21 @@
                 </div>
 
                 <div style="text-align: right; overflow: auto; margin-bottom: 16px;">
-                    <div style="font-size: 12px; line-height:1.35; font-style: italic; text-align: justify; border:1px solid #000; width:114px; height: 145px; padding:5px; font-weight: bold; float: right; display: flex; align-items:center; justify-content: center;">
-                        Recent stamp size
-                        (2cm X 2.5cm)
-                        photograph in
-                        white/off white
-                        background with
-                        full face view.
-                    </div>
+                    @if($profile_image && $profile_image->path)
+                        <div style="float:right; width:114px; height:145px;">
+                            <img src="{{ asset($profile_image->path) }}"
+                                style="width:100%; height:100%; object-fit:cover; border:1px solid #000;">
+                        </div>
+                    @else
+                        <div style="font-size: 12px; line-height:1.35; font-style: italic; text-align: justify; border:1px solid #000; width:114px; height:145px; padding:5px; font-weight: bold; float: right; display: flex; align-items:center; justify-content: center;">
+                            Recent stamp size
+                            (2cm X 2.5cm)
+                            photograph in
+                            white/off white
+                            background with
+                            full face view.
+                        </div>
+                    @endif
                 </div>
 
                 <div class="strike-instruction" style="font-size: 16px; line-height: 1.21; color:#000; text-align: center;">

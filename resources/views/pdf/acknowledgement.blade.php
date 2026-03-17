@@ -137,7 +137,8 @@
         <br><br>
 
         <p><strong>For Fox & Mandal:</strong></p>
-
+        <p><strong>Checked & Verified By:</strong></p>
+        <p>{{$authorizedBy}}</p>
         <table class="signature">
             <tr>
                 <td width="50%">

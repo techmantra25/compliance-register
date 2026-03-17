@@ -139,7 +139,7 @@
 
                             </div>
                         </div>
-                        @endif
+                    @endif
                    <div class="list-group document-tabs">
                        @foreach ($availableDocuments as $index => $item)
 
@@ -223,19 +223,19 @@
 
                 <span class="badge bg-success me-auto">
                     <i class="bi bi-check-circle"></i>
-                    Candidate Approved — Acknowledgment Form Generated
+                    Candidate Approved — Acknowledgement Form Generated
                 </span>
 
                 <button class="btn btn-success" wire:click="downloadAcknowledgement">
 
                     <i class="bi bi-download"></i>
-                    Download Acknowledgment Form
+                    Download Acknowledgement Form
 
                 </button>
-                <button class="btn btn-danger" wire:click="downloadObservationMemo">
+                {{-- <button class="btn btn-danger" wire:click="downloadObservationMemo">
                     <i class="bi bi-download"></i>
                     Download Observation Memo
-                </button>
+                </button> --}}
 
 
                 {{-- REJECTED --}}
@@ -243,7 +243,7 @@
 
                     <span class="badge bg-danger me-auto">
                         <i class="bi bi-x-circle"></i>
-                        Candidate Rejected — Observation Memo Generated
+                        Inappropriate Documents — Observation Memo Generated
                     </span>
 
                     <button class="btn btn-danger" wire:click="downloadObservationMemo">
@@ -261,14 +261,14 @@
                     <button class="btn btn-outline-success" onclick="confirmApprove()">
 
                         <i class="bi bi-check-circle"></i>
-                        Approved & Generate Acknowledgment Form
+                        Approved & Generate Acknowledgement Form
 
                     </button>
 
                     <button class="btn btn-outline-danger" onclick="confirmReject()">
 
                         <i class="bi bi-x-circle"></i>
-                        Reject & Generate Observation Memo
+                        Inappropriate Documents & Generate Observation Memo
 
                     </button>
 
@@ -318,8 +318,8 @@
     function confirmApprove() {
 
         Swal.fire({
-            title: "Generate Acknowledgment Form?",
-            text: "Are you sure you want to approve this candidate and generate the acknowledgment form?",
+            title: "Generate Acknowledgement Form?",
+            text: "Are you sure you want to approve this candidate and generate the Acknowledgement form?",
             icon: "question",
             showCancelButton: true,
             confirmButtonColor: "#198754",
@@ -342,12 +342,12 @@
 
         Swal.fire({
             title: "Generate Observation Memo?",
-            text: "Are you sure you want to reject and generate the observation memo?",
+            text: "Are you sure you want to generate the observation memo?",
             icon: "warning",
             showCancelButton: true,
             confirmButtonColor: "#d33",
             cancelButtonColor: "#6c757d",
-            confirmButtonText: "Yes, Reject"
+            confirmButtonText: "Yes"
         }).then((result) => {
 
             if (result.isConfirmed) {

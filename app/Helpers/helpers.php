@@ -43,26 +43,26 @@ if (!function_exists('getFinalDocStatus')) {
                 'label' => 'Ready for Vetting',
                 'icon'  => '✅',
             ],
-            'vetting_in_progress' => [
-                'label' => 'Vetting in Progress',
-                'icon'  => '🔍',
-            ],
+            // 'vetting_in_progress' => [
+            //     'label' => 'Vetting in Progress',
+            //     'icon'  => '🔍',
+            // ],
             'incomplete_additional_required' => [
                 'label' => 'Incomplete / Additional Documents Required',
                 'icon'  => '⚠️',
             ],
-            'verified_submitted_with_copy' => [
-                'label' => 'Verified and Submitted with Received Copy',
-                'icon'  => '📄',
-            ],
-            'approved' => [
-                'label' => 'Approved',
-                'icon'  => '📄',
-            ],
-            'completed_nomination' => [
-                'label' => 'Completed Nomination',
-                'icon'  => '🏁',
-            ],
+            // 'verified_submitted_with_copy' => [
+            //     'label' => 'Verified and Submitted with Received Copy',
+            //     'icon'  => '📄',
+            // ],
+            // 'approved' => [
+            //     'label' => 'Approved',
+            //     'icon'  => '📄',
+            // ],
+            // 'completed_nomination' => [
+            //     'label' => 'Completed Nomination',
+            //     'icon'  => '🏁',
+            // ],
             'not_received_form' => [
                 'label' => 'Have Not Received Form',
                 'icon'  => '⛔',

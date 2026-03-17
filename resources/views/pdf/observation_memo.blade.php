@@ -85,7 +85,8 @@
     <br><br>
 
     <p><strong>For Fox & Mandal:</strong></p>
-
+    <p><strong>Checked & Verified By:</strong></p>
+    <p>{{$authorizedBy}}</p>
     <p class="signature">
         _____________________________<br>
         (Authorized Signatory)
