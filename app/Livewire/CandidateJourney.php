@@ -61,18 +61,27 @@ class CandidateJourney extends Component
     private function getLogDetails(ChangeLog $log): string
     {
         if ($log->action === 'Verification Update') {
-            // Extract the status from the description if possible
             preg_match('/status updated to (\w+)/', $log->description, $matches);
             $status = $matches[1] ?? 'Updated';
+
             $vettedBy = json_decode($log->new_data, true)['vetted_by'] ?? 'N/A';
-            return "Status changed to **{$status}** by **{$vettedBy}**.";
+
+            return "Status changed to <strong>{$status}</strong> by <strong>{$vettedBy}</strong>.";
+
         } elseif ($log->action === 'Update' && $log->old_data === $log->new_data) {
-            // Logs 9 and 28 show no data change, so use the generic description
+
             return $log->description . ' (No effective data change detected in log data)';
+
         } elseif ($log->module_name === 'Document' && in_array($log->action, ['Uploaded', 'Re-Uploaded'])) {
-            $linkText = $log->link ? ' [View Document]' : '';
-            return "New file uploaded. {$log->description}{$linkText}";
+
+            // ✅ Add clickable link
+            $link = $log->link 
+                ? "<a href='{$log->link}' target='_blank'>View File</a>" 
+                : '';
+
+            return "New file uploaded. {$log->description} {$link}";
         }
+
         return $log->description;
     }
 

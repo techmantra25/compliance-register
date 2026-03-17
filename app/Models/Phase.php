@@ -15,7 +15,7 @@ class Phase extends Model
   // Relationship to PhaseWiseAssembly
     public function phaseAssemblies()
     {
-        return $this->hasMany(PhaseWiseAssembly::class, 'phase_id', 'id');
+        return $this->hasMany(PhaseWiseAssembly::class, 'phase_id', 'id')->OrderBy('assembly_id', 'ASC');
     }
 
     //  Direct relationship to Assembly through the pivot

@@ -15,7 +15,8 @@ class PhaseWiseAssembly extends Model
    public function phase(){
         return $this->belongsTo(Phase::class, 'phase_id', 'id');
    }
-   public function assembly(){
-        return $this->belongsTo(Assembly::class, 'assembly_id', 'id');
-   }
+   public function assembly()
+     {
+     return $this->belongsTo(Assembly::class, 'assembly_id');
+     }
 }
