@@ -125,17 +125,28 @@
                                 <option value="partial">Partially Uploaded Documents</option>
                             </select>
                         </div>
-                        <div class="col-md-2 text-end">
+                        <div class="col-md-2 d-flex justify-content-end align-items-center gap-2">
+
+                            <!-- Reset Button -->
                             <button class="btn btn-sm btn-danger"
                                     wire:click="resetForm">
-                                    Reset Filters
-                                {{-- <i class="bi bi-arrow-clockwise me-1"></i> --}}
+                                Reset Filters
                             </button>
-                            <button class="btn btn-sm btn-success"
-                                    wire:click="resetForm">
+
+                            <!-- Daily Report Button with Tooltip -->
+                            <div class="tooltip-wrapper position-relative">
+                                <button class="btn btn-sm btn-success d-flex align-items-center gap-1"
+                                        onclick="SendMail()">
+                                    <i class="bi bi-envelope-fill text-light"></i>
                                     Daily Report
-                               <i class="bi bi-envelope-fill text-light me-1"></i>
-                            </button>
+                                </button>
+
+                                <!-- Tooltip Message -->
+                                <span class="tooltip-text">
+                                    Send Daily Report via email
+                                </span>
+                            </div>
+
                         </div>
                         {{-- <div class="col-md-2">
                             <select wire:model="filter_by_document" class="form-select form-select-sm select-style" wire:change="filterByDocument($event.target.value)">
@@ -319,6 +330,7 @@
                                                     class="btn btn-sm btn-outline-success">
                                                     Upload
                                                     </a>
+                                                    <span class="tooltip-text">Upload Candidate Documents</span>
                                                     <span class="tooltip-text">Upload Candidate Documents</span>
                                                 </div>
                                             @endif
@@ -894,10 +906,10 @@
         //     alert("Phone number copied!");
         // }
 
-        function SendMail(id) {
+        function SendMail() {
             Swal.fire({
                 title: "Send Mail?",
-                text: "Are you sure you want to send the email to the Legal Associate?",
+                text: "Are you sure you want to send the email?",
                 icon: "question",
                 showCancelButton: true,
                 confirmButtonColor: "#198754",
@@ -917,7 +929,7 @@
                         }
                     });
 
-                    @this.call('ConfirmSendMail', id);
+                    @this.call('ConfirmSendMail');
                 }
 
             });

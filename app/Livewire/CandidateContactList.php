@@ -23,7 +23,7 @@ use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 use Maatwebsite\Excel\Concerns\FromArray;
 use Maatwebsite\Excel\Concerns\WithTitle;
 use Illuminate\Support\Facades\Mail;
-use App\Mail\NominationVettingMail;
+use App\Mail\DailyNominationReport;
 use Carbon\Carbon;
 use App\Models\Admin;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -570,7 +570,6 @@ class CandidateContactList extends Component
         }
 
         if ($this->authUser->role === 'legal_associate') {
-
             $query->where('legal_associate_id', $this->authUser->id);
         }
 
@@ -837,47 +836,133 @@ class CandidateContactList extends Component
             "acknowledgement_form.pdf"
         );
     }
-    public function ConfirmSendMail($id)
+    public function ConfirmSendMail()
     {
-        $legal_associate = Admin::where('role','legal_associate')->pluck('email')->toArray();
-
         DB::beginTransaction();
 
         try {
 
-            $candidate = Candidate::findOrFail($id);
-            $data = [
-                'candidate' => $candidate,
+            // =========================
+            // PHASE SUMMARY (EMAIL VIEW)
+            // =========================
+            $phaseArray = Phase::with(['phaseAssemblies.assembly.candidates'])
+                ->orderBy('name', 'ASC')
+                ->get()
+                ->map(function ($phase) {
 
-                'ac' => optional($candidate->assembly)->assembly_code . ' | ' .
-                    optional($candidate->assembly)->assembly_name_en .
-                    ' (' . optional($candidate->assembly)->assembly_name_bn . ')',
+                    $assemblies = $phase->phaseAssemblies;
 
-                'nominationDate' => optional(optional(optional($candidate->assembly)->assemblyPhase)->phase)->last_date_of_nomination
-                    ? Carbon::parse(optional(optional(optional($candidate->assembly)->assemblyPhase)->phase)->last_date_of_nomination)->format('d M Y')
-                    : 'N/A',
+                    $candidates = $assemblies
+                        ->flatMap(fn($item) => $item->assembly?->candidates ?? collect());
 
-                'electionDate' => optional(optional(optional($candidate->assembly)->assemblyPhase)->phase)->date_of_election
-                    ? Carbon::parse(optional(optional(optional($candidate->assembly)->assemblyPhase)->phase)->date_of_election)->format('d M Y')
-                    : 'N/A',
+                    return [
+                        'name' => $phase->name,
+                        'assembly' => $assemblies->count(),
+                        'total_records' => $assemblies->count(),
 
-                'link' => route('admin.candidates.documents.vetting',$candidate->id),
+                        'pending_records' => $candidates
+                            ->whereIn('document_collection_status', ['not_received_form', 'rejected'])
+                            ->count(),
+
+                        'inappropriate_records' => $candidates
+                            ->whereIn('document_collection_status', ['incomplete_additional_required', 'ready_for_vetting'])
+                            ->count(),
+
+                        'completed_records' => $candidates
+                            ->whereIn('document_collection_status', ['verified_pending_submission'])
+                            ->count(),
+                    ];
+                })
+                ->toArray();
+
+
+            // =========================
+            // CSV GENERATION
+            // =========================
+            $phases = Phase::with([
+                'phaseAssemblies.assembly.district',
+                'phaseAssemblies.assembly.candidates'
+            ])->get();
+
+            $csvData = [];
+
+            // Header
+            $csvData[] = [
+                'Phase', 'District', 'Assembly No', 'Assembly Name', 'Candidate Name', 'Status'
             ];
 
-            foreach ($legal_associate as $email) {
-
-                Mail::to($email)->send(
-                    new NominationVettingMail($data)
-                );
+            foreach ($phases as $phase) {
+            
+                // ✅ Sort assemblies by assembly_number ASC
+                $sortedAssemblies = $phase->phaseAssemblies
+                    ->sortBy(fn($item) => (int) ($item->assembly->assembly_number ?? 0));
+            
+                foreach ($sortedAssemblies as $phaseAssembly) {
+            
+                    $assembly = $phaseAssembly->assembly;
+            
+                    if (!$assembly) continue;
+            
+                    foreach ($assembly->candidates as $candidate) {
+            
+                        // ✅ Status Mapping
+                        if (in_array($candidate->document_collection_status, ['not_received_form', 'rejected'])) {
+                            $status = 'Not Submitted';
+                        } elseif (in_array($candidate->document_collection_status, ['incomplete_additional_required', 'ready_for_vetting'])) {
+                            $status = 'Incomplete';
+                        } elseif ($candidate->document_collection_status == 'verified_pending_submission') {
+                            $status = 'Submitted & Checked';
+                        } else {
+                            $status = 'Unknown';
+                        }
+            
+                        // ✅ CSV Row
+                        $csvData[] = [
+                            $phase->name,
+                            $assembly->district->name_en ?? '',
+                            $assembly->assembly_number,
+                            $assembly->assembly_name_en,
+                            $candidate->name,
+                            $status
+                        ];
+                    }
+                }
             }
+            
+            // Create CSV file
+            $fileName = 'daily_report_' . now()->format('Y_m_d_H_i_s') . '.csv';
+            $filePath = storage_path('app/public/' . $fileName);
+
+            $handle = fopen($filePath, 'w');
+
+            foreach ($csvData as $row) {
+                fputcsv($handle, $row);
+            }
+
+            fclose($handle);
+
+
+            // =========================
+            // MAIL SEND
+            // =========================
+            $data = [
+                'today' => now(),
+                'phaseArray' => $phaseArray,
+            ];
+
+            Mail::to(['rajib.a@techmantra.co', 'koushik@techmantra.co'])
+                ->send(new DailyNominationReport($data, $filePath));
+
 
             DB::commit();
 
             $this->dispatch('mail-sent-success');
 
         } catch (\Exception $e) {
-            // dd($e->getMessage());
+
             DB::rollBack();
+
+            // dd($e->getMessage());
 
             $this->dispatch('mail-sent-failed', message: $e->getMessage());
         }

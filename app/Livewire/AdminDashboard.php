@@ -3,142 +3,140 @@
 namespace App\Livewire;
 
 use Livewire\Component;
-use App\Models\District;
-use App\Models\Assembly;
 use App\Models\Phase;
-use App\Models\Zone;
-use App\Models\EventCategory;
-use App\Models\Candidate;
-use App\Models\Campaign;
-use App\Models\CampaignWisePermission;
-use Illuminate\Support\Facades\Auth;  
-
+use Illuminate\Support\Facades\Auth;
 
 class AdminDashboard extends Component
 {
     public $phases;
     public $chartData = [];
-    public $totalScheduled;
-    public $pending;
-    public $appliedAwaitingApproval;
-    public $approvedCopyReceived;
-    public $cancelledOrRescheduled;
-    public $phaseWiseStatus;
     public $authUser;
+
+    public $phaseArray = [];
+    public $overall = [];
+    public $tableData = [];
 
     public function mount()
     {
         $this->authUser = Auth::guard('admin')->user();
-        $this->totalScheduled = Campaign::count();
-        $campaigns = Campaign::with(['category.permissions', 'permissions'])->get();
 
-        $pending = 0;
-        $appliedAwaitingApproval = 0;
-        $approvedCopyReceived = 0;
-        $cancelledOrRescheduled = 0;
-
-        foreach ($campaigns as $camp) {
-            $required = $camp->category->permissions->count(); 
-            $applied = $camp->permissions->where('doc_type', 'applied_copy')->count();
-            $approved = $camp->permissions->where('doc_type', 'approved_copy')->count();
-            
-            if (in_array($camp->status, ['cancelled', 'rescheduled'])) {
-                $cancelledOrRescheduled++;
-                continue;
-            }
-
-            if ($approved == $required && $required > 0) {
-                $approvedCopyReceived++;
-            }
-            else if ($applied == $required && $required > 0) {
-                $appliedAwaitingApproval++;
-            }
-            else {
-                $pending++;
-            }
-        }
-
-        $this->pending = $pending;
-        $this->appliedAwaitingApproval = $appliedAwaitingApproval;
-        $this->approvedCopyReceived = $approvedCopyReceived;
-        $this->cancelledOrRescheduled = $cancelledOrRescheduled;
-
+        // =========================
+        // CHART DATA
+        // =========================
         $this->phases = Phase::with([
-            'assemblies',
             'assemblies.candidates'
         ])->get();
 
-        $this->chartData = [];
-
         foreach ($this->phases as $key => $phase) {
+
             $allCandidates = $phase->assemblies
                 ->flatMap(fn($assembly) => $assembly->candidates);
 
-                
             $getSpecialCaseCan = $allCandidates
                 ->filter(fn($c) => (int) $c->is_special_case === 1)
                 ->pluck('id')
                 ->toArray();
 
-            //dd($getSpecialCaseCan);
-
-            $vetting_in_progress_at_fox = $allCandidates
-                ->whereIn('document_collection_status',['ready_for_vetting','vetting_in_progress'])
-                ->count();
-
-            $pending_acknowledgement_copy = $allCandidates
-                ->where('document_collection_status', 'verified_pending_submission')
-                ->count();
-
-            $document_yettobe_received_by_fox_for_vetting = $allCandidates
-                ->whereIn('document_collection_status',['incomplete_additional_required','not_received_form'])
-                ->count();
-
-            $approved_complete = $allCandidates
-                ->where('document_collection_status', 'verified_submitted_with_copy')
-                ->count();
-            
-           
-            $rejected = $allCandidates
-                ->where('document_collection_status', 'rejected')
-                ->reject(fn($c) => in_array($c->id, $getSpecialCaseCan))
-                ->count();
-
             $this->chartData[$key] = [
                 'phase_name' => $phase->name,
                 'data' => [
-                    $approved_complete,
-                    $document_yettobe_received_by_fox_for_vetting,
-                    $vetting_in_progress_at_fox,
-                    $pending_acknowledgement_copy,
-                    $rejected
+                    $allCandidates->whereIn('document_collection_status', ['not_received_form', 'rejected'])->count(),
+                    $allCandidates->whereIn('document_collection_status',['incomplete_additional_required', 'ready_for_vetting'])->count(),
+                    $allCandidates->whereIn('document_collection_status', ['verified_pending_submission'])->count(),
                 ]
             ];
-
         }
 
-        $phases = Phase::with(['assemblies.mcc'])->get();
+        // =========================
+        // PHASE SUMMARY
+        // =========================
+        $this->phaseArray = Phase::with(['phaseAssemblies.assembly.candidates'])
+            ->orderBy('name', 'ASC')
+            ->get()
+            ->map(function ($phase) {
 
-        $phaseWiseStatus = [];
+                $assemblies = $phase->phaseAssemblies;
+
+                $candidates = $assemblies
+                    ->flatMap(fn($item) => $item->assembly?->candidates ?? collect());
+
+                return [
+                    'name' => $phase->name,
+                    'assembly' => $assemblies->count(),
+                    'total_records' => $assemblies->count(),
+
+                    'pending_records' => $candidates
+                        ->whereIn('document_collection_status', ['not_received_form', 'rejected'])
+                        ->count(),
+
+                    'inappropriate_records' => $candidates
+                        ->whereIn('document_collection_status', ['incomplete_additional_required', 'ready_for_vetting'])
+                        ->count(),
+
+                    'completed_records' => $candidates
+                        ->whereIn('document_collection_status', ['verified_pending_submission'])
+                        ->count(),
+                ];
+            })
+            ->toArray();
+
+        // =========================
+        // OVERALL SUMMARY
+        // =========================
+        $this->overall = [
+            'total' => collect($this->phaseArray)->sum('total_records'),
+            'pending' => collect($this->phaseArray)->sum('pending_records'),
+            'inappropriate' => collect($this->phaseArray)->sum('inappropriate_records'),
+            'completed' => collect($this->phaseArray)->sum('completed_records'),
+        ];
+
+        // =========================
+        // TABLE DATA
+        // =========================
+        $phases = Phase::with([
+            'phaseAssemblies.assembly.district',
+            'phaseAssemblies.assembly.candidates'
+        ])->get();
 
         foreach ($phases as $phase) {
 
-            $mcc = $phase->assemblies->flatMap(function ($asm) {
-                return $asm->mcc; 
-            });
+            $sortedAssemblies = $phase->phaseAssemblies
+                ->sortBy(fn($item) => (int) ($item->assembly->assembly_number ?? 0));
 
-            $phaseWiseStatus[$phase->id] = [
-                'pending_to_processed' => $mcc->where('status', 'pending_to_process')->count(),
-                'processed'            => $mcc->where('status', 'processed')->count(),
-                'confirm_resolved'     => $mcc->where('status', 'confirm_resolved')->count(),
-            ];
+            foreach ($sortedAssemblies as $phaseAssembly) {
+
+                $assembly = $phaseAssembly->assembly;
+
+                if (!$assembly) continue;
+
+                foreach ($assembly->candidates as $candidate) {
+
+                    if (in_array($candidate->document_collection_status, ['not_received_form', 'rejected'])) {
+                        $status = 'Not Submitted';
+                    } elseif (in_array($candidate->document_collection_status, ['incomplete_additional_required', 'ready_for_vetting'])) {
+                        $status = 'Incomplete';
+                    } elseif ($candidate->document_collection_status == 'verified_pending_submission') {
+                        $status = 'Submitted & Checked';
+                    } else {
+                        $status = 'Unknown';
+                    }
+
+                    $this->tableData[] = [
+                        'phase' => $phase->name,
+                        'district' => $assembly->district->name_en ?? '',
+                        'assembly_no' => $assembly->assembly_number,
+                        'assembly_name' => $assembly->assembly_name_en,
+                        'candidate' => $candidate->name,
+                        'status' => $status
+                    ];
+                }
+            }
         }
-        $this->phaseWiseStatus = $phaseWiseStatus; 
     }
 
     public function render()
     {
         return view('livewire.admin-dashboard')
-            ->layout('layouts.admin'); 
+            ->layout('layouts.admin');
     }
 }
