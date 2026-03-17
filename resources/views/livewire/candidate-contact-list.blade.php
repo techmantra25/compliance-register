@@ -735,7 +735,7 @@
             <div class="modal-content">
 
                 <div class="modal-header">
-                    <h5 class="modal-title">Form 2B Actions</h5>
+                    <h5 class="modal-title">Form 2B</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
 
@@ -753,12 +753,7 @@
                         <h6 class="mb-2">Previous Generated Forms</h6>
 
                         <table class="table table-bordered">
-                            <thead>
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
+                            
                             <tbody>
                                 @foreach($form2bLogs as $log)
                                     <tr>
