@@ -9,6 +9,8 @@ class PhaseWiseDistrict extends Component
 {
     public $districtChart = [];
     public $phaseName;
+    public $phaseData;
+    public $tab;
 
     public function mount($phaseId)
     {
@@ -16,7 +18,8 @@ class PhaseWiseDistrict extends Component
             'assemblies.district',
             'assemblies.candidates'
         ])->findOrFail($phaseId);
-
+        $this->tab = $phaseId;
+        $this->phaseData = Phase::orderBy('id','ASC')->get();
         $this->phaseName = $phase->name;
 
         $districtGroups = $phase->assemblies
@@ -45,7 +48,7 @@ class PhaseWiseDistrict extends Component
             $approved = $submittedChecked;
 
             $document_yet = $candidates
-                ->where('document_collection_status', 'not_received_form')
+                ->whereIn('document_collection_status', ['not_received_form','rejected'])
                 ->count();
 
             $vetting = $candidates
@@ -56,11 +59,7 @@ class PhaseWiseDistrict extends Component
                 ->where('document_collection_status', 'incomplete_additional_required')
                 ->count();
 
-            $rejected = $candidates
-                ->where('document_collection_status', 'rejected')
-                ->count();
-
-            $total = max($approved + $document_yet + $vetting + $pending + $rejected, 1);
+            $total = max($approved + $document_yet + $vetting + $pending, 1);
 
             $districtStats[] = [
                 'district' => $districtName,
@@ -76,14 +75,12 @@ class PhaseWiseDistrict extends Component
                 'document_yet_to_be_received_for_vetting' => $document_yet,
                 'vetting_in_progress_at_fox' => $vetting,
                 'pending_acknowledgement_copy' => $pending,
-                'rejected' => $rejected,
 
                 'percent' => [
                     'approved' => round(($approved / $total) * 100),
                     'document_yet_to_be_received_by_fox_for_vetting' => round(($document_yet / $total) * 100),
                     'vetting_in_progress_at_fox' => round(($vetting / $total) * 100),
                     'pending_acknowledgement_copy' => round(($pending / $total) * 100),
-                    'rejected' => round(($rejected / $total) * 100),
                 ]
             ];
         }

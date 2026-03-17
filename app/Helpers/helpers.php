@@ -36,11 +36,11 @@ if (!function_exists('getFinalDocStatus')) {
     {
         $statuses = [
             'verified_pending_submission' => [
-                'label' => 'Vetting completed',
+                'label' => 'Vetting Completed',
                 'icon'  => '✅',
             ],
             'ready_for_vetting' => [
-                'label' => 'Ready for Vetting',
+                'label' => 'Ready For Vetting',
                 'icon'  => '✅',
             ],
             // 'vetting_in_progress' => [

@@ -743,7 +743,7 @@ class CandidateContactList extends Component
 
     public function exportPendingDocument()
     {
-        $data = $this->getFilteredQuery()->orderByDesc('id')->get();
+        $data = $this->getFilteredQuery()->join('assemblies', 'candidates.assembly_id', '=', 'assemblies.id')->orderBy('assemblies.assembly_number', 'asc')->get();
 
         $required_doc = CandidateDocumentType::pluck('name', 'key')->toArray();
 
@@ -1022,7 +1022,8 @@ class CandidateContactList extends Component
         $query = $this->getFilteredQuery();
 
         $candidates = $query
-            ->orderByDesc('id')
+            ->join('assemblies', 'candidates.assembly_id', '=', 'assemblies.id')
+            ->orderBy('assemblies.assembly_number', 'asc')
             ->paginate(20);
 
         $this->dispatch('resetTooltip');

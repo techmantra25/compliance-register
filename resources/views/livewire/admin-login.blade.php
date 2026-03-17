@@ -8,7 +8,7 @@
                         
                         <div class="col-md-6 p-5 bg-white">
                             <div class="text-center mb-4">
-                                <img src="{{ asset('assets/img/logo.png') }}" alt="Logo" height="50">
+                                <img src="{{ asset('assets/img/FMLogo.png') }}" alt="Logo" style="width:180px;" >
                                 <h3 class="mt-3 fw-semibold" style="color: #3e0b0f;">Welcome Back!</h3>
                                 <p class="text-muted">Sign in to continue to us.</p>
                             </div>
@@ -51,7 +51,7 @@
                         </div>
 
                         <div class="col-md-6 d-none d-md-block position-relative" 
-                             style="background: url('{{ asset('assets/img/logo-background.jpg') }}') center/cover no-repeat;">
+                             style="background: url('{{ asset('assets/img/frame_2.webp') }}') center/cover no-repeat;">
                             <div class="overlay position-absolute top-0 start-0 w-100 h-100" ></div>
                         </div>
 

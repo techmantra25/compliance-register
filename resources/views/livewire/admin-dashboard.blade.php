@@ -4,6 +4,7 @@
     .inner-wrap {
         border-radius:10px;
         overflow:hidden;
+        height:100%;
     }
 
     .yellow-bg {
@@ -117,7 +118,7 @@
                             </div>
 
                             <div class="color-label justify-content-center mb-4">
-                                <div class="color-grid"><span style="background-color: #565656;"></span>Pending</div>
+                                <div class="color-grid"><span style="background-color: #dc3545;"></span>Pending</div>
                                 <div class="color-grid"><span style="background-color: #FDB747;"></span>Inappropriate Documents</div>
                                 <div class="color-grid"><span style="background-color: #1BC976;"></span>Completed</div>
                             </div>
@@ -249,7 +250,7 @@
                                 <table class="custom-table custom-table-blue ">
                                     <thead>
                                         <th>Phase</th>
-                                        <th>Districe</th>
+                                        <th>District</th>
                                         <th>Assembly Number</th>
                                         <th>Assembly Name</th>
                                         <th>Candidate Name</th>
@@ -296,8 +297,8 @@
                         data: {
                             datasets: [{
                                 data: counts,
-                                borderColor: ['#565656', '#FDB747','#1BC976'],
-                                backgroundColor: ['#565656', '#FDB747','#1BC976'],
+                                borderColor: ['#dc3545', '#FDB747','#1BC976'],
+                                backgroundColor: ['#dc3545', '#FDB747','#1BC976'],
                                 borderWidth: 1
                             }]
                         },
