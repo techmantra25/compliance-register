@@ -38,4 +38,9 @@ class Candidate extends Model
     {
         return $this->belongsTo(Admin::class, 'legal_associate_id');
     }
+
+    public function nominationForm()
+    {
+        return $this->hasOne(NominationForm::class, 'candidate_id');
+    }
 }

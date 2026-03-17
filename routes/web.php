@@ -43,6 +43,7 @@ use App\Livewire\{
     WarRoomCrud,
     WarRoomCrudRemarks,
     ObservationFormPreview,
+    Form2BLogPreview,
 };
 use App\Http\Controllers\NominationPdfController;
 use App\Livewire\Candidate\DocumentComments;
@@ -133,6 +134,7 @@ Route::prefix('/admin')->middleware('auth:admin')->group(function () {
         Route::get('/form-2B/pdf/{id}', [NominationPdfController::class, 'download'])->name('admin.candidates.form2B.pdf');
         Route::get('/form-26/pdf/{id}', [NominationPdfController::class, 'downloadPdf'])->name('admin.candidates.form26.pdf');
         Route::get('/nomination-log/pdf/{log}',[NominationPdfController::class, 'downloadFromLog'])->name('admin.candidates.log.pdf');
+        Route::get('/form2b-preview/{logId}', Form2BLogPreview::class)->name('admin.form2b.preview.log');
         Route::get('/nominations', CandidateContactList::class)->name('admin.candidates.contacts')->middleware('employee.permission:nomination_view_candidate');
         Route::get('/social-media', DiscrepancyReportCrud::class)->name('admin.candidates.discrepancies.report');
         Route::get('/documents', CandidateDocumentCollection::class)->name('admin.candidates.documents')->middleware('employee.permission:nomination_document_repository');

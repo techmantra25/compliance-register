@@ -300,7 +300,7 @@
                         <div class=".form-title">(See rule 4)</div>
                         <div class="form-title">NOMINATION PAPER</div>
                         <div style="font-style: italic; font-size: 16px; line-height: 1.21;">Election to the Legislative Assembly of
-                            <span class="flex-input">{{$nomination->state}}</span>(State)
+                            <span class="flex-input">{{$nomination->state ?? ""}}</span>(State)
                             {{-- <input type="text" class="input-field input-field-large" placeholder="" readonly style="width:115px;"> --}}
                         </div>
 
@@ -1049,19 +1049,6 @@
 function printForm() {
 
     var content = document.getElementById('printArea').innerHTML;
-
-    let el = document.getElementById('nominationComponent');
-
-    let component = Livewire.find(el.getAttribute('wire:id'));
-
-    component.call('saveNominationData', content);
-
-    setTimeout(function () {
-        openPrintWindow(content);
-    }, 1000);
-}
-
-function openPrintWindow(content) {
 
     var printWindow = window.open('', '', 'width=900,height=650');
 
