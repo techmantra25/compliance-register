@@ -311,7 +311,36 @@ class CandidateDocumentCollection extends Component
                 } else {
 
                     // Convert images to PDF
-                    $html = '';
+                    $html = '
+                            <style>
+                                @page {
+                                    size: A4;
+                                    margin: 10mm;
+                                }
+
+                                body {
+                                    margin: 0;
+                                    padding: 0;
+                                }
+
+                                .page {
+                                    width: 100%;
+                                    height: 100%;
+                                    text-align: center;
+                                    page-break-after: always;
+
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                }
+
+                               .page img {
+                                    width: 100%;
+                                    height: 100%;
+                                    object-fit: contain;
+                                }
+                            </style>
+                            ';
 
                     foreach ($files as $file) {
 
@@ -324,12 +353,12 @@ class CandidateDocumentCollection extends Component
                         $mime = mime_content_type($fullPath);
 
                         $html .= '
-                            <div style="page-break-after: always; text-align:center;">
-                                <img src="data:'.$mime.';base64,'.$base64.'" style="width:100%;">
+                            <div class="page">
+                                <img src="data:'.$mime.';base64,'.$base64.'">
                             </div>';
                     }
 
-                    $pdf = Pdf::loadHTML($html);
+                    $pdf = Pdf::loadHTML($html)->setPaper('a4', 'portrait');
 
                     $filename = "document_{$timestamp}.pdf";
 
