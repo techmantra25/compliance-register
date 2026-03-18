@@ -289,6 +289,7 @@
                                         type="checkbox"
                                         wire:model="assemblies"
                                         value="{{ $assembly->id }}"
+                                        wire:change="handleAssemblyChange({{ $assembly->id }}, $event.target.checked)"
                                         id="assembly{{ $assembly->id }}">
 
                                     <label class="form-check-label"
@@ -402,6 +403,23 @@
 
         window.addEventListener('toastr:success', event => {
             toastr.success(event.detail.message)
+        });
+
+        window.addEventListener('AssignAssembly', function (event) {
+            let selected = event.detail[0].itemId;
+            document.querySelectorAll('input[id^="assembly"]').forEach(cb => {
+                let val = parseInt(cb.value);
+
+                if (selected.includes(val)) {
+                    cb.checked = true;
+                } else {
+                    cb.checked = false;
+                }
+            });
+
+            // 🔥 Sync back to Livewire
+            Livewire.find(document.querySelector('[wire\\:id]').getAttribute('wire:id'))
+                .set('assemblies', selected);
         });
 
        window.addEventListener('refreshChosen', () => {

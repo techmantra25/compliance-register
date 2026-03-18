@@ -606,6 +606,12 @@ class CandidateContactList extends Component
             ->when($this->filter_by_assembly, fn($q) => $q->where('assembly_id', $this->filter_by_assembly))
             ->when($this->filter_by_district, fn($q) => $q->whereHas('assembly.district', fn($d) => $d->where('id', $this->filter_by_district)))
             ->when($this->filter_by_phase, fn($q) => $q->whereHas('assembly.assemblyPhase', fn($p) => $p->where('phase_id', $this->filter_by_phase)))
+
+            // ✅ ADD THIS PART ONLY
+            ->join('assemblies', 'candidates.assembly_id', '=', 'assemblies.id')
+            ->orderBy('assemblies.assembly_number', 'asc')
+            ->select('candidates.*')
+
             ->with([
                 'assembly.district',
                 'assembly.assemblyPhase.phase',
@@ -617,8 +623,8 @@ class CandidateContactList extends Component
     public function exportCsv()
     {
         $data = $this->getFilteredQuery()
-            ->join('assemblies', 'candidates.assembly_id', '=', 'assemblies.id')
-            ->orderBy('assemblies.assembly_number', 'asc')
+            // ->join('assemblies', 'candidates.assembly_id', '=', 'assemblies.id')
+            // ->orderBy('assemblies.assembly_number', 'asc')
             ->select('candidates.*') 
             ->get();
 
@@ -743,7 +749,10 @@ class CandidateContactList extends Component
 
     public function exportPendingDocument()
     {
-        $data = $this->getFilteredQuery()->join('assemblies', 'candidates.assembly_id', '=', 'assemblies.id')->orderBy('assemblies.assembly_number', 'asc')->get();
+        $data = $this->getFilteredQuery()
+        // ->join('assemblies', 'candidates.assembly_id', '=', 'assemblies.id')
+        // ->orderBy('assemblies.assembly_number', 'asc')
+        ->get();
 
         $required_doc = CandidateDocumentType::pluck('name', 'key')->toArray();
 
@@ -1022,8 +1031,8 @@ class CandidateContactList extends Component
         $query = $this->getFilteredQuery();
 
         $candidates = $query
-            ->join('assemblies', 'candidates.assembly_id', '=', 'assemblies.id')
-            ->orderBy('assemblies.assembly_number', 'asc')
+            // ->join('assemblies', 'candidates.assembly_id', '=', 'assemblies.id')
+            // ->orderBy('assemblies.assembly_number', 'asc')
             ->paginate(20);
 
         $this->dispatch('resetTooltip');

@@ -24,6 +24,7 @@ class EmployeeCrud extends Component
 
     public $search='';
     public $isEdit=false;
+    public $uncheckedAssembly =[];
 
     protected $rules = [
         'name' => 'required',
@@ -50,36 +51,36 @@ class EmployeeCrud extends Component
                 return false;
             }
 
-            foreach ($this->assemblies as $assemblyId) {
+            // foreach ($this->assemblies as $assemblyId) {
 
-                $employee = Admin::where('role', 'employee')
-                    ->where(function ($q) use ($assemblyId) {
+            //     $employee = Admin::where('role', 'employee')
+            //         ->where(function ($q) use ($assemblyId) {
 
-                        $q->where('assemblies', $assemblyId)
-                        ->orWhere('assemblies', 'like', "$assemblyId,%")
-                        ->orWhere('assemblies', 'like', "%,$assemblyId")
-                        ->orWhere('assemblies', 'like', "%,$assemblyId,%");
+            //             $q->where('assemblies', $assemblyId)
+            //             ->orWhere('assemblies', 'like', "$assemblyId,%")
+            //             ->orWhere('assemblies', 'like', "%,$assemblyId")
+            //             ->orWhere('assemblies', 'like', "%,$assemblyId,%");
 
-                    })
-                    ->when($ignoreId, function ($q) use ($ignoreId) {
-                        $q->where('id', '!=', $ignoreId);
-                    })
-                    ->first();   // <-- get employee instead of exists()
+            //         })
+            //         ->when($ignoreId, function ($q) use ($ignoreId) {
+            //             $q->where('id', '!=', $ignoreId);
+            //         })
+            //         ->first();   // <-- get employee instead of exists()
 
-                if ($employee) {
+            //     if ($employee) {
 
-                    // get assembly name
-                    $assemblyName = \App\Models\Assembly::where('id', $assemblyId)
-                        ->value('assembly_name_en');
+            //         // get assembly name
+            //         $assemblyName = \App\Models\Assembly::where('id', $assemblyId)
+            //             ->value('assembly_name_en');
 
-                    $this->addError(
-                        'assemblies',
-                        "Assembly '{$assemblyName}' is already assigned to employee '{$employee->name}'."
-                    );
+            //         $this->addError(
+            //             'assemblies',
+            //             "Assembly '{$assemblyName}' is already assigned to employee '{$employee->name}'."
+            //         );
 
-                    return false;
-                }
-            }
+            //         return false;
+            //     }
+            // }
         }
 
         return true;
@@ -89,20 +90,41 @@ class EmployeeCrud extends Component
     {
         $districtIds = is_array($value) ? $value : [$value];
 
-        if(count($districtIds)){
+        if (count($districtIds)) {
 
-            $this->allAssemblies = Assembly::whereIn('district_id',$districtIds)
+            $this->allAssemblies = Assembly::whereIn('district_id', $districtIds)
                 ->orderBy('district_id')
                 ->get();
 
-        }else{
+            // Get all IDs
+            $allIds = $this->allAssemblies->pluck('id')->toArray();
+
+            // Remove unchecked IDs
+            $this->assemblies = array_values(array_diff($allIds, $this->uncheckedAssembly));
+
+        } else {
 
             $this->allAssemblies = Assembly::orderBy('district_id')->get();
 
+            $this->assemblies = [];
+            $this->uncheckedAssembly = [];
         }
 
-        // reset assembly selection
-        // $this->assemblies = [];
+        $this->dispatch('AssignAssembly', ['itemId' => $this->assemblies]);
+    }
+    public function handleAssemblyChange($assemblyId, $isChecked)
+    {
+        if (!$isChecked) {
+            //  Add to unchecked array (if not already exists)
+            if (!in_array($assemblyId, $this->uncheckedAssembly)) {
+                $this->uncheckedAssembly[] = $assemblyId;
+            }
+        } else {
+            //  Remove from unchecked array if checked again
+            $this->uncheckedAssembly = array_values(
+                array_diff($this->uncheckedAssembly, [$assemblyId])
+            );
+        }
     }
 
     public function resetInputFields()

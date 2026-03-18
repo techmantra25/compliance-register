@@ -103,7 +103,7 @@
                         <div class="graph-part">
                             <div class="row mb-5 mb-5-lg-0">
                                 @foreach($this->phases as $key => $phase)
-                                <div class="col-md-6">
+                                <div class="col-md-6 mb-4 md-md-0">
                                     <div class="chrat-place phase-click"
                                         data-url="{{ route('admin.phasewise.district', $phase->id) }}">
                                         <canvas 
