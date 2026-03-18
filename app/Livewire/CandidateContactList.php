@@ -835,6 +835,7 @@ class CandidateContactList extends Component
             'assemblyName'    => $candidate->assembly->assembly_number.'-'.$candidate->assembly->assembly_name_en,
             'Examination'     => $versionData->created_at,
             'nomination_date' => $candidate?->assembly?->assemblyPhase?->phase?->last_date_of_nomination,
+            'authorizedBy' => Auth::guard('admin')->user()->name,
         ];
 
         $pdf = Pdf::loadView('pdf.acknowledgement', $data)
