@@ -105,7 +105,7 @@ Route::prefix('/admin')->middleware('auth:admin')->group(function () {
     Route::get('phase/{phaseId}/mcc', PhaseWiseMcc::class)->name('admin.phasewise.mcc');
     Route::get('/eventwise/district', EventWiseDistrict::class)->name('admin.eventwise.district');
 
-    Route::get('/notifications/latest', [NotificationController::class, 'latest']);
+    // Route::get('/notifications/latest', [NotificationController::class, 'latest']);
     Route::post('/notifications/mark-read/{id}', [NotificationController::class, 'markRead']);
     
     Route::prefix('master')->group(function () {

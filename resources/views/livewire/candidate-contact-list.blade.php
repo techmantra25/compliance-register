@@ -223,7 +223,7 @@
                                             <br>
 
                                             <span>
-                                                <i class="bi bi-geo-alt-fill text-danger me-1"></i>
+                                                District: 
                                                 {{ $candidate->assembly->district->name_en ?? 'N/A' }}
                                             </span>
 
@@ -503,8 +503,19 @@
                         </table>
                     </div>
 
-                    <div class="mt-2 d-flex justify-content-end">
-                        {{ $candidates->links('pagination.custom') }}
+                    <div class="mt-2 d-flex justify-content-between align-items-center">
+
+                        <!-- Total Count -->
+                        <div>
+                            Showing {{ $candidates->firstItem() }} to {{ $candidates->lastItem() }}
+                            of {{ $candidates->total() }} entries
+                        </div>
+
+                        <!-- Pagination -->
+                        <div>
+                            {{ $candidates->links('pagination.custom') }}
+                        </div>
+
                     </div>
                 </div>
             </div>

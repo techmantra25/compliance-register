@@ -49,10 +49,31 @@
     }
 
     .custom-table-yellow th {
-    background: #e2f1e3;
-    font-size: 13px;
-    border: 1px solid #c8c8c8;
-    border-bottom:mone;
+        background: #e2f1e3;
+        font-size: 13px;
+        border: 1px solid #c8c8c8;
+        border-bottom:mone;
+    }
+    .tab-pill-stack {
+        display:flex;
+        column-gap:8px;
+        margin-bottom:15px;
+        align-items:center;
+        justify-content:space-between;
+    }
+    .tab-pill-stack a {
+        background: #e5e5e5;
+        color: #000;
+        text-decoration: none;
+        padding: 8px 24px;
+        border-radius: 10px;
+    }
+    .tab-pill-stack a.active {
+        background: #198754;
+        color: #fff;
+    }
+    .tab-container .tab-content:not(:first-child) {
+        display:none;
     }
 </style>
 
@@ -62,167 +83,98 @@
             <div class="col-md-12 col-lg-9">
 
                 <!-- ================= TABLE SECTION ================= -->
-                <div class="table-stack">
-                    <h3>Nomination Vetting {{ $phaseName }} District View</h3>
-
-                    <div class="graph-part">
-
-                        <div class="color-label justify-content-center mb-4">
-                            <div class="color-grid">
-                                <span style="background-color: #198754;"></span>Submitted & Checked
-                            </div>
-                            <div class="color-grid">
-                                <span style="background-color: #ffc107;"></span>Not Submitted
-                            </div>
-                            <div class="color-grid">
-                                <span style="background-color: #dc3545;"></span>Incomplete
-                            </div>
-                        </div>
-
-                        <div class="table-responsive">
-                            <table class="custom-table custom-table-yellow">
-                                <thead>
-                                    <th style="width:200px;">District Name</th>
-                                    <th>Total Assembly</th>
-                                    <th>Submitted & Checked</th>
-                                    <th>Not Submited</th>
-                                    <th>Incomplete</th>
-                                    <th style="width:300px;"></th>
-                                </thead>
-
-                                <tbody>
-                                    @foreach($districtChart as $row)
-                                    <tr>
-                                        <td>{{ $row['district'] }}</td>
-                                        <td>{{ $row['total_assembly'] }}</td>
-                                        <td>{{ $row['submitted_checked'] }}</td>
-                                        <td>{{ $row['not_submitted'] }}</td>
-                                        <td>{{ $row['incomplete'] }}</td>
-
-                                        <td>
-                                            <div class="progress bg-white" style="height:24px;">
-
-                                                <!-- Submitted -->
-                                                <div class="progress-bar bg-success progress-bar-striped progress-bar-animated"
-                                                    style="width: {{ $row['percent']['approved'] }}%">
-                                                    {{ $row['submitted_checked'] }}
-                                                </div>
-
-                                                <!-- Not Submitted -->
-                                                <div class="progress-bar bg-warning progress-bar-striped progress-bar-animated"
-                                                    style="width: {{ $row['percent']['document_yet_to_be_received_by_fox_for_vetting'] }}%">
-                                                    {{ $row['not_submitted'] }}
-                                                </div>
-
-                                                <!-- Incomplete -->
-                                                <div class="progress-bar bg-danger progress-bar-striped progress-bar-animated"
-                                                    style="width: {{ $row['percent']['vetting_in_progress_at_fox'] + $row['percent']['pending_acknowledgement_copy'] }}%">
-                                                    {{ $row['incomplete'] }}
-                                                </div>
-
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    @endforeach
-                                    </tbody>
-
-                            </table>
-                        </div>
+                
+                <div class="tab-pill-stack">
+                    
+                    <div class="">
+                        @foreach ($phaseData as $phase_item)
+                            <a href="{{route('admin.phasewise.district',$phase_item->id)}}" class="{{$tab==$phase_item->id?"active":""}}">{{$phase_item->name}}</a>
+                        @endforeach
+                    </div>
+                    <div>
+                        <a href="{{ route('admin.dashboard') }}" class="btm-small">
+                             Back to State Dashboard
+                        </a>
                     </div>
                 </div>
-
-
-                <!-- ================= BAR CHART SECTION ================= -->
-                <div class="row">
-                    <div class="col-md-12 mb-4">
-                        <div class="inner-wrapper">
-
-                            <div class="title-head" style="color: #3e0b0f;">
-                                Nomination Vetting {{ $phaseName }} District View
+                
+                <div class="tab-container">
+                
+                    <div id="tab-1" class="tab-content">
+                        <div  class="table-stack">
+                        <h3>Nomination Vetting {{ $phaseName }} District View</h3>
+    
+                        <div class="graph-part">
+    
+                            <div class="color-label justify-content-center mb-4">
+                                <div class="color-grid">
+                                    <span style="background-color: #198754;"></span>Submitted & Checked
+                                </div>
+                                <div class="color-grid">
+                                    <span style="background-color: #dc3545;"></span>Not Submitted
+                                </div>
+                                <div class="color-grid">
+                                    <span style="background-color: #ffc107;"></span>Incomplete
+                                </div>
                             </div>
-
-                            <div class="wrappper-bpdy">
-
-                                <div class="bar-chirt-option">
-                                    @foreach ($districtChart as $row)
-                                        <div class="chirt-stack">
-
-                                            <div class="label">
-                                                {{ $row['district'] }}
-                                            </div>
-
-                                            <div class="stack-chirt">
-
-                                                @if($row['percent']['approved'] > 0)
-                                                    <div class="bar j-green-bg"
-                                                        style="width:{{ $row['percent']['approved'] }}%"
-                                                        data-tooltip="Submitted & Checked: {{ $row['percent']['approved'] }}%"
-                                                        data-color="#1BC976">
-                                                        {{ $row['approved'] }}
+    
+                            <div class="table-responsive">
+                                <table class="custom-table custom-table-yellow">
+                                    <thead>
+                                        <th style="width:200px;">District Name</th>
+                                        <th>Total Assembly</th>
+                                        <th>Submitted & Checked</th>
+                                        <th>Not Submited</th>
+                                        <th>Incomplete</th>
+                                        <th style="width:300px;"></th>
+                                    </thead>
+    
+                                    <tbody>
+                                        @foreach($districtChart as $row)
+                                        <tr>
+                                            <td>{{ $row['district'] }}</td>
+                                            <td>{{ $row['total_assembly'] }}</td>
+                                            <td>{{ $row['submitted_checked'] }}</td>
+                                            <td>{{ $row['not_submitted'] }}</td>
+                                            <td>{{ $row['incomplete'] }}</td>
+    
+                                            <td>
+                                                <div class="progress bg-white" style="height:24px;">
+    
+                                                    <!-- Submitted -->
+                                                    <div class="progress-bar bg-success progress-bar-striped progress-bar-animated"
+                                                        style="width: {{ $row['percent']['approved'] }}%">
+                                                        {{ $row['submitted_checked'] }}
                                                     </div>
-                                                @endif
-
-                                                @if($row['percent']['document_yet_to_be_received_by_fox_for_vetting'] > 0)
-                                                    <div class="bar j-pink-bg"
-                                                        style="width:{{ $row['percent']['document_yet_to_be_received_by_fox_for_vetting'] }}%"
-                                                        data-tooltip="Not Submitted: {{ $row['percent']['document_yet_to_be_received_by_fox_for_vetting'] }}%"
-                                                        data-color="#ffc107">
-                                                        {{ $row['document_yet_to_be_received_for_vetting'] }}
+    
+                                                    <!-- Not Submitted -->
+                                                    <div class="progress-bar bg-danger progress-bar-striped progress-bar-animated"
+                                                        style="width: {{ $row['percent']['document_yet_to_be_received_by_fox_for_vetting'] }}%">
+                                                        {{ $row['not_submitted'] }}
                                                     </div>
-                                                @endif
-
-                                                @if($row['percent']['vetting_in_progress_at_fox'] > 0)
-                                                    <div class="bar j-yellow-bg"
-                                                        style="width:{{ $row['percent']['vetting_in_progress_at_fox'] }}%"
-                                                        data-tooltip="Vetting in Progress: {{ $row['percent']['vetting_in_progress_at_fox'] }}%"
-                                                        data-color="#FDB747">
-                                                        {{ $row['vetting_in_progress_at_fox'] }}
+    
+                                                    <!-- Incomplete -->
+                                                    <div class="progress-bar bg-warning progress-bar-striped progress-bar-animated"
+                                                        style="width: {{ $row['percent']['vetting_in_progress_at_fox'] + $row['percent']['pending_acknowledgement_copy'] }}%">
+                                                        {{ $row['incomplete'] }}
                                                     </div>
-                                                @endif
-
-                                                @if($row['percent']['pending_acknowledgement_copy'] > 0)
-                                                    <div class="bar j-gray-bg"
-                                                        style="width:{{ $row['percent']['pending_acknowledgement_copy'] }}%"
-                                                        data-tooltip="Pending: {{ $row['percent']['pending_acknowledgement_copy'] }}%"
-                                                        data-color="#A7A7A7">
-                                                        {{ $row['pending_acknowledgement_copy'] }}
-                                                    </div>
-                                                @endif
-
-                                                @if($row['percent']['rejected'] > 0)
-                                                    <div class="bar j-red-bg"
-                                                        style="width:{{ $row['percent']['rejected'] }}%"
-                                                        data-tooltip="Rejected: {{ $row['percent']['rejected'] }}%"
-                                                        data-color="#F46674">
-                                                        {{ $row['rejected'] }}
-                                                    </div>
-                                                @endif
-
-                                            </div>
-                                        </div>
-                                    @endforeach
-                                </div>
-
-                                <!-- Legend -->
-                                <div class="color-label mb-5">
-                                    <div class="color-grid">
-                                        <span style="background-color: #1BC976;"></span>Submitted & Checked
-                                    </div>
-                                    <div class="color-grid">
-                                        <span style="background-color: #FDB747;"></span>Inappropriate Documents
-                                    </div>
-                                    <div class="color-grid">
-                                        <span style="background-color: #A7A7A7;"></span>Pending
-                                    </div>
-                                </div>
-
-                                <a href="{{ route('admin.dashboard') }}" class="btm-small">
-                                    Back to State Dashboard
-                                </a>
-
+    
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        @endforeach
+                                        </tbody>
+    
+                                </table>
                             </div>
                         </div>
                     </div>
+                    </div>
+                    
+                    <div id="tab-2" class="tab-content">
+                        tab 2
+                    </div>
+                
                 </div>
 
             </div>
@@ -245,8 +197,8 @@
                     labels: ["Total Event Scheduled",	"Applied-Awaiting Approval ",	"Pending Application",	"Approved-Copy Received"],
                     datasets: [{    
                         data: [500,	600, 800, 600],
-                        borderColor: ['#1BC976', '#FDB747', '#F46674', '#5B86FC'], 
-                        backgroundColor: ['#1BC976', '#FDB747', '#F46674', '#5B86FC'],
+                        borderColor: ['#1BC976', '#FDB747', '#5B86FC', '#F46674'], 
+                        backgroundColor: ['#1BC976', '#FDB747', '#5B86FC', '#F46674'],
                         borderWidth: 1 
                     }]},         
                 options: {
@@ -292,6 +244,26 @@
 
                 });
             });
+            
+            $(function() {
+              $('.tab-pill-stack a').click(function() {
+            
+                // Check for active
+                $('a').removeClass('active');
+                $(this).addClass('active');
+            
+                // Display active tab
+                let currentTab = $(this).attr('href');
+                $('.tab-container .tab-content').hide();
+                $(currentTab).show();
+            
+                return false;
+              });
+            });    
+            
+            
+            
+            
         </script>
     @endpush
 </div>

@@ -31,7 +31,7 @@ class DailyNominationReport extends Mailable
             ->view('emails.daily-nomination-report')
             ->with(['data' => $this->data])
             ->attach($this->filePath, [
-                'as' => "Daily_Report_{$fileDate}.csv", // ✅ CSV filename with date
+                'as' => "daily-nomination-status-{$fileDate}.csv", // ✅ CSV filename with date
                 'mime' => 'text/csv',
             ]);
     }

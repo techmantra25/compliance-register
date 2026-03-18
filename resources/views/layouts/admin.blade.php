@@ -381,84 +381,84 @@
             overlay.classList.remove('active');
         });
 
-        document.addEventListener("DOMContentLoaded", function () {
+        // document.addEventListener("DOMContentLoaded", function () {
 
-            function loadNotifications() {
+        //     function loadNotifications() {
 
-                const dropdown = document.getElementById('notificationList');
-                const badge = document.getElementById('notificationBadge');
+        //         const dropdown = document.getElementById('notificationList');
+        //         const badge = document.getElementById('notificationBadge');
 
-                if (!dropdown || !badge) return;
+        //         if (!dropdown || !badge) return;
 
-                fetch('/admin/notifications/latest')
-                    .then(res => res.json())
-                    .then(data => {
+        //         fetch('/admin/notifications/latest')
+        //             .then(res => res.json())
+        //             .then(data => {
 
-                        dropdown.innerHTML = `
-                            <li class="dropdown-header fw-bold bg-light py-2">
-                                Notifications
-                            </li>
-                        `;
+        //                 dropdown.innerHTML = `
+        //                     <li class="dropdown-header fw-bold bg-light py-2">
+        //                         Notifications
+        //                     </li>
+        //                 `;
 
-                        badge.textContent = data.length;
+        //                 badge.textContent = data.length;
 
-                        if (data.length === 0) {
+        //                 if (data.length === 0) {
 
-                            dropdown.innerHTML += `
-                                <li class="text-center p-3 text-muted">
-                                    No notifications
-                                </li>
-                            `;
+        //                     dropdown.innerHTML += `
+        //                         <li class="text-center p-3 text-muted">
+        //                             No notifications
+        //                         </li>
+        //                     `;
 
-                        } else {
+        //                 } else {
 
-                            data.forEach(n => {
+        //                     data.forEach(n => {
 
-                                let icon = 'bi-envelope-fill text-primary';
+        //                         let icon = 'bi-envelope-fill text-primary';
 
-                                if (n.title && n.title.toLowerCase().includes('approved'))
-                                    icon = 'bi-check-circle-fill text-success';
+        //                         if (n.title && n.title.toLowerCase().includes('approved'))
+        //                             icon = 'bi-check-circle-fill text-success';
 
-                                if (n.title && n.title.toLowerCase().includes('rejected'))
-                                    icon = 'bi-x-circle-fill text-danger';
+        //                         if (n.title && n.title.toLowerCase().includes('rejected'))
+        //                             icon = 'bi-x-circle-fill text-danger';
 
-                                dropdown.innerHTML += `
-                                    <li>
-                                        <a href="javascript:void(0)" 
-                                        onclick="markNotificationRead(${n.id}, '${n.url}')"
-                                        class="dropdown-item small">
+        //                         dropdown.innerHTML += `
+        //                             <li>
+        //                                 <a href="javascript:void(0)" 
+        //                                 onclick="markNotificationRead(${n.id}, '${n.url}')"
+        //                                 class="dropdown-item small">
 
-                                            <i class="bi ${icon}"></i>
-                                            <span class="notification-text">${n.title ?? ''}</span>
+        //                                     <i class="bi ${icon}"></i>
+        //                                     <span class="notification-text">${n.title ?? ''}</span>
 
-                                        </a>
-                                    </li>
-                                `;
-                            });
+        //                                 </a>
+        //                             </li>
+        //                         `;
+        //                     });
 
-                        }
+        //                 }
 
-                        dropdown.innerHTML += `
-                            <li><hr class="dropdown-divider"></li>
-                            <li>
-                                <a href="{{ route('admin.notifications') }}"
-                                class="dropdown-item text-center text-primary fw-bold">
-                                See All
-                                </a>
-                            </li>
-                        `;
+        //                 dropdown.innerHTML += `
+        //                     <li><hr class="dropdown-divider"></li>
+        //                     <li>
+        //                         <a href="{{ route('admin.notifications') }}"
+        //                         class="dropdown-item text-center text-primary fw-bold">
+        //                         See All
+        //                         </a>
+        //                     </li>
+        //                 `;
 
-                    })
-                    .catch(err => console.error("Notification fetch error:", err));
-            }
+        //             })
+        //             .catch(err => console.error("Notification fetch error:", err));
+        //     }
 
-            // First Load
-            loadNotifications();
+        //     // First Load
+        //     loadNotifications();
 
-            // Auto Refresh
-            setInterval(loadNotifications, 5000);
+        //     // Auto Refresh
+        //     setInterval(loadNotifications, 5000);
 
-        });
+        // });
          function markNotificationRead(id, url) {
 
             fetch('/admin/notifications/mark-read/' + id, {

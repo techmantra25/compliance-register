@@ -56,7 +56,6 @@ class AdminDashboard extends Component
             ->map(function ($phase) {
 
                 $assemblies = $phase->phaseAssemblies;
-
                 $candidates = $assemblies
                     ->flatMap(fn($item) => $item->assembly?->candidates ?? collect());
 
