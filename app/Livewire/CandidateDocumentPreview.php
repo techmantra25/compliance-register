@@ -355,11 +355,22 @@ class CandidateDocumentPreview extends Component
    public function downloadObservationMemo()
     {
         $update = Candidate::findOrFail($this->candidateId);
+        $hoursToSubtract = 48;
+        $nominationDate = Carbon::parse($this->nomination_date);
+        while ($hoursToSubtract > 0) {
+            $nominationDate->subHour();
+
+            if (!$nominationDate->isSunday()) {
+                $hoursToSubtract--;
+            }
+        }
+        $nominationDate->setTime(15, 0, 0);
+
         $data = [
             'candidateName'   => $this->candidateName,
             'assemblyName'    => $this->assemblyName,
             'examinationDate' => $this->versionData->created_at,
-            'nomination_date' => $this->nomination_date,
+            'nomination_date' => $nominationDate,
             'observations'    => $this->observation_description,
             'authorizedBy' => Auth::guard('admin')->user()->name,
         ];

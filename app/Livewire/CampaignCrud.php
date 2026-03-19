@@ -50,22 +50,28 @@ class CampaignCrud extends Component
     protected $paginationTheme = "bootstrap";
 
     public $assembly, $eventCategory, $campaigners;
-
+    public $other_event_category;
+    public $show_other_category = false;
     public $campaignerFile;
     protected $campaignerRules = [
         'campaignerFile' => 'required|mimes:csv,txt|max:10240',
     ];
 
-    protected $rules = [
-        // 'campaigner_id'      => 'required|integer',
-        'campaigner_ids'     => 'required|array',
-        'assembly_id'        => 'required|integer',
-        'event_category_id'  => 'required|integer',
-        'address'            => 'required|string|max:255',
-        'campaign_date'      => 'required|date',
-        'last_date_of_permission' => 'nullable|date|before:campaign_date',
-        'remarks'            => 'nullable|string',
-    ];
+    protected function rules()
+    {
+        return [
+            'campaigner_ids'     => 'required|array',
+            'assembly_id'        => 'required|integer',
+            'event_category_id'  => 'required',
+            'address'            => 'required|string|max:255',
+            'campaign_date'      => 'required|date',
+            'last_date_of_permission' => 'nullable|date|before:campaign_date',
+            'remarks'            => 'nullable|string',
+            'other_event_category' => $this->event_category_id === 'others'
+                ? 'required|string|max:255'
+                : 'nullable',
+        ];
+    }
     
     protected $messages = [
         'campaigner_ids.required' => 'Please select at least one campaigner.',
@@ -95,6 +101,7 @@ class CampaignCrud extends Component
     }
     public function resetInputFields(){
         $this->reset(['campaigner_ids','assembly_id', 'event_category_id', 'address', 'campaign_date', 'search']);
+        $this->show_other_category = false;
         $this->isEdit = false;
         $this->dispatch('refreshChosen');
     }
@@ -112,7 +119,9 @@ class CampaignCrud extends Component
         $this->campaign_id = $campaign->id;
 
         $this->assembly_id = $campaign->assembly_id;
-        $this->event_category_id = $campaign->event_category_id;
+        $this->event_category_id = $campaign->event_category_id ?? 'others';
+        $this->other_event_category = $campaign->event_category_others;
+        $this->show_other_category = $campaign->event_category_id ? false : true;
         $this->address = $campaign->address;
         $this->campaign_date = $campaign->campaign_date;
         $this->last_date_of_permission = $campaign->last_date_of_permission;
@@ -141,7 +150,8 @@ class CampaignCrud extends Component
             $campaign->update([
                 // 'campaigner_id' => $this->campaigner_id,
                 'assembly_id' => $this->assembly_id,
-                'event_category_id' => $this->event_category_id,
+                'event_category_id' => $this->event_category_id === 'others' ? null : $this->event_category_id,
+                'event_category_others' => $this->event_category_id === 'others' ? $this->other_event_category : null,
                 'address' => $this->address,
                 'campaign_date' => $this->campaign_date,
                 'last_date_of_permission' => $this->last_date_of_permission,
@@ -178,7 +188,15 @@ class CampaignCrud extends Component
         }
     }
 
-
+    public function handleCategoryChange($value)
+    {
+        if ($value == 'others') {
+            $this->show_other_category = true;
+        } else {
+            $this->show_other_category = false;
+            $this->other_event_category = null;
+        }
+    }
 
     public function storeCampaign()
     {
@@ -189,7 +207,8 @@ class CampaignCrud extends Component
             $campaign = Campaign::create([
                 // 'campaigner_id' => $this->campaigner_id,
                 'assembly_id' => $this->assembly_id,
-                'event_category_id' => $this->event_category_id,
+                'event_category_id' => $this->event_category_id === 'others' ? null : $this->event_category_id,
+                'event_category_others' => $this->event_category_id === 'others' ? $this->other_event_category : null,
                 'address' => $this->address,
                 'campaign_date' => $this->campaign_date,
                 'last_date_of_permission' => $this->last_date_of_permission,

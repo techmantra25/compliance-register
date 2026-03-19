@@ -225,7 +225,7 @@
 
                                     <!-- Permissions -->
                                     @php
-                                    $required = $camp->category->permissions->count();
+                                    $required = optional($camp->category)->permissions?->count() ?? 0;
                                     $approved = $camp->permissions->where('doc_type','approved_copy')->count();
                                     @endphp
 
@@ -409,14 +409,25 @@
                                 <!-- Event Category -->
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">Event Category</label>
-                                    <select class="form-control" wire:model="event_category_id">
+                                    <select class="form-control" wire:model="event_category_id" wire:change="handleCategoryChange($event.target.value)">
                                         <option value="">Select Event Category</option>
                                         @foreach($eventCategory as $cat)
                                             <option value="{{ $cat->id }}">{{ $cat->name }}</option>
                                         @endforeach
+                                        <option value="others">Others</option>
                                     </select>
                                     @error('event_category_id') <small class="text-danger">{{ $message }}</small> @enderror
                                 </div>
+                                @if($show_other_category)
+                                    <div class="col-md-12 mb-3">
+                                        <label class="form-label">Other Event Category</label>
+                                        <textarea class="form-control" wire:model="other_event_category" rows="3"></textarea>
+
+                                        @error('other_event_category')
+                                            <small class="text-danger">{{ $message }}</small>
+                                        @enderror
+                                    </div>
+                                @endif
 
                                 <!-- Address -->
                                 <div class="col-md-12 mb-3">
