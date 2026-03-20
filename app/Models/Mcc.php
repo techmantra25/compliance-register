@@ -10,7 +10,7 @@ class Mcc extends Model
     protected $table = 'mcc';
 
     protected $fillable = [
-            'assembly_id', 'category','mcc_code','block', 'gp', 'complainer_name', 'complainer_phone','complainer_description', 'attachment', 'remarks','action_taken','status'
+            'assembly_id', 'category','mcc_code','block', 'gp', 'complainer_name', 'complainer_phone','complainer_description', 'attachment', 'keywords', 'remarks','action_taken','status'
     ];
 
     public function districts(){

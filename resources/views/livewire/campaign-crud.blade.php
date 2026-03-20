@@ -175,15 +175,6 @@
 
                                         </div>
 
-                                        <div class="small text-secondary">
-
-                                            Permission Last Date:
-
-                                            <strong>
-                                                {{ date('d M Y', strtotime($camp->last_date_of_permission)) }}
-                                            </strong>
-
-                                        </div>
 
                                     </td>
 
@@ -437,18 +428,12 @@
                                 </div>
 
                                 <!-- Campaign Date -->
-                                <div class="col-md-6 col-lg-3 mb-3">
+                                <div class="col-md-6 col-lg-6 mb-3">
                                     <label class="form-label">Campaign Date</label>
                                     <input type="datetime-local" class="form-control" wire:model="campaign_date">
                                     @error('campaign_date') <small class="text-danger">{{ $message }}</small> @enderror
                                 </div>
 
-                                <!-- Last date of permission -->
-                                <div class="col-md-6 col-lg-3 mb-3">
-                                    <label class="form-label">Last Date Of Permission</label>
-                                    <input type="datetime-local" class="form-control" wire:model="last_date_of_permission">
-                                    @error('last_date_of_permission') <small class="text-danger">{{ $message }}</small> @enderror
-                                </div>
                                 <div class="col-md-12 col-lg-6 mb-3">
                                     <div wire:ignore>
                                         <label class="form-label">Event Campaigners</label>
@@ -464,6 +449,53 @@
                                         @error('campaigner_ids')
                                         <small class="text-danger">{{ $message }}</small>
                                         @enderror
+                                </div>
+
+                               <div class="col-md-12 col-lg-6 mb-3">
+                                    <label class="form-label">Keywords</label>
+
+                                    <!-- Fake Input Box -->
+                                    <div id="keyword-box" class="form-control d-flex flex-wrap gap-2 align-items-center" style="min-height: 45px; cursor: text;">
+
+                                        <!-- Existing Keywords -->
+                                        @foreach($keywords as $word)
+                                            <span class="badge bg-primary d-flex align-items-center">
+                                                {{ $word }}
+                                                <span class="ms-2 remove-keyword" data-value="{{ $word }}" style="cursor:pointer;">&times;</span>
+                                            </span>
+                                        @endforeach
+
+                                        <!-- Actual Input -->
+                                        <input 
+                                            type="text" 
+                                            id="keyword-input"
+                                            style="border:none; outline:none; flex:1; min-width:120px;"
+                                            placeholder="Write Keyword And Press Enter"
+                                        >
+                                    </div>
+                                </div>
+                                <div class="col-md-6 col-lg-6 mb-3">
+                                    <label class="form-label">Permission Documents</label>
+                                    <input type="file" class="form-control" wire:model="permission_documents" multiple>
+                                    <div wire:loading wire:target="permission_documents" class="text-muted mt-2">
+                                        <span class="spinner-border spinner-border-sm me-1"></span> Uploading...
+                                    </div>
+                                    @error('permission_documents.*') <small class="text-danger">{{ $message }}</small> @enderror
+                                    @if($isEdit && $campaign_id)
+                                        @php
+                                            $docs = \App\Models\CampaignPermissionDocument::where('campaign_id', $campaign_id)->get();
+                                        @endphp
+
+                                        @if($docs->count())
+                                            <div class="mt-2">
+                                                @foreach($docs as $doc)
+                                                    <a href="{{ asset($doc->file_path) }}" target="_blank" class="badge bg-secondary me-1">
+                                                        <i class="bi bi-paperclip"></i> View
+                                                    </a>
+                                                @endforeach
+                                            </div>
+                                        @endif
+                                    @endif
                                 </div>
 
                                 <!-- Remarks -->
@@ -674,6 +706,50 @@
                 location.reload();
             });
         });
+    </script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+        let input = document.getElementById('keyword-input');
+        let box = document.getElementById('keyword-box');
+
+        // Focus input when clicking box
+        box.addEventListener('click', () => input.focus());
+
+        input.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+
+                let value = input.value.trim();
+
+                if (value !== '') {
+
+                    let keywords = @this.get('keywords') || [];
+
+                    if (!keywords.includes(value)) {
+                        keywords.push(value);
+                        @this.set('keywords', keywords);
+                    }
+
+                    input.value = '';
+                }
+            }
+        });
+
+        // Remove keyword
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('remove-keyword')) {
+                let value = e.target.getAttribute('data-value');
+
+                let keywords = @this.get('keywords') || [];
+                keywords = keywords.filter(k => k !== value);
+
+                @this.set('keywords', keywords);
+            }
+        });
+
+    });
     </script>
     @endpush
 </div>

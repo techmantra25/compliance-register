@@ -33,27 +33,29 @@ class MccViolationCrud extends Component
 
     public $legalAssociates = [];
     public $supporting_documents = [];
+
+    public $keywords = [];
+
     // public $viewMcc;
     protected $paginationTheme = "bootstrap";
 
     protected $rules = [
         'assembly_id' => 'required|integer',
         'block' => 'required|string',
-        'gp' => 'required|string',
+        'gp' => 'nullable|string',
         'complainer_name' => 'required|string',
-        'complainer_phone' => 'required|numeric|digits:10',
+        'complainer_phone' => 'nullable|digits:10',
         'complainer_description' => 'nullable|string',
         'action_taken' => 'nullable|exists:admins,id',
         'category' => 'required',
-        'supporting_documents.*' => 'file'
+        'supporting_documents.*' => 'file',
+        'keywords' => 'nullable|array',
     ];
 
     protected $messages = [
         'assembly_id.required' => 'Please select assembly.',
         'block.required' => 'Block is required.',
-        'gp.required' => 'GP is required.',
         'complainer_name.required' => 'Complainer name is required.',
-        'complainer_phone.required' => 'Phone is required.',
         'complainer_phone.digits' => 'Phone must be 10 digits.',
         'category.required' => 'Category is required.'
     ];
@@ -104,9 +106,10 @@ class MccViolationCrud extends Component
         $this->block = $mcc->block;
         $this->gp = $mcc->gp;
         $this->complainer_name = $mcc->complainer_name;
-        $this->complainer_phone = $mcc->complainer_phone;
+        $this->complainer_phone = $this->complainer_phone ?: null;
         $this->complainer_description = $mcc->complainer_description;
         $this->action_taken = $mcc->action_taken;
+        $this->keywords = $mcc->keywords ? array_map('trim', explode(',', $mcc->keywords)) : [];
 
         $this->isEdit = true;
         $this->dispatch('refreshChosen');
@@ -159,6 +162,7 @@ class MccViolationCrud extends Component
                 'complainer_description' => $this->complainer_description,
                 'action_taken' => $this->action_taken,
                 'mcc_code' => $mccCode,
+                'keywords' => !empty($this->keywords) ? implode(',', $this->keywords) : null,
             ]);
 
             if ($this->supporting_documents) {
@@ -203,6 +207,7 @@ class MccViolationCrud extends Component
             $this->resetInputFields();
 
         } catch (\Exception $e) {
+            // dd($e->getMessage());
 
             \Log::error($e->getMessage());
 
@@ -258,6 +263,7 @@ class MccViolationCrud extends Component
                 'complainer_description' => $this->complainer_description,
                 'action_taken' => $this->action_taken,
                 'mcc_code' => $mccCode,
+                'keywords' => !empty($this->keywords) ? implode(',', $this->keywords) : null,
             ]);
 
             if ($this->supporting_documents) {
@@ -351,118 +357,118 @@ class MccViolationCrud extends Component
     //     $this->dispatch('open-view-modal');
     // }
 
-    public function saveMcc()
-    {
-        $this->validate([
-            'mccFile' => 'required|file|mimes:csv,txt|max:2048'
-        ]);
+    // public function saveMcc()
+    // {
+    //     $this->validate([
+    //         'mccFile' => 'required|file|mimes:csv,txt|max:2048'
+    //     ]);
 
-        try {
+    //     try {
 
-            $path = $this->mccFile->getRealPath();
-            $file = fopen($path, 'r');
+    //         $path = $this->mccFile->getRealPath();
+    //         $file = fopen($path, 'r');
 
-            $header = fgetcsv($file);
+    //         $header = fgetcsv($file);
 
-            $required = [
-                'assembly_number',
-                'category',
-                'block',
-                'gp',
-                'complainer_name',
-                'complainer_phone',
-                'complainer_description'
-            ];
+    //         $required = [
+    //             'assembly_number',
+    //             'category',
+    //             'block',
+    //             'gp',
+    //             'complainer_name',
+    //             'complainer_phone',
+    //             'complainer_description'
+    //         ];
 
-            foreach ($required as $col) {
-                if (!in_array($col, $header)) {
-                    throw new \Exception("Missing required column: $col");
-                }
-            }
+    //         foreach ($required as $col) {
+    //             if (!in_array($col, $header)) {
+    //                 throw new \Exception("Missing required column: $col");
+    //             }
+    //         }
 
-            $legalAssociates = Admin::where('role', 'legal_associate')
-                ->where('suspended_status', 1)
-                ->pluck('id')
-                ->toArray();
+    //         $legalAssociates = Admin::where('role', 'legal_associate')
+    //             ->where('suspended_status', 1)
+    //             ->pluck('id')
+    //             ->toArray();
 
-            if (empty($legalAssociates)) {
-                throw new \Exception("No Legal Associate available.");
-            }
+    //         if (empty($legalAssociates)) {
+    //             throw new \Exception("No Legal Associate available.");
+    //         }
 
-            $associateCount = count($legalAssociates);
-            $assignIndex = 0;
+    //         $associateCount = count($legalAssociates);
+    //         $assignIndex = 0;
 
-            $line = 1;
+    //         $line = 1;
 
-            while (($row = fgetcsv($file)) !== false) {
+    //         while (($row = fgetcsv($file)) !== false) {
 
-                $line++;
+    //             $line++;
 
-                $data = array_combine($header, $row);
+    //             $data = array_combine($header, $row);
 
-                if (!preg_match('/^[0-9]{10}$/', $data['complainer_phone'])) {
-                    throw new \Exception("Row $line: Phone must be exactly 10 digits.");
-                }
+    //             if (!preg_match('/^[0-9]{10}$/', $data['complainer_phone'])) {
+    //                 throw new \Exception("Row $line: Phone must be exactly 10 digits.");
+    //             }
 
-                $assembly = Assembly::where('assembly_number', $data['assembly_number'])->first();
+    //             $assembly = Assembly::where('assembly_number', $data['assembly_number'])->first();
 
-                if (!$assembly) {
-                    throw new \Exception("Row $line: Assembly {$data['assembly_number']} not found.");
-                }
+    //             if (!$assembly) {
+    //                 throw new \Exception("Row $line: Assembly {$data['assembly_number']} not found.");
+    //             }
 
-                $assignedAssociate = $legalAssociates[$assignIndex];
+    //             $assignedAssociate = $legalAssociates[$assignIndex];
 
-                // Generate MCC Code
-                $mccCode = $this->generateMccCode($assembly->id);
+    //             // Generate MCC Code
+    //             $mccCode = $this->generateMccCode($assembly->id);
 
-                $mcc = Mcc::create([
-                    'assembly_id'            => $assembly->id,
-                    'category'               => $data['category'],
-                    'block'                  => $data['block'],
-                    'gp'                     => $data['gp'],
-                    'complainer_name'        => ucwords($data['complainer_name']),
-                    'complainer_phone'       => $data['complainer_phone'],
-                    'complainer_description' => $data['complainer_description'],
-                    'action_taken'           => $assignedAssociate,
-                    'mcc_code'               => $mccCode
-                ]);
+    //             $mcc = Mcc::create([
+    //                 'assembly_id'            => $assembly->id,
+    //                 'category'               => $data['category'],
+    //                 'block'                  => $data['block'],
+    //                 'gp'                     => $data['gp'],
+    //                 'complainer_name'        => ucwords($data['complainer_name']),
+    //                 'complainer_phone'       => $data['complainer_phone'],
+    //                 'complainer_description' => $data['complainer_description'],
+    //                 'action_taken'           => $assignedAssociate,
+    //                 'mcc_code'               => $mccCode
+    //             ]);
 
-                // Change Log
-                ChangeLog::create([
-                    'module_name' => 'mcc',
-                    'module_id' => $mcc->id,
-                    'action' => 'inserted',
-                    'description' => 'MCC imported from CSV',
-                    'old_data' => null,
-                    'new_data' => $mcc->toArray(),
-                    'changed_by' => auth()->guard('admin')->id(),
-                    'ip_address' => request()->ip(),
-                    'user_agent' => request()->header('User-Agent'),
-                ]);
+    //             // Change Log
+    //             ChangeLog::create([
+    //                 'module_name' => 'mcc',
+    //                 'module_id' => $mcc->id,
+    //                 'action' => 'inserted',
+    //                 'description' => 'MCC imported from CSV',
+    //                 'old_data' => null,
+    //                 'new_data' => $mcc->toArray(),
+    //                 'changed_by' => auth()->guard('admin')->id(),
+    //                 'ip_address' => request()->ip(),
+    //                 'user_agent' => request()->header('User-Agent'),
+    //             ]);
 
-                // Round robin assignment
-                $assignIndex++;
+    //             // Round robin assignment
+    //             $assignIndex++;
 
-                if ($assignIndex >= $associateCount) {
-                    $assignIndex = 0;
-                }
-            }
+    //             if ($assignIndex >= $associateCount) {
+    //                 $assignIndex = 0;
+    //             }
+    //         }
 
-            fclose($file);
+    //         fclose($file);
 
-            $this->dispatch('toastr:success', message: 'CSV imported successfully!');
-            $this->dispatch('resetField');
-            $this->dispatch('closeModal');
+    //         $this->dispatch('toastr:success', message: 'CSV imported successfully!');
+    //         $this->dispatch('resetField');
+    //         $this->dispatch('closeModal');
 
-            $this->resetForm();
+    //         $this->resetForm();
 
-        } catch (\Exception $e) {
+    //     } catch (\Exception $e) {
 
-            \Log::error($e->getMessage());
+    //         \Log::error($e->getMessage());
 
-            $this->dispatch('toastr:error', message: $e->getMessage());
-        }
-    }
+    //         $this->dispatch('toastr:error', message: $e->getMessage());
+    //     }
+    // }
 
     private function getMccQuery()
     {
@@ -504,54 +510,54 @@ class MccViolationCrud extends Component
                 $q->where('status', $this->filter_by_status);
             });
     }
-    public function exportMcc()
-    {
-        $mccList = $this->getMccQuery()->get();
+    // public function exportMcc()
+    // {
+    //     $mccList = $this->getMccQuery()->get();
 
-        $headers = [
-            'Content-Type' => 'text/csv',
-            'Content-Disposition' => 'attachment; filename="mcc_export.csv"',
-        ];
+    //     $headers = [
+    //         'Content-Type' => 'text/csv',
+    //         'Content-Disposition' => 'attachment; filename="mcc_export.csv"',
+    //     ];
 
-        $columns = [
-            'Assembly',
-            'Category',
-            'Mcc_Code',
-            'Block',
-            'GP',
-            'Complainer Name',
-            'Complainer Phone',
-            'Complain Description',
-            'Status'
-        ];
+    //     $columns = [
+    //         'Assembly',
+    //         'Category',
+    //         'Mcc_Code',
+    //         'Block',
+    //         'GP',
+    //         'Complainer Name',
+    //         'Complainer Phone',
+    //         'Complain Description',
+    //         'Status'
+    //     ];
 
-        $callback = function() use ($mccList, $columns) {
+    //     $callback = function() use ($mccList, $columns) {
 
-            $file = fopen('php://output', 'w');
+    //         $file = fopen('php://output', 'w');
 
-            fputcsv($file, $columns);
+    //         fputcsv($file, $columns);
 
-            foreach($mccList as $item){
+    //         foreach($mccList as $item){
 
-                fputcsv($file, [
-                    $item->assembly->assembly_name_en ?? 'N/A',
-                    ucwords($item->category),
-                    $item->mcc_code,
-                    $item->block,
-                    $item->gp,
-                    $item->complainer_name,
-                    $item->complainer_phone,
-                    $item->complainer_description,
-                    $item->status,
-                ]);
+    //             fputcsv($file, [
+    //                 $item->assembly->assembly_name_en ?? 'N/A',
+    //                 ucwords($item->category),
+    //                 $item->mcc_code,
+    //                 $item->block,
+    //                 $item->gp,
+    //                 $item->complainer_name,
+    //                 $item->complainer_phone,
+    //                 $item->complainer_description,
+    //                 $item->status,
+    //             ]);
 
-            }
+    //         }
 
-            fclose($file);
-        };
+    //         fclose($file);
+    //     };
 
-        return response()->stream($callback, 200, $headers);
-    }
+    //     return response()->stream($callback, 200, $headers);
+    // }
 
     public function render()
     {

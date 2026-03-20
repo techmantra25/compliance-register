@@ -9,8 +9,8 @@ class Campaign extends Model
     protected $table = "campaigns";
 
     protected $fillable = [
-        'campaigner_id', 'assembly_id', 'event_category_id', 'event_category_others', 'address', 'campaign_date', 'remarks', 'permission_status', 'last_date_of_permission',
-        'status','rescheduled_at','cancelled_remarks',
+        'campaigner_id', 'assembly_id', 'event_category_id', 'event_category_others', 'address', 'campaign_date',
+        'remarks', 'permission_status', 'last_date_of_permission', 'keywords', 'status','rescheduled_at','cancelled_remarks',
     ];
 
 

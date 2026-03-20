@@ -14,12 +14,13 @@ use App\Models\ChangeLog;
 use App\Models\District;
 use App\Models\Phase;
 use App\Models\Zone;
+use App\Models\CampaignPermissionDocument;
 use Illuminate\Support\Facades\DB;
 
 class CampaignCrud extends Component
 { 
     use WithPagination, WithFileUploads;
-    public $campaign_id, $assembly_id, $event_category_id, $address, $campaign_date, $remarks, $permission_status, $last_date_of_permission;
+    public $campaign_id, $assembly_id, $event_category_id, $address, $campaign_date, $remarks, $permission_status;
     public $isEdit = false;
     public $search = '';
     public $new_campaign_date;
@@ -37,6 +38,7 @@ class CampaignCrud extends Component
     public $phases = [];
     public $zones = [];
     public $campaigner_ids = [];
+    public $new_campaigners = []; 
     public $statuses = [
         'pending',
         'rescheduled',
@@ -46,6 +48,7 @@ class CampaignCrud extends Component
 
 
     public $campaign;
+    public $keywords = [];
 
     protected $paginationTheme = "bootstrap";
 
@@ -53,6 +56,8 @@ class CampaignCrud extends Component
     public $other_event_category;
     public $show_other_category = false;
     public $campaignerFile;
+    public $permission_documents = [];
+
     protected $campaignerRules = [
         'campaignerFile' => 'required|mimes:csv,txt|max:10240',
     ];
@@ -65,11 +70,12 @@ class CampaignCrud extends Component
             'event_category_id'  => 'required',
             'address'            => 'required|string|max:255',
             'campaign_date'      => 'required|date',
-            'last_date_of_permission' => 'nullable|date|before:campaign_date',
             'remarks'            => 'nullable|string',
             'other_event_category' => $this->event_category_id === 'others'
                 ? 'required|string|max:255'
                 : 'nullable',
+            'keywords' => 'nullable|array',
+            'permission_documents.*' => 'file',
         ];
     }
     
@@ -80,8 +86,6 @@ class CampaignCrud extends Component
         'address.required'           => 'Address is required.',
         'campaign_date.required'     => 'Campaign date & time is required.',
         'campaign_date.date'         => 'Please enter a valid campaign date.',
-        'last_date_of_permission.date'         => 'Please enter a valid last permission date.',
-        'last_date_of_permission.before' => 'Last permission date must be before campaign date.',
         'permission_status.required' => 'Please select permission status.',
     ];
 
@@ -100,7 +104,7 @@ class CampaignCrud extends Component
         $this->dispatch('resetField');
     }
     public function resetInputFields(){
-        $this->reset(['campaigner_ids','assembly_id', 'event_category_id', 'address', 'campaign_date', 'search']);
+        $this->reset(['campaigner_ids','assembly_id', 'event_category_id', 'address', 'campaign_date', 'search', 'permission_documents']);
         $this->show_other_category = false;
         $this->isEdit = false;
         $this->dispatch('refreshChosen');
@@ -124,11 +128,11 @@ class CampaignCrud extends Component
         $this->show_other_category = $campaign->event_category_id ? false : true;
         $this->address = $campaign->address;
         $this->campaign_date = $campaign->campaign_date;
-        $this->last_date_of_permission = $campaign->last_date_of_permission;
         $this->remarks = $campaign->remarks;
+        $this->new_campaigners = [];
 
         $this->campaigner_ids = $campaign->campaigners->pluck('id')->toArray();
-
+        $this->keywords = $campaign->keywords ? array_map('trim', explode(',', $campaign->keywords)) : [];
         $this->isEdit = true;
         $this->dispatch('refreshChosen');
         
@@ -154,13 +158,62 @@ class CampaignCrud extends Component
                 'event_category_others' => $this->event_category_id === 'others' ? $this->other_event_category : null,
                 'address' => $this->address,
                 'campaign_date' => $this->campaign_date,
-                'last_date_of_permission' => $this->last_date_of_permission,
                 'remarks' => $this->remarks,
+                'keywords' => !empty($this->keywords) ? implode(',', $this->keywords) : null,
             ]);
 
             $new = $campaign->fresh()->toArray();
 
+            if (!empty($this->new_campaigners)) {
+
+                foreach ($this->new_campaigners as $name) {
+
+                    $name = ucfirst(strtolower(trim($name)));
+
+                    $campaigner = Campaigner::firstOrCreate(
+                        ['name' => $name],
+                        ['mobile' => null]
+                    );
+
+                    if (!in_array($campaigner->id, $this->campaigner_ids)) {
+                        $this->campaigner_ids[] = $campaigner->id;
+                    }
+                }
+            }
+
+            // Remove fake IDs
+            $this->campaigner_ids = array_filter($this->campaigner_ids, function ($id) {
+                return is_numeric($id);
+            });
+
+            // Sync
             $campaign->campaigners()->sync($this->campaigner_ids);
+
+            // Reset
+            $this->new_campaigners = [];
+
+            if ($this->permission_documents) {
+
+                foreach ($this->permission_documents as $file) {
+
+                    $timestamp = now()->format('Ymd_His');
+                    $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+                    $extension = $file->getClientOriginalExtension();
+
+                    $filename = "{$originalName}_{$timestamp}.{$extension}";
+
+                    $path = $file->storeAs(
+                        "campaign_files/{$this->assembly_id}",
+                        $filename,
+                        'public'
+                    );
+
+                    CampaignPermissionDocument::create([
+                        'campaign_id' => $campaign->id,
+                        'file_path' => "storage/{$path}"
+                    ]);
+                }
+            }
 
             ChangeLog::create([
                 'module_name' => 'campaign',
@@ -211,11 +264,60 @@ class CampaignCrud extends Component
                 'event_category_others' => $this->event_category_id === 'others' ? $this->other_event_category : null,
                 'address' => $this->address,
                 'campaign_date' => $this->campaign_date,
-                'last_date_of_permission' => $this->last_date_of_permission,
                 'remarks' => $this->remarks,
+                'keywords' => !empty($this->keywords) ? implode(',', $this->keywords) : null,
             ]);
 
+            if (!empty($this->new_campaigners)) {
+
+                foreach ($this->new_campaigners as $name) {
+
+                    $name = ucfirst(strtolower(trim($name)));
+
+                    $campaigner = Campaigner::firstOrCreate(
+                        ['name' => $name],
+                        ['mobile' => null]
+                    );
+
+                    if (!in_array($campaigner->id, $this->campaigner_ids)) {
+                        $this->campaigner_ids[] = $campaigner->id;
+                    }
+                }
+            }
+
+            // Remove fake IDs
+            $this->campaigner_ids = array_filter($this->campaigner_ids, function ($id) {
+                return is_numeric($id);
+            });
+
+            // Sync
             $campaign->campaigners()->sync($this->campaigner_ids);
+
+            // Reset
+            $this->new_campaigners = [];
+
+            if ($this->permission_documents) {
+
+                foreach ($this->permission_documents as $file) {
+
+                    $timestamp = now()->format('Ymd_His');
+                    $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+                    $extension = $file->getClientOriginalExtension();
+
+                    $filename = "{$originalName}_{$timestamp}.{$extension}";
+
+                    $path = $file->storeAs(
+                        "campaign_files/{$this->assembly_id}",
+                        $filename,
+                        'public'
+                    );
+
+                    CampaignPermissionDocument::create([
+                        'campaign_id' => $campaign->id,
+                        'file_path' => "storage/{$path}"
+                    ]);
+                }
+            }
 
             ChangeLog::create([
                 'module_name' => 'campaign',
