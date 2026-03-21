@@ -32,8 +32,8 @@
     {{-- Sidebar --}}
     <nav class="sidebar" id="sidebar">
         <div class="text-left d-flex mb-4 mx-3 align-items-center">
-            <img src="{{ asset('assets/img/logo.png') }}" alt="Logo" height="40" width="35">
-            <span class="ms-2 fw-semibold">{{__('admin/sidebar.project_name')}}</span>
+            <img src="{{ asset('assets/img/FMLogo.png') }}" alt="Logo" width="180">
+            <!-- <span class="ms-2 fw-semibold">{{__('admin/sidebar.project_name')}}</span> -->
         </div>
 
         <ul class="nav flex-column px-2 ">

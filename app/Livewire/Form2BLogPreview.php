@@ -17,11 +17,11 @@ class Form2BLogPreview extends Component
         // $this->nomination = (object) $data;
         $this->nomination = json_decode($log->form_data); // object
 
-        $this->profile_image = CandidateDocument::where('candidate_id', $this->nomination->candidate_id)
-            ->where('type', 'photo')
-            ->whereNotNull('path')
-            ->latest()
-            ->first();
+        $this->profile_image = CandidateDocument::with('candidate')->where('candidate_id', $this->nomination->candidate_id)
+        ->where('type', 'photo')
+        ->whereNotNull('path')
+        ->latest()
+        ->first();
     }
 
     public function render()

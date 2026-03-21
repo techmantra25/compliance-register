@@ -2,7 +2,7 @@
     <div class="row g-4">
         
         <div class="d-flex flex-wrap justify-content-between align-items-center">
-            <div>
+            <div class="mb-4 mb-md-0">
                 <h4 class="fw-bold mb-1 text-dark">
                     <i class="bi bi-megaphone-fill me-2 text-primary"></i> Campaigners
                 </h4>
@@ -48,7 +48,7 @@
                         <table class="table table-hover align-middle mb-0 shadow-sm rounded">
                             <thead class="table-primary">
                                 <tr>
-                                    <th>#</th>
+                                    <th width="30px">#</th>
                                     <th>Name</th>
                                     <th>Mobile</th>
                                     <th>Extra Details</th>

@@ -307,9 +307,9 @@
                     </div>
 
                     <div style="text-align: right; height:152px; margin-bottom: 16px; padding-right:3px;">
-                        @if($profile_image && $profile_image->image)
+                        @if(!empty($profile_image?->candidate?->image))
                             <div style="float:right; width:114px; height:145px;">
-                                <img src="{{ asset($profile_image->image) }}"
+                                <img src="{{ asset($profile_image->candidate->image) }}"
                                     style="width:100%; height:100%; object-fit:cover; border:1px solid #000; border-right:1px solid #000;">
                             </div>
                         @else

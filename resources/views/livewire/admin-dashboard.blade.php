@@ -168,7 +168,7 @@
                                 </div>
 
                                 <!-- Phase 1 -->
-                                <div class="col-md-6">
+                                <div class="col-md-6 mb-4 mn-md-0">
                                     <div class="block-stack">
                                         <h4>
                                             {{ $phaseArray[0]['name'] ?? '' }} 

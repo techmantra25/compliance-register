@@ -16,7 +16,7 @@ class NominationForm2BPreview extends Component
     public function mount($id)
     {
         $this->nomination = NominationForm::findOrFail($id);
-        $this->profile_image = CandidateDocument::where('candidate_id', $this->nomination->candidate_id)
+        $this->profile_image = CandidateDocument::with('candidate')->where('candidate_id', $this->nomination->candidate_id)
         ->where('type', 'photo')
         ->whereNotNull('path')
         ->latest()

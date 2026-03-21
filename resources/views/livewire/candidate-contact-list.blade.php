@@ -48,12 +48,14 @@
             </div>
         </div>
 
+        
+
         <!--  Main Content -->
         <div class="col-lg-12">
             <div class="card shadow-sm border-0 p-3 ">
                 <div class="card-header bg-white">
 
-                    <div class="row g-2 mb-4 justify-content-center">
+                    <div class="row g-2 mb-4 justify-content-center align-items-center">
                         <div class="col-md-12 col-lg-6">
                             <div class="canditate-search">
                                 <input type="text"
@@ -66,10 +68,24 @@
                                 </span>
                             </div>
                         </div>
+                        <div class="col-md-2">
+                            <div class="tooltip-wrapper position-relative">
+                                <button class="btn btn-sm btn-success d-flex align-items-center gap-1"
+                                        onclick="SendMail()">
+                                    <i class="bi bi-envelope-fill text-light"></i>
+                                    Daily Report
+                                </button>
+
+                                <!-- Tooltip Message -->
+                                <span class="tooltip-text">
+                                    Send Daily Report via email
+                                </span>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- 🔹 Row 1 -->
-                    <div class="row g-2 mb-2">
+                    <div class="row g-2 mb-4">
 
                         <div class="col-md-4 col-lg-2" wire:ignore>
                             <select wire:model="filter_by_assembly" class="form-select form-select-sm chosen-select">
@@ -125,6 +141,7 @@
                                 <option value="partial">Partially Uploaded Documents</option>
                             </select>
                         </div>
+
                         <div class="col-md-2 d-flex justify-content-end align-items-center gap-2">
 
                             <!-- Reset Button -->
@@ -133,21 +150,8 @@
                                 Reset Filters
                             </button>
 
-                            <!-- Daily Report Button with Tooltip -->
-                            <div class="tooltip-wrapper position-relative">
-                                <button class="btn btn-sm btn-success d-flex align-items-center gap-1"
-                                        onclick="SendMail()">
-                                    <i class="bi bi-envelope-fill text-light"></i>
-                                    Daily Report
-                                </button>
-
-                                <!-- Tooltip Message -->
-                                <span class="tooltip-text">
-                                    Send Daily Report via email
-                                </span>
-                            </div>
-
                         </div>
+
                         {{-- <div class="col-md-2">
                             <select wire:model="filter_by_document" class="form-select form-select-sm select-style" wire:change="filterByDocument($event.target.value)">
                                 <option value="">Filter by type</option>
@@ -165,6 +169,16 @@
                             </select>
                         </div> --}}
                     </div>
+
+                    <div class="row g-2 mb-4">
+                        
+                    </div>
+
+                    <div class="row mb-2">
+                        <div class="col-sm-2">
+                            {{ $candidates->total() }} Nominations
+                        </div>
+                    </div>
                     <div class="row justify-content-end">
                         {{-- <div class="col-md-2 text-end">
                             <button class="btn btn-sm btn-danger"
@@ -180,13 +194,13 @@
                         <table class="table mb-0 align-middle">
                             <thead class="table-light">
                                 <tr>
-                                    <th style="width: 60px;">#</th>
+                                    <th style="width: 30px;">#</th>
                                     <th>Candidate</th>
                                     {{-- <th>Agent</th> --}}
                                     <th>Assembly</th>
                                     <th>Documents</th>
                                     <th >Final Status</th>
-                                    <th style="min-width:100px;">Last Date of Nomination</th>
+                                    <th style="width:91px;">Last Date of Nomination</th>
                                     @if($authUser->role!=='legal_associate')
                                         <th>Form</th>
                                     @endif

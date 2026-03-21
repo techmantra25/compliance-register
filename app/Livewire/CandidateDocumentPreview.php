@@ -108,7 +108,6 @@ class CandidateDocumentPreview extends Component
         |--------------------------------------------------------------------------
         */
         if ($userRole === 'legal_associate') {
-
             if ($candidate->legal_associate_id != $admin->id) {
                 abort(403, 'You are not authorized to access this candidate.');
             }

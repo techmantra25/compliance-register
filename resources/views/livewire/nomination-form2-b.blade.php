@@ -37,7 +37,7 @@
         <div class="card-body">
 
             <h5 class="text-danger fw-bold mb-3">
-                Criminal Offense Check
+                Pending Criminal Cases
             </h5>
 
             <div class="form-check form-check-inline">

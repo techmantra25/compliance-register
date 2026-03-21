@@ -110,14 +110,12 @@ class CandidateDocumentCollection extends Component
 
     public function toggleCriminalStatus()
     {
-        
         if ($this->withCriminal) {
             $this->candidateData->is_criminal_offence = 1;
             $this->candidateData->save();
-
         } else {
-
             $this->candidateData->is_criminal_offence = 0;
+            $this->candidateData->legal_associate_id = null;
             $this->assignedLegalAssociate = null;
             $this->candidateData->save();
         }
@@ -126,7 +124,6 @@ class CandidateDocumentCollection extends Component
     public function assignLegalAssociate()
     {
         if ($this->assignedLegalAssociate) {
-
             $this->candidateData->legal_associate_id = $this->assignedLegalAssociate;
             $this->candidateData->save();
 

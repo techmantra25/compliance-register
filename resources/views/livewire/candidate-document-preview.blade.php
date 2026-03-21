@@ -34,8 +34,7 @@
         </div>
     </div>
     <div class="card shadow-sm border-0 p-3 mt-4">
-        <div class="">
-
+        <div class="mb-4">
             <div class="row">
                 <div class="col-md-6 col-lg-3 mb-4 mb-lg-0">
                     <strong class="title-text">Candidate Name</strong>
@@ -57,7 +56,7 @@
                             ? \Carbon\Carbon::parse($nomination_date)->format('d M Y')
                             : 'N/A' }}</h6>
                 </div>
-                <div class="col-md-6 col-lg-2">
+                <div class="col-md-6 col-lg-4">
                     <strong class="title-text">Final Status</strong>
                     <h6>
                         {!! getFinalDocStatus($candidateData->document_collection_status, 'icon') !!}
@@ -103,6 +102,70 @@
             </table> -->
         </div>
 
+        <div class="d-flex flex-column flex-md-row justify-content-between gap-2 align-items-center">
+            {{-- APPROVED --}}
+            @if(
+                is_null($candidateData->legal_associate_id) || 
+                Auth::guard('admin')->user()->id == $candidateData->legal_associate_id
+            )
+                @if($candidateData->status == "without_criminal_full_generation")
+
+                    <span class="badge bg-success">
+                        <i class="bi bi-check-circle"></i>
+                        Candidate Approved — Acknowledgement Form Generated
+                    </span>
+
+                    <button class="btn btn-success btn-sm" wire:click="downloadAcknowledgement">
+
+                        <i class="bi bi-download"></i>
+                        Download Acknowledgement Form
+
+                    </button>
+                    {{-- <button class="btn btn-danger" wire:click="downloadObservationMemo">
+                        <i class="bi bi-download"></i>
+                        Download Observation Memo
+                    </button> --}}
+
+
+                {{-- REJECTED --}}
+                @elseif($candidateData->status == "without_criminal_rejected_observation_only")
+
+                    <span class="badge bg-danger">
+                        <i class="bi bi-x-circle"></i>
+                        Inappropriate Documents — Observation Memo Generated
+                    </span>
+
+                    <button class="btn btn-danger btn-sm" wire:click="downloadObservationMemo">
+
+                        <i class="bi bi-download"></i>
+                        Download Observation Memo
+
+                    </button>
+
+
+
+                {{-- DEFAULT (STATUS NULL / NOT PROCESSED) --}}
+                @else
+
+                    <button class="btn btn-outline-success btn-sm" onclick="confirmApprove()">
+
+                        <i class="bi bi-check-circle"></i>
+                        Approved & Generate Acknowledgement Form
+
+                    </button>
+
+                    <button class="btn btn-outline-danger btn-sm" onclick="confirmReject()">
+
+                        <i class="bi bi-x-circle"></i>
+                        Inappropriate Documents & Generate Observation Memo
+
+                    </button>
+
+                @endif
+            @endif
+
+        </div>
+
         <div class="card-body px-0">
 
             <div class="row">
@@ -113,7 +176,7 @@
                     <h6 class="section-header">Document List</h6>
                      @if(count($versions) > 0)
                         <div class="dropdown mb-3">
-                            <button class="btn btn-outline-primary dropdown-toggle w-100"
+                            <button class="btn btn-outline-primary btn-sm dropdown-toggle w-100"
                                     type="button"
                                     data-bs-toggle="dropdown"
                                     aria-expanded="false">
@@ -217,65 +280,70 @@
 
         </div>
         
-        <div class="card-footer d-flex justify-content-end gap-2 align-items-center">
+            <div class="card-footer flex-column flex-md-row d-flex justify-content-between gap-2 align-items-center">
                 {{-- APPROVED --}}
-                @if($candidateData->status == "without_criminal_full_generation")
+                @if(
+                    is_null($candidateData->legal_associate_id) || 
+                    Auth::guard('admin')->user()->id == $candidateData->legal_associate_id
+                )
+                    @if($candidateData->status == "without_criminal_full_generation")
 
-                <span class="badge bg-success me-auto">
-                    <i class="bi bi-check-circle"></i>
-                    Candidate Approved — Acknowledgement Form Generated
-                </span>
+                        <span class="badge bg-success ">
+                            <i class="bi bi-check-circle"></i>
+                            Candidate Approved — Acknowledgement Form Generated
+                        </span>
 
-                <button class="btn btn-success" wire:click="downloadAcknowledgement">
+                        <button class="btn btn-success btn-sm" wire:click="downloadAcknowledgement">
 
-                    <i class="bi bi-download"></i>
-                    Download Acknowledgement Form
+                            <i class="bi bi-download"></i>
+                            Download Acknowledgement Form
 
-                </button>
-                {{-- <button class="btn btn-danger" wire:click="downloadObservationMemo">
-                    <i class="bi bi-download"></i>
-                    Download Observation Memo
-                </button> --}}
-
-
-                {{-- REJECTED --}}
-                @elseif($candidateData->status == "without_criminal_rejected_observation_only")
-
-                    <span class="badge bg-danger me-auto">
-                        <i class="bi bi-x-circle"></i>
-                        Inappropriate Documents — Observation Memo Generated
-                    </span>
-
-                    <button class="btn btn-danger" wire:click="downloadObservationMemo">
-
-                        <i class="bi bi-download"></i>
-                        Download Observation Memo
-
-                    </button>
+                        </button>
+                        {{-- <button class="btn btn-danger" wire:click="downloadObservationMemo">
+                            <i class="bi bi-download"></i>
+                            Download Observation Memo
+                        </button> --}}
 
 
+                    {{-- REJECTED --}}
+                    @elseif($candidateData->status == "without_criminal_rejected_observation_only")
 
-                {{-- DEFAULT (STATUS NULL / NOT PROCESSED) --}}
-                @else
+                        <span class="badge bg-danger ">
+                            <i class="bi bi-x-circle"></i>
+                            Inappropriate Documents — Observation Memo Generated
+                        </span>
 
-                    <button class="btn btn-outline-success" onclick="confirmApprove()">
+                        <button class="btn btn-danger btn-sm" wire:click="downloadObservationMemo">
 
-                        <i class="bi bi-check-circle"></i>
-                        Approved & Generate Acknowledgement Form
+                            <i class="bi bi-download"></i>
+                            Download Observation Memo
 
-                    </button>
+                        </button>
 
-                    <button class="btn btn-outline-danger" onclick="confirmReject()">
 
-                        <i class="bi bi-x-circle"></i>
-                        Inappropriate Documents & Generate Observation Memo
 
-                    </button>
+                    {{-- DEFAULT (STATUS NULL / NOT PROCESSED) --}}
+                    @else
 
+                        <button class="btn btn-outline-success btn-sm" onclick="confirmApprove()">
+
+                            <i class="bi bi-check-circle"></i>
+                            Approved & Generate Acknowledgement Form
+
+                        </button>
+
+                        <button class="btn btn-outline-danger btn-sm" onclick="confirmReject()">
+
+                            <i class="bi bi-x-circle"></i>
+                            Inappropriate Documents & Generate Observation Memo
+
+                        </button>
+
+                    @endif
                 @endif
-            
 
-        </div>
+            </div>
+
     </div>
     <div class="loader-container" wire:loading wire:target="downloadAcknowledgement, downloadObservationMemo">
         <div class="loader"></div>

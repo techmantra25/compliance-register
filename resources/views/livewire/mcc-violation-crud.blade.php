@@ -20,7 +20,7 @@
     <div class="row g-4">
         
         <div class="d-flex flex-wrap justify-content-between align-items-center">
-            <div>
+            <div class="mb-4 mb-md-0">
                 <h4 class="fw-bold mb-1 text-dark">
                     <i class="bi bi-megaphone-fill me-2 text-primary"></i> MCC Violation
                 </h4>
@@ -70,7 +70,7 @@
                         </div>
                     </div>
 
-                    <div class="row justify-content-center mb-2">
+                    <div class="row justify-content-center mb-2 g-2">
                         <div class="col-md-4 col-lg-3">
                             <div wire:ignore class="">
                                 <select wire:model="filter_by_status" class="form-select chosen-select">
@@ -124,7 +124,7 @@
                                     <th>Complainer Details</th>
                                     <th>Date & Time</th>
                                     <th>Assign To</th>
-                                    <th width="15%">Status</th>
+                                    <th width="10%">Status</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>

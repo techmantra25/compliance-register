@@ -3,7 +3,7 @@
         <!-- Header -->
        <div class="d-flex flex-wrap justify-content-between align-items-center">
     
-    <div>
+    <div class="mb-4 mb-md-0">
         <h4 class="fw-bold mb-1 text-dark">
             <i class="bi bi-building me-2 text-primary"></i> {{ __('admin/assemblies.title') }}
         </h4>
@@ -34,7 +34,7 @@
                     <!-- <h5 class="fw-bold mb-0">{{ __('admin/assemblies.list_title') }}</h5> -->
                     <div class="row justify-content-end align-items-center">
                         <!-- District filter -->
-                        <div class="col-md-4" wire:ignore>
+                        <div class="col-md-4 mb-4 mb-md-0" wire:ignore>
                             <select wire:model="district_id" class="form-select form-select-sm chosen-select"  data-placeholder="Select Assembly">
                                 <option value="">{{ __('admin/assemblies.filter_district') }}</option>
                                 @foreach($districts as $district)
@@ -46,7 +46,7 @@
                             @enderror
                         </div>
 
-                        <div class="col-md-4">
+                        <div class="col-md-4 mb-4 mb-md-0">
                             <input type="text"
                             wire:model="search"
                             class="form-control form-control-sm"
