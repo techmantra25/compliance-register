@@ -189,6 +189,12 @@ class CandidateDocumentPreview extends Component
 
         try {
 
+            $oldStatus = [
+                'status' => $candidate->status,
+                'document_collection_status' => $candidate->document_collection_status,
+            ];
+
+
             // Update candidate status
             $candidate->status = "without_criminal_full_generation";
             $candidate->document_collection_status = "verified_pending_submission";
@@ -197,6 +203,7 @@ class CandidateDocumentPreview extends Component
             $latestVersion = CandidateDocument::where('candidate_id', $this->candidateId)
                 ->max('version');
 
+            $observationText = $candidate->observation_description;
             // Save observation step
              CandidateObservationStep::updateOrCreate(
                 [
@@ -212,6 +219,21 @@ class CandidateDocumentPreview extends Component
             $candidate->observation_description = null;
 
             $candidate->save();
+
+             logChange([
+                'module_name' => 'Acknowledgement',
+                'module_id' => $this->candidateId,
+                'action' => 'Insert',
+                'description' => "Acknowledgement generated.",
+                'old_data' => json_encode($oldStatus),
+                'new_data' => json_encode([
+                    'version' => $latestVersion,
+                    'observations' => $observationText,
+                    'status' => $candidate->status,
+                    'document_collection_status' => $candidate->document_collection_status,
+                ]),
+                'document_name' => 'Acknowledgement Form',
+            ]);
 
             DB::commit();
 
@@ -302,6 +324,19 @@ class CandidateDocumentPreview extends Component
             $update->observation_description = null;
             $update->save();
 
+            logChange([
+                'module_name' => 'Observation Memo',
+                'module_id' => $this->candidateId,
+                'action' => 'Insert',
+                'description' => "Observation memo generated.",
+                'old_data' => null,
+                'new_data' => json_encode([
+                    'status' => $update->status,
+                    'document_collection_status' => $update->document_collection_status,
+                    'version' => $latestVersion,
+                ]),
+            ]);
+
             DB::commit();
 
             $this->candidateData = $update;
@@ -319,11 +354,22 @@ class CandidateDocumentPreview extends Component
    public function downloadObservationMemo()
     {
         $update = Candidate::findOrFail($this->candidateId);
+        $hoursToSubtract = 48;
+        $nominationDate = Carbon::parse($this->nomination_date);
+        while ($hoursToSubtract > 0) {
+            $nominationDate->subHour();
+
+            if (!$nominationDate->isSunday()) {
+                $hoursToSubtract--;
+            }
+        }
+        $nominationDate->setTime(15, 0, 0);
+
         $data = [
             'candidateName'   => $this->candidateName,
             'assemblyName'    => $this->assemblyName,
             'examinationDate' => $this->versionData->created_at,
-            'nomination_date' => $this->nomination_date,
+            'nomination_date' => $nominationDate,
             'observations'    => $this->observation_description,
             'authorizedBy' => Auth::guard('admin')->user()->name,
         ];

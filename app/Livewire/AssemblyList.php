@@ -8,6 +8,7 @@ use App\Models\Assembly;
 use App\Models\Phase;
 use App\Models\PhaseWiseAssembly;
 use App\Models\District;
+use App\Models\Admin;
 
 class AssemblyList extends Component
 {
@@ -16,6 +17,9 @@ class AssemblyList extends Component
     public $district_id, $selected_id;
     public $assembly_name_en;
     public $assembly_name_bn;
+    public $assignedEmployee;
+    public $assembly_id;
+    public $employeeStats = [];
 
     protected $rules = [
         'assembly_name_en' => 'required|string|max:255',
@@ -54,6 +58,106 @@ class AssemblyList extends Component
             'assembly_name_en' => $this->assembly_name_en,
             'assembly_name_bn' => $this->assembly_name_bn
         ]);
+    }
+    public function loadEmployeeStats()
+    {
+        foreach (Admin::where('role','employee')->get() as $emp) {
+            $this->employeeStats[$emp->id] = $this->getEmployeeStats($emp->id);
+        }
+    }
+
+    public function assignEmployees($assemblyId)
+    {
+        $this->assembly_id = $assemblyId;
+        $this->loadEmployeeStats();
+
+        $assigned = Admin::whereNotNull('assemblies')
+            ->get()
+            ->first(function ($admin) use ($assemblyId) {
+                return in_array($assemblyId, explode(',', $admin->assemblies));
+            });
+
+        $this->assignedEmployee = $assigned ? $assigned->id : null;
+
+        $this->dispatch('openAssignModal');
+        $this->dispatch('refreshChosen');
+    }
+
+    public function getAssignedEmployee($assemblyId)
+    {
+        return Admin::where('role', 'employee')
+            ->whereNotNull('assemblies')
+            ->get()
+            ->first(function ($emp) use ($assemblyId) {
+                return in_array($assemblyId, explode(',', $emp->assemblies));
+            });
+    }
+
+    public function getEmployeeStats($employeeId)
+    {
+        $emp = Admin::find($employeeId);
+
+        if (!$emp || !$emp->assemblies) {
+            return ['completed' => 0, 'pending' => 0];
+        }
+
+        $assemblyIds = explode(',', $emp->assemblies);
+
+        $assemblies = Assembly::with('candidates')
+            ->whereIn('id', $assemblyIds)
+            ->get();
+
+        $candidates = $assemblies->flatMap(fn($a) => $a->candidates);
+
+        $completed = $candidates
+            ->where('document_collection_status', 'verified_pending_submission')
+            ->count();
+
+        $pending = $candidates
+            ->whereIn('document_collection_status', [
+                'not_received_form',
+                'rejected',
+                'incomplete_additional_required',
+                'ready_for_vetting'
+            ])
+            ->count();
+
+        return [
+            'completed' => $completed,
+            'pending' => $pending,
+        ];
+    }
+
+    public function saveAssignments()
+    {
+        // Remove this assembly from all employees first
+        $allEmployees = Admin::where('role', 'employee')->get();
+
+        foreach ($allEmployees as $emp) {
+            $assemblies = array_filter(explode(',', $emp->assemblies ?? ''));
+
+            $assemblies = array_diff($assemblies, [$this->assembly_id]);
+
+            $emp->assemblies = count($assemblies) ? implode(',', $assemblies) : null;
+            $emp->save();
+        }
+
+        // Assign selected employees
+      if ($this->assignedEmployee) {
+            $emp = Admin::find($this->assignedEmployee);
+
+            $assemblies = array_filter(explode(',', $emp->assemblies ?? ''));
+
+            if (!in_array($this->assembly_id, $assemblies)) {
+                $assemblies[] = $this->assembly_id;
+            }
+
+            $emp->assemblies = implode(',', $assemblies);
+            $emp->save();
+        }
+
+        $this->dispatch('closeAssignModal');
+        $this->dispatch('toastr:success', message: 'Assigned successfully');
     }
 
     public function updateStatus()
@@ -128,7 +232,7 @@ class AssemblyList extends Component
     }
     public function render()
     {
-        $assemblies = Assembly::with('district')
+        $assemblies = Assembly::with(['district', 'candidates'])
             ->when($this->search, fn($q) =>
                 $q->where('assembly_name_en', 'like', "%{$this->search}%")
                   ->orWhere('assembly_name_bn', 'like', "%{$this->search}%")
@@ -139,10 +243,14 @@ class AssemblyList extends Component
             ->paginate(20);
 
         $districts = District::orderBy('name_en')->get();
+        $employees = Admin::where('role', 'employee')
+        ->where('suspended_status', 1)
+        ->get();
 
         return view('livewire.assembly-list', [
             'assemblies' => $assemblies,
             'districts'  => $districts,
+            'employees'  => $employees,
         ])->layout('layouts.admin');
     }
 }

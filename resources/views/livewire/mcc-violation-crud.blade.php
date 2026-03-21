@@ -33,14 +33,14 @@
             </div>
             <div>
                 @if(childUserAccess(Auth::guard('admin')->user()->id,'mcc_export_mcc'))
-                <button class="btn btn-primary btn-sm" wire:click="exportMcc">
+                {{-- <button class="btn btn-primary btn-sm" wire:click="exportMcc">
                     <i class="bi bi-download me-1"></i> Export MCC
-                </button>
+                </button> --}}
                 @endif
                 @if(childUserAccess(Auth::guard('admin')->user()->id,'mcc_import_mcc'))
-                <button class="btn btn-secondary btn-sm " data-bs-toggle="modal" data-bs-target="#importMccModal">
+                {{-- <button class="btn btn-secondary btn-sm " data-bs-toggle="modal" data-bs-target="#importMccModal">
                     <i class="bi bi-upload me-1"></i> Import MCC
-                </button>
+                </button> --}}
                 @endif
                 @if(childUserAccess(Auth::guard('admin')->user()->id,'mcc_add_mcc'))
                 <button class="btn btn-primary btn-sm" wire:click="openMccModal">
@@ -320,7 +320,7 @@
                                 </div>
 
                                 <div class="col-md-6 mb-3">
-                                    <label>GP/Ward<span class="text-danger">*</span></label>
+                                    <label>GP/Ward</label>
                                     <input class="form-control" wire:model="gp" placeholder="Enter GP/Word">
                                     @error('gp') <small class="text-danger">{{ $message }}</small> @enderror
                                 </div>
@@ -332,7 +332,7 @@
                                 </div>
 
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label">Complainer Phone<span class="text-danger">*</span></label>
+                                    <label class="form-label">Complainer Phone</label>
                                     <input type="text" maxlength="10" class="form-control" wire:model="complainer_phone">
                                     @error('complainer_phone') <small class="text-danger">{{ $message }}</small> @enderror
                                 </div>
@@ -377,6 +377,29 @@
                                             </div>
                                         @endif
                                     @endif
+                                </div>
+                                <div class="col-md-12 col-lg-10 mb-3">
+                                    <label class="form-label">Keywords</label>
+
+                                    <!-- Fake Input Box -->
+                                    <div id="keyword-box" class="form-control d-flex flex-wrap gap-2 align-items-center" style="min-height: 45px; cursor: text;">
+
+                                        <!-- Existing Keywords -->
+                                        @foreach($keywords as $word)
+                                            <span class="badge bg-primary d-flex align-items-center">
+                                                {{ $word }}
+                                                <span class="ms-2 remove-keyword" data-value="{{ $word }}" style="cursor:pointer;">&times;</span>
+                                            </span>
+                                        @endforeach
+
+                                        <!-- Actual Input -->
+                                        <input 
+                                            type="text" 
+                                            id="keyword-input"
+                                            style="border:none; outline:none; flex:1; min-width:120px;"
+                                            placeholder="Write Keyword And Press Enter"
+                                        >
+                                    </div>
                                 </div>
 
                                 <div class="col-md-10 mb-3">
@@ -424,7 +447,7 @@
             </div>
         </div>
 
-        <div wire:ignore.self class="modal fade" id="importMccModal" tabindex="-1"
+        {{-- <div wire:ignore.self class="modal fade" id="importMccModal" tabindex="-1"
             aria-labelledby="importMccModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-lg modal-dialog-centered">
                 <div class="modal-content border-0 shadow-lg rounded-3">
@@ -487,7 +510,7 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div> --}}
 
         {{-- view modal --}}
         {{-- <div wire:ignore.self class="modal fade" id="viewMccModal" tabindex="-1">
@@ -705,7 +728,7 @@
         <script>
             window.addEventListener('closeModal', () => {
                 $("#mccModal").modal('hide');
-                $("#importMccModal").modal('hide');
+                // $("#importMccModal").modal('hide');
                 $("#assignModal").modal('hide'); 
             });
             window.addEventListener('open-edit-modal', () => {
@@ -727,6 +750,50 @@
                 const input = document.querySelector('input[wire\\:model="search"]');
                 if (input) input.value = '';
             });
+        </script>
+
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+
+            let input = document.getElementById('keyword-input');
+            let box = document.getElementById('keyword-box');
+
+            // Focus input when clicking box
+            box.addEventListener('click', () => input.focus());
+
+            input.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+
+                    let value = input.value.trim();
+
+                    if (value !== '') {
+
+                        let keywords = @this.get('keywords') || [];
+
+                        if (!keywords.includes(value)) {
+                            keywords.push(value);
+                            @this.set('keywords', keywords);
+                        }
+
+                        input.value = '';
+                    }
+                }
+            });
+
+            // Remove keyword
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('remove-keyword')) {
+                    let value = e.target.getAttribute('data-value');
+
+                    let keywords = @this.get('keywords') || [];
+                    keywords = keywords.filter(k => k !== value);
+
+                    @this.set('keywords', keywords);
+                }
+            });
+
+        });
         </script>
 
         @endpush

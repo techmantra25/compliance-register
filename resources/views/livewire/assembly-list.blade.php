@@ -74,7 +74,9 @@
                                     <th>{{ __('admin/assemblies.table_name_en') }}</th>
                                     <th>{{ __('admin/assemblies.table_name_bn') }}</th>
                                     <th>{{ __('admin/assemblies.table_district') }}</th>
+                                    <th>Candidates</th>
                                     <th>{{ __('admin/assemblies.table_status') }}</th>
+                                    <th>Assigned To</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
@@ -98,6 +100,17 @@
                                                 : ($assembly->district->name_en ?? 'N/A') }}
                                         </td>
                                         <td>
+                                            @if($assembly->candidates->count())
+                                                <ul class="mb-0 ps-3">
+                                                    @foreach($assembly->candidates as $candidate)
+                                                        <li>{{ $candidate->name }}</li>
+                                                    @endforeach
+                                                </ul>
+                                            @else
+                                                <span class="text-muted">No Candidates</span>
+                                            @endif
+                                        </td>
+                                        <td>
                                             <div class="tooltip-wrapper m-1">
                                                 <span class="badge bg-{{ $assembly->status == 'active' ? 'success' : 'secondary' }}">
                                                     {{ $assembly->status == 'active' 
@@ -107,11 +120,26 @@
                                             </div>
                                         </td>
                                         <td>
+                                            @php
+                                                $employee = $this->getAssignedEmployee($assembly->id);
+                                            @endphp
+
+                                            @if($employee)
+                                                <span class="badge bg-primary">
+                                                    {{ $employee->name }}
+                                                </span>
+                                            @else
+                                                <span class="text-muted">Not Assigned</span>
+                                            @endif
+                                        </td>
+                                        <td>
                                             <div class="tooltip-wrapper m-1">
-                                                <button class="btn btn-sm btn-outline-success" wire:click="editItem({{$assembly->id}})">
+                                                {{-- <button class="btn btn-sm btn-outline-success" wire:click="editItem({{$assembly->id}})">
                                                     <i class="bi bi-pencil"></i>
+                                                </button> --}}
+                                                <button class="btn btn-sm btn-outline-primary" wire:click="assignEmployees({{$assembly->id}})">
+                                                    Assign
                                                 </button>
-                                                <span class="tooltip-text">Edit Candidate</span>
                                             </div>
                                         </td>
                                     </tr>
@@ -134,7 +162,8 @@
             </div>
         </div>
     </div>
-    <div class="modal fade" id="updateModal" wire:ignore.self>
+
+     {{-- <div class="modal fade" id="updateModal" wire:ignore.self>
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content border-0 shadow-lg rounded-3">
 
@@ -211,6 +240,46 @@
 
             </div>
         </div>
+    </div> --}}
+    <div class="modal fade" id="assignModal" wire:ignore.self>
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+
+                <div class="modal-header bg-primary text-white">
+                    <h5>Assign Employees</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+
+                    <label class="form-label">Select Employees</label>
+
+                    <div wire:ignore>
+                        <select class="form-control chosen-select" wire:model="assignedEmployee">
+                            <option value="">Select Employee</option>
+                           @foreach($employees as $emp)
+                                @php
+                                    $stats = $this->getEmployeeStats($emp->id);
+                                @endphp
+
+                                <option value="{{ $emp->id }}">
+                                    {{ $emp->name }}
+                                    ({{ $stats['completed'] }} Completed,
+                                    {{ $stats['pending'] }} Pending)
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button class="btn btn-primary" wire:click="saveAssignments">Save</button>
+                </div>
+
+            </div>
+        </div>
     </div>
     <!-- Loading Spinner -->
     <div class="loader-container" wire:loading wire:target="resetFilters,editItem">
@@ -236,15 +305,15 @@
         <link rel="stylesheet" href="{{ asset('assets/css/component-chosen.css') }}">
         <script src="{{ asset('assets/js/chosen.jquery.js') }}"></script>
         <script>
-            function initChosen() {
+           function initChosen() {
                 $('.chosen-select').chosen({
                     width: '100%',
                     no_results_text: "No result found"
-                }).off('change').on('change', function (e) {
+                }).off('change').on('change', function () {
                     let model = $(this).attr('wire:model');
+
                     if (model) {
                         @this.set(model, $(this).val());
-                        @this.call('DistrictUpdate', $(this).val());
                     }
                 });
             }
@@ -265,6 +334,14 @@
                 });
             });
 
+            Livewire.hook('morph.updated', () => {
+                initChosen();
+
+                setTimeout(() => {
+                    $('.chosen-select').trigger('chosen:updated');
+                }, 200);
+            });
+
             $(document).ready(function () {
                 initChosen();
             });
@@ -278,6 +355,33 @@
 
             window.addEventListener('closeUpdateModel', () => {
                 $('#updateModal').modal('hide');
+            });
+        </script>
+
+        <script>
+            window.addEventListener('openAssignModal', () => {
+                $('#assignModal').modal('show');
+
+                setTimeout(() => {
+                    $('.chosen-select').trigger('chosen:updated');
+                }, 300);
+            });
+            window.addEventListener('closeAssignModal', () => {
+                $('#assignModal').modal('hide');
+            });
+
+           window.addEventListener('refreshChosen', () => {
+                setTimeout(() => {
+                    $('.chosen-select').each(function () {
+                        let el = $(this);
+                        let model = el.attr('wire:model');
+
+                        if (model) {
+                            let value = @this.get(model);
+                            el.val(value).trigger('chosen:updated'); // single value
+                        }
+                    });
+                }, 200);
             });
         </script>
 
