@@ -194,7 +194,7 @@ body {
     background-color: rgba(67, 138, 122, 0.05);
 }
 .table td {
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 400;
     color: #8691aa;
 }
@@ -762,7 +762,7 @@ body {
 }
 
 .table th {
-    font-size: 13px;
+    font-size: 12px;
     background: #00990017;
     color: #090;
 }
@@ -809,6 +809,39 @@ header button {
 .list-group-item.active {
   background-color: #2CAA2C;
   border-color: #2CAA2C;
+}
+
+.preview-option {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+}
+
+.preview-option .document {
+    width: 70px;
+    text-align: center;
+    text-decoration: none;
+    color: #000;
+    border: 1px solid #ccc;
+    line-height: 1;
+    border-radius: 2px;
+    padding: 6px;
+    font-size: 12px;
+}
+
+.preview-option .images-wrapper {
+    width: 80px;
+    height: 80px;
+    border: 1px solid #ccc;
+    line-height: 1;
+    border-radius: 2px;
+    padding: 6px;
+    overflow: hidden;
+}
+
+.chat-box-type .border {
+    font-size: 13px;
 }
 
 /*-----responsive----*/

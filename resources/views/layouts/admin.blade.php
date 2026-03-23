@@ -253,7 +253,7 @@
 
             <div class="d-flex align-items-center gap-3">
                 @if(auth()->guard('admin')->check() && auth()->guard('admin')->user()->role !== 'legal_associate')
-                    <div>
+                    {{-- <div>
                         <!-- Bell Icon -->
                         <a class="nav-link position-relative" href="#" data-bs-toggle="dropdown">
                             <i class="bi bi-bell fs-5"></i>
@@ -288,7 +288,7 @@
                             </li>
 
                         </ul>
-                    </div>
+                    </div> --}}
                 @endif
                 
                 {{-- ЁЯМР Language Toggle --}}
