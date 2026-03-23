@@ -13,12 +13,12 @@
             <div>
                 <h4 class="fw-bold mb-1 text-dark">
                     <i class="bi bi-chat-left-text me-2 text-primary"></i>
-                    MCC Remarks
+                    Complaint Remarks
                 </h4>
 
                 <ol class="breadcrumb small mb-0">
                     <li class="breadcrumb-item">
-                        <a href="#" class="text-muted text-decoration-none">Mcc</a>
+                        <a href="#" class="text-muted text-decoration-none">Complaint</a>
                     </li>
                     <li class="breadcrumb-item active text-primary">
                         Remarks Trail
@@ -47,13 +47,13 @@
 
                         <div>
                             <h5 class="fw-bold mb-1">
-                                MCC Details
+                                Complaint Details
                             </h5>
 
                             <div class="small text-muted">
 
                                 <span class="me-3">
-                                    <strong>MCC Code:</strong> {{ $mcc->mcc_code }}
+                                    <strong>Complaint Code:</strong> {{ $mcc->mcc_code }}
                                 </span>
 
                                 <span class="me-3">

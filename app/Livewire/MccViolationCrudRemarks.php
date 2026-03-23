@@ -88,7 +88,7 @@ class MccViolationCrudRemarks extends Component
     {
         $this->userRole = trim(strtolower(Auth::guard('admin')->user()->role));
         if ($this->userRole == 'legal_associate' && Auth::guard('admin')->user()    ->id != $this->mcc->action_taken) {
-            abort(403, 'You are not authorized to access this MCC case.');
+            abort(403, 'You are not authorized to access this Complaint case.');
         }
         if ($this->userRole == 'admin') {
             MccRemarks::where('mcc_id', $this->mcc->id)

@@ -15,6 +15,58 @@
         }
         .alert-primary { border-left-color: #0d6efd; }
         .alert-danger { border-left-color: #dc3545; }
+
+        .file-card {
+            width: 110px;
+            text-align: center;
+            position: relative;
+        }
+        .file-box {
+            width: 100px;
+            height: 100px;
+            border-radius: 12px;
+            border: 1px solid #ddd;
+            background: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            margin: auto;
+            position: relative;
+        }
+        .file-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 12px;
+        }
+        .file-box i {
+            font-size: 28px;
+            color: #6c757d;
+        }
+        .file-name {
+            margin-top: 6px;
+            font-size: 12px;
+            word-break: break-word;
+            line-height: 1.2;
+        }
+        .file-remove {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            background: #dc3545;
+            color: #fff;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 99;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
     </style>
 
     <div class="row g-4">
@@ -136,9 +188,9 @@
                                     <th width="50">#</th>
                                     <th class="text-start">Campaign Details</th>
                                     <th class="text-start">Campaigner</th>
-                                    <th>Permissions</th>
-                                    <th width="160">Status</th>
-                                    <th width="120">Action</th>
+                                    {{-- <th>Permissions</th> --}}
+                                    <th>Status</th>
+                                    <th>Action</th>
                                 </tr>
                             </thead>
 
@@ -158,27 +210,29 @@
                                     <td class="text-start">
 
                                         <div class="fw-semibold text-dark mb-1">
-                                            <i class="bi bi-megaphone text-primary me-1"></i>
-                                            {{ ucwords(optional($camp->category)->name) ?? '-' }}
+                                            @if(optional($camp->category)->name)
+                                                <i class="bi bi-megaphone text-primary me-1"></i>
+                                                {{ ucwords($camp->category->name) }}
+                                            @endif
                                         </div>
 
                                         <div class="small text-muted mb-1">
+                                            @if(optional($camp->assembly)->assembly_name_en)
+
                                             <i class="bi bi-geo-alt text-danger"></i>
-                                            {{ ucwords(optional($camp->assembly)->assembly_name_en ?? '-') }}
+                                            {{ ucwords($camp->assembly->assembly_name_en) }}
+                                            @endif
                                         </div>
 
                                         <div class="small text-muted">
-
-                                            <i class="bi bi-calendar-event text-success me-1"></i>
-
-                                            {{ date('d M Y, h:i A', strtotime($camp->campaign_date)) }}
-
+                                            @if($camp->campaign_date)
+                                                <i class="bi bi-calendar-event text-success me-1"></i>
+                                                {{ date('d M Y, h:i A', strtotime($camp->campaign_date)) }}
+                                            @endif
                                         </div>
 
 
                                     </td>
-
-
 
                                     <!-- Campaigner -->
                                     <td>
@@ -201,8 +255,10 @@
                                                 </div>
 
                                                 <div class="small text-muted">
-                                                    <i class="bi bi-telephone"></i>
-                                                    {{ $campaigner->mobile }}
+                                                    @if($campaigner->mobile)
+                                                        <i class="bi bi-telephone"></i>
+                                                        {{ $campaigner->mobile }}
+                                                    @endif
                                                 </div>
 
                                             </div>
@@ -220,7 +276,7 @@
                                     $approved = $camp->permissions->where('doc_type','approved_copy')->count();
                                     @endphp
 
-                                    <td class="text-center">
+                                    {{-- <td class="text-center">
 
                                         <div class="progress" style="height:7px">
 
@@ -235,14 +291,14 @@
                                             {{ $approved }}/{{ $required }}
                                         </div>
 
-                                    </td>
+                                    </td> --}}
 
 
 
                                     <!-- Status -->
                                     <td class="text-center">
 
-                                        <select wire:change="statusChanged({{ $camp->id }}, $event.target.value)"
+                                        {{-- <select wire:change="statusChanged({{ $camp->id }}, $event.target.value)"
                                             class="form-select form-select-sm rounded-pill fw-semibold text-center">
 
                                             <option value="pending" @selected($camp->status=='pending')>
@@ -261,7 +317,18 @@
                                                 ✅ Completed
                                             </option>
 
-                                        </select>
+                                        </select> --}}
+
+                                         <span class="badge
+                                                @if($camp->status == 'pending') bg-warning
+                                                @elseif($camp->status == 'rescheduled') bg-info
+                                                @elseif($camp->status == 'cancelled') bg-danger
+                                                @elseif($camp->status == 'completed') bg-success
+                                                @else bg-secondary
+                                                @endif">
+
+                                                {{ ucwords(str_replace('_',' ', $camp->status)) }}
+                                        </span>
 
                                     </td>
 
@@ -274,17 +341,17 @@
 
                                             <button class="btn btn-outline-primary" wire:click="edit({{ $camp->id }})"
                                                 data-bs-toggle="modal" data-bs-target="#campaignModal">
-
                                                 <i class="bi bi-pencil"></i>
-
                                             </button>
-
 
                                             <a href="{{ route('admin.campaigns.permission',$camp->id) }}"
                                                 class="btn btn-outline-success">
-
                                                 <i class="bi bi-file-earmark-check"></i>
+                                            </a>
 
+                                            <a href="{{ route('admin.campaigns.view', $camp->id) }}"
+                                                class="btn btn-outline-dark">
+                                                <i class="bi bi-eye"></i>
                                             </a>
 
                                         </div>
@@ -474,27 +541,92 @@
                                         >
                                     </div>
                                 </div>
-                                <div class="col-md-6 col-lg-6 mb-3">
+                                <div class="col-md-6 mb-3">
                                     <label class="form-label">Permission Documents</label>
+
                                     <input type="file" class="form-control" wire:model="permission_documents" multiple>
+
                                     <div wire:loading wire:target="permission_documents" class="text-muted mt-2">
                                         <span class="spinner-border spinner-border-sm me-1"></span> Uploading...
                                     </div>
-                                    @error('permission_documents.*') <small class="text-danger">{{ $message }}</small> @enderror
+
+                                    @error('permission_documents.*') 
+                                        <small class="text-danger">{{ $message }}</small> 
+                                    @enderror
+
+                                    <div class="d-flex flex-wrap gap-3 mt-3">
+
+                                        @foreach($permission_documents as $index => $file)
+                                            @php
+                                                $ext = strtolower($file->getClientOriginalExtension());
+                                                $isImage = in_array($ext, ['jpg','jpeg','png','gif','webp']);
+                                            @endphp
+
+                                            <div class="file-card">
+
+                                                <span class="file-remove"
+                                                    wire:click="removeTempFile({{ $index }})">
+                                                    &times;
+                                                </span>
+
+                                                <!-- Preview -->
+                                                <div class="file-box">
+                                                    @if($isImage)
+                                                        <img src="{{ $file->temporaryUrl() }}">
+                                                    @else
+                                                        <i class="bi bi-file-earmark-text"></i>
+                                                    @endif
+                                                </div>
+
+                                                <!-- File Name -->
+                                                <div class="file-name">
+                                                    {{ Str::limit($file->getClientOriginalName(), 18) }}
+                                                </div>
+
+                                            </div>
+
+                                        @endforeach
+
+                                    </div>
+
                                     @if($isEdit && $campaign_id)
                                         @php
                                             $docs = \App\Models\CampaignPermissionDocument::where('campaign_id', $campaign_id)->get();
                                         @endphp
 
-                                        @if($docs->count())
-                                            <div class="mt-2">
-                                                @foreach($docs as $doc)
-                                                    <a href="{{ asset($doc->file_path) }}" target="_blank" class="badge bg-secondary me-1">
-                                                        <i class="bi bi-paperclip"></i> View
-                                                    </a>
-                                                @endforeach
+                                        <div class="d-flex flex-wrap gap-3 mt-3">
+
+                                            @foreach($docs as $doc)
+                                                @if(!in_array($doc->id, $deletedFiles))
+                                                    @php
+                                                        $ext = strtolower(pathinfo($doc->file_path, PATHINFO_EXTENSION));
+                                                        $isImage = in_array($ext, ['jpg','jpeg','png','gif','webp']);
+                                                    @endphp
+
+                                                    <div class="file-card">
+
+                                                        <span class="file-remove"
+                                                            wire:click="removeExistingFile({{ $doc->id }})">
+                                                            &times;
+                                                        </span>
+
+                                                        <div class="file-box">
+                                                            @if($isImage)
+                                                                <img src="{{ asset($doc->file_path) }}">
+                                                            @else
+                                                                <i class="bi bi-file-earmark-text"></i>
+                                                            @endif
+                                                        </div>
+
+                                                        <div class="file-name">
+                                                            {{ basename($doc->file_path) }}
+                                                        </div>
+
+                                                    </div>
+                                                @endif
+                                            @endforeach
+
                                             </div>
-                                        @endif
                                     @endif
                                 </div>
 
