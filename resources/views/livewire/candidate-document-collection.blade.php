@@ -783,29 +783,6 @@
                 });
             });
 
-            function confirmStatusUpdate(selectElement, documentId) {
-
-                let value = selectElement.value;
-
-                Swal.fire({
-                    title: "Update Document Status?",
-                    text: `You are changing status to "${value}".`,
-                    icon: "warning",
-                    showCancelButton: true,
-                    confirmButtonColor: "#3085d6",
-                    cancelButtonColor: "#d33",
-                    confirmButtonText: "Yes, update it!"
-                }).then((result) => {
-
-                    if (result.isConfirmed) {
-                        @this.call('updateDocumentStatus', value, documentId);
-                    } else {
-                        location.reload(); // revert selection
-                    }
-
-                });
-
-            }
         </script>
     @endpush
 
