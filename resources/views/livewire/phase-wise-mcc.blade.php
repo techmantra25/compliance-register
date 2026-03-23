@@ -7,7 +7,7 @@
                         <div class="col-md-12 mb-4">
 
                             <div class="inner-wrapper">
-                                <div class="title-head">MCC {{ $phaseName }} District View</div>
+                                <div class="title-head">Complaint {{ $phaseName }} District View</div>
 
                                 <div class="wrappper-bpdy">
                                     <div class="bar-chirt-option">
@@ -83,7 +83,7 @@
                         <span class="dot" style="background:${color}"></span>
                         <div>
                             ${text}  
-                            <br> <small style="opacity:0.8;">(${count} MCC)</small>
+                            <br> <small style="opacity:0.8;">(${count} Complaint)</small>
                         </div>
                     `;
 

@@ -35,6 +35,7 @@ class MccViolationCrud extends Component
     public $supporting_documents = [];
 
     public $keywords = [];
+    public $deletedFiles = [];
 
     // public $viewMcc;
     protected $paginationTheme = "bootstrap";
@@ -189,10 +190,10 @@ class MccViolationCrud extends Component
             }
 
             ChangeLog::create([
-                'module_name' => 'mcc',
+                'module_name' => 'Complaint',
                 'module_id' => $mcc->id,
                 'action' => 'inserted',
-                'description' => 'MCC created successfully',
+                'description' => 'Complaint created successfully',
                 'old_data' => $mcc->toArray(),
                 'new_data' => $mcc->toArray(),
                 'changed_by' => auth()->guard('admin')->id(),
@@ -200,7 +201,7 @@ class MccViolationCrud extends Component
                 'user_agent' => request()->header('User-Agent'),
             ]);
 
-            $this->dispatch('toastr:success', message: 'MCC created successfully!');
+            $this->dispatch('toastr:success', message: 'Complaint created successfully!');
             $this->dispatch('resetField');
             $this->dispatch('closeModal');
 
@@ -289,6 +290,21 @@ class MccViolationCrud extends Component
                 }
             }
 
+             // Delete removed files
+            if (!empty($this->deletedFiles)) {
+                $files = MccSupportingDocument::whereIn('id', $this->deletedFiles)->get();
+
+                foreach ($files as $file) {
+
+                    $filePath = public_path($file->file_path);
+                    if (file_exists($filePath)) {
+                        unlink($filePath);
+                    }
+
+                    $file->delete();
+                }
+            }
+
             $new = $mcc->fresh()->toArray();
 
             $description = [];
@@ -306,10 +322,10 @@ class MccViolationCrud extends Component
 
             $logDescription = count($description)
             ? implode(', ', $description)
-            : 'MCC updated Successfully';
+            : 'Complaint updated Successfully';
 
             ChangeLog::create([
-                'module_name' => 'mcc',
+                'module_name' => 'Complaint',
                 'module_id'    => $mcc->id,
                 'action' => 'updated',
                 'description' => $logDescription,
@@ -319,7 +335,7 @@ class MccViolationCrud extends Component
                 'ip_address' => request()->ip(),
                 'user_agent' => request()->header('User-Agent'),
             ]);
-            $this->dispatch('toastr:success', message: 'MCC updated successfully!');
+            $this->dispatch('toastr:success', message: 'Complaint updated successfully!');
             $this->dispatch('closeModal');
             $this->resetInputFields();
 
@@ -328,6 +344,16 @@ class MccViolationCrud extends Component
         }
     }
     
+    public function removeTempFile($index)
+    {
+        unset($this->supporting_documents[$index]);
+        $this->supporting_documents = array_values($this->supporting_documents);
+    }
+
+    public function removeExistingFile($id)
+    {
+        $this->deletedFiles[] = $id;
+    }
 
     public function resetFilters()
     {

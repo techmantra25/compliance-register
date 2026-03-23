@@ -15,6 +15,57 @@
         }
         .alert-primary { border-left-color: #0d6efd; }
         .alert-danger { border-left-color: #dc3545; }
+        .file-card {
+            width: 110px;
+            text-align: center;
+            position: relative;
+        }
+        .file-box {
+            width: 100px;
+            height: 100px;
+            border-radius: 12px;
+            border: 1px solid #ddd;
+            background: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            margin: auto;
+            position: relative;
+        }
+        .file-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 12px;
+        }
+        .file-box i {
+            font-size: 28px;
+            color: #6c757d;
+        }
+        .file-name {
+            margin-top: 6px;
+            font-size: 12px;
+            word-break: break-word;
+            line-height: 1.2;
+        }
+        .file-remove {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            background: #dc3545;
+            color: #fff;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 99;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
     </style>
 
     <div class="row g-4">
@@ -28,7 +79,7 @@
                     <li class="breadcrumb-item">
                         <a href="#" class="text-muted">Admin</a>
                     </li>
-                    <li class="breadcrumb-item active text-primary">MCC</li>
+                    <li class="breadcrumb-item active text-primary">Complaint</li>
                 </ol>
             </div>
             <div>
@@ -44,7 +95,7 @@
                 @endif
                 @if(childUserAccess(Auth::guard('admin')->user()->id,'mcc_add_mcc'))
                 <button class="btn btn-primary btn-sm" wire:click="openMccModal">
-                    <i class="bi bi-plus-circle me-1"></i> Add MCC
+                    <i class="bi bi-plus-circle me-1"></i> Add Complaint
                 </button>
                 @endif
             </div>
@@ -151,12 +202,12 @@
                                         </td>
                                         <td>
                                             <div class="fw-bold">{{ ucwords($item->block) }}</div>
-                                            <div class="text-muted small">GP: {{ ucwords($item->gp) }}</div>
+                                            <div class="text-muted small">@if($item->gp) GP: {{ ucwords($item->gp) }} @endif</div>
                                         </td>
                                         <td>
                                             <div class="fw-bold">{{ ucwords($item->complainer_name) }}</div>
                                             <div class="text-muted small">
-                                                <i class="bi bi-telephone me-1"></i> {{ $item->complainer_phone }}
+                                                @if($item->complainer_phone) <i class="bi bi-telephone me-1"></i> {{ $item->complainer_phone }} @endif
                                             </div>
                                         </td>
                                         <td>{{ $item->created_at->format('d-m-Y h:i A') }}</td>
@@ -301,12 +352,25 @@
                                 </div>
 
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label">Category<span class="text-danger">*</span></label>
-                                    <select class="form-control" wire:model="category">
-                                        <option value="">Select Category</option>
-                                        <option value="For AITC">For AITC</option>
-                                        <option value="Against AITC">Against AITC</option>
-                                    </select>
+                                    <label class="form-label">
+                                        Category<span class="text-danger">*</span>
+                                    </label>
+
+                                    <div class="d-flex gap-4">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="category" id="for_aitc" value="For AITC" wire:model="category">
+                                            <label class="form-check-label" for="for_aitc">
+                                                For AITC
+                                            </label>
+                                        </div>
+
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="category" id="against_aitc" value="Against AITC" wire:model="category">
+                                            <label class="form-check-label" for="against_aitc">
+                                                Against AITC
+                                            </label>
+                                        </div>
+                                    </div>
 
                                     @error('category')
                                         <small class="text-danger">{{ $message }}</small>
@@ -337,19 +401,21 @@
                                     @error('complainer_phone') <small class="text-danger">{{ $message }}</small> @enderror
                                 </div>
                                 
-                                <div class="col-md-6 mb-3">
+                               <div class="col-md-6 mb-3">
                                     <label class="form-label">Assign To</label>
-                                    <select class="form-control" wire:model="action_taken">
-                                        <option value="">Select Legal Associate</option>
 
-                                        @foreach($legalAssociates as $associate)
-                                            <option value="{{ $associate->id }}" data-code="{{ $associate->name }}"
-                                                    data-number="{{ $associate->name }}">
-                                                {{ ucwords($associate->name) }}
-                                            </option>
-                                        @endforeach
+                                    <div wire:ignore>
+                                        <select class="form-control chosen-select" wire:model="action_taken">
+                                            <option value="">Select Legal Associate</option>
 
-                                    </select>
+                                            @foreach($legalAssociates as $associate)
+                                                <option value="{{ $associate->id }}">
+                                                    {{ ucwords($associate->name) }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+
                                     @error('action_taken')
                                         <small class="text-danger">{{ $message }}</small>
                                     @enderror
@@ -357,42 +423,102 @@
 
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">Supporting Documents</label>
+
                                     <input type="file" class="form-control" wire:model="supporting_documents" multiple>
+
                                     <div wire:loading wire:target="supporting_documents" class="text-muted mt-2">
                                         <span class="spinner-border spinner-border-sm me-1"></span> Uploading...
                                     </div>
-                                    @error('supporting_documents.*') <small class="text-danger">{{ $message }}</small> @enderror
+
+                                    @error('supporting_documents.*') 
+                                        <small class="text-danger">{{ $message }}</small> 
+                                    @enderror
+
+                                    <div class="d-flex flex-wrap gap-3 mt-3">
+
+                                        @foreach($supporting_documents as $index => $file)
+                                            @php
+                                                $ext = strtolower($file->getClientOriginalExtension());
+                                                $isImage = in_array($ext, ['jpg','jpeg','png','gif','webp']);
+                                            @endphp
+
+                                            <div class="file-card">
+
+                                                <!-- ❌ Remove Button -->
+                                                <span class="file-remove"
+                                                    wire:click="removeTempFile({{ $index }})">
+                                                    &times;
+                                                </span>
+
+                                                <!-- Preview -->
+                                                <div class="file-box">
+                                                    @if($isImage)
+                                                        <img src="{{ $file->temporaryUrl() }}">
+                                                    @else
+                                                        <i class="bi bi-file-earmark-text"></i>
+                                                    @endif
+                                                </div>
+
+                                                <!-- File Name -->
+                                                <div class="file-name">
+                                                    {{ Str::limit($file->getClientOriginalName(), 18) }}
+                                                </div>
+
+                                            </div>
+
+                                        @endforeach
+
+                                    </div>
+
                                     @if($isEdit && $mcc_id)
                                         @php
                                             $docs = \App\Models\MccSupportingDocument::where('mcc_id', $mcc_id)->get();
                                         @endphp
 
-                                        @if($docs->count())
-                                            <div class="mt-2">
-                                                @foreach($docs as $doc)
-                                                    <a href="{{ asset($doc->file_path) }}" target="_blank" class="badge bg-secondary me-1">
-                                                        <i class="bi bi-paperclip"></i> View
-                                                    </a>
-                                                @endforeach
+                                        <div class="d-flex flex-wrap gap-3 mt-3">
+
+                                            @foreach($docs as $doc)
+                                                @if(!in_array($doc->id, $deletedFiles))
+                                                    @php
+                                                        $ext = strtolower(pathinfo($doc->file_path, PATHINFO_EXTENSION));
+                                                        $isImage = in_array($ext, ['jpg','jpeg','png','gif','webp']);
+                                                    @endphp
+
+                                                    <div class="file-card">
+
+                                                        <span class="file-remove"
+                                                            wire:click="removeExistingFile({{ $doc->id }})">
+                                                            &times;
+                                                        </span>
+
+                                                        <div class="file-box">
+                                                            @if($isImage)
+                                                                <img src="{{ asset($doc->file_path) }}">
+                                                            @else
+                                                                <i class="bi bi-file-earmark-text"></i>
+                                                            @endif
+                                                        </div>
+
+                                                        <div class="file-name">
+                                                            {{ basename($doc->file_path) }}
+                                                        </div>
+
+                                                    </div>
+                                                @endif
+                                            @endforeach
+
                                             </div>
-                                        @endif
                                     @endif
                                 </div>
                                 <div class="col-md-12 col-lg-10 mb-3">
                                     <label class="form-label">Keywords</label>
-
-                                    <!-- Fake Input Box -->
                                     <div id="keyword-box" class="form-control d-flex flex-wrap gap-2 align-items-center" style="min-height: 45px; cursor: text;">
-
-                                        <!-- Existing Keywords -->
                                         @foreach($keywords as $word)
                                             <span class="badge bg-primary d-flex align-items-center">
                                                 {{ $word }}
                                                 <span class="ms-2 remove-keyword" data-value="{{ $word }}" style="cursor:pointer;">&times;</span>
                                             </span>
                                         @endforeach
-
-                                        <!-- Actual Input -->
                                         <input 
                                             type="text" 
                                             id="keyword-input"
@@ -401,15 +527,12 @@
                                         >
                                     </div>
                                 </div>
-
                                 <div class="col-md-10 mb-3">
                                     <label class="form-label">Complainer Description</label>
                                     <textarea class="form-control" wire:model="complainer_description" placeholder="Write your complain here"></textarea>
                                     @error('complainer_description') <small class="text-danger">{{ $message }}</small> @enderror
                                 </div>
-
                             </div>
-
                         </form>
                     </div>
 

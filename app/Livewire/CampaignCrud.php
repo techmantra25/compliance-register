@@ -49,6 +49,7 @@ class CampaignCrud extends Component
 
     public $campaign;
     public $keywords = [];
+    public $deletedFiles = [];
 
     protected $paginationTheme = "bootstrap";
 
@@ -72,7 +73,7 @@ class CampaignCrud extends Component
             'campaign_date'      => 'required|date',
             'remarks'            => 'nullable|string',
             'other_event_category' => $this->event_category_id === 'others'
-                ? 'required|string|max:255'
+                ? 'required|string'
                 : 'nullable',
             'keywords' => 'nullable|array',
             'permission_documents.*' => 'file',
@@ -142,6 +143,16 @@ class CampaignCrud extends Component
         $this->isEdit ? $this->updateCampaign()  : $this->storeCampaign();
     }
 
+    public function removeTempFile($index)
+    {
+        unset($this->supporting_documents[$index]);
+        $this->supporting_documents = array_values($this->supporting_documents);
+    }
+
+    public function removeExistingFile($id)
+    {
+        $this->deletedFiles[] = $id;
+    }
 
     public function updateCampaign()
     {
@@ -212,6 +223,21 @@ class CampaignCrud extends Component
                         'campaign_id' => $campaign->id,
                         'file_path' => "storage/{$path}"
                     ]);
+                }
+            }
+
+             // Delete removed files
+            if (!empty($this->deletedFiles)) {
+                $files = CampaignPermissionDocument::whereIn('id', $this->deletedFiles)->get();
+
+                foreach ($files as $file) {
+
+                    $filePath = public_path($file->file_path);
+                    if (file_exists($filePath)) {
+                        unlink($filePath);
+                    }
+
+                    $file->delete();
                 }
             }
 

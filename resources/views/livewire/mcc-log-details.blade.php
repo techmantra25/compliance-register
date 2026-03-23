@@ -63,7 +63,7 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h4 class="mb-0 text-primary">
-                            <i class="bi bi-flag me-2"></i> MCC Log
+                            <i class="bi bi-flag me-2"></i> Complaint Log
                         </h4>
 
                         <a href="{{ route('admin.mcc_violation') }}" class="btn btn-danger btn-sm">
@@ -97,7 +97,7 @@
             <div class="card border-0 shadow-sm">
                 <div class="card-header bg-white border-bottom">
                     <h5 class="mb-0">
-                        <i class="bi bi-clock-history me-2"></i> MCC Activity Timeline
+                        <i class="bi bi-clock-history me-2"></i> Complaint Activity Timeline
                     </h5>
                 </div>
                 <div class="card-body pt-4 pb-1">
@@ -134,7 +134,7 @@
                                 </div>
                             </div>
                         @empty
-                            <div class="alert alert-info text-center">No log records found for this MCC.</div>
+                            <div class="alert alert-info text-center">No log records found for this Complaint.</div>
                         @endforelse
                     </div>
                 </div>

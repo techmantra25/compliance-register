@@ -22,6 +22,7 @@ use App\Livewire\{
     AgentCrud,
     AdminLogin,
     CampaignCrud,
+    CampaignView,
     PermissionCampaignCrud,
     ForgetPassword,
     UpdateProfile,
@@ -150,6 +151,7 @@ Route::prefix('/admin')->middleware('auth:admin')->group(function () {
 
     Route::prefix('campaign')->group(function (){
         Route::get('/', CampaignCrud::class)->name('admin.campaigns')->middleware('employee.permission:campaign_view_campaign');
+        Route::get('/view/{id}', CampaignView::class)->name('admin.campaigns.view');
         Route::get('/permission/{campaign_id}', PermissionCampaignCrud::class)->name('admin.campaigns.permission')->middleware('employee.permission:campaign_campaign_permission');
         Route::get('/star-campaigner', StarCampaignerCrud::class)->name('admin.campaigns.star-campaigner');
     });

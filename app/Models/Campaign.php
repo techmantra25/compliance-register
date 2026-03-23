@@ -39,4 +39,9 @@ class Campaign extends Model
         return $this->hasMany(CampaignWisePermission::class, 'campaign_id', 'id');
     }
 
+    public function documents()
+    {
+        return $this->hasMany(CampaignPermissionDocument::class, 'campaign_id');
+    }
+
 }
