@@ -212,7 +212,7 @@
                         aria-expanded="{{ request()->is('admin/mcc*') ? 'true' : 'false' }}"
                         aria-controls="mccMenu">
 
-                        <span><i class="bi bi-controller me-2"></i> MCC Violation</span>
+                        <span><i class="bi bi-controller me-2"></i> Complaint Manager</span>
                         <i class="bi bi-chevron-down small"></i>
                     </a>
 

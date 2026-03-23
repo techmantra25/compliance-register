@@ -22,7 +22,7 @@
         <div class="d-flex flex-wrap justify-content-between align-items-center">
             <div class="mb-4 mb-md-0">
                 <h4 class="fw-bold mb-1 text-dark">
-                    <i class="bi bi-megaphone-fill me-2 text-primary"></i> MCC Violation
+                    <i class="bi bi-megaphone-fill me-2 text-primary"></i> Complaint Manager
                 </h4>
                 <ol class="breadcrumb mb-0 small">
                     <li class="breadcrumb-item">
