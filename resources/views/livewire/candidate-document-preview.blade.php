@@ -268,11 +268,55 @@
 
                     <h6 class="section-header">Observation</h6>
 
-                    <textarea
-                        id="editor"
-                        class="form-control"
-                        rows="10"
-                    >{{ $observation_description }}</textarea>
+                    <h6 class="section-header">Observation</h6>
+
+                        <div class="mb-3">
+
+                            <div class="form-check">
+                                <input type="checkbox" wire:model="observation_options.name_incorrect" class="form-check-input">
+                                <label class="form-check-label">
+                                    Name is incorrect on the Nomination Form
+                                </label>
+                            </div>
+
+                            <div class="form-check">
+                                <input type="checkbox" wire:model="observation_options.address_proof_required" class="form-check-input">
+                                <label class="form-check-label">
+                                    Address proof required for further verification
+                                </label>
+                            </div>
+
+                            <div class="form-check">
+                                <input type="checkbox" wire:model="observation_options.profile_image_blurry" class="form-check-input">
+                                <label class="form-check-label">
+                                    Profile image is blurry
+                                </label>
+                            </div>
+
+                            <div class="form-check">
+                                <input type="checkbox" wire:model="observation_options.candidate_part_number_change" class="form-check-input">
+                                <label class="form-check-label">
+                                    Candidate Part number needs to be changed
+                                </label>
+                            </div>
+
+                            <div class="form-check">
+                                <input type="checkbox" wire:model="observation_options.others" class="form-check-input">
+                                <label class="form-check-label">
+                                    Others (Specify Reason)
+                                </label>
+                            </div>
+
+                        </div>
+
+                        {{-- CKEditor ONLY if Others checked --}}
+                        @if($observation_options['others'])
+                            <div wire:ignore>
+                                <textarea id="editor" class="form-control" rows="10">
+                                    {{ $observation_others_description }}
+                                </textarea>
+                            </div>
+                        @endif
 
                 </div>
 
@@ -377,7 +421,7 @@
 
             let data = editor.getData();
 
-            @this.set('observation_description', data);
+            @this.set('observation_others_description', data);
 
         });
 

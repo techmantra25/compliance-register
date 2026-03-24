@@ -32,6 +32,15 @@
         .signature {
             margin-top: 60px;
         }
+        table, td {
+            border: 1px solid #ccc; 
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
     </style>
 </head>
 
@@ -40,9 +49,9 @@
     <div class="title">OBSERVATION MEMO</div>
 
     <p>
-        The Nomination Paper of the following Candidate in Form 2B and the Affidavit in Form 26 to be filed in
-        connection with the ensuing General Elections to the WBLA, 2026 have duly been examined by Fox and Mandal, and
-        the following discrepancies/ defects have been found. Those would have to be rectified before submission of the
+        The Nomination Paper of the following Candidate in Form 2B and the Affidavit in Form 26 proposed to be filed in
+        connection with the ensuing General Elections to the WBLA, 2026 have duly been examined by IPAC and Fox & Mandal,
+        and the following discrepancies/ defects have been found. Those would have to be rectified before submission of the
         forms to the Returning Officer:
     </p>
 
@@ -60,13 +69,15 @@
 
         <tr>
             <td><strong>Date of Examination</strong></td>
-            <td>: {{ \Carbon\Carbon::parse($examinationDate)->format('d M Y h:i A') }}</td>
+            <td>: {{ $examinationDate
+                ? \Carbon\Carbon::parse($examinationDate)->format('d M Y h:i A')
+                : \Carbon\Carbon::now()->format('d M Y h:i A') }}</td>
         </tr>
 
         <tr>
-            <td><strong>Discrepancies/ defects Observed</strong></td>
+            <td><strong>Discrepancies/ Defects Observed</strong></td>
             <td style="line-height:1.6;">
-                {!! $observations ?? '__________________________________________' !!}
+                : {!! $observations ?? '__________________________________________' !!}
             </td>
         </tr>
 
@@ -74,32 +85,22 @@
             <td><strong>Last date and time for submission of rectified Forms and curing of defects</strong></td>
             <td>
                 : {{ $nomination_date
-    ? \Carbon\Carbon::parse($nomination_date)->format('d M Y h:i A')
-    : 'N/A' }}
+                    ? \Carbon\Carbon::parse($nomination_date)->format('d M Y h:i A')
+                    : 'N/A' }}
             </td>
         </tr>
 
     </table>
 
-
     <br><br>
-
-    <p><strong>For Fox & Mandal:</strong></p>
-    <p><strong>Checked & Verified By:</strong></p>
-    <p>{{$authorizedBy}}</p>
-    <p class="signature">
-        _____________________________<br>
-        (Authorized Signatory)
-    </p>
-
 
     <p>
         <strong>Candidate / Authorized Representative:</strong>
-        I acknowledge receipt of the Observations against the Nomination Form in Form 2B/Affidavit in Form 26. I will
-        rectify the discrepancies/ defects and resubmit the forms within the time above. I understand that any delay
-        will be on my account and Fox & Mandal will have no risk/ liability in that regard.
+        I acknowledge receipt of the Observations against the draft Nomination Form in Form 2B/Affidavit in Form 26.
+        I understand my responsibility to rectify the discrepancies/ defects and resubmit the Forms within the time above
+        for further checking. I understand that any delay will be on my account and the checking team will have no risk/
+        liability in that regard.
     </p>
-
 
     <br><br>
 
@@ -114,6 +115,11 @@
     <p>
         Date/Time: __________________________
     </p>
+
+    <div style="position: absolute; bottom: 40px;">
+        <div style="width:200px; border-bottom:1px solid #000;"></div>
+        <p style="font-size:11px; margin-top:5px;">Representative only</p>
+    </div>
 
 </body>
 
