@@ -110,19 +110,31 @@ class CandidateDocumentCollection extends Component
 
     public function toggleCriminalStatus()
     {
+        $old = $this->candidateData->is_criminal_offence; 
+
         if ($this->withCriminal) {
             $this->candidateData->is_criminal_offence = 1;
-            $this->candidateData->save();
         } else {
             $this->candidateData->is_criminal_offence = 0;
             $this->candidateData->legal_associate_id = null;
             $this->assignedLegalAssociate = null;
-            $this->candidateData->save();
         }
+            $this->candidateData->save();
+
+            $this->createLog(
+                'Update',
+                'Criminal status updated',
+                [
+                    'old' => json_encode(['criminal' => $old]),
+                    'new' => json_encode(['criminal' => $this->candidateData->is_criminal_offence])
+                ]
+            );
     }
 
     public function assignLegalAssociate()
     {
+        $old = $this->candidateData->legal_associate_id;
+
         if ($this->assignedLegalAssociate) {
             $this->candidateData->legal_associate_id = $this->assignedLegalAssociate;
             $this->candidateData->save();
@@ -136,6 +148,15 @@ class CandidateDocumentCollection extends Component
 
             $this->dispatch('toastr:error', message: 'Legal Associate removed.');
         }
+
+        $this->createLog(
+            'Update',
+            'Legal Associate changed',
+            [
+                'old' => json_encode(['legal_associate' => $old]),
+                'new' => json_encode(['legal_associate' => $this->assignedLegalAssociate])
+            ]
+        );
 
         $this->loadDocuments();
     }
@@ -181,6 +202,17 @@ class CandidateDocumentCollection extends Component
                 'uploaded_by' => Auth::guard('admin')->id(),
                 'status' => 'Skipped',
                 'version' => $newVersion,
+            ]
+        );
+
+        $this->createLog(
+            'Update',
+            'Document marked as skipped',
+            [
+                'new' => json_encode([
+                    'type' => $key,
+                    'attached_with' => $attachedWith
+                ])
             ]
         );
         $this->dispatch('toastr:success', message: 'Attachment updated successfully!');
@@ -395,7 +427,7 @@ class CandidateDocumentCollection extends Component
             $actionText = $existingDoc ? 'Re-Uploaded' : 'Uploaded';
 
             $logData = [
-                'module_name'   => 'Document',
+                'module_name'   => 'Candidate Document',
                 'module_id'     => $this->candidateId,
                 'action'        => $actionText,
                 'description'   => "{$this->availableDocuments[$this->type]} {$actionText} successfully.",
@@ -448,6 +480,17 @@ class CandidateDocumentCollection extends Component
                 if (file_exists(public_path('storage/' . $document->path))) {
                     unlink(public_path('storage/' . $document->path));
                 }
+
+                $this->createLog(
+                    'Delete',
+                    'Document deleted',
+                    [
+                        'old' => json_encode([
+                            'document_id' => $documentId,
+                            'path' => $document->path
+                        ])
+                    ]
+                );
                 
                 // Delete record from database
                 $document->delete();
@@ -487,6 +530,18 @@ class CandidateDocumentCollection extends Component
             'uploaded_at' => now(),
             'final_submission_confirmation' => $this->final_submission_confirmation. ' 00:00:00',
         ]);
+
+        $this->createLog(
+            'Upload',
+            'Acknowledgement uploaded',
+            [
+                'new' => json_encode([
+                    'file' => "storage/{$path}",
+                    'date' => $this->final_submission_confirmation
+                ]),
+                'link' => asset("storage/{$path}")
+            ]
+        );
 
         $this->reset(['acknowledgement_file','final_submission_confirmation']);
 
@@ -554,6 +609,7 @@ class CandidateDocumentCollection extends Component
                 $this->candidateData->document_collection_status = $newStatus;
                 $this->candidateData->save();
             }
+
         // }else{
         //     if(empty($documentsData)){
         //         $this->candidateData->document_collection_status = "incomplete_additional_required";
@@ -563,31 +619,6 @@ class CandidateDocumentCollection extends Component
         // }
     }
     
-
-    public function updateDocumentStatus($status, $documentId)
-    {
-        $document = CandidateDocument::find($documentId);
-
-        if (!$document) {
-            $this->dispatch('toastr:error', message: 'Document not found.');
-            return;
-        }
-
-        if ($document->status !== 'Pending') {
-            $this->dispatch('toastr:error', message: 'Status already locked.');
-            return;
-        }
-
-        $document->status = $status;
-        $document->vetted_by = Auth::guard('admin')->id();
-        $document->vetted_on = $status == "Uploaded" ? now() : null;
-        $document->save();
-
-        $this->loadDocuments();
-
-        $this->dispatch('toastr:success', message: 'Document status updated successfully.');
-    }
-
     protected function SendMail($id){
         
         $legal_associate = Admin::where('role','legal_associate')->pluck('email')->toArray();
@@ -643,6 +674,21 @@ class CandidateDocumentCollection extends Component
             $this->newFile = null;
         }
     }
+
+    protected function createLog($action, $description, $extra = [])
+    {
+        logChange([
+            'module_name'   => 'Candidate Document',
+            'module_id'     => $this->candidateId,
+            'action'        => $action,
+            'description'   => $description,
+            'old_data'      => $extra['old'] ?? null,
+            'new_data'      => $extra['new'] ?? null,
+            'document_name' => $extra['document_name'] ?? null,
+            'link'          => $extra['link'] ?? null,
+        ]);
+    }
+
     public function render()
     {
         $this->versions = CandidateObservationStep::where('candidate_id', $this->candidateId)->orderBy('version', 'ASC')->get();
