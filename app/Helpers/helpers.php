@@ -5,6 +5,7 @@ use App\Models\ChangeLog;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Models\Notification;
+use App\Models\Admin;
 
 if (!function_exists('getCandidateDocument')) {
     /**
@@ -124,6 +125,11 @@ if (!function_exists('userAccess')) {
         if($auth_id == 1){
             return true;
         }
+        $user = Admin::find($auth_id);
+
+        if ($user && in_array($user->role, ['admin', 'legal_associate'])) {
+            return true;
+        }
         $parent_module = DB::table('parent_modules')->where('slug',$slug)->first();
         if(!$parent_module){
             return false;
@@ -147,6 +153,11 @@ if (!function_exists('userAccess')) {
 if (!function_exists('childUserAccess')) {
     function childUserAccess($auth_id,$slug){
         if($auth_id == 1){
+            return true;
+        }
+        $user = Admin::find($auth_id);
+
+        if ($user && in_array($user->role, ['admin', 'legal_associate'])) {
             return true;
         }
         $permissions = DB::table('permissions')->where('slug', $slug)->first();

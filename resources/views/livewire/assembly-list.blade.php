@@ -252,7 +252,7 @@
 
                 <div class="modal-body">
                     <label class="form-label">Select Employees</label>
-                    <div>
+                    <div wire:ignore>
                         <select class="form-control chosen-select" wire:model="assignedEmployee">
                             <option value="">Select Employee</option>
                            @foreach($employees as $emp)
@@ -302,63 +302,47 @@
         <script src="{{ asset('assets/js/chosen.jquery.js') }}"></script>
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script>
-            function initChosen() {
-                $('.chosen-select').each(function () {
+           function initChosen() {
+                $('.chosen-select').chosen({
+                    width: '100%',
+                    no_results_text: "No result found"
+                }).off('change').on('change', function () {
+                    let model = $(this).attr('wire:model');
 
-                    let el = $(this);
-
-                    //  Destroy if already initialized
-                    if (el.data('chosen')) {
-                        el.chosen('destroy');
+                    if (model) {
+                        @this.set(model, $(this).val());
                     }
-
-                    //  Initialize
-                    el.chosen({
-                        width: '100%',
-                        no_results_text: "No result found"
-                    });
-
-                    //  Sync to Livewire
-                    el.off('change').on('change', function () {
-                        let model = el.attr('wire:model');
-                        if (model) {
-                            @this.set(model, el.val());
-                        }
-                    });
                 });
             }
 
-            //  Initial load
-            document.addEventListener("livewire:load", () => {
+            document.addEventListener("livewire:navigated", () => {
                 initChosen();
             });
 
-            //  After every Livewire DOM update (ONLY ONE HOOK)
-            Livewire.hook('message.processed', () => {
+            Livewire.hook('morph.updated', ({ el, component }) => {
                 initChosen();
-
-                //  Restore selected value
+                //  After re-init, sync the Livewire value back to Chosen
                 $('.chosen-select').each(function () {
-                    let el = $(this);
-                    let model = el.attr('wire:model');
-
-                    if (model) {
-                        let value = @this.get(model);
-                        if (value !== undefined) {
-                            el.val(value).trigger('chosen:updated');
-                        }
+                    const el = $(this);
+                    const model = el.attr('wire:model');
+                    if (model && @this.get(model)) {
+                        el.val(@this.get(model)).trigger('chosen:updated');
                     }
                 });
             });
 
-            //  Manual refresh trigger (optional)
-            window.addEventListener('refreshChosen', () => {
+            Livewire.hook('morph.updated', () => {
+                initChosen();
+
                 setTimeout(() => {
                     $('.chosen-select').trigger('chosen:updated');
-                }, 100);
+                }, 200);
             });
-            </script>
-        <script>
+
+            $(document).ready(function () {
+                initChosen();
+            });
+
             window.addEventListener('openUpdateModel', (event) => {
                 $('#assembly_name_en').val(event.detail[0].assembly_name_en);
                 $('#assembly_name_bn').val(event.detail[0].assembly_name_bn);
@@ -369,6 +353,9 @@
             window.addEventListener('closeUpdateModel', () => {
                 $('#updateModal').modal('hide');
             });
+        </script>
+
+        <script>
             window.addEventListener('openAssignModal', () => {
                 $('#assignModal').modal('show');
 
@@ -378,6 +365,20 @@
             });
             window.addEventListener('closeAssignModal', () => {
                 $('#assignModal').modal('hide');
+            });
+
+           window.addEventListener('refreshChosen', () => {
+                setTimeout(() => {
+                    $('.chosen-select').each(function () {
+                        let el = $(this);
+                        let model = el.attr('wire:model');
+
+                        if (model) {
+                            let value = @this.get(model);
+                            el.val(value).trigger('chosen:updated'); // single value
+                        }
+                    });
+                }, 200);
             });
         </script>
         <script>

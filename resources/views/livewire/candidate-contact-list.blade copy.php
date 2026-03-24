@@ -153,12 +153,41 @@
                             </button>
 
                         </div>
+
+                        {{-- <div class="col-md-2">
+                            <select wire:model="filter_by_document" class="form-select form-select-sm select-style" wire:change="filterByDocument($event.target.value)">
+                                <option value="">Filter by type</option>
+                                <option value="without_criminal_full_generation">
+                                    Candidate without Criminal Offence (Full Generation)
+                                </option>
+
+                                <option value="without_criminal_observation_only">
+                                    Candidate without Criminal Offence (Observation Only)
+                                </option>
+
+                                <option value="with_criminal_offence">
+                                    Candidate with Criminal Offence
+                                </option>
+                            </select>
+                        </div> --}}
+                    </div>
+
+                    <div class="row g-2 mb-4">
+                        
                     </div>
 
                     <div class="row mb-2">
                         <div class="col-sm-2">
                             {{ $candidates->total() }} Nominations
                         </div>
+                    </div>
+                    <div class="row justify-content-end">
+                        {{-- <div class="col-md-2 text-end">
+                            <button class="btn btn-sm btn-danger"
+                                    wire:click="resetForm">
+                                    Reset Filters
+                            </button>
+                        </div> --}}
                     </div>
                 </div>
 
@@ -174,7 +203,9 @@
                                     <th>Documents</th>
                                     <th >Final Status</th>
                                     <th style="width:91px;">Last Date of Nomination</th>
-                                    <th>Form</th>
+                                    @if($authUser->role!=='legal_associate')
+                                        <th>Form</th>
+                                    @endif
                                     <th style="max-width: 250px;" class="text-center">Action</th>
                                 </tr>
                             </thead>
@@ -245,6 +276,7 @@
                                                 Criminal Offence Case
                                             </span>
 
+                                            {{-- @if($authUser->role!=='legal_associate') --}}
                                                 @if($candidate->legalAssociate)
                                                     <div class="small text-muted mt-1">
                                                         Handled by: <strong>{{ $candidate->legalAssociate->name }}</strong>
@@ -254,6 +286,7 @@
                                                         Legal Associate not assigned
                                                     </div>
                                                 @endif
+                                            {{-- @endif --}}
                                         @endif
                                     </td>
 
@@ -266,81 +299,94 @@
                                             : 'N/A'
                                         }}
                                     </td>
-                                    <td class="">
+                                    @if($authUser->role!=='legal_associate')
+                                        <td class="">
 
-                                        {{-- Default when status is NULL --}}
-                                        @if(is_null($candidate->status))
-                                            <div class="tooltip-wrapper m-1">
-                                                <a href="{{ route('admin.candidates.documents', ['candidate' => $candidate->id]) }}"
-                                                class="btn btn-sm btn-outline-success">
-                                                Upload
-                                                </a>
-                                                <span class="tooltip-text">Upload Candidate Documents</span>
-                                            </div>
-
-                                        {{-- Re-upload condition --}}
-                                        @elseif($candidate->status == "without_criminal_rejected_observation_only")
-                                            <div class="tooltip-wrapper m-1">
-                                                <a href="{{ route('admin.candidates.documents', ['candidate' => $candidate->id]) }}"
-                                                class="btn btn-sm btn-outline-success">
-                                                Re-upload
-                                                </a>
-                                                <span class="tooltip-text">Upload Candidate Documents</span>
-                                            </div>
-
-                                        {{-- Preview condition --}}
-                                        @elseif($candidate->status == "without_criminal_full_generation")
-                                            <div class="tooltip-wrapper m-1">
-                                                <a href="{{ route('admin.candidates.documents', ['candidate' => $candidate->id]) }}"
-                                                class="btn btn-sm btn-outline-success">
-                                                Preview
-                                                </a>
-                                                <span class="tooltip-text">Preview Candidate Documents</span>
-                                            </div>
-                                            <div class="tooltip-wrapper m-1">
-                                                <button wire:click="downloadAcknowledgement({{ $candidate->id }})"
-                                                        class="btn btn-sm btn-outline-primary">
-                                                    <i class="bi bi-download me-1"></i> Acknowledgement
-                                                </button>
-                                                <span class="tooltip-text">Download Acknowledgement</span>
-                                            </div>
-
-                                        {{-- Fallback --}}
-                                        @else
-                                            <div class="tooltip-wrapper m-1">
-                                                <a href="{{ route('admin.candidates.documents', ['candidate' => $candidate->id]) }}"
-                                                class="btn btn-sm btn-outline-success">
-                                                Upload
-                                                </a>
-                                                <span class="tooltip-text">Upload Candidate Documents</span>
-                                                <span class="tooltip-text">Upload Candidate Documents</span>
-                                            </div>
-                                        @endif
-                                        @if($candidate->status == "without_criminal_full_generation")
-                                            @if($candidate->nominationForm && $candidate->nominationForm->logs->count())
+                                            {{-- Default when status is NULL --}}
+                                            @if(is_null($candidate->status))
                                                 <div class="tooltip-wrapper m-1">
-                                                    <button 
-                                                            class="btn btn-sm btn-outline-primary"
-                                                            wire:click="openFormModal({{ $candidate->id }})"
-                                                            data-bs-toggle="modal"
-                                                            data-bs-target="#formModal"
-                                                        >
-                                                        <i class="bi bi-download me-1"></i> Form 2B
-                                                    </button>
+                                                    <a href="{{ route('admin.candidates.documents', ['candidate' => $candidate->id]) }}"
+                                                    class="btn btn-sm btn-outline-success">
+                                                    Upload
+                                                    </a>
+                                                    <span class="tooltip-text">Upload Candidate Documents</span>
                                                 </div>
+
+                                            {{-- Re-upload condition --}}
+                                            @elseif($candidate->status == "without_criminal_rejected_observation_only")
+                                                <div class="tooltip-wrapper m-1">
+                                                    <a href="{{ route('admin.candidates.documents', ['candidate' => $candidate->id]) }}"
+                                                    class="btn btn-sm btn-outline-success">
+                                                    Re-upload
+                                                    </a>
+                                                    <span class="tooltip-text">Upload Candidate Documents</span>
+                                                </div>
+
+                                            {{-- Preview condition --}}
+                                            @elseif($candidate->status == "without_criminal_full_generation")
+                                                <div class="tooltip-wrapper m-1">
+                                                    <a href="{{ route('admin.candidates.documents', ['candidate' => $candidate->id]) }}"
+                                                    class="btn btn-sm btn-outline-success">
+                                                    Preview
+                                                    </a>
+                                                    <span class="tooltip-text">Preview Candidate Documents</span>
+                                                </div>
+                                                <div class="tooltip-wrapper m-1">
+                                                    <button wire:click="downloadAcknowledgement({{ $candidate->id }})"
+                                                            class="btn btn-sm btn-outline-primary">
+                                                        <i class="bi bi-download me-1"></i> Acknowledgement
+                                                    </button>
+                                                    <span class="tooltip-text">Download Acknowledgement</span>
+                                                </div>
+
+                                            {{-- Fallback --}}
                                             @else
                                                 <div class="tooltip-wrapper m-1">
-                                                    <a href="{{ route('admin.candidates.form2B', $candidate->id) }}"
+                                                    <a href="{{ route('admin.candidates.documents', ['candidate' => $candidate->id]) }}"
                                                     class="btn btn-sm btn-outline-success">
-                                                    Generate Form 2B
+                                                    Upload
                                                     </a>
-                                                    <span class="tooltip-text">Generate Form 2B PDF</span>
+                                                    <span class="tooltip-text">Upload Candidate Documents</span>
+                                                    <span class="tooltip-text">Upload Candidate Documents</span>
                                                 </div>
                                             @endif
-                                        @endif
-                                    </td>
+                                            @if($candidate->status == "without_criminal_full_generation")
+                                                @if($candidate->nominationForm && $candidate->nominationForm->logs->count())
+                                                    <div class="tooltip-wrapper m-1">
+                                                        <button 
+                                                                class="btn btn-sm btn-outline-primary"
+                                                                wire:click="openFormModal({{ $candidate->id }})"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#formModal"
+                                                            >
+                                                            <i class="bi bi-download me-1"></i> Form 2B
+                                                        </button>
+                                                    </div>
+                                                @else
+                                                    <div class="tooltip-wrapper m-1">
+                                                        <a href="{{ route('admin.candidates.form2B', $candidate->id) }}"
+                                                        class="btn btn-sm btn-outline-success">
+                                                        Generate Form 2B
+                                                        </a>
+                                                        <span class="tooltip-text">Generate Form 2B PDF</span>
+                                                    </div>
+                                                @endif
+                                            @endif
+                                        </td>
+                                    @endif
+
                                     <td class="">
+                                        @if($authUser->role=='legal_associate')
+                                            <div class="tooltip-wrapper">
+                                                <a href="{{ route('admin.candidates.documents', ['candidate' => $candidate->id]) }}"
+                                                class="btn btn-sm btn-outline-success">
+                                                    Preview <i class="bi bi-arrow-right-circle ms-1"></i>
+                                                </a>
+                                                <span class="tooltip-text">Preview Documents</span>
+                                                </div>
+                                        @else
                                             @if($candidate->document_collection_status !== 'rejected')
+
                                                 @if(childUserAccess(Auth::guard('admin')->user()->id,'nomination_assign_agents'))
                                                 <div class="tooltip-wrapper m-1">
                                                     <button 
@@ -380,6 +426,14 @@
                                                     <span class="tooltip-text">Candidate Journey Timeline</span>
                                                 </div>
                                             @endif
+                                        @endif
+                                            {{-- <div class="tooltip-wrapper m-1">
+                                                <button class="btn btn-sm btn-success"
+                                                    wire:click="changeStatus({{ $candidate->id }})">
+                                                    <i class="bi bi-flag"></i>
+                                                </button>
+                                                <span class="tooltip-text">Update Status</span>
+                                            </div> --}}
                                         </td>
 
                                     <!-- modal -->

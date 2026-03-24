@@ -458,7 +458,7 @@
 
                                     <!-- Description -->
                                     <div class="mb-3">
-                                        <label class="form-label">Complainer Description<span class="text-danger">*</span></label>
+                                        <label class="form-label">Complaint Description<span class="text-danger">*</span></label>
                                         <textarea class="form-control" rows="10"
                                             wire:model="complainer_description"
                                             placeholder="Write your complain here"></textarea>

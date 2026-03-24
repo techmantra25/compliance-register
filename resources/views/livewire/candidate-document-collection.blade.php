@@ -33,6 +33,9 @@
     overflow: hidden;
     padding-right: 17px;
     }
+    .bg-light-success {
+        background-color: #e6f9f0;
+    }   
     </style>
 
         <div class="d-flex flex-wrap justify-content-between align-items-start mb-3">
@@ -91,7 +94,7 @@
                                 id="criminalCheck"
                                 onclick="confirmPendingCases(this)">
 
-                            <label class="form-check-label title-text text-danger" for="criminalCheck">
+                            <label class="form-check-label title-text text-danger cursor-pointer" for="criminalCheck">
                                 Pending Criminal Cases
                             </label>
                         </div>
@@ -592,81 +595,126 @@
                 @endif
             </div>
         
-            <div wire:ignore.self class="modal fade" id="DocumentModal" tabindex="-1" aria-labelledby="DocumentModalLabel" aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered">
-                        <div class="modal-content border-0 shadow-lg rounded-3">
-                            <div class="modal-header bg-primary text-white">
-                                <h5 class="modal-title" id="DocumentModalLabel">
-                                    Upload Document
-                                </h5>
-                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close" wire:click="resetForm"></button>
-                            </div>
+            <div wire:ignore.self class="modal fade" id="DocumentModal" tabindex="-1">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content border-0 shadow rounded-4">
 
-                            <form wire:submit.prevent="save" wire:key="document-form-new" enctype="multipart/form-data">
-                                <div class="modal-body">
+                        <!-- Header -->
+                        <div class="modal-header bg-primary text-white rounded-top-4">
+                            <h5 class="modal-title">
+                                <i class="bi bi-upload me-2"></i> Upload Document
+                            </h5>
+                            <button type="button" class="btn-close btn-close-white"
+                                data-bs-dismiss="modal" wire:click="resetForm"></button>
+                        </div>
 
-                                    {{-- Same As Before Checkbox --}}
-                                    @if($candidateData->status == "without_criminal_rejected_observation_only")
-                                        <div class="form-check mb-3">
-                                            <input type="checkbox"
-                                                class="form-check-input"
-                                                id="sameAsBefore"
-                                                wire:model="sameAsBefore"
-                                                wire:change="toggleSameAsBefore">
-                                            <label class="form-check-label cursor-pointer" for="sameAsBefore">
-                                                Same As Before
-                                            </label>
+                        <form wire:submit.prevent="save" enctype="multipart/form-data">
+                            <div class="modal-body p-4">
+
+                                {{-- SAME AS BEFORE (HIGHLIGHTED CARD) --}}
+                                @if($candidateData->status == "without_criminal_rejected_observation_only")
+                                    <div class="mb-4">
+                                        <label class="fw-semibold mb-2 d-block">Quick Option</label>
+
+                                        <div class="p-3 border rounded-3 cursor-pointer
+                                            {{ $sameAsBefore ? 'border-success bg-light-success' : 'border-light' }}"
+                                            style="cursor:pointer;"
+                                            onclick="document.getElementById('sameAsBefore').click();">
+
+                                            <div class="form-check d-flex align-items-center">
+                                                <input type="checkbox"
+                                                    class="form-check-input me-2"
+                                                    id="sameAsBefore"
+                                                    wire:model="sameAsBefore"
+                                                    wire:change="toggleSameAsBefore">
+
+                                                <label class="form-check-label fw-semibold mb-0">
+                                                    Same As Before
+                                                </label>
+                                            </div>
+
+                                            <small class="text-muted">
+                                                Reuse previously uploaded document (recommended)
+                                            </small>
                                         </div>
-                                    @endif
+                                    </div>
+                                @endif
 
-                                    {{-- File Upload --}}
-                                    @if(!$sameAsBefore)
-                                    <div class="mb-3">
-                                        <label class="form-label">File <span class="text-danger">*</span></label>
-                                        <input type="file" wire:model="newFile" class="form-control" multiple>
 
+                                {{-- FILE UPLOAD --}}
+                                @if(!$sameAsBefore)
+                                    <div class="mb-4">
+                                        <label class="form-label fw-semibold">
+                                            Upload File <span class="text-danger">*</span>
+                                        </label>
+
+                                       <input type="file"
+                                            wire:model="newFile"
+                                            multiple
+                                            class="form-control form-control-lg">
+                                           <small class="text-muted">
+                                                You can upload <strong>maximum 20 images</strong> at once or <strong>1 PDF file</strong>. 
+                                                Mixing PDF and images is not allowed.
+                                            </small>
                                         @error('newFile')
                                             <small class="text-danger">{{ $message }}</small>
                                         @enderror
 
-                                        {{-- Upload Progress --}}
-                                        <div wire:loading wire:target="newFile" class="text-danger small mt-1">
-                                            <i class="bi bi-cloud-upload me-1"></i> Uploading...
+                                        <div wire:loading wire:target="newFile"
+                                            class="text-primary small mt-2">
+                                            <span class="spinner-border spinner-border-sm me-1"></span>
+                                            Uploading file...
                                         </div>
                                     </div>
-                                    @endif
+                                @endif
 
-                                    {{-- Remarks --}}
-                                    <div class="mb-3">
-                                        <label class="form-label">Remarks</label>
-                                        <textarea wire:model="remarks"
-                                                class="form-control form-control-sm"
-                                                placeholder="Enter remarks for new upload"
-                                                rows="2"></textarea>
 
-                                        @error('remarks')
-                                            <small class="text-danger">{{ $message }}</small>
-                                        @enderror
-                                    </div>
+                                {{-- REMARKS --}}
+                                <div class="mb-2">
+                                    <label class="form-label fw-semibold">Remarks</label>
 
+                                    <textarea wire:model="remarks"
+                                        class="form-control"
+                                        placeholder="Add remarks (optional)"
+                                        rows="3"></textarea>
+
+                                    @error('remarks')
+                                        <small class="text-danger">{{ $message }}</small>
+                                    @enderror
                                 </div>
 
-                                <div class="modal-footer">
-                                    <button type="button"
-                                            class="btn btn-secondary btn-sm"
-                                            data-bs-dismiss="modal"
-                                            wire:click="resetForm">
-                                        <i class="bi bi-x"></i> Cancel
-                                    </button>
+                            </div>
 
-                                    <button type="submit" class="btn btn-primary btn-sm">
-                                        <i class="bi bi-upload me-1"></i> Submit
-                                    </button>
-                                </div>
-                            </form>
+                            <!-- Footer -->
+                            <div class="modal-footer bg-light rounded-bottom-4">
+                                <button type="button"
+                                    class="btn btn-outline-secondary btn-sm"
+                                    data-bs-dismiss="modal"
+                                    wire:click="resetForm">
+                                    Cancel
+                                </button>
 
-                        </div>
+                                <button type="submit"
+                                    class="btn btn-success btn-sm px-4"
+                                    wire:loading.attr="disabled"
+                                    wire:target="newFile">
+
+                                    <span wire:loading.remove wire:target="newFile">
+                                        <i class="bi bi-check-circle me-1"></i> Submit
+                                    </span>
+
+                                    <span wire:loading wire:target="newFile">
+                                        <span class="spinner-border spinner-border-sm me-1"></span>
+                                        Please wait...
+                                    </span>
+
+                                </button>
+
+                            </div>
+                        </form>
+
                     </div>
+                </div>
             </div>
         </div>
 
@@ -770,7 +818,7 @@
             });
         });
         </script>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+        {{-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script> --}}
         <script>
           
             document.addEventListener('livewire:init', () => {

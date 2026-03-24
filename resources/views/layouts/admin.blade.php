@@ -151,7 +151,7 @@
                             @if(childUserAccess(Auth::guard('admin')->user()->id,'nomination_view_candidate'))
                                 <li class="nav-item mb-1">
                                     <a href="{{ route('admin.candidates.contacts') }}"
-                                    class="nav-link small {{ request()->routeIs('admin.candidates.contacts') ? 'active' : '' }}">
+                                    class="nav-link small {{ request()->is('admin/candidates*') ? 'active' : '' }}">
                                         <i class="bi bi-people me-2"></i> Candidates
                                     </a>
                                 </li>

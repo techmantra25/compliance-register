@@ -569,9 +569,9 @@ class CandidateContactList extends Component
             $query->whereIn('assembly_id', $assemblies);
         }
 
-        if ($this->authUser->role === 'legal_associate') {
-            $query->where('legal_associate_id', $this->authUser->id);
-        }
+        // if ($this->authUser->role === 'legal_associate') {
+        //     $query->where('legal_associate_id', $this->authUser->id);
+        // }
 
         return $query
             ->when($this->search, function ($q) {

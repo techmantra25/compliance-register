@@ -11,6 +11,7 @@ use App\Models\CandidateObservationStep;
 use Illuminate\Support\Facades\Auth;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
+use App\Models\CandidateSkippedDocument;
 use Illuminate\Support\Facades\DB;
 
 class CandidateDocumentPreview extends Component
@@ -107,7 +108,7 @@ class CandidateDocumentPreview extends Component
         | Legal Associate Access Check
         |--------------------------------------------------------------------------
         */
-        if ($userRole === 'legal_associate') {
+        if ($userRole === 'legal_associate' && isset($candidate->legal_associate_id)) {
             if ($candidate->legal_associate_id != $admin->id) {
                 abort(403, 'You are not authorized to access this candidate.');
             }
@@ -294,9 +295,23 @@ class CandidateDocumentPreview extends Component
                     $item->save();
 
                 } elseif ($item->status == "Skipped") {
+                     // Clone data to skipped table
+                    CandidateSkippedDocument::create([
+                        'candidate_id'        => $item->candidate_id,
+                        'version'             => $item->version,
+                        'type'                => $item->type,
+                        'path'                => $item->path,
+                        'remarks'             => $item->remarks,
+                        'uploaded_by'         => $item->uploaded_by,
+                        'vetted_by'           => $item->vetted_by,
+                        'vetted_on'           => $item->vetted_on,
+                        'status'              => $item->status,
+                        'attached_with'       => $item->attached_with,
+                        'attached_with_slug'  => $item->attached_with_slug,
+                    ]);
 
+                    // Delete from original table
                     $item->delete();
-
                 } else {
 
                     $item->status = "Rejected";
