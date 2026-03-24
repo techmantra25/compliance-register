@@ -197,15 +197,16 @@
                                                 <br>
                                             @endif
 
-                                            <span>
-                                                <i class="bi bi-telephone-fill text-success me-1"></i>
-                                                {{ $candidate->contact_number ?? '-' }}
-
-                                                @if($candidate->contact_number_alt_1)
-                                                    , {{ $candidate->contact_number_alt_1 }}
-                                                @endif
-                                            </span>
-                                            <br>
+                                            @if($candidate->contact_number)
+                                                <span>
+                                                    <i class="bi bi-telephone-fill text-success me-1"></i>
+                                                    {{ $candidate->contact_number ?? '-' }}
+                                                    @if($candidate->contact_number_alt_1)
+                                                        , {{ $candidate->contact_number_alt_1 }}
+                                                    @endif
+                                                </span>
+                                                <br>
+                                            @endif
 
                                             <span>
                                                 District: 

@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Models\Admin;
 
 class EmployeePermission
 {
@@ -29,6 +30,11 @@ class EmployeePermission
             return $next($request);
         }
 
+        $existing_user = Admin::find($user->id);
+
+        if ($existing_user && in_array($existing_user->role, ['admin', 'legal_associate'])) {
+           return $next($request);
+        }
         // Check permission exists
         $userPermission = DB::table('permissions')->where('slug', $permission)->first();
 

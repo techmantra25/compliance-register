@@ -224,7 +224,7 @@
 
                             <label class="form-label">Role</label>
 
-                            <select wire:model="role" class="form-select">
+                            <select wire:model="role" class="form-select" wire:change="ChangeRole($event.target.value)">
 
                                 <option value="">Select Role</option>
 
@@ -247,76 +247,77 @@
 
 
                         {{-- DISTRICT SELECT --}}
-                        <div class="mb-3">
-                            <label class="form-label">Districts</label>
-                            <div wire:ignore>
-                                <select id="districtSelect"
-                                    wire:model="districts"
-                                    multiple
-                                    class="form-select chosen-select"
-                                    size="6">
+                        @if($role=="employee")
+                            <div class="mb-3">
+                                <label class="form-label">Districts</label>
+                                <div wire:ignore>
+                                    <select id="districtSelect"
+                                        wire:model="districts"
+                                        multiple
+                                        class="form-select chosen-select"
+                                        size="6">
 
-                                    @foreach ($allDistricts as $district)
+                                        @foreach ($allDistricts as $district)
 
-                                    <option value="{{ $district->id }}">
-                                        {{ $district->name_en }}
-                                    </option>
+                                        <option value="{{ $district->id }}">
+                                            {{ $district->name_en }}
+                                        </option>
 
-                                    @endforeach
+                                        @endforeach
 
-                                </select>
-                            </div>
+                                    </select>
+                                </div>
 
-                            @error('districts')
-                            <small class="text-danger">{{ $message }}</small>
-                            @enderror
-
-                        </div>
-
-                        {{-- ASSEMBLY SELECTOR --}}
-                        <div class="mb-3">
-
-                            <label class="form-label">Assemblies</label>
-
-                            <div class="border rounded p-2" style="max-height:250px;overflow:auto">
-
-                                @foreach($allAssemblies as $assembly)
-
-                                    <div class="form-check" wire:key="assembly-{{ $assembly->id }}">
-
-                                    <input
-                                        class="form-check-input"
-                                        type="checkbox"
-                                        wire:model="assemblies"
-                                        value="{{ $assembly->id }}"
-                                        wire:change="handleAssemblyChange({{ $assembly->id }}, $event.target.checked)"
-                                        id="assembly{{ $assembly->id }}">
-
-                                    <label class="form-check-label"
-                                        for="assembly{{ $assembly->id }}">
-
-                                    {{ $assembly->assembly_name_en }}
-
-                                    @if($assembly->district)
-                                    <span class="text-muted small">
-                                    ({{ $assembly->district->name_en }})
-                                    </span>
-                                    @endif
-
-                                    </label>
-
-                                    </div>
-
-                                    @endforeach
+                                @error('districts')
+                                <small class="text-danger">{{ $message }}</small>
+                                @enderror
 
                             </div>
 
-                            @error('assemblies')
-                            <small class="text-danger">{{ $message }}</small>
-                            @enderror
+                            {{-- ASSEMBLY SELECTOR --}}
+                            <div class="mb-3">
 
-                        </div>
+                                <label class="form-label">Assemblies</label>
 
+                                <div class="border rounded p-2" style="max-height:250px;overflow:auto">
+
+                                    @foreach($allAssemblies as $assembly)
+
+                                        <div class="form-check" wire:key="assembly-{{ $assembly->id }}">
+
+                                        <input
+                                            class="form-check-input"
+                                            type="checkbox"
+                                            wire:model="assemblies"
+                                            value="{{ $assembly->id }}"
+                                            wire:change="handleAssemblyChange({{ $assembly->id }}, $event.target.checked)"
+                                            id="assembly{{ $assembly->id }}">
+
+                                        <label class="form-check-label"
+                                            for="assembly{{ $assembly->id }}">
+
+                                        {{ $assembly->assembly_name_en }}
+
+                                        @if($assembly->district)
+                                        <span class="text-muted small">
+                                        ({{ $assembly->district->name_en }})
+                                        </span>
+                                        @endif
+
+                                        </label>
+
+                                        </div>
+
+                                        @endforeach
+
+                                </div>
+
+                                @error('assemblies')
+                                <small class="text-danger">{{ $message }}</small>
+                                @enderror
+
+                            </div>
+                        @endif
 
 
                         {{-- BUTTONS --}}

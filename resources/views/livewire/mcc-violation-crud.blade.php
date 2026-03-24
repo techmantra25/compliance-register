@@ -212,7 +212,7 @@
                                         </td>
                                         <td>{{ $item->created_at->format('d-m-Y h:i A') }}</td>
                                         <td>
-                                           @if($item->associate_id)
+                                           @if($item->action_taken)
                                                 <span class="badge bg-success">
                                                     {{ ucwords($item->legalAssociate->name ?? 'Assigned') }}
                                                 </span>
@@ -263,7 +263,7 @@
                                                 </div>
                                             </div>
                                             @endif --}}
-{{-- 
+                                            {{-- 
                                             <div class="btn-group m-1">
                                                 <div class="tooltip-wrapper">
                                                     <button class="btn btn-sm btn-outline-success"
@@ -273,14 +273,10 @@
                                                     <span class="tooltip-text">View Details</span>
                                                 </div>
                                             </div> --}}
-
-
                                             <div class="btn-group m-1">
                                                 <div class="tooltip-wrapper">
-                                                    <a href="{{route('admin.mcc_violation_remarks', $item->id)}}" class="btn btn-sm btn-outline-warning position-relative">
-
-                                                        <i class="bi bi-chat-left-text"></i>
-
+                                                    <a href="{{route('admin.mcc_violation_remarks', $item->id)}}" class="btn btn-sm btn-outline-primary position-relative">
+                                                        View Remarks <i class="bi bi-arrow-right"></i>
                                                         @php
                                                             $unreadRemarks = $item->Remarks()->where('is_read', 0)->count();
                                                         @endphp

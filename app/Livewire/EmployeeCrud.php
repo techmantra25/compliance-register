@@ -170,30 +170,32 @@ class EmployeeCrud extends Component
             'suspended_status' => 1
         ]);
 
-        if ($this->role == "legal_associate") {
+        // if ($this->role == "legal_associate") {
 
-            $permission_ids = DB::table('permissions')
-                ->whereIn('slug', [
-                    'view_dashboard',
-                    'nomination_view_candidate',
-                    'nomination_document_repository',
-                    'nomination_document_preview'
-                ])
-                ->pluck('id')
-                ->toArray();
+        //     $permission_ids = DB::table('permissions')
+        //         ->whereIn('slug', [
+        //             'view_dashboard',
+        //             'nomination_view_candidate',
+        //             'nomination_document_repository',
+        //             'nomination_document_preview'
+        //         ])
+        //         ->pluck('id')
+        //         ->toArray();
 
-            $data = [];
+        //     $data = [];
 
-            foreach ($permission_ids as $permission_id) {
-                $data[] = [
-                    'admin_id' => $admin->id,
-                    'permission_id' => $permission_id,
-                ];
-            }
+        //     foreach ($permission_ids as $permission_id) {
+        //         $data[] = [
+        //             'admin_id' => $admin->id,
+        //             'permission_id' => $permission_id,
+        //         ];
+        //     }
 
-            DB::table('admin_permissions')->insert($data);
+        //     DB::table('admin_permissions')->insert($data);
 
-        } elseif ($this->role == "employee") {
+        // } 
+        // elseif ($this->role == "employee") {
+        if ($this->role == "employee") {
 
             $permission_ids = DB::table('permissions')
                 ->whereIn('slug', [
@@ -309,6 +311,9 @@ class EmployeeCrud extends Component
 
             $this->dispatch('toastr:success',message:$msg);
         }
+    }
+    public function ChangeRole($value){
+        $this->role = $value;
     }
 
     public function render()

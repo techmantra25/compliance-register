@@ -136,26 +136,37 @@
             <!-- Candidates Dropdown -->
             @if(userAccess(Auth::guard('admin')->user()->id,'nomination_management'))
                 <li class="nav-item mb-2">
-                    <a class="nav-link d-flex justify-content-between align-items-center {{ request()->is('admin/candidates*') ? 'active' : 'collapsed' }}"
+                    <a class="nav-link d-flex justify-content-between align-items-center {{ (request()->is('admin/candidate*') || request()->is('admin/candidates*')) ? 'active' : 'collapsed' }}"
                     data-bs-toggle="collapse"
                     href="#candidateMenu"
                     role="button"
-                    aria-expanded="{{ request()->is('admin/candidates*') ? 'true' : 'false' }}"
+                    aria-expanded="{{ (request()->is('admin/candidate*') || request()->is('admin/candidates*')) ? 'true' : 'false' }}"
                     aria-controls="candidateMenu">
                         <span><i class="bi bi-person-badge me-2"></i> Nominations</span>
                         <i class="bi bi-chevron-down small"></i>
                     </a>
 
-                    <div class="collapse {{ request()->is('admin/candidates*') ? 'show' : '' }}" id="candidateMenu">
+                    <div class="collapse {{ (request()->is('admin/candidate*') || request()->is('admin/candidates*')) ? 'show' : '' }}" id="candidateMenu">
                         <ul class="nav flex-column border-start mt-1">
+
                             @if(childUserAccess(Auth::guard('admin')->user()->id,'nomination_view_candidate'))
                                 <li class="nav-item mb-1">
                                     <a href="{{ route('admin.candidates.contacts') }}"
-                                    class="nav-link small {{ request()->is('admin/candidates*') ? 'active' : '' }}">
+                                    class="nav-link small {{ (request()->is('admin/candidate*') || request()->is('admin/candidates*')) ? 'active' : '' }}">
                                         <i class="bi bi-people me-2"></i> Candidates
                                     </a>
                                 </li>
                             @endif
+
+                            @if(Auth::guard('admin')->user()->role == "legal_associate")
+                                <li class="nav-item mb-1">
+                                    <a href="{{ route('admin.candidates.special_case') }}"
+                                    class="nav-link small {{ request()->is('admin/candidate/special-cases') ? 'active' : '' }}">
+                                        <i class="bi bi-people me-2"></i> Special Cases
+                                    </a>
+                                </li>
+                            @endif
+
                         </ul>
                     </div>
                 </li>
@@ -304,7 +315,7 @@
                 <div class="dropdown">
                     <a class="d-flex align-items-center text-decoration-none dropdown-toggle" href="#" data-bs-toggle="dropdown">
                         <img src="{{ asset('assets/img/user.png') }}" class="rounded-circle me-2" width="32" height="32" alt="User">
-                        <span>{{ Auth::guard('admin')->user()->name ?? __('admin/sidebar.admin') }}</span>
+                        <span style="color: #000;">{{ Auth::guard('admin')->user()->name ?? __('admin/sidebar.admin') }}</span>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end shadow-sm">
                         <li>

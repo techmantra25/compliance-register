@@ -13,6 +13,7 @@ use App\Livewire\{
     EmployeeCrud,
     AssemblyList,
     CandidateContactList,
+    CandidateSpecialCaseList,
     CandidateDocumentCollection,
     CandidateDocumentPreview,
     CandidateDocumentVetting,
@@ -125,6 +126,8 @@ Route::prefix('/admin')->middleware('auth:admin')->group(function () {
     Route::get('/assemblies', AssemblyList::class)->name('admin.assemblies')->middleware('employee.permission:assembly_view_assembly');
     Route::get('/contacts', AgentCrud::class)->name('admin.agents')->middleware('employee.permission:contact_view_contacts');
     
+    Route::get('candidate/special-cases', CandidateSpecialCaseList::class)->name('admin.candidates.special_case');
+        
     Route::prefix('candidates')->group(function () {
         Route::get('/journey/{id}', CandidateJourney::class)->name('admin.candidates.journey');
        // Route::get('/form-5/{id}', CandidateForm5Update::class)->name('admin.candidates.form5');
@@ -156,7 +159,7 @@ Route::prefix('/admin')->middleware('auth:admin')->group(function () {
         Route::get('/star-campaigner', StarCampaignerCrud::class)->name('admin.campaigns.star-campaigner');
     });
 
-    Route::prefix('mcc-violation')->group(function (){
+    Route::prefix('complaint')->group(function (){
         Route::get('/', MccViolationCrud::class)->name('admin.mcc_violation')->middleware('employee.permission:mcc_view_mcc');
         Route::get('/remarks/{id}', MccViolationCrudRemarks::class)->name('admin.mcc_violation_remarks')->middleware('employee.permission:mcc_violation_remarks');
         Route::get('/log-details/{id}', MccLogDetails::class)->name('admin.mcc_log_details');
