@@ -15,6 +15,7 @@ class CandidateObservationStep extends Model
         'candidate_id',
         'version',
         'observations',
+        'others',
         'generated_by'
     ];
 

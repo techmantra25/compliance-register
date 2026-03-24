@@ -29,14 +29,8 @@ class CandidateDocumentPreview extends Component
     public $versionData;
     public $version_index = 1;
     public $observation_description;
-    public $observation_options = [
-        "name_incorrect" => 0,
-        "address_proof_required" => 0,
-        "profile_image_blurry" => 0,
-        "candidate_part_number_change" => 0,
-        "others" => 0,
-    ];
     public $observation_others_description;
+    public $selectedObservations = [];
 
      public function mount(Request $request)
     {
@@ -72,15 +66,18 @@ class CandidateDocumentPreview extends Component
                 $this->version_index = $latestVersion;
                 $this->versionData = null;
                 $this->observation_description = null;
+                $this->observation_others_description = null;
         }else{
             if ($versionData) {
                 $this->version_index = $versionData->version;
                 $this->versionData = $versionData;
                 $this->observation_description = $versionData->observations;
+                $this->observation_others_description = $versionData->others;
             } else {
                 $this->version_index = 1;
                 $this->versionData = null;
                 $this->observation_description = $candidate->observation_description;
+                $this->observation_others_description = $candidate->observation_others_description;
             }
         }
         
@@ -145,28 +142,40 @@ class CandidateDocumentPreview extends Component
 
         $this->ChangeDocument($firstKey, $this->version_index);
     }
-    public function updatedObservationOptions()
+
+    public function saveObservations($observations)
     {
-        $this->saveObservation();
+        Candidate::where('id', $this->candidateId)->update([
+            'observation_description' => json_encode($observations)
+        ]);
+
+        $this->observation_description = json_encode($observations);
     }
 
-    public function updatedObservationOthersDescription()
+    public function saveOthersDescription($value)
     {
-        $this->saveObservation();
+        Candidate::where('id', $this->candidateId)->update([
+            'observation_others_description' => $value
+        ]);
+
+        $this->observation_others_description = $value;
     }
 
-    private function saveObservation()
+    public function hydrateObservations()
     {
-        $data = $this->observation_options;
+        $obs = $this->observation_description;
 
-        $data['others_text'] = $this->observation_options['others']
-            ? $this->observation_others_description
-            : null;
+        $this->selectedObservations = is_array($obs)
+            ? $obs
+            : json_decode($obs, true) ?? [];
+    }
+    public function updatedSelectedObservations()
+    {
+        Candidate::where('id', $this->candidateId)->update([
+            'observation_description' => json_encode($this->selectedObservations)
+        ]);
 
-        Candidate::where('id', $this->candidateId)
-            ->update([
-                'observation_description' => json_encode($data)
-            ]);
+        $this->observation_description = json_encode($this->selectedObservations);
     }
 
     public function ChangeDocument($key, $version)
@@ -229,6 +238,7 @@ class CandidateDocumentPreview extends Component
                 ->max('version');
 
             $observationText = $candidate->observation_description;
+            $observationOthersText = $candidate->observation_others_description;
             // Save observation step
              CandidateObservationStep::updateOrCreate(
                 [
@@ -237,11 +247,13 @@ class CandidateDocumentPreview extends Component
                 ],
                 [
                     'observations' => $candidate->observation_description,
+                    'others' => $candidate->observation_others_description,
                     'generated_by' => Auth::guard('admin')->id(),
                 ]
             );
 
             $candidate->observation_description = null;
+            $candidate->observation_others_description = null;
 
             $candidate->save();
 
@@ -254,6 +266,7 @@ class CandidateDocumentPreview extends Component
                 'new_data' => json_encode([
                     'version' => $latestVersion,
                     'observations' => $observationText,
+                    'others' => $observationOthersText,
                     'status' => $candidate->status,
                     'document_collection_status' => $candidate->document_collection_status,
                 ]),
@@ -341,12 +354,14 @@ class CandidateDocumentPreview extends Component
                     'version' => $latestVersion,
                 ],
                 [
-                    'observations' => $jsonObservation,
+                    'observations' => $update->observation_description,
+                    'others' => $update->observation_others_description,
                     'generated_by' => Auth::guard('admin')->id(),
                 ]
             );
 
             $update->observation_description = null;
+            $update->observation_others_description = null;
             $update->save();
 
             logChange([
@@ -396,6 +411,7 @@ class CandidateDocumentPreview extends Component
             'examinationDate' => $this->versionData->created_at,
             'nomination_date' => $nominationDate,
             'observations'    => $this->observation_description,
+            'others'    => $this->observation_others_description,
             'authorizedBy' => Auth::guard('admin')->user()->name,
         ];
 
