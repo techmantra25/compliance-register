@@ -145,11 +145,27 @@ class CandidateDocumentPreview extends Component
 
         $this->ChangeDocument($firstKey, $this->version_index);
     }
-    public function updatedObservationDescription($value)
+    public function updatedObservationOptions()
     {
+        $this->saveObservation();
+    }
+
+    public function updatedObservationOthersDescription()
+    {
+        $this->saveObservation();
+    }
+
+    private function saveObservation()
+    {
+        $data = $this->observation_options;
+
+        $data['others_text'] = $this->observation_options['others']
+            ? $this->observation_others_description
+            : null;
+
         Candidate::where('id', $this->candidateId)
             ->update([
-                'observation_description' => $value
+                'observation_description' => json_encode($data)
             ]);
     }
 

@@ -268,8 +268,6 @@
 
                     <h6 class="section-header">Observation</h6>
 
-                    <h6 class="section-header">Observation</h6>
-
                         <div class="mb-3">
 
                             <div class="form-check">
