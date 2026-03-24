@@ -80,8 +80,10 @@ class CandidateDocumentPreview extends Component
                 $this->observation_others_description = $candidate->observation_others_description;
             }
         }
-        
-       
+        $this->selectedObservations = is_array($this->observation_description)
+            ? $this->observation_description
+            : json_decode($this->observation_description, true) ?? [];
+            // dd($this->selectedObservations);
 
         $allowedStatuses = ['verified_pending_submission', 'approved'];
 

@@ -513,15 +513,17 @@
                                 <div class="col-md-12 col-lg-10 mb-3">
                                     <label class="form-label">Keywords</label>
                                     <div id="keyword-box" class="form-control d-flex flex-wrap gap-2 align-items-center" style="min-height: 45px; cursor: text;">
-                                        @foreach($keywords as $word)
-                                            <span class="badge bg-primary d-flex align-items-center">
-                                                {{ $word }}
-                                                <span class="ms-2 remove-keyword" data-value="{{ $word }}" style="cursor:pointer;">&times;</span>
-                                            </span>
-                                        @endforeach
+                                         @foreach($keywords as $word)
+                                                <span class="badge bg-primary d-flex align-items-center">
+                                                    {{ $word }}
+                                                    <span class="ms-2" wire:click="removeKeyword('{{ $word }}')" style="cursor:pointer;">&times;</span>
+                                                </span>
+                                            @endforeach
                                         <input 
                                             type="text" 
                                             id="keyword-input"
+                                            wire:model="keywordInput"
+                                            wire:keydown.enter.prevent="addKeyword"
                                             style="border:none; outline:none; flex:1; min-width:120px;"
                                             placeholder="Write Keyword And Press Enter"
                                         >
@@ -874,51 +876,6 @@
                 if (input) input.value = '';
             });
         </script>
-
-        <script>
-            document.addEventListener("DOMContentLoaded", function () {
-
-            let input = document.getElementById('keyword-input');
-            let box = document.getElementById('keyword-box');
-
-            // Focus input when clicking box
-            box.addEventListener('click', () => input.focus());
-
-            input.addEventListener('keydown', function(e) {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-
-                    let value = input.value.trim();
-
-                    if (value !== '') {
-
-                        let keywords = @this.get('keywords') || [];
-
-                        if (!keywords.includes(value)) {
-                            keywords.push(value);
-                            @this.set('keywords', keywords);
-                        }
-
-                        input.value = '';
-                    }
-                }
-            });
-
-            // Remove keyword
-            document.addEventListener('click', function(e) {
-                if (e.target.classList.contains('remove-keyword')) {
-                    let value = e.target.getAttribute('data-value');
-
-                    let keywords = @this.get('keywords') || [];
-                    keywords = keywords.filter(k => k !== value);
-
-                    @this.set('keywords', keywords);
-                }
-            });
-
-        });
-        </script>
-
         @endpush
 </div>
 
