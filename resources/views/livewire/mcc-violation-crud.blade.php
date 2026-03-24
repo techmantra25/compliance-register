@@ -21,15 +21,15 @@
             position: relative;
         }
         .file-box {
-            width: 100px;
-            height: 100px;
+            width: 50px;
+            height: 50px;
             border-radius: 12px;
             border: 1px solid #ddd;
             background: #f8f9fa;
             display: flex;
             align-items: center;
             justify-content: center;
-            overflow: hidden;
+            /* overflow: hidden; */
             margin: auto;
             position: relative;
         }
@@ -212,14 +212,11 @@
                                         </td>
                                         <td>{{ $item->created_at->format('d-m-Y h:i A') }}</td>
                                         <td>
-                                           @if($item->action_taken)
-
+                                           @if($item->associate_id)
                                                 <span class="badge bg-success">
                                                     {{ ucwords($item->legalAssociate->name ?? 'Assigned') }}
                                                 </span>
-
                                             @else
-
                                                 <button class="btn btn-sm btn-outline-primary"
                                                         wire:click="openAssignModal({{ $item->id }})">
                                                     <i class="bi bi-person-check"></i> Assign To
@@ -333,221 +330,241 @@
                     <div class="modal-body">
                         <form wire:submit.prevent="save" 
                             wire:key="mcc-form-{{ $mcc_id ?? 'new' }}" enctype="multipart/form-data">
+
                             <div class="row">
-                                <!-- Assembly -->
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Assembly</label>
-                                    <div wire:ignore>
-                                        <select class="form-control chosen-select" wire:model="assembly_id">
-                                            <option value="">Select Assembly</option>
-                                            @foreach($assembly as $a)
-                                                <option value="{{ $a->id }}" data-code="{{ $a->assembly_code }}"
-                                                    data-number="{{ $a->assembly_number }}">
-                                                    ({{$a->assembly_code}}) {{ $a->assembly_name_en }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                    @error('assembly_id') <small class="text-danger">{{ $message }}</small> @enderror
-                                </div>
 
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">
-                                        Category<span class="text-danger">*</span>
-                                    </label>
+                                <!-- LEFT SIDE -->
+                                <div class="col-md-6">
+                                    <div class="row">
 
-                                    <div class="d-flex gap-4">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="radio" name="category" id="for_aitc" value="For AITC" wire:model="category">
-                                            <label class="form-check-label" for="for_aitc">
-                                                For AITC
-                                            </label>
+                                        <!-- Assembly -->
+                                        <div class="col-7 mb-3">
+                                            <label class="form-label">Assembly<span class="text-danger">*</span></label>
+                                            <div wire:ignore>
+                                                <select class="form-control chosen-select" wire:model="assembly_id">
+                                                    <option value="">Select Assembly</option>
+                                                    @foreach($assembly as $a)
+                                                        <option value="{{ $a->id }}">
+                                                            {{$a->assembly_number}}-{{ $a->assembly_name_en }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                            @error('assembly_id') <small class="text-danger">{{ $message }}</small> @enderror
                                         </div>
 
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="radio" name="category" id="against_aitc" value="Against AITC" wire:model="category">
-                                            <label class="form-check-label" for="against_aitc">
-                                                Against AITC
+                                        <!-- Category -->
+                                        <div class="col-5 mb-3">
+                                            <label class="form-label">
+                                                Category<span class="text-danger">*</span>
                                             </label>
-                                        </div>
-                                    </div>
 
-                                    @error('category')
-                                        <small class="text-danger">{{ $message }}</small>
-                                    @enderror
-                                </div>
+                                            <div class="d-flex gap-4">
 
-                                <div class="col-md-6 mb-3">
-                                    <label>Block/Municipality/Town<span class="text-danger">*</span></label>
-                                    <input class="form-control" wire:model="block" placeholder="Enter Block/Municipality/Town">
-                                    @error('block') <small class="text-danger">{{ $message }}</small> @enderror
-                                </div>
+                                                <label class="form-check d-flex align-items-center gap-2" style="cursor:pointer;">
+                                                    <input class="form-check-input"
+                                                        type="radio"
+                                                        value="For AITC"
+                                                        name="category"
+                                                        wire:model="category">
+                                                    <span>For AITC</span>
+                                                </label>
 
-                                <div class="col-md-6 mb-3">
-                                    <label>GP/Ward</label>
-                                    <input class="form-control" wire:model="gp" placeholder="Enter GP/Word">
-                                    @error('gp') <small class="text-danger">{{ $message }}</small> @enderror
-                                </div>
-
-                                <div class="col-md-6 mb-3">
-                                    <label>Complainer Name<span class="text-danger">*</span></label>
-                                    <input class="form-control" wire:model="complainer_name" placeholder="Enter Complainer Name">
-                                    @error('complainer_name') <small class="text-danger">{{ $message }}</small> @enderror
-                                </div>
-
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Complainer Phone</label>
-                                    <input type="text" maxlength="10" class="form-control" wire:model="complainer_phone">
-                                    @error('complainer_phone') <small class="text-danger">{{ $message }}</small> @enderror
-                                </div>
-                                
-                               <div class="col-md-6 mb-3">
-                                    <label class="form-label">Assign To</label>
-
-                                    <div wire:ignore>
-                                        <select class="form-control chosen-select" wire:model="action_taken">
-                                            <option value="">Select Legal Associate</option>
-
-                                            @foreach($legalAssociates as $associate)
-                                                <option value="{{ $associate->id }}">
-                                                    {{ ucwords($associate->name) }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-
-                                    @error('action_taken')
-                                        <small class="text-danger">{{ $message }}</small>
-                                    @enderror
-                                </div>
-
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Supporting Documents</label>
-
-                                    <input type="file" class="form-control" wire:model="supporting_documents" multiple>
-
-                                    <div wire:loading wire:target="supporting_documents" class="text-muted mt-2">
-                                        <span class="spinner-border spinner-border-sm me-1"></span> Uploading...
-                                    </div>
-
-                                    @error('supporting_documents.*') 
-                                        <small class="text-danger">{{ $message }}</small> 
-                                    @enderror
-
-                                    <div class="d-flex flex-wrap gap-3 mt-3">
-
-                                        @foreach($supporting_documents as $index => $file)
-                                            @php
-                                                $ext = strtolower($file->getClientOriginalExtension());
-                                                $isImage = in_array($ext, ['jpg','jpeg','png','gif','webp']);
-                                            @endphp
-
-                                            <div class="file-card">
-
-                                                <!-- ❌ Remove Button -->
-                                                <span class="file-remove"
-                                                    wire:click="removeTempFile({{ $index }})">
-                                                    &times;
-                                                </span>
-
-                                                <!-- Preview -->
-                                                <div class="file-box">
-                                                    @if($isImage)
-                                                        <img src="{{ $file->temporaryUrl() }}">
-                                                    @else
-                                                        <i class="bi bi-file-earmark-text"></i>
-                                                    @endif
-                                                </div>
-
-                                                <!-- File Name -->
-                                                <div class="file-name">
-                                                    {{ Str::limit($file->getClientOriginalName(), 18) }}
-                                                </div>
+                                                <label class="form-check d-flex align-items-center gap-2" style="cursor:pointer;">
+                                                    <input class="form-check-input"
+                                                        type="radio"
+                                                        value="Against AITC"
+                                                        name="category"
+                                                        wire:model="category">
+                                                    <span>Against AITC</span>
+                                                </label>
 
                                             </div>
 
-                                        @endforeach
+                                            @error('category') <small class="text-danger">{{ $message }}</small> @enderror
+                                        </div>
+
+                                        <!-- Block -->
+                                        <div class="col-7 mb-3">
+                                            <label>Block/Municipality/Town</label>
+                                            <input class="form-control" wire:model="block">
+                                            @error('block') <small class="text-danger">{{ $message }}</small> @enderror
+                                        </div>
+
+                                        <!-- GP -->
+                                        <div class="col-5 mb-3">
+                                            <label>GP/Ward</label>
+                                            <input class="form-control" wire:model="gp">
+                                        </div>
+
+                                        <!-- Name -->
+                                        <div class="col-12 mb-3">
+                                            <label>Complainer Name</label>
+                                            <input class="form-control" wire:model="complainer_name">
+                                        </div>
+
+                                        <!-- Phone -->
+                                        <div class="col-12 mb-3">
+                                            <label>Complainer Phone</label>
+                                            <input type="text" maxlength="10" class="form-control" wire:model="complainer_phone">
+                                        </div>
+
+                                        <!-- Assign -->
+                                        <div class="col-12 mb-3">
+                                            <label class="form-label">Assign To<span class="text-danger">*</span></label>
+
+                                            <div wire:ignore>
+                                                <select class="form-control chosen-select" wire:model="action_taken">
+                                                    <option value="">Select Legal Associate</option>
+                                                    @foreach($legalAssociates as $associate)
+                                                        <option value="{{ $associate->id }}">
+                                                            {{ ucwords($associate->name) }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                             @error('action_taken')
+                                                <small class="text-danger">{{ $message }}</small>
+                                            @enderror
+                                        </div>
+
+                                        <!-- Documents -->
+                                          <div class="col-12 mb-3">
+                                            <label class="form-label">Keywords</label>
+
+                                            <div id="keyword-box" class="form-control d-flex flex-wrap gap-2 align-items-center"
+                                                style="min-height: 40px; cursor: text;">
+
+                                                @foreach($keywords as $word)
+                                                    <span class="badge bg-primary d-flex align-items-center">
+                                                        {{ $word }}
+                                                        <span class="ms-2 remove-keyword" data-value="{{ $word }}" style="cursor:pointer;">
+                                                            &times;
+                                                        </span>
+                                                    </span>
+                                                @endforeach
+
+                                                <input type="text" id="keyword-input"
+                                                    style="border:none; outline:none; flex:1; min-width:120px;"
+                                                    placeholder="Write Keyword And Press Enter">
+                                            </div>
+                                        </div>
 
                                     </div>
+                                </div>
 
-                                    @if($isEdit && $mcc_id)
-                                        @php
-                                            $docs = \App\Models\MccSupportingDocument::where('mcc_id', $mcc_id)->get();
-                                        @endphp
+                                <!-- RIGHT SIDE -->
+                                <div class="col-md-6">
 
-                                        <div class="d-flex flex-wrap gap-3 mt-3">
+                                    <!-- Description -->
+                                    <div class="mb-3">
+                                        <label class="form-label">Complainer Description<span class="text-danger">*</span></label>
+                                        <textarea class="form-control" rows="10"
+                                            wire:model="complainer_description"
+                                            placeholder="Write your complain here"></textarea>
+                                             @error('complainer_description')
+                                                <small class="text-danger">{{ $message }}</small>
+                                            @enderror
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Supporting Documents</label>
 
-                                            @foreach($docs as $doc)
-                                                @if(!in_array($doc->id, $deletedFiles))
+                                        <input type="file" class="form-control" wire:model="supporting_documents" multiple>
+                                        @if($errors->has('supporting_documents.*'))
+                                            @foreach($errors->get('supporting_documents.*') as $messages)
+                                                @foreach($messages as $message)
+                                                    <small class="text-danger d-block">{{ $message }}</small>
+                                                @endforeach
+                                            @endforeach
+                                        @endif
+
+                                        <!-- Loader -->
+                                        <div wire:loading wire:target="supporting_documents" class="text-muted mt-2">
+                                            <span class="spinner-border spinner-border-sm me-1"></span> Uploading...
+                                        </div>
+
+                                        <!-- Selected Files Preview -->
+                                        @if(!empty($supporting_documents))
+                                            <div class="d-flex flex-wrap gap-3 mt-3">
+
+                                                @foreach($supporting_documents as $index => $file)
                                                     @php
-                                                        $ext = strtolower(pathinfo($doc->file_path, PATHINFO_EXTENSION));
+                                                        $ext = strtolower($file->getClientOriginalExtension());
                                                         $isImage = in_array($ext, ['jpg','jpeg','png','gif','webp']);
                                                     @endphp
 
-                                                    <div class="file-card">
-
-                                                        <span class="file-remove"
-                                                            wire:click="removeExistingFile({{ $doc->id }})">
-                                                            &times;
-                                                        </span>
+                                                    <div class="text-center" style="width:40px;">
 
                                                         <div class="file-box">
+
+                                                            <!--  Remove -->
+                                                            <span class="file-remove"
+                                                                wire:click="removeTempFile({{ $index }})">
+                                                                &times;
+                                                            </span>
+
+                                                            <!-- Preview -->
                                                             @if($isImage)
-                                                                <img src="{{ asset($doc->file_path) }}">
+                                                                <img src="{{ $file->temporaryUrl() }}">
                                                             @else
                                                                 <i class="bi bi-file-earmark-text"></i>
                                                             @endif
+
                                                         </div>
 
-                                                        <div class="file-name">
-                                                            {{ basename($doc->file_path) }}
-                                                        </div>
+                                                        <!-- File Name -->
+                                                        {{-- <div class="file-name">
+                                                            {{ Str::limit($file->getClientOriginalName(), 18) }}
+                                                        </div> --}}
 
                                                     </div>
-                                                @endif
-                                            @endforeach
+                                                @endforeach
 
                                             </div>
-                                    @endif
-                                </div>
-                                <div class="col-md-12 col-lg-10 mb-3">
-                                    <label class="form-label">Keywords</label>
-                                    <div id="keyword-box" class="form-control d-flex flex-wrap gap-2 align-items-center" style="min-height: 45px; cursor: text;">
-                                        @foreach($keywords as $word)
-                                            <span class="badge bg-primary d-flex align-items-center">
-                                                {{ $word }}
-                                                <span class="ms-2 remove-keyword" data-value="{{ $word }}" style="cursor:pointer;">&times;</span>
-                                            </span>
-                                        @endforeach
-                                        <input 
-                                            type="text" 
-                                            id="keyword-input"
-                                            style="border:none; outline:none; flex:1; min-width:120px;"
-                                            placeholder="Write Keyword And Press Enter"
-                                        >
+                                        @endif
+
                                     </div>
+
                                 </div>
-                                <div class="col-md-10 mb-3">
-                                    <label class="form-label">Complainer Description</label>
-                                    <textarea class="form-control" wire:model="complainer_description" placeholder="Write your complain here"></textarea>
-                                    @error('complainer_description') <small class="text-danger">{{ $message }}</small> @enderror
-                                </div>
+
                             </div>
                         </form>
                     </div>
 
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
 
-                        <button type="submit" class="btn btn-primary" wire:click="save">
-                            {{ $isEdit ? 'Update' : 'Save' }}
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            Cancel
                         </button>
+
+                        <button type="button"
+                            class="btn btn-primary"
+                            wire:click="save"
+                            wire:loading.attr="disabled"
+                            wire:target="save,supporting_documents">
+
+                        <span wire:loading.remove wire:target="save,supporting_documents">
+                            {{ $isEdit ? 'Update' : 'Save' }}
+                        </span>
+
+                        <span wire:loading wire:target="save">
+                            <span class="spinner-border spinner-border-sm me-1"></span>
+                            Processing...
+                        </span>
+
+                        <span wire:loading.delay wire:target="supporting_documents">
+                            <span class="spinner-border spinner-border-sm me-1"></span>
+                            Uploading files...
+                        </span>
+
+                    </button>
+
                     </div>
                 </div>
             </div>
         </div>
 
-        <div wire:ignore class="modal fade" id="escalationModal" tabindex="-1" aria-labelledby="actionTakenModalLabel"
+        {{-- <div wire:ignore class="modal fade" id="escalationModal" tabindex="-1" aria-labelledby="actionTakenModalLabel"
             aria-hidden="true">
             <div class="modal-dialog modal-l"> 
                 <div class="modal-content">
@@ -568,7 +585,7 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div> --}}
 
         {{-- <div wire:ignore.self class="modal fade" id="importMccModal" tabindex="-1"
             aria-labelledby="importMccModalLabel" aria-hidden="true">
@@ -735,7 +752,7 @@
                         <div class="mb-3">
                             <label class="form-label">Assign To</label>
 
-                            <select class="form-control" wire:model="action_taken">
+                            <select class="form-control" wire:model="associate_id">
                                 <option value="">Select Legal Associate</option>
 
                                 @foreach($legalAssociates as $associate)
@@ -745,7 +762,7 @@
                                 @endforeach
                             </select>
 
-                            @error('action_taken')
+                            @error('associate_id')
                                 <small class="text-danger">{{ $message }}</small>
                             @enderror
                         </div>

@@ -25,6 +25,7 @@ class MccViolationCrud extends Component
     public $remarks;
     
     public $action_taken;
+    public $associate_id;
     public $selected_mcc_id;
 
     public $isEdit = false;
@@ -42,23 +43,51 @@ class MccViolationCrud extends Component
 
     protected $rules = [
         'assembly_id' => 'required|integer',
-        'block' => 'required|string',
+        'block' => 'nullable|string',
         'gp' => 'nullable|string',
-        'complainer_name' => 'required|string',
+        'complainer_name' => 'nullable|string',
         'complainer_phone' => 'nullable|digits:10',
-        'complainer_description' => 'nullable|string',
-        'action_taken' => 'nullable|exists:admins,id',
+        'complainer_description' => 'required|string',
+        'action_taken' => 'required|exists:admins,id',
         'category' => 'required',
         'supporting_documents.*' => 'file',
         'keywords' => 'nullable|array',
     ];
 
     protected $messages = [
+
+        // Assembly
         'assembly_id.required' => 'Please select assembly.',
-        'block.required' => 'Block is required.',
-        'complainer_name.required' => 'Complainer name is required.',
-        'complainer_phone.digits' => 'Phone must be 10 digits.',
-        'category.required' => 'Category is required.'
+        'assembly_id.integer' => 'Invalid assembly selected.',
+
+        // Block (nullable → only validate type)
+        'block.string' => 'Block must be valid text.',
+
+        // GP
+        'gp.string' => 'GP/Ward must be valid text.',
+
+        // Complainer Name
+        'complainer_name.string' => 'Complainer name must be valid.',
+
+        // Phone
+        'complainer_phone.digits' => 'Phone number must be exactly 10 digits.',
+
+        // Description
+        'complainer_description.required' => 'Complaint description is required.',
+        'complainer_description.string' => 'Description must be valid text.',
+
+        // Action Taken
+        'action_taken.required' => 'Please select legal associate.',
+        'action_taken.exists' => 'Selected legal associate is invalid.',
+
+        // Category
+        'category.required' => 'Please select category (For/Against AITC).',
+
+        // Documents
+        'supporting_documents.*.file' => 'Each file must be a valid file.',
+
+        // Keywords
+        'keywords.array' => 'Keywords must be in valid format.',
     ];
 
     public function mount()
@@ -66,6 +95,7 @@ class MccViolationCrud extends Component
         $this->assembly = Assembly::where('status', 'active')->orderBy('assembly_name_en')->get();
         $this->legalAssociates = Admin::where('role', 'legal_associate')->where('suspended_status', 1)->get();
     }
+    
 
     public function openMccModal()
     {
@@ -147,12 +177,11 @@ class MccViolationCrud extends Component
     }
     public function storeMcc()
     {
-        $this->validate();
 
+        $this->validate();
         try {
 
             $mccCode = $this->generateMccCode($this->assembly_id);
-
             $mcc = Mcc::create([
                 'assembly_id' => $this->assembly_id,
                 'category' => $this->category,
@@ -208,7 +237,7 @@ class MccViolationCrud extends Component
             $this->resetInputFields();
 
         } catch (\Exception $e) {
-            // dd($e->getMessage());
+            dd($e->getMessage());
 
             \Log::error($e->getMessage());
 
@@ -222,7 +251,7 @@ class MccViolationCrud extends Component
 
         $this->selected_mcc_id = $id;
         $this->complainer_name = $mcc->complainer_name;
-        $this->action_taken = $mcc->action_taken;
+        $this->associate_id = $mcc->associate_id;
 
         $this->dispatch('open-assign-modal');
     }
@@ -230,15 +259,15 @@ class MccViolationCrud extends Component
     public function updateAssign()
     {
         $this->validate([
-            'action_taken' => 'required|exists:admins,id'
+            'associate_id' => 'required|exists:admins,id'
         ]);
 
         $mcc = Mcc::findOrFail($this->selected_mcc_id);
 
         $mcc->update([
-            'action_taken' => $this->action_taken
+            'associate_id' => $this->associate_id
         ]);
-        $this->reset(['selected_mcc_id','action_taken']);
+        $this->reset(['selected_mcc_id','associate_id']);
         $this->dispatch('toastr:success', message: 'Legal associate assigned successfully');
 
         $this->dispatch('closeModal');

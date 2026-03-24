@@ -251,10 +251,8 @@
                 </div>
 
                 <div class="modal-body">
-
                     <label class="form-label">Select Employees</label>
-
-                    <div wire:ignore>
+                    <div>
                         <select class="form-control chosen-select" wire:model="assignedEmployee">
                             <option value="">Select Employee</option>
                            @foreach($employees as $emp)
@@ -270,14 +268,12 @@
                             @endforeach
                         </select>
                     </div>
-
                 </div>
 
                 <div class="modal-footer">
                     <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button class="btn btn-primary" wire:click="saveAssignments">Save</button>
+                    <button class="btn btn-primary" onclick="confirmSave()">Save</button>
                 </div>
-
             </div>
         </div>
     </div>
@@ -304,48 +300,65 @@
         </script>
         <link rel="stylesheet" href="{{ asset('assets/css/component-chosen.css') }}">
         <script src="{{ asset('assets/js/chosen.jquery.js') }}"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script>
-           function initChosen() {
-                $('.chosen-select').chosen({
-                    width: '100%',
-                    no_results_text: "No result found"
-                }).off('change').on('change', function () {
-                    let model = $(this).attr('wire:model');
+            function initChosen() {
+                $('.chosen-select').each(function () {
 
-                    if (model) {
-                        @this.set(model, $(this).val());
+                    let el = $(this);
+
+                    //  Destroy if already initialized
+                    if (el.data('chosen')) {
+                        el.chosen('destroy');
                     }
+
+                    //  Initialize
+                    el.chosen({
+                        width: '100%',
+                        no_results_text: "No result found"
+                    });
+
+                    //  Sync to Livewire
+                    el.off('change').on('change', function () {
+                        let model = el.attr('wire:model');
+                        if (model) {
+                            @this.set(model, el.val());
+                        }
+                    });
                 });
             }
 
-            document.addEventListener("livewire:navigated", () => {
+            //  Initial load
+            document.addEventListener("livewire:load", () => {
                 initChosen();
             });
 
-            Livewire.hook('morph.updated', ({ el, component }) => {
+            //  After every Livewire DOM update (ONLY ONE HOOK)
+            Livewire.hook('message.processed', () => {
                 initChosen();
-                //  After re-init, sync the Livewire value back to Chosen
+
+                //  Restore selected value
                 $('.chosen-select').each(function () {
-                    const el = $(this);
-                    const model = el.attr('wire:model');
-                    if (model && @this.get(model)) {
-                        el.val(@this.get(model)).trigger('chosen:updated');
+                    let el = $(this);
+                    let model = el.attr('wire:model');
+
+                    if (model) {
+                        let value = @this.get(model);
+                        if (value !== undefined) {
+                            el.val(value).trigger('chosen:updated');
+                        }
                     }
                 });
             });
 
-            Livewire.hook('morph.updated', () => {
-                initChosen();
-
+            //  Manual refresh trigger (optional)
+            window.addEventListener('refreshChosen', () => {
                 setTimeout(() => {
                     $('.chosen-select').trigger('chosen:updated');
-                }, 200);
+                }, 100);
             });
-
-            $(document).ready(function () {
-                initChosen();
-            });
-
+            </script>
+        <script>
             window.addEventListener('openUpdateModel', (event) => {
                 $('#assembly_name_en').val(event.detail[0].assembly_name_en);
                 $('#assembly_name_bn').val(event.detail[0].assembly_name_bn);
@@ -356,9 +369,6 @@
             window.addEventListener('closeUpdateModel', () => {
                 $('#updateModal').modal('hide');
             });
-        </script>
-
-        <script>
             window.addEventListener('openAssignModal', () => {
                 $('#assignModal').modal('show');
 
@@ -369,21 +379,77 @@
             window.addEventListener('closeAssignModal', () => {
                 $('#assignModal').modal('hide');
             });
-
-           window.addEventListener('refreshChosen', () => {
-                setTimeout(() => {
-                    $('.chosen-select').each(function () {
-                        let el = $(this);
-                        let model = el.attr('wire:model');
-
-                        if (model) {
-                            let value = @this.get(model);
-                            el.val(value).trigger('chosen:updated'); // single value
-                        }
-                    });
-                }, 200);
-            });
         </script>
+        <script>
+            function confirmSave() {
+                Swal.fire({
+                    title: "Are you sure?",
+                    text: "Do you want to save this assignment?",
+                    icon: "question",
+                    showCancelButton: true,
+                    confirmButtonColor: "#198754",
+                    cancelButtonColor: "#d33",
+                    confirmButtonText: "Yes, Save"
+                }).then((result) => {
+
+                    if (result.isConfirmed) {
+
+                        //  SHOW LOADER
+                        Swal.fire({
+                            title: "Please wait...",
+                            text: "Saving & sending email",
+                            allowOutsideClick: false,
+                            allowEscapeKey: false,
+                            showConfirmButton: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
+                        });
+
+                        @this.call('saveAssignments');
+                    }
+
+                });
+            }
+
+            //  SUCCESS
+            window.addEventListener('assignment-success', event => {
+                Swal.close(); //  CLOSE LOADER
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success',
+                    text: event.detail.message
+                });
+            });
+
+            // ⚠ WARNING
+            window.addEventListener('assignment-warning', event => {
+                Swal.close(); //  CLOSE LOADER
+
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Warning',
+                    text: event.detail.message
+                });
+            });
+
+            // ❌ ERROR
+            window.addEventListener('assignment-error', event => {
+                Swal.close(); // 🔥 CLOSE LOADER
+
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: event.detail.message
+                });
+            });
+            </script>
+            <script>
+                window.addEventListener('closeSwal', () => {
+                    Swal.close();
+                });
+            </script>
 
     @endpush
 </div>

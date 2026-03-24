@@ -9,6 +9,10 @@ use App\Models\Phase;
 use App\Models\PhaseWiseAssembly;
 use App\Models\District;
 use App\Models\Admin;
+use App\Models\Candidate;
+use App\Mail\AssignmentNotification;
+use Illuminate\Support\Facades\Mail;
+use Carbon\Carbon;
 
 class AssemblyList extends Component
 {
@@ -80,6 +84,7 @@ class AssemblyList extends Component
         $this->assignedEmployee = $assigned ? $assigned->id : null;
 
         $this->dispatch('openAssignModal');
+        $this->dispatch('ResetForm');
         $this->dispatch('refreshChosen');
     }
 
@@ -128,36 +133,95 @@ class AssemblyList extends Component
         ];
     }
 
-    public function saveAssignments()
+   public function saveAssignments()
     {
-        // Remove this assembly from all employees first
+        //  Step 0: Validation
+        if (empty($this->assembly_id)) {
+            $this->dispatch('assignment-error', message: 'Please select an assembly first');
+            return;
+        }
+
+        if (empty($this->assignedEmployee)) {
+            $this->dispatch('assignment-error', message: 'Please select an employee');
+            return;
+        }
+
+        //  Step 1: Remove this assembly from all employees
         $allEmployees = Admin::where('role', 'employee')->get();
 
         foreach ($allEmployees as $emp) {
             $assemblies = array_filter(explode(',', $emp->assemblies ?? ''));
 
+            // Remove current assembly_id
             $assemblies = array_diff($assemblies, [$this->assembly_id]);
 
-            $emp->assemblies = count($assemblies) ? implode(',', $assemblies) : null;
+            $emp->assemblies = !empty($assemblies) ? implode(',', $assemblies) : null;
             $emp->save();
         }
 
-        // Assign selected employees
-      if ($this->assignedEmployee) {
-            $emp = Admin::find($this->assignedEmployee);
+        //  Step 2: Assign selected employee
+        $emp = Admin::find($this->assignedEmployee);
 
-            $assemblies = array_filter(explode(',', $emp->assemblies ?? ''));
+        if (!$emp) {
+            $this->dispatch('assignment-error', message: 'Employee not found');
+            return;
+        }
 
-            if (!in_array($this->assembly_id, $assemblies)) {
-                $assemblies[] = $this->assembly_id;
+        $assemblies = array_filter(explode(',', $emp->assemblies ?? ''));
+
+        if (!in_array($this->assembly_id, $assemblies)) {
+            $assemblies[] = $this->assembly_id;
+        }
+
+        $emp->assemblies = implode(',', $assemblies);
+        $emp->save();
+
+        //  Step 3: Get Candidate using Assembly
+        $candidate = Candidate::where('assembly_id', $this->assembly_id)->first();
+
+        //  Step 4: Send Mail to Employee
+        $mailSent = false;
+
+        if ($candidate && !empty($emp->email)) {
+
+            $data = [
+                'candidate' => $candidate,
+
+                'ac' => optional($candidate->assembly)->assembly_code . ' | ' .
+                    optional($candidate->assembly)->assembly_name_en .
+                    ' (' . optional($candidate->assembly)->assembly_name_bn . ')',
+
+                'nominationDate' => optional(optional(optional($candidate->assembly)->assemblyPhase)->phase)->last_date_of_nomination
+                    ? Carbon::parse(optional(optional(optional($candidate->assembly)->assemblyPhase)->phase)->last_date_of_nomination)->format('d M Y')
+                    : 'N/A',
+
+                'electionDate' => optional(optional(optional($candidate->assembly)->assemblyPhase)->phase)->date_of_election
+                    ? Carbon::parse(optional(optional(optional($candidate->assembly)->assemblyPhase)->phase)->date_of_election)->format('d M Y')
+                    : 'N/A',
+
+                'link' => route('admin.candidates.contacts'),
+            ];
+
+            try {
+                //  IMPORTANT: Sending to EMPLOYEE
+                Mail::to($emp->email)->send(new AssignmentNotification($data));
+
+                $mailSent = true;
+
+            } catch (\Exception $e) {
+                $mailSent = false;
             }
-
-            $emp->assemblies = implode(',', $assemblies);
-            $emp->save();
         }
 
+        //  Step 5: Close Modal
         $this->dispatch('closeAssignModal');
-        $this->dispatch('toastr:success', message: 'Assigned successfully');
+        
+        //  Step 6: Final Alert
+        if ($mailSent) {
+            $this->dispatch('assignment-success', message: 'Assignment saved & email sent to employee');
+        } else {
+            $this->dispatch('assignment-warning', message: 'Assignment saved but email not sent');
+        }
     }
 
     public function updateStatus()
