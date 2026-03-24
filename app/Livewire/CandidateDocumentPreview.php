@@ -30,6 +30,15 @@ class CandidateDocumentPreview extends Component
     public $versionData;
     public $version_index = 1;
     public $observation_description;
+    public $observation_options = [
+        "name_incorrect" => 0,
+        "address_proof_required" => 0,
+        "profile_image_blurry" => 0,
+        "candidate_part_number_change" => 0,
+        "others" => 0,
+    ];
+    public $observation_others_description;
+
      public function mount(Request $request)
     {
         $candidateId = $request->query('candidate');
@@ -331,7 +340,7 @@ class CandidateDocumentPreview extends Component
                     'version' => $latestVersion,
                 ],
                 [
-                    'observations' => $update->observation_description,
+                    'observations' => $jsonObservation,
                     'generated_by' => Auth::guard('admin')->id(),
                 ]
             );

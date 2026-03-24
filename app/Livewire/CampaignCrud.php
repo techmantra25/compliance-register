@@ -145,8 +145,8 @@ class CampaignCrud extends Component
 
     public function removeTempFile($index)
     {
-        unset($this->supporting_documents[$index]);
-        $this->supporting_documents = array_values($this->supporting_documents);
+        unset($this->permission_documents[$index]);
+        $this->permission_documents = array_values($this->permission_documents);
     }
 
     public function removeExistingFile($id)
@@ -608,6 +608,7 @@ class CampaignCrud extends Component
                     $q->where('campaign_date', "like", "%{$this->search}%")
                     ->orWhere('address', "like", "%{$this->search}%")
                     ->orWhere('remarks', "like", "%{$this->search}%")
+                    ->orWhere('keywords', "like", "%{$this->search}%")
                     ->orWhereHas('assembly', function ($asmb) {
                         $asmb->where('assembly_number', "like", "%{$this->search}%")
                             ->orWhere('assembly_name_en', "like", "%{$this->search}%")

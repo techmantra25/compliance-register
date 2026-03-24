@@ -17,20 +17,20 @@
             <div class="row">
 
                 <!-- Assembly -->
-                <div class="col-md-4 mb-3">
+                <div class="col-md-6 mb-3">
                     <strong>Assembly</strong><br>
                     ({{ $camp->assembly->assembly_code ?? 'N/A' }})
                     {{ $camp->assembly->assembly_name_en ?? 'N/A' }}
                 </div>
 
                 <!-- Phase -->
-                <div class="col-md-4 mb-3">
+                <div class="col-md-6 mb-3">
                     <strong>Phase</strong><br>
                     {{ optional(optional($camp->assembly->assemblyPhase)->phase)->name ?? 'N/A' }}
                 </div>
 
                 <!-- Event Type -->
-                <div class="col-md-4 mb-3">
+                <div class="col-md-6 mb-3">
                     @if($camp->event_category_others)
                         <strong>Other Event Category</strong><br> {{ $camp->event_category_others }}
                     @else
@@ -39,13 +39,13 @@
                 </div>
 
                 <!-- Address -->
-                <div class="col-md-4 mb-3">
+                <div class="col-md-6 mb-3">
                     <strong>Address</strong><br>
                     {{ $camp->address }}
                 </div>
 
                 <!-- Dates -->
-                <div class="col-md-4 mb-3">
+                <div class="col-md-6 mb-3">
                     <strong>Date & Time</strong>
 
                     <div>
@@ -56,7 +56,7 @@
                 </div>
 
                 <!-- Campaigner -->
-                <div class="col-md-4 mb-3">
+                <div class="col-md-6 mb-3">
                     <strong>Campaigner Details</strong>
 
                     @foreach($camp->campaigners as $c)
@@ -72,25 +72,8 @@
                     @endforeach
                 </div>
 
-                <!-- Status -->
-                <div class="col-md-4 mb-3">
-                    <strong>Status</strong><br>
-
-                    @if($camp->status == 'pending')
-                        <span class="badge bg-warning">Pending</span>
-                    @elseif($camp->status == 'completed')
-                        <span class="badge bg-success">Completed</span>
-                    @elseif($camp->status == 'rescheduled')
-                        <span class="badge bg-info">Rescheduled</span>
-                    @elseif($camp->status == 'cancelled')
-                        <span class="badge bg-danger">Cancelled</span>
-                    @else
-                        <span class="badge bg-secondary">{{ ucfirst($camp->status) }}</span>
-                    @endif
-                </div>
-
                 <!-- Keywords -->
-                <div class="col-md-4 mb-3">
+                <div class="col-md-6 mb-3">
                     <strong>Keywords</strong><br>
 
                     @if($camp->keywords)

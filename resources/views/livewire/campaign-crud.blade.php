@@ -150,14 +150,6 @@
                             </select>
                         </div>
 
-                        <div class="col-md-6 col-lg-2">
-                            <select wire:model="filter_by_status" class="form-select select-style" wire:change="filterStatus($event.target.value)">
-                                <option value="">Filter by Status</option>
-                                @foreach ($statuses as $status_item)
-                                    <option value="{{ $status_item }}">{{ ucwords($status_item) }}</option>
-                                @endforeach
-                            </select>
-                        </div>
 
                         <div class="col-md-3 col-lg-2 text-md-center text-end">
                             <button class="btn btn-sm btn-danger"
@@ -187,9 +179,9 @@
                                 <tr class="text-center">
                                     <th width="50">#</th>
                                     <th class="text-start">Campaign Details</th>
+                                    <th class="text-start">Assembly</th>
                                     <th class="text-start">Campaigner</th>
                                     {{-- <th>Permissions</th> --}}
-                                    <th>Status</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
@@ -216,13 +208,7 @@
                                             @endif
                                         </div>
 
-                                        <div class="small text-muted mb-1">
-                                            @if(optional($camp->assembly)->assembly_name_en)
-
-                                            <i class="bi bi-geo-alt text-danger"></i>
-                                            {{ ucwords($camp->assembly->assembly_name_en) }}
-                                            @endif
-                                        </div>
+                                    
 
                                         <div class="small text-muted">
                                             @if($camp->campaign_date)
@@ -232,6 +218,14 @@
                                         </div>
 
 
+                                    </td>
+                                    <td>    
+                                        <div class="small text-muted mb-1">
+                                            @if(optional($camp->assembly)->assembly_name_en)
+
+                                            {{ ucwords($camp->assembly->assembly_name_en) }}
+                                            @endif
+                                        </div>
                                     </td>
 
                                     <!-- Campaigner -->
@@ -294,46 +288,6 @@
                                     </td> --}}
 
 
-
-                                    <!-- Status -->
-                                    <td class="text-center">
-
-                                        {{-- <select wire:change="statusChanged({{ $camp->id }}, $event.target.value)"
-                                            class="form-select form-select-sm rounded-pill fw-semibold text-center">
-
-                                            <option value="pending" @selected($camp->status=='pending')>
-                                                ⏳ Pending
-                                            </option>
-
-                                            <option value="rescheduled" @selected($camp->status=='rescheduled')>
-                                                🔄 Rescheduled
-                                            </option>
-
-                                            <option value="cancelled" @selected($camp->status=='cancelled')>
-                                                ❌ Cancelled
-                                            </option>
-
-                                            <option value="completed" @selected($camp->status=='completed')>
-                                                ✅ Completed
-                                            </option>
-
-                                        </select> --}}
-
-                                         <span class="badge
-                                                @if($camp->status == 'pending') bg-warning
-                                                @elseif($camp->status == 'rescheduled') bg-info
-                                                @elseif($camp->status == 'cancelled') bg-danger
-                                                @elseif($camp->status == 'completed') bg-success
-                                                @else bg-secondary
-                                                @endif">
-
-                                                {{ ucwords(str_replace('_',' ', $camp->status)) }}
-                                        </span>
-
-                                    </td>
-
-
-
                                     <!-- Action -->
                                     <td class="text-center">
 
@@ -343,11 +297,11 @@
                                                 data-bs-toggle="modal" data-bs-target="#campaignModal">
                                                 <i class="bi bi-pencil"></i>
                                             </button>
-
+<!-- 
                                             <a href="{{ route('admin.campaigns.permission',$camp->id) }}"
                                                 class="btn btn-outline-success">
                                                 <i class="bi bi-file-earmark-check"></i>
-                                            </a>
+                                            </a> -->
 
                                             <a href="{{ route('admin.campaigns.view', $camp->id) }}"
                                                 class="btn btn-outline-dark">
@@ -477,9 +431,12 @@
                                     @error('event_category_id') <small class="text-danger">{{ $message }}</small> @enderror
                                 </div>
                                 @if($show_other_category)
-                                    <div class="col-md-12 mb-3">
+                                    <div class="col-md-6 mb-3">
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
                                         <label class="form-label">Other Event Category</label>
-                                        <textarea class="form-control" wire:model="other_event_category" rows="3"></textarea>
+                                        <input class="form-control" wire:model="other_event_category">
 
                                         @error('other_event_category')
                                             <small class="text-danger">{{ $message }}</small>
