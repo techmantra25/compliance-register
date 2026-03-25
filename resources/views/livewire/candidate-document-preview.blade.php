@@ -199,6 +199,23 @@
                                 @endforeach
 
                                 <div class="dropdown-divider"></div>
+                                 @if($candidateData->document_collection_status === 'ready_for_vetting')
+
+                                    @php
+                                        $isLatest = !request()->has('version');
+                                    @endphp
+
+                                    <a class="dropdown-item {{ $isLatest ? 'active' : '' }}"
+                                    href="{{ route('admin.candidates.documents.preview', ['candidate' => $candidateId]) }}">
+                                        
+                                        Latest Preview
+                                        
+                                        @if($isLatest)
+                                            ✓
+                                        @endif
+                                    </a>
+
+                                @endif
 
                             </div>
                         </div>
@@ -265,7 +282,15 @@
                 <div class="col-md-3 col-lg-3 border-start">
 
                     <h6 class="section-header">Observation</h6>
-
+                    @if(
+                        (is_null($candidateData->legal_associate_id) || 
+                        Auth::guard('admin')->user()->id == $candidateData->legal_associate_id)
+                        &&
+                        !in_array($candidateData->status, [
+                            'without_criminal_rejected_observation_only',
+                            'without_criminal_full_generation'
+                        ])
+                    )
                     <!-- Checkboxes -->
                     <div class="mb-3">
 
@@ -308,6 +333,7 @@
                     <div id="others_editor_box" style="display: {{ in_array('Others', $selectedObservations ?? []) ? 'block' : 'none' }};" wire:ignore>
                         <textarea id="editor" class="form-control">{{ $observation_others_description }}</textarea>
                     </div>
+                    @endif
 
                 </div>
 
