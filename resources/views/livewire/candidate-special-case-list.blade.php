@@ -210,6 +210,28 @@
                                     </td>
 
                                     <td class="">
+                                        @if($candidate->status == "without_criminal_full_generation")
+                                            @if($candidate->nominationForm && $candidate->nominationForm->logs->count())
+                                                <div class="tooltip-wrapper m-1">
+                                                    <button 
+                                                            class="btn btn-sm btn-outline-primary"
+                                                            wire:click="openFormModal({{ $candidate->id }})"
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#formModal"
+                                                        >
+                                                        <i class="bi bi-download me-1"></i> Form 2B
+                                                    </button>
+                                                </div>
+                                            @else
+                                                <div class="tooltip-wrapper m-1">
+                                                    <a href="{{ route('admin.candidates.form2B', $candidate->id) }}"
+                                                    class="btn btn-sm btn-outline-success">
+                                                    Generate Form 2B
+                                                    </a>
+                                                    <span class="tooltip-text">Generate Form 2B PDF</span>
+                                                </div>
+                                            @endif
+                                        @endif
                                         @if($authUser->role=='legal_associate')
                                             <div class="tooltip-wrapper">
                                                 <a href="{{ route('admin.candidates.documents', ['candidate' => $candidate->id]) }}"
@@ -217,51 +239,9 @@
                                                     Preview <i class="bi bi-arrow-right-circle ms-1"></i>
                                                 </a>
                                                 <span class="tooltip-text">Preview Documents</span>
-                                                </div>
-                                        @else
-                                            @if($candidate->document_collection_status !== 'rejected')
-
-                                                @if(childUserAccess(Auth::guard('admin')->user()->id,'nomination_assign_agents'))
-                                                <div class="tooltip-wrapper m-1">
-                                                    <button 
-                                                        class="btn btn-sm btn-outline-{{ count($candidate->agents) > 0 ? 'primary' : 'danger' }}"
-                                                        wire:click="openAgentModal({{ $candidate->id }})"
-                                                        data-bs-toggle="modal"
-                                                        data-bs-target="#assignAgentModal">
-                                                        <i class="bi bi-people"></i>
-                                                    </button>
-
-                                                    <span class="tooltip-text">
-                                                    {{ count($candidate->agents) > 0 ? 'View or Change Assigned Agent' : 'Assign Agent to Candidate' }}
-                                                    </span>
-                                                </div>
-                                                @endif
-
-                                                @if(childUserAccess(Auth::guard('admin')->user()->id,'nomination_update_candidate'))
-                                                <div class="tooltip-wrapper m-1">
-                                                    <button class="btn btn-sm btn-outline-success"
-                                                        wire:click="edit({{ $candidate->id }})"
-                                                        data-bs-toggle="modal"
-                                                        data-bs-target="#candidateModal">
-                                                        <i class="bi bi-pencil"></i>
-                                                    </button>
-                                                    <span class="tooltip-text">Edit Candidate</span>
-                                                </div>
-                                                @endif
-
-                                            @endif
-
-                                            @if(childUserAccess(Auth::guard('admin')->user()->id,'nomination_candidate_journey_timeline'))
-                                                <div class="tooltip-wrapper m-1">
-                                                    <a href="{{ route('admin.candidates.journey', $candidate->id) }}"
-                                                    class="btn btn-sm btn-outline-success">
-                                                    <i class="bi bi-clock-history"></i>
-                                                    </a>
-                                                    <span class="tooltip-text">Candidate Journey Timeline</span>
-                                                </div>
-                                            @endif
+                                            </div>
                                         @endif
-                                        </td>
+                                    </td>
 
                                 </tr>
                                 @empty
@@ -293,7 +273,60 @@
             </div>
         </div>
     </div>
+    <div wire:ignore.self class="modal fade" id="formModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
 
+                <div class="modal-header">
+                    <h5 class="modal-title">Form 2B</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+                    @if($candidateId)
+                    <div class="mb-3">
+                        <a href="{{ route('admin.candidates.form2B', $candidateId) }}"
+                        class="btn btn-success w-100" onclick="$('#formModal').modal('hide')">
+                            Generate New Form 2B
+                        </a>
+                    </div>
+                    @endif
+                    @if(count($form2bLogs) > 0)
+
+                        <h6 class="mb-2">Previous Generated Forms</h6>
+
+                        <table class="table table-bordered">
+                            
+                            <tbody>
+                                @foreach($form2bLogs as $log)
+                                    <tr>
+                                        <td>
+                                            {{ \Carbon\Carbon::parse($log->created_at)->format('d M Y, h:i A') }}
+                                        </td>
+                                        <td>
+                                            <button 
+                                                class="btn btn-sm btn-success"
+                                                wire:click="openPrintPreview({{ $log->id }})"
+                                            >
+                                                <i class="bi bi-download me-1"></i> Form
+                                            </button>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+
+                    @else
+                        <div class="alert alert-warning text-center">
+                            No Form 2B generated yet.
+                        </div>
+                    @endif
+
+                </div>
+
+            </div>
+        </div>
+    </div>
 
     <div class="loader-container" wire:loading wire:target="">
         <div class="loader"></div>
@@ -397,6 +430,13 @@
             });
         });
 
+        document.addEventListener('livewire:init', () => {
+
+            Livewire.on('openNewTab', ({ url }) => {
+                window.open(url, '_blank');
+            });
+
+        });
     </script>
 
     @endpush

@@ -102,6 +102,23 @@ class CandidateSpecialCaseList extends Component
         $this->resetPage();
     }
 
+    public function openFormModal($candidateId)
+    {
+        $this->candidateId = $candidateId;
+
+        $this->form2bLogs = NominationLog::whereHas('nomination', function ($q) use ($candidateId) {
+            $q->where('candidate_id', $candidateId)
+            ->where('form_type', 'form_2b');
+        })
+        ->latest()
+        ->get();
+    }
+    public function openPrintPreview($logId)
+    {
+        $url = route('admin.form2b.preview.log', $logId);
+
+        $this->dispatch('openNewTab', url: $url);
+    }
     private function getFilteredQuery()
     {
         $query = Candidate::query()

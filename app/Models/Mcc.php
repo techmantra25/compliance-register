@@ -10,7 +10,7 @@ class Mcc extends Model
     protected $table = 'mcc';
 
     protected $fillable = [
-            'assembly_id', 'category','mcc_code','block', 'gp', 'complainer_name', 'complainer_phone','complainer_description', 'attachment', 'keywords', 'remarks','action_taken','status'
+           'assembly_id', 'category', 'mcc_code', 'block', 'gp', 'complainer_name', 'complainer_phone', 'complainer_description', 'attachment', 'keywords', 'remarks', 'action_taken', 'solved_by', 'solved_at', 'status'
     ];
 
     public function districts(){
@@ -32,9 +32,5 @@ class Mcc extends Model
     public function Remarks()
     {
         return $this->hasMany(MccRemarks::class, 'mcc_id');
-    }
-    public function supportingDocuments()
-    {
-        return $this->hasMany(MccSupportingDocument::class);
     }
 }

@@ -151,17 +151,6 @@
                         </div>
                     </div>
 
-                   <!-- <div class="d-flex align-items-center">
-
-
-                        
-                         <input type="text" wire:model="search" wire:keyup="filterCampaign($event.target.value)"
-                            class="form-control form-control-sm w-auto me-2"
-                            placeholder="Search here...">
-
-
-                        
-                    </div> -->
                 </div>
 
                 <div class="card-body p-0">
@@ -423,29 +412,26 @@
                                                 <small class="text-danger">{{ $message }}</small>
                                             @enderror
                                         </div>
-
-                                        <!-- Documents -->
-                                          <div class="col-12 mb-3">
+                                        <div class="col-12 mb-3">
                                             <label class="form-label">Keywords</label>
-
-                                            <div id="keyword-box" class="form-control d-flex flex-wrap gap-2 align-items-center"
-                                                style="min-height: 40px; cursor: text;">
-
+                                            <div id="keyword-box" class="form-control d-flex flex-wrap gap-2 align-items-center" style="min-height: 45px; cursor: text;">
                                                 @foreach($keywords as $word)
-                                                    <span class="badge bg-primary d-flex align-items-center">
-                                                        {{ $word }}
-                                                        <span class="ms-2 remove-keyword" data-value="{{ $word }}" style="cursor:pointer;">
-                                                            &times;
+                                                        <span class="badge bg-primary d-flex align-items-center">
+                                                            {{ $word }}
+                                                            <span class="ms-2" wire:click="removeKeyword('{{ $word }}')" style="cursor:pointer;">&times;</span>
                                                         </span>
-                                                    </span>
-                                                @endforeach
-
-                                                <input type="text" id="keyword-input"
+                                                    @endforeach
+                                                <input 
+                                                    type="text" 
+                                                    id="keyword-input"
+                                                    wire:model="keywordInput"
+                                                    wire:keydown.enter.prevent="addKeyword"
                                                     style="border:none; outline:none; flex:1; min-width:120px;"
-                                                    placeholder="Write Keyword And Press Enter">
+                                                    placeholder="Write Keyword And Press Enter"
+                                                >
                                             </div>
-                                        </div>
 
+                                        </div>
                                     </div>
                                 </div>
 
@@ -519,27 +505,6 @@
                                             </div>
                                     @endif
                                 </div>
-                                <div class="col-md-12 col-lg-10 mb-3">
-                                    <label class="form-label">Keywords</label>
-                                    <div id="keyword-box" class="form-control d-flex flex-wrap gap-2 align-items-center" style="min-height: 45px; cursor: text;">
-                                         @foreach($keywords as $word)
-                                                <span class="badge bg-primary d-flex align-items-center">
-                                                    {{ $word }}
-                                                    <span class="ms-2" wire:click="removeKeyword('{{ $word }}')" style="cursor:pointer;">&times;</span>
-                                                </span>
-                                            @endforeach
-                                        <input 
-                                            type="text" 
-                                            id="keyword-input"
-                                            wire:model="keywordInput"
-                                            wire:keydown.enter.prevent="addKeyword"
-                                            style="border:none; outline:none; flex:1; min-width:120px;"
-                                            placeholder="Write Keyword And Press Enter"
-                                        >
-                                    </div>
-
-                                </div>
-
                             </div>
                         </form>
                     </div>

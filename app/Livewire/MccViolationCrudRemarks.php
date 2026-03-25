@@ -8,105 +8,121 @@ use App\Models\Mcc;
 use App\Models\MccRemarks;
 use App\Models\MccSupportingDocument;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use App\Models\Admin;
+use Illuminate\Support\Facades\DB;
 
 class MccViolationCrudRemarks extends Component
 {
     use WithFileUploads;
 
     public $mcc;
-    public $userRole;
     public $remark;
-    public $attachment;
+    public $attachment = [];
+    public $selectedFile;
+    public $userRole;
+    public $allUsers;
+    public $tag_with = [];
 
     protected $rules = [
         'remark' => 'required|min:3',
-        'attachment' => 'nullable|file|mimes:jpg,jpeg,png,gif,webp,bmp,svg,pdf|max:4096'
+        'attachment.*' => 'nullable|file|max:4096',
+        'tag_with' => 'nullable|array'
     ];
 
     public function mount($id)
     {
+        $this->allUsers = Admin::where('suspended_status', 1)->orderBy('name', 'ASC')->orderBy('role', 'ASC')->get();
         $this->mcc = Mcc::findOrFail($id);
     }
 
     public function saveRemark()
     {
-        $this->validate();
+      
 
-         $filePath = null;
-        if ($this->attachment) {
-            $file = $this->attachment;
-            $timestamp = now()->format('Ymd_His');
-            $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-            $extension = $file->getClientOriginalExtension();
+        DB::beginTransaction();
 
-            $filename = "{$originalName}_{$timestamp}.{$extension}";
-            $filePath = $file->storeAs("mcc_docs/{$this->mcc->id}", $filename, 'public');
+        $uploadedPaths = [];
+
+        try {
+              $this->validate();
+            // Step 1: Create Remark
+            $remark = MccRemarks::create([
+                'mcc_id' => $this->mcc->id,
+                'admin_id' => auth()->guard('admin')->id(),
+                'remarks' => $this->remark,
+                'tag_with' => !empty($this->tag_with) ? implode(',', $this->tag_with) : null,
+                'is_read' => 0
+            ]);
+
+            // Step 2: Upload Files
+            if (!empty($this->attachment)) {
+                foreach ($this->attachment as $file) {
+
+                    $filename = time().'_'.$file->getClientOriginalName();
+
+                    $path = $file->storeAs(
+                        "mcc_docs/{$this->mcc->id}",
+                        $filename,
+                        'public'
+                    );
+
+                    $uploadedPaths[] = $path; // track for rollback
+
+                    MccSupportingDocument::create([
+                        'mcc_remarks_id' => $remark->id,
+                        'file_path' => 'storage/'.$path
+                    ]);
+                }
+            }
+
+            //  Commit
+            DB::commit();
+
+            // Reset form
+            $this->reset(['remark', 'attachment', 'tag_with']);
+            $this->dispatch('ResetFormData');
+            $this->dispatch('toastr:success', message: 'Remark added successfully!');
+
+        } catch (\Exception $e) {
+
+            //  Rollback DB
+            DB::rollBack();
+            // dd($e->getMessage());
+            //  Delete uploaded files if any error occurs
+            if (!empty($uploadedPaths)) {
+                foreach ($uploadedPaths as $path) {
+                    if (Storage::disk('public')->exists($path)) {
+                        Storage::disk('public')->delete($path);
+                    }
+                }
+            }
+
+            // Log error
+            // \Log::error('Save Remark Error: '.$e->getMessage());
+
+            // Show error to UI
+            $this->dispatch('toastr:error', message: $e->getMessage());
         }
-        MccRemarks::create([
-            'mcc_id' => $this->mcc->id,
-            'remarks' => $this->remark,
-            'attachment' => $filePath ? 'storage/'.$filePath : null,
-            'legal_associate_id' => auth()->guard('admin')->id(),
-            'is_read' => 0
-        ]);
-
-        $this->reset(['remark','attachment']);
-        $this->dispatch('ResetForm');
-        $this->dispatch('toastr:success', message: 'Remark added successfully!');
     }
-    public function preConfirmResolve($id, $newStatus)
+    public function saveRemarks($value){
+        $this->remark = $value;
+    }
+    public function selectFile($path)
     {
-        $this->dispatch('showStatusConfirm', [
-            'itemId' => $id,
-            'newStatus' => $newStatus
-        ]);
-    }
-
-    public function updateStatus($id, $newStatus)
-    {
-        $mcc = Mcc::find($id);
-        if ($mcc) {
-            $mcc->status = $newStatus;
-            $mcc->save();
-            $this->mcc = $mcc;
-            $this->dispatch('toastr:success', message: 'Status updated successfully.');
-        }
-    }
-    public function addCancel($id){
-        $this->dispatch('showConfirm', ['itemId' => $id]);
-    }
-
-    public function CancelRemarks($id){
-        $mccRemarks = MccRemarks::find($id);
-        $mccRemarks->is_cancelled = 1;
-        $mccRemarks->save();
-        $this->dispatch('toastr:success', message: 'The remark has been cancelled successfully');
+        $this->selectedFile = $path;
     }
 
     public function render()
     {
-        $this->userRole = trim(strtolower(Auth::guard('admin')->user()->role));
-        if ($this->userRole == 'legal_associate' && Auth::guard('admin')->user()    ->id != $this->mcc->action_taken) {
-            abort(403, 'You are not authorized to access this Complaint case.');
-        }
-        if ($this->userRole == 'admin') {
-            MccRemarks::where('mcc_id', $this->mcc->id)
-                ->update([
-                    'is_read' => 1,
-                ]);
-        }
-        $remarks = MccRemarks::where('mcc_id', $this->mcc->id)
-            ->latest()
+        $this->userRole = strtolower(Auth::guard('admin')->user()->role);
+
+        $remarks = MccRemarks::with('supportingDocuments')
+            ->where('mcc_id', $this->mcc->id)
+            ->orderBy('id', 'ASC')
             ->get();
 
-        $supportingDocs = MccSupportingDocument::where('mcc_id', $this->mcc->id)->get();
-        $legalAssociate = null;
-        if ($this->mcc->action_taken) {
-            $legalAssociate = Admin::find($this->mcc->action_taken);
-        }
-
-        return view('livewire.mcc-violation-crud-remarks', compact('remarks', 'supportingDocs','legalAssociate'))
+        return view('livewire.mcc-violation-crud-remarks', compact('remarks'))
             ->layout('layouts.admin');
     }
 }

@@ -37,7 +37,7 @@
 
                     <div class="d-flex gap-2">
 
-                        <input type="text" wire:model="search" class="form-control form-control-sm"
+                        <input type="text" wire:model="search" wire:keyup="filterCandidates($event.target.value)" class="form-control form-control-sm"
                             placeholder="Search employee">
 
                         <button class="btn btn-sm btn-danger" wire:click="resetInputFields">
@@ -83,11 +83,9 @@
                                     <td>{{ $admin->mobile ?? '-' }}</td>
 
                                     <td>
-                                        @php
-                                        $roleText = ucwords(str_replace('_',' ',$admin->role));
-                                        @endphp
-
-                                        <span class="badge bg-info">{{ $roleText }}</span>
+                                        <span class="badge {{ $admin->role_badge }}">
+                                            {{ $admin->role_label }}
+                                        </span>
                                     </td>
 
 
@@ -121,13 +119,14 @@
 
                                             </button>
                                        
+                                            @if ($admin->role == 'employee')
+                                                <a href="{{ route('admin.employees.permissions',$admin->id) }}"
+                                                    class="btn btn-sm btn-outline-secondary">
 
-                                            <a href="{{ route('admin.employees.permissions',$admin->id) }}"
-                                                class="btn btn-sm btn-outline-secondary">
+                                                    <i class="bi bi-shield-lock"></i>
 
-                                                <i class="bi bi-shield-lock"></i>
-
-                                            </a>
+                                                </a>
+                                            @endif
                                          @endif
 
                                     </td>
@@ -229,11 +228,11 @@
                                 <option value="">Select Role</option>
 
                                 <option value="employee">
-                                    Employee
+                                    Employee(L2)
                                 </option>
 
                                 <option value="legal_associate">
-                                    Legal Associate
+                                    Legal Associate(L1/TM)
                                 </option>
 
                             </select>
@@ -368,6 +367,23 @@
 
 
     <script>
+        window.addEventListener('ResetForm', event => {
+
+            document.querySelectorAll('input, textarea, select').forEach(el => {
+
+                if (el.type === 'checkbox' || el.type === 'radio') {
+                    // el.checked = false;
+                } 
+                else if (el.tagName === 'SELECT') {
+                    el.selectedIndex = 0;
+                } 
+                else {
+                    el.value = '';
+                }
+
+            });
+
+        });
         function initChosen() {
 
             $('.chosen-select').chosen({

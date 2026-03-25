@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class MccRemarks extends Model
 {
     protected $fillable = [
-        'mcc_id', 'legal_associate_id', 'remarks', 'attachment', 'is_read', 'is_cancelled'
+        'mcc_id', 'admin_id', 'remarks', 'is_read', 'is_cancelled', 'tag_with'
     ];
 
     public function mcc()
@@ -17,6 +17,10 @@ class MccRemarks extends Model
 
     public function legalAssociate()
     {
-        return $this->belongsTo(Admin::class, 'legal_associate_id');
+        return $this->belongsTo(Admin::class, 'admin_id');
+    }
+    public function supportingDocuments()
+    {
+        return $this->hasMany(MccSupportingDocument::class, 'mcc_remarks_id');
     }
 }

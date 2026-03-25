@@ -36,4 +36,24 @@ class Admin extends Authenticatable
                 ->toArray();
         return $permissions;
     }
+
+    public function getRoleLabelAttribute()
+    {
+        return match($this->role) {
+            'legal_associate' => 'Legal Associate (L1/TM)',
+            'employee' => 'Employee (L2)',
+            'admin' => 'Admin',
+            default => ucwords(str_replace('_',' ',$this->role)),
+        };
+    }
+
+    public function getRoleBadgeAttribute()
+    {
+        return match($this->role) {
+            'legal_associate' => 'bg-primary',
+            'employee' => 'bg-success',
+            'admin' => 'bg-danger',
+            default => 'bg-secondary',
+        };
+    }
 }

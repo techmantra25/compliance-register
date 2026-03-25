@@ -315,6 +315,10 @@ class EmployeeCrud extends Component
     public function ChangeRole($value){
         $this->role = $value;
     }
+    public function filterCandidates($searchTerm)
+    {
+        $this->search = $searchTerm;
+    }
 
     public function render()
     {

@@ -8,12 +8,12 @@ class MccSupportingDocument extends Model
 {
     protected $table = 'mcc_supporting_documents';
     protected $fillable = [
-        'mcc_id',
+        'mcc_remarks_id',
         'file_path'
     ];
 
-    public function mcc()
+    public function remarks()
     {
-        return $this->belongsTo(Mcc::class);
+        return $this->belongsTo(MccRemarks::class);
     }
 }

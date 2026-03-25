@@ -10,7 +10,10 @@ use App\Models\Mcc;
 use App\Models\Admin;
 use App\Models\ChangeLog;
 use App\Models\MccRemarks;
+use Illuminate\Support\Facades\Auth;
 use App\Models\MccSupportingDocument;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class MccViolationCrud extends Component
 {
@@ -178,11 +181,14 @@ class MccViolationCrud extends Component
     }
     public function storeMcc()
     {
-
         $this->validate();
-        try {
 
+        DB::beginTransaction();
+
+        try {
             $mccCode = $this->generateMccCode($this->assembly_id);
+
+            // Step 1: Create MCC
             $mcc = Mcc::create([
                 'assembly_id' => $this->assembly_id,
                 'category' => $this->category,
@@ -196,8 +202,16 @@ class MccViolationCrud extends Component
                 'keywords' => !empty($this->keywords) ? implode(',', $this->keywords) : null,
             ]);
 
-            if ($this->supporting_documents) {
+            // Step 2: Create Remarks
+            $mcc_remarks = MccRemarks::create([
+                'mcc_id' => $mcc->id,
+                'admin_id' => $this->action_taken,
+                'remarks' => $this->complainer_description,
+                'tag_with' => $this->action_taken . ',' . auth()->guard('admin')->id(),
+            ]);
 
+            // Step 3: Upload Files
+            if ($this->supporting_documents) {
                 foreach ($this->supporting_documents as $file) {
 
                     $timestamp = now()->format('Ymd_His');
@@ -213,12 +227,13 @@ class MccViolationCrud extends Component
                     );
 
                     MccSupportingDocument::create([
-                        'mcc_id' => $mcc->id,
+                        'mcc_remarks_id' => $mcc_remarks->id,
                         'file_path' => "storage/{$path}"
                     ]);
                 }
             }
 
+            // Step 4: Change Log
             ChangeLog::create([
                 'module_name' => 'Complaint',
                 'module_id' => $mcc->id,
@@ -231,6 +246,10 @@ class MccViolationCrud extends Component
                 'user_agent' => request()->header('User-Agent'),
             ]);
 
+            //  Commit Transaction
+            DB::commit();
+
+            // UI Actions
             $this->dispatch('toastr:success', message: 'Complaint created successfully!');
             $this->dispatch('resetField');
             $this->dispatch('closeModal');
@@ -238,9 +257,11 @@ class MccViolationCrud extends Component
             $this->resetInputFields();
 
         } catch (\Exception $e) {
-            dd($e->getMessage());
 
-            \Log::error($e->getMessage());
+            //  Rollback everything if any error occurs
+            DB::rollBack();
+
+            \Log::error('MCC Store Error: ' . $e->getMessage());
 
             $this->dispatch('toastr:error', message: 'Something went wrong while creating!');
         }
@@ -278,12 +299,17 @@ class MccViolationCrud extends Component
     {
         $this->validate();
 
+        DB::beginTransaction();
+
+        $uploadedPaths = [];
+
         try {
             $mccCode = $this->generateMccCode($this->assembly_id);
             $mcc = Mcc::findOrFail($this->mcc_id);
 
             $old = $mcc->toArray();
 
+            // Step 1: Update MCC
             $mcc->update([
                 'assembly_id' => $this->assembly_id,
                 'category' => $this->category,
@@ -297,8 +323,33 @@ class MccViolationCrud extends Component
                 'keywords' => !empty($this->keywords) ? implode(',', $this->keywords) : null,
             ]);
 
-            if ($this->supporting_documents) {
+            // Step 2: Update or Create Latest Remark
+            $latestRemark = MccRemarks::where('mcc_id', $mcc->id)
+                ->orderBy('id', 'desc')
+                ->first();
 
+            if ($latestRemark) {
+
+                $latestRemark->update([
+                    'admin_id' => $this->action_taken,
+                    'remarks' => $this->complainer_description,
+                    'tag_with' => $this->action_taken . ',' . auth()->guard('admin')->id(),
+                ]);
+
+                $mcc_remarks = $latestRemark;
+
+            } else {
+
+                $mcc_remarks = MccRemarks::create([
+                    'mcc_id' => $mcc->id,
+                    'admin_id' => $this->action_taken,
+                    'remarks' => $this->complainer_description,
+                    'tag_with' => $this->action_taken . ',' . auth()->guard('admin')->id(),
+                ]);
+            }
+
+            // Step 3: Upload New Files
+            if ($this->supporting_documents) {
                 foreach ($this->supporting_documents as $file) {
 
                     $timestamp = now()->format('Ymd_His');
@@ -313,28 +364,33 @@ class MccViolationCrud extends Component
                         'public'
                     );
 
+                    $uploadedPaths[] = $path;
+
                     MccSupportingDocument::create([
-                        'mcc_id' => $mcc->id,
+                        'mcc_remarks_id' => $mcc_remarks->id, //  FIXED RELATION
                         'file_path' => "storage/{$path}"
                     ]);
                 }
             }
 
-             // Delete removed files
+            // Step 4: Delete Removed Files
             if (!empty($this->deletedFiles)) {
+
                 $files = MccSupportingDocument::whereIn('id', $this->deletedFiles)->get();
 
                 foreach ($files as $file) {
 
-                    $filePath = public_path($file->file_path);
-                    if (file_exists($filePath)) {
-                        unlink($filePath);
+                    $relativePath = str_replace('storage/', '', $file->file_path);
+
+                    if (Storage::disk('public')->exists($relativePath)) {
+                        Storage::disk('public')->delete($relativePath);
                     }
 
                     $file->delete();
                 }
             }
 
+            // Step 5: Logging
             $new = $mcc->fresh()->toArray();
 
             $description = [];
@@ -351,25 +407,42 @@ class MccViolationCrud extends Component
             }
 
             $logDescription = count($description)
-            ? implode(', ', $description)
-            : 'Complaint updated Successfully';
+                ? implode(', ', $description)
+                : 'Complaint updated Successfully';
 
             ChangeLog::create([
                 'module_name' => 'Complaint',
-                'module_id'    => $mcc->id,
+                'module_id' => $mcc->id,
                 'action' => 'updated',
                 'description' => $logDescription,
                 'old_data' => $old,
                 'new_data' => $new,
-                'changed_by' => auth()->id(),
+                'changed_by' => auth()->guard('admin')->id(),
                 'ip_address' => request()->ip(),
                 'user_agent' => request()->header('User-Agent'),
             ]);
+
+            DB::commit();
+
             $this->dispatch('toastr:success', message: 'Complaint updated successfully!');
             $this->dispatch('closeModal');
             $this->resetInputFields();
 
         } catch (\Exception $e) {
+
+            DB::rollBack();
+
+            // cleanup uploaded files
+            if (!empty($uploadedPaths)) {
+                foreach ($uploadedPaths as $path) {
+                    if (Storage::disk('public')->exists($path)) {
+                        Storage::disk('public')->delete($path);
+                    }
+                }
+            }
+
+            \Log::error('MCC Update Error: ' . $e->getMessage());
+
             $this->dispatch('toastr:error', message: 'Something went wrong while updating!');
         }
     }
@@ -413,8 +486,8 @@ class MccViolationCrud extends Component
         if ($value && !in_array($value, $this->keywords)) {
             $this->keywords[] = $value;
         }
-
         $this->keywordInput = '';
+        $this->dispatch('resetField');
     }
 
     public function removeKeyword($value)
@@ -423,126 +496,6 @@ class MccViolationCrud extends Component
             return $k !== $value;
         }));
     }
-
-    // public function view($id)
-    // {
-    //     $this->viewMcc = Mcc::with(['assembly','legalAssociate'])->findOrFail($id);
-
-    //     $this->dispatch('open-view-modal');
-    // }
-
-    // public function saveMcc()
-    // {
-    //     $this->validate([
-    //         'mccFile' => 'required|file|mimes:csv,txt|max:2048'
-    //     ]);
-
-    //     try {
-
-    //         $path = $this->mccFile->getRealPath();
-    //         $file = fopen($path, 'r');
-
-    //         $header = fgetcsv($file);
-
-    //         $required = [
-    //             'assembly_number',
-    //             'category',
-    //             'block',
-    //             'gp',
-    //             'complainer_name',
-    //             'complainer_phone',
-    //             'complainer_description'
-    //         ];
-
-    //         foreach ($required as $col) {
-    //             if (!in_array($col, $header)) {
-    //                 throw new \Exception("Missing required column: $col");
-    //             }
-    //         }
-
-    //         $legalAssociates = Admin::where('role', 'legal_associate')
-    //             ->where('suspended_status', 1)
-    //             ->pluck('id')
-    //             ->toArray();
-
-    //         if (empty($legalAssociates)) {
-    //             throw new \Exception("No Legal Associate available.");
-    //         }
-
-    //         $associateCount = count($legalAssociates);
-    //         $assignIndex = 0;
-
-    //         $line = 1;
-
-    //         while (($row = fgetcsv($file)) !== false) {
-
-    //             $line++;
-
-    //             $data = array_combine($header, $row);
-
-    //             if (!preg_match('/^[0-9]{10}$/', $data['complainer_phone'])) {
-    //                 throw new \Exception("Row $line: Phone must be exactly 10 digits.");
-    //             }
-
-    //             $assembly = Assembly::where('assembly_number', $data['assembly_number'])->first();
-
-    //             if (!$assembly) {
-    //                 throw new \Exception("Row $line: Assembly {$data['assembly_number']} not found.");
-    //             }
-
-    //             $assignedAssociate = $legalAssociates[$assignIndex];
-
-    //             // Generate MCC Code
-    //             $mccCode = $this->generateMccCode($assembly->id);
-
-    //             $mcc = Mcc::create([
-    //                 'assembly_id'            => $assembly->id,
-    //                 'category'               => $data['category'],
-    //                 'block'                  => $data['block'],
-    //                 'gp'                     => $data['gp'],
-    //                 'complainer_name'        => ucwords($data['complainer_name']),
-    //                 'complainer_phone'       => $data['complainer_phone'],
-    //                 'complainer_description' => $data['complainer_description'],
-    //                 'action_taken'           => $assignedAssociate,
-    //                 'mcc_code'               => $mccCode
-    //             ]);
-
-    //             // Change Log
-    //             ChangeLog::create([
-    //                 'module_name' => 'mcc',
-    //                 'module_id' => $mcc->id,
-    //                 'action' => 'inserted',
-    //                 'description' => 'MCC imported from CSV',
-    //                 'old_data' => null,
-    //                 'new_data' => $mcc->toArray(),
-    //                 'changed_by' => auth()->guard('admin')->id(),
-    //                 'ip_address' => request()->ip(),
-    //                 'user_agent' => request()->header('User-Agent'),
-    //             ]);
-
-    //             // Round robin assignment
-    //             $assignIndex++;
-
-    //             if ($assignIndex >= $associateCount) {
-    //                 $assignIndex = 0;
-    //             }
-    //         }
-
-    //         fclose($file);
-
-    //         $this->dispatch('toastr:success', message: 'CSV imported successfully!');
-    //         $this->dispatch('resetField');
-    //         $this->dispatch('closeModal');
-
-    //         $this->resetForm();
-
-    //     } catch (\Exception $e) {
-
-    //         \Log::error($e->getMessage());
-
-    //         $this->dispatch('toastr:error', message: $e->getMessage());
-    //     }
-    // }
 
     private function getMccQuery()
     {
@@ -555,7 +508,6 @@ class MccViolationCrud extends Component
                 'assembly.assemblyPhase.phase',
                 'latestRemark',
                 'legalAssociate',
-                'supportingDocuments'
             ])
 
             ->when($user->role == 'legal_associate', function ($query) use ($user) {
@@ -585,55 +537,7 @@ class MccViolationCrud extends Component
                 $q->where('status', $this->filter_by_status);
             });
     }
-    // public function exportMcc()
-    // {
-    //     $mccList = $this->getMccQuery()->get();
-
-    //     $headers = [
-    //         'Content-Type' => 'text/csv',
-    //         'Content-Disposition' => 'attachment; filename="mcc_export.csv"',
-    //     ];
-
-    //     $columns = [
-    //         'Assembly',
-    //         'Category',
-    //         'Mcc_Code',
-    //         'Block',
-    //         'GP',
-    //         'Complainer Name',
-    //         'Complainer Phone',
-    //         'Complain Description',
-    //         'Status'
-    //     ];
-
-    //     $callback = function() use ($mccList, $columns) {
-
-    //         $file = fopen('php://output', 'w');
-
-    //         fputcsv($file, $columns);
-
-    //         foreach($mccList as $item){
-
-    //             fputcsv($file, [
-    //                 $item->assembly->assembly_name_en ?? 'N/A',
-    //                 ucwords($item->category),
-    //                 $item->mcc_code,
-    //                 $item->block,
-    //                 $item->gp,
-    //                 $item->complainer_name,
-    //                 $item->complainer_phone,
-    //                 $item->complainer_description,
-    //                 $item->status,
-    //             ]);
-
-    //         }
-
-    //         fclose($file);
-    //     };
-
-    //     return response()->stream($callback, 200, $headers);
-    // }
-
+    
     public function render()
     {
         $campaigns = $this->getMccQuery()
