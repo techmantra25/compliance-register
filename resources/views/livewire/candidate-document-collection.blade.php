@@ -634,7 +634,7 @@
                                             </div>
 
                                             <small class="text-muted">
-                                                Reuse previously uploaded document (recommended)
+                                                Reuse previously uploaded document
                                             </small>
                                         </div>
                                     </div>

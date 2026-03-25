@@ -58,33 +58,62 @@
     <table>
 
         <tr>
-            <td width="40%"><strong>Name of the Candidate</strong></td>
-            <td>: {{ $candidateName ?? 'N/A' }}</td>
+            <td width="40%"><strong>Name of the Candidate</strong>:</td>
+            <td> {{ $candidateName ?? 'N/A' }}</td>
         </tr>
 
         <tr>
-            <td><strong>Assembly Constituency (AC)</strong></td>
-            <td>: {{ $assemblyName ?? 'N/A' }}</td>
+            <td><strong>Assembly Constituency (AC)</strong>:</td>
+            <td> {{ $assemblyName ?? 'N/A' }}</td>
         </tr>
 
         <tr>
-            <td><strong>Date of Examination</strong></td>
-            <td>: {{ $examinationDate
+            <td><strong>Date of Examination</strong>:</td>
+            <td> {{ $examinationDate
                 ? \Carbon\Carbon::parse($examinationDate)->format('d M Y h:i A')
                 : \Carbon\Carbon::now()->format('d M Y h:i A') }}</td>
         </tr>
 
         <tr>
-            <td><strong>Discrepancies/ Defects Observed</strong></td>
-            <td style="line-height:1.6;">
-                : {!! $observations ?? '__________________________________________' !!}
+            <td><strong>Discrepancies/ Defects Observed</strong>:</td>
+            <td style="line-height:1.8;">
+                
+                @php
+                    $obsList = is_array($observations)
+                        ? $observations
+                        : json_decode($observations, true);
+
+                    $count = 1;
+                @endphp
+
+                @if(!empty($obsList))
+
+                    {{-- Normal Observations --}}
+                    @foreach($obsList as $obs)
+                        @if($obs !== 'Others')
+                            {{ $count++ }}) {{ $obs }}<br>
+                        @endif
+                    @endforeach
+
+                    {{-- Others Section --}}
+                    @if(in_array('Others', $obsList))
+                        {{ $count }}) Others:@if(!empty($others))
+                                {!! $others !!}
+                        @endif
+
+                        
+                    @endif
+
+                @else
+                    __________________________________________
+                @endif
             </td>
         </tr>
 
         <tr>
-            <td><strong>Last date and time for submission of rectified Forms and curing of defects</strong></td>
+            <td><strong>Last date and time for submission of rectified Forms and curing of defects</strong>:</td>
             <td>
-                : {{ $nomination_date
+                 {{ $nomination_date
                     ? \Carbon\Carbon::parse($nomination_date)->format('d M Y h:i A')
                     : 'N/A' }}
             </td>

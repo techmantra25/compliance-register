@@ -262,59 +262,50 @@
 
                 </div>
 
-
-                <!-- CKEditor -->
-                <div class="col-md-3 col-lg-3" wire:ignore>
+                <div class="col-md-3 col-lg-3 border-start">
 
                     <h6 class="section-header">Observation</h6>
 
-                        <div class="mb-3">
+                    <!-- Checkboxes -->
+                    <div class="mb-3">
 
-                            <div class="form-check">
-                                <input type="checkbox" wire:model="observation_options.name_incorrect" class="form-check-input">
-                                <label class="form-check-label">
-                                    Name is incorrect on the Nomination Form
-                                </label>
-                            </div>
+                        <label class="fw-bold mb-2">Select Observations</label>
 
-                            <div class="form-check">
-                                <input type="checkbox" wire:model="observation_options.address_proof_required" class="form-check-input">
-                                <label class="form-check-label">
-                                    Address proof required for further verification
-                                </label>
-                            </div>
-
-                            <div class="form-check">
-                                <input type="checkbox" wire:model="observation_options.profile_image_blurry" class="form-check-input">
-                                <label class="form-check-label">
-                                    Profile image is blurry
-                                </label>
-                            </div>
-
-                            <div class="form-check">
-                                <input type="checkbox" wire:model="observation_options.candidate_part_number_change" class="form-check-input">
-                                <label class="form-check-label">
-                                    Candidate Part number needs to be changed
-                                </label>
-                            </div>
-
-                            <div class="form-check">
-                                <input type="checkbox" wire:model="observation_options.others" class="form-check-input">
-                                <label class="form-check-label">
-                                    Others (Specify Reason)
-                                </label>
-                            </div>
-
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="obs1" onchange="updateObservation()">
+                            <label class="form-check-label">Name is incorrect on the Nomination Form</label>
                         </div>
 
-                        {{-- CKEditor ONLY if Others checked --}}
-                        @if($observation_options['others'])
-                            <div wire:ignore>
-                                <textarea id="editor" class="form-control" rows="10">
-                                    {{ $observation_others_description }}
-                                </textarea>
-                            </div>
-                        @endif
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="obs2" onchange="updateObservation()">
+                            <label class="form-check-label">Address proof required for further verification</label>
+                        </div>
+
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="obs3" onchange="updateObservation()">
+                            <label class="form-check-label">Profile image is blurry</label>
+                        </div>
+
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="obs4" onchange="updateObservation()">
+                            <label class="form-check-label">Candidate Part number needs to be changed</label>
+                        </div>
+
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="obs_other" onchange="toggleOthers()">
+                            <label class="form-check-label">Others (Specify Reason)</label>
+                        </div>
+
+                    </div>
+
+                    <!-- CKEditor (Only for Others) -->
+                    <div id="others_editor_box" style="display:none;" wire:ignore>
+
+                        <textarea id="editor" class="form-control">
+                            {{ $observation_others_description }}
+                        </textarea>
+
+                    </div>
 
                 </div>
 
@@ -419,7 +410,7 @@
 
             let data = editor.getData();
 
-            @this.set('observation_others_description', data);
+            @this.call('saveOthersDescription', data);
 
         });
 
@@ -468,6 +459,43 @@
 
         });
 
+    }
+
+    function updateObservation() {
+
+        let observations = [];
+
+        if (document.getElementById('obs1').checked) {
+            observations.push("Name is incorrect on the Nomination Form");
+        }
+
+        if (document.getElementById('obs2').checked) {
+            observations.push("Address proof required for further verification");
+        }
+
+        if (document.getElementById('obs3').checked) {
+            observations.push("Profile image is blurry");
+        }
+
+        if (document.getElementById('obs4').checked) {
+            observations.push("Candidate Part number needs to be changed");
+        }
+
+        if (document.getElementById('obs_other').checked) {
+            observations.push("Others");
+        }
+
+        // send JSON to Livewire
+        @this.call('saveObservations', observations);
+    }
+
+    function toggleOthers() {
+
+        let isChecked = document.getElementById('obs_other').checked;
+
+        document.getElementById('others_editor_box').style.display = isChecked ? 'block' : 'none';
+
+        updateObservation(); // also update main observations
     }
 
 </script>
