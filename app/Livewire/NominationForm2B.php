@@ -132,6 +132,10 @@ class NominationForm2B extends Component
         $this->candidate_id   = $this->candidate->id;
         $this->assembly_id    = $this->candidate->assembly->id;
 
+        $this->age = $this->candidate->age;
+        $this->candidate_serial_no = $this->candidate->serial_no;
+        $this->candidate_part_no = $this->candidate->part_no;
+
         $form = NominationForm::where('candidate_id', $this->candidate_id)->first();
 
         if ($form) {

@@ -1027,6 +1027,142 @@ class CandidateContactList extends Component
         $this->dispatch('openNewTab', url: $url);
     }
 
+    public function importAdditionalDetails()
+    {
+        $this->validate([
+            'candidateFile' => 'required|file|mimes:xlsx,xls|max:10240',
+        ]);
+
+        try {
+
+            $rows = Excel::toArray([], $this->candidateFile);
+            $sheet = $rows[0];
+
+            if (count($sheet) < 2) {
+                throw new \Exception("Excel file is empty.");
+            }
+
+            // ✅ STEP 1: FIND HEADER ROW (robust)
+            $headerRowIndex = null;
+
+            foreach ($sheet as $i => $row) {
+
+                $clean = array_map(function ($val) {
+                    return strtolower(trim(preg_replace('/\s+/', ' ', $val)));
+                }, $row);
+
+                // Flexible match
+                $hasAc = false;
+                $hasName = false;
+
+                foreach ($clean as $col) {
+                    if (strpos($col, 'ac no') !== false) $hasAc = true;
+                    if (strpos($col, 'candidate') !== false) $hasName = true;
+                }
+
+                if ($hasAc && $hasName) {
+                    $headerRowIndex = $i;
+                    break;
+                }
+            }
+
+            if ($headerRowIndex === null) {
+                throw new \Exception("Header row not detected. Please check Excel.");
+            }
+
+            // ✅ STEP 2: MAP HEADER
+            $header = $sheet[$headerRowIndex];
+            $map = [];
+
+            foreach ($header as $index => $col) {
+
+                $col = strtolower(trim(preg_replace('/\s+/', ' ', $col)));
+
+                if (strpos($col, 'ac no') !== false) {
+                    $map['ac_no'] = $index;
+
+                } elseif (strpos($col, 'candidate') !== false) {
+                    $map['candidate_name'] = $index;
+
+                } elseif (strpos($col, 'age') !== false) {
+                    $map['age'] = $index;
+
+                } elseif (strpos($col, 'sl no') !== false || strpos($col, 'serial') !== false) {
+                    $map['serial_no'] = $index;
+
+                } elseif (strpos($col, 'part no') !== false) {
+                    if (!isset($map['part_no'])) {
+                        $map['part_no'] = $index;
+                    }
+                }
+            }
+
+            // ✅ CHECK REQUIRED
+            if (!isset($map['ac_no']) || !isset($map['candidate_name'])) {
+                throw new \Exception("Required columns missing.");
+            }
+
+            DB::beginTransaction();
+
+            // ✅ STEP 3: PROCESS DATA
+            foreach ($sheet as $index => $row) {
+
+                if ($index <= $headerRowIndex) continue;
+
+                $row = array_map(fn($v) => trim((string)$v), $row);
+
+                if (empty(array_filter($row))) continue;
+
+                $acNo = $row[$map['ac_no']] ?? null;
+                $candidateName = $row[$map['candidate_name']] ?? null;
+                $age = $map['age'] ?? null ? ($row[$map['age']] ?? null) : null;
+                $serialNo = $map['serial_no'] ?? null ? ($row[$map['serial_no']] ?? null) : null;
+                $partNo = $map['part_no'] ?? null ? ($row[$map['part_no']] ?? null) : null;
+
+                if (!$acNo || !$candidateName) continue;
+
+                $assembly = Assembly::where('assembly_number', $acNo)
+                    ->orWhere('assembly_name_en', $acNo)
+                    ->orWhere('assembly_code', $acNo)
+                    ->first();
+
+                if (!$assembly) continue;
+
+                $candidate = Candidate::where('assembly_id', $assembly->id)
+                    ->whereRaw('LOWER(TRIM(name)) = ?', [strtolower(trim($candidateName))])
+                    ->first();
+
+                if (!$candidate) continue;
+
+                $age = isset($map['age']) ? ($row[$map['age']] ?? null) : null;
+
+                $age = trim((string)$age);
+
+                if ($age === '' || !is_numeric($age)) {
+                    $age = null;
+                } else {
+                    $age = (int) $age;
+                }
+                $candidate->update([
+                    'age' => $age,
+                    'serial_no' => $serialNo ?: null,
+                    'part_no' => $partNo ?: null,
+                ]);
+            }
+
+            DB::commit();
+
+            $this->dispatch('close-extra-upload-modal');
+            $this->dispatch('toastr:success', message: 'Excel imported successfully!');
+
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+
+            $this->dispatch('toastr:error', message: $e->getMessage());
+        }
+    }
+
    public function render()
     {
         $query = $this->getFilteredQuery();
