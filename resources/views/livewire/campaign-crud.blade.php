@@ -197,15 +197,12 @@
                                         {{ $campaigns->firstItem() + $index }}
                                     </td>
 
-
                                     <!-- Campaign Details -->
                                     <td class="text-start">
 
                                         <div class="fw-semibold text-dark mb-1">
-                                            @if(optional($camp->category)->name)
-                                                <i class="bi bi-megaphone text-primary me-1"></i>
-                                                {{ ucwords($camp->category->name) }}
-                                            @endif
+                                            <i class="bi bi-megaphone text-primary me-1"></i>
+                                            {{ ucwords($camp->event_category_others ?? optional($camp->category)->name ?? 'N/A') }}
                                         </div>
 
                                     

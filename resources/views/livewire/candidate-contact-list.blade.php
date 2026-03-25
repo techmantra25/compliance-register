@@ -37,6 +37,9 @@
                 <button class="btn btn-outline-success btn-sm" data-bs-toggle="modal" data-bs-target="#uploadcandidateModal">
                     <i class="bi bi-upload me-1"></i>Upload Candidate
                 </button>
+                <button class="btn btn-outline-warning btn-sm" data-bs-toggle="modal" data-bs-target="#uploadExtraModal">
+                    <i class="bi bi-file-earmark-excel me-1"></i>Upload Extra Details
+                </button>
                 @endif
 
                 @if(childUserAccess(Auth::guard('admin')->user()->id,'nomination_add_candidate'))
@@ -564,6 +567,71 @@
         </div>
     </div>
 
+    {{-- Upload extra details of candidate--}}
+    <div wire:ignore.self class="modal fade" id="uploadExtraModal" tabindex="-1"
+    aria-labelledby="uploadExtraModalLabel" aria-hidden="true">
+        
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg rounded-3">
+
+                <!-- Header -->
+                <div class="modal-header bg-warning text-dark">
+                    <h5 class="modal-title" id="uploadExtraModalLabel">
+                        Upload Extra Candidate Details
+                    </h5>
+                    <button type="button" class="btn-close"
+                        data-bs-dismiss="modal"
+                        wire:click="resetForm"></button>
+                </div>
+
+                <!-- Body -->
+                <div class="modal-body">
+                    <div class="row g-3">
+
+                        <!-- File Input -->
+                        <div class="col-12">
+                            <label class="form-label fw-semibold mt-3">
+                                Upload Excel File
+                            </label>
+
+                            <input type="file"
+                                class="form-control"
+                                wire:model="candidateFile"
+                                accept=".xlsx,.xls">
+
+                            @error('candidateFile')
+                                <div class="text-danger mt-1">{{ $message }}</div>
+                            @enderror
+
+                            <!-- Loader -->
+                            <div wire:loading wire:target="candidateFile" class="text-muted mt-2">
+                                <span class="spinner-border spinner-border-sm me-1"></span> Uploading...
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Footer -->
+                <div class="modal-footer">
+                    <button class="btn btn-secondary"
+                            data-bs-dismiss="modal"
+                            wire:click="resetForm">
+                        Close
+                    </button>
+
+                    <button class="btn btn-warning"
+                            wire:click="importAdditionalDetails"
+                            wire:loading.remove
+                            wire:target="candidateFile">
+                        <i class="bi bi-upload me-1"></i>Upload Extra Data
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
 
     <!--  Candidate Modal -->
     <div wire:ignore.self class="modal fade" id="candidateModal" tabindex="-1" aria-labelledby="candidateModalLabel"
@@ -995,6 +1063,9 @@
     <script>
         window.addEventListener('close-upload-modal', () => {
             $('#uploadcandidateModal').modal('hide');
+        });
+        window.addEventListener('close-extra-upload-modal', () => {
+            $('#uploadExtraModal').modal('hide');
         });
         Livewire.on('refreshChosen', (value) => {
 
