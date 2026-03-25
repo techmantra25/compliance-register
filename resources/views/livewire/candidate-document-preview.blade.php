@@ -272,39 +272,41 @@
                         <label class="fw-bold mb-2">Select Observations</label>
 
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="obs1" onchange="updateObservation()">
+                            <input class="form-check-input" type="checkbox" id="obs1" 
+                                onchange="updateObservation()"
+                                {{ in_array('Name is incorrect on the Nomination Form', $selectedObservations ?? []) ? 'checked' : '' }}>
                             <label class="form-check-label">Name is incorrect on the Nomination Form</label>
                         </div>
 
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="obs2" onchange="updateObservation()">
+                            <input class="form-check-input" type="checkbox" id="obs2" 
+                                onchange="updateObservation()"
+                                {{ in_array('Address proof required for further verification', $selectedObservations ?? []) ? 'checked' : '' }}>
                             <label class="form-check-label">Address proof required for further verification</label>
                         </div>
 
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="obs3" onchange="updateObservation()">
+                            <input class="form-check-input" type="checkbox" id="obs3" onchange="updateObservation()" {{ in_array('Profile image is blurry', $selectedObservations ?? []) ? 'checked' : '' }}>
                             <label class="form-check-label">Profile image is blurry</label>
                         </div>
 
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="obs4" onchange="updateObservation()">
+                            <input class="form-check-input" type="checkbox" id="obs4" onchange="updateObservation()" {{ in_array('Candidate Part number needs to be changed', $selectedObservations ?? []) ? 'checked' : '' }}>
                             <label class="form-check-label">Candidate Part number needs to be changed</label>
                         </div>
 
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="obs_other" onchange="toggleOthers()">
+                            <input class="form-check-input" type="checkbox" id="obs_other" 
+                                onchange="toggleOthers()"
+                                {{ in_array('Others', $selectedObservations ?? []) ? 'checked' : '' }}>
                             <label class="form-check-label">Others (Specify Reason)</label>
                         </div>
 
                     </div>
 
                     <!-- CKEditor (Only for Others) -->
-                    <div id="others_editor_box" style="display:none;" wire:ignore>
-
-                        <textarea id="editor" class="form-control">
-                            {{ $observation_others_description }}
-                        </textarea>
-
+                    <div id="others_editor_box" style="display: {{ in_array('Others', $selectedObservations ?? []) ? 'block' : 'none' }};" wire:ignore>
+                        <textarea id="editor" class="form-control">{{ $observation_others_description }}</textarea>
                     </div>
 
                 </div>
@@ -396,7 +398,6 @@
         });
     });
     document.addEventListener("DOMContentLoaded", function () {
-
         let editor = CKEDITOR.replace('editor', {
             height: 600,
             toolbar: [
@@ -406,14 +407,13 @@
             ]
         });
 
+        // Set initial data from Livewire
+        editor.setData(@this.get('observation_others_description') || '');
+
         editor.on('change', function () {
-
             let data = editor.getData();
-
             @this.call('saveOthersDescription', data);
-
         });
-
     });
 
     function confirmApprove() {

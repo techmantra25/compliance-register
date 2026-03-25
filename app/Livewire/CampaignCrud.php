@@ -49,6 +49,7 @@ class CampaignCrud extends Component
 
     public $campaign;
     public $keywords = [];
+    public $keywordInput = '';
     public $deletedFiles = [];
 
     protected $paginationTheme = "bootstrap";
@@ -595,6 +596,23 @@ class CampaignCrud extends Component
         $this->filter_by_status = $filter_by_status;
     }
 
+    public function addKeyword()
+    {
+        $value = trim($this->keywordInput);
+
+        if ($value && !in_array($value, $this->keywords)) {
+            $this->keywords[] = $value;
+        }
+
+        $this->keywordInput = '';
+    }
+    
+    public function removeKeyword($word)
+    {
+        $this->keywords = array_filter($this->keywords, function ($k) use ($word) {
+            return $k !== $word;
+        });
+    }
     public function render()
     {
         $campaigns = Campaign::with([

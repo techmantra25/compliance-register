@@ -36,6 +36,7 @@ class MccViolationCrud extends Component
     public $supporting_documents = [];
 
     public $keywords = [];
+    public $keywordInput = '';
     public $deletedFiles = [];
 
     // public $viewMcc;
@@ -405,6 +406,24 @@ class MccViolationCrud extends Component
         session()->forget(['success', 'error']);
     }
 
+    public function addKeyword()
+    {
+        $value = trim($this->keywordInput);
+
+        if ($value && !in_array($value, $this->keywords)) {
+            $this->keywords[] = $value;
+        }
+
+        $this->keywordInput = '';
+    }
+
+    public function removeKeyword($value)
+    {
+        $this->keywords = array_values(array_filter($this->keywords, function ($k) use ($value) {
+            return $k !== $value;
+        }));
+    }
+
     // public function view($id)
     // {
     //     $this->viewMcc = Mcc::with(['assembly','legalAssociate'])->findOrFail($id);
@@ -549,6 +568,7 @@ class MccViolationCrud extends Component
                         ->orWhere('gp', "like", "%{$this->search}%")
                         ->orWhere('complainer_name', "like", "%{$this->search}%")
                         ->orWhere('complainer_phone', "like", "%{$this->search}%")
+                        ->orWhere('keywords', "like", "%{$this->search}%")
                         ->orWhereHas('assembly', function ($asmb) {
                             $asmb->where('assembly_number', "like", "%{$this->search}%")
                                 ->orWhere('assembly_name_en', "like", "%{$this->search}%")
