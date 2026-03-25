@@ -91,19 +91,18 @@
 
                                     <td>
 
-                                        @if ($admin->role !== 'admin')
+                                        @if ($admin->id !== 1)
+                                            <div class="form-check form-switch">
 
-                                        <div class="form-check form-switch">
+                                                <input class="form-check-input" type="checkbox"
+                                                    wire:change="toggleStatus({{ $admin->id }})"
+                                                    {{ $admin->suspended_status ? 'checked' : '' }}>
 
-                                            <input class="form-check-input" type="checkbox"
-                                                wire:change="toggleStatus({{ $admin->id }})"
-                                                {{ $admin->suspended_status ? 'checked' : '' }}>
-
-                                        </div>
+                                            </div>
 
                                         @else
 
-                                        <span class="badge bg-secondary">Permanent</span>
+                                            <span class="badge bg-secondary">Permanent</span>
 
                                         @endif
 
@@ -111,7 +110,7 @@
 
 
                                     <td>
-                                        @if($admin->role !=="admin")
+                                        @if($admin->id !== 1)
                                             <button class="btn btn-sm btn-outline-primary"
                                                 wire:click="edit({{ $admin->id }})">
 
@@ -227,6 +226,9 @@
 
                                 <option value="">Select Role</option>
 
+                                <option value="admin">
+                                    Super Admin
+                                </option>
                                 <option value="employee">
                                     Employee(L2)
                                 </option>
@@ -246,7 +248,7 @@
 
 
                         {{-- DISTRICT SELECT --}}
-                        @if($role=="employee")
+                        @if($role=="employee2")
                             <div class="mb-3">
                                 <label class="form-label">Districts</label>
                                 <div wire:ignore>

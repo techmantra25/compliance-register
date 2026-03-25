@@ -17,7 +17,7 @@ class EmployeeLoginMail extends Mailable
 
     public function build()
     {
-        return $this->subject('Your Employee Login Credentials')
+        return $this->subject('Account Login Credentials - Compliance Register System')
                     ->view('emails.employee-login');
     }
 }

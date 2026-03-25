@@ -271,7 +271,7 @@
 
                                         {{-- Default when status is NULL --}}
                                         @if(is_null($candidate->status))
-                                            <div class="tooltip-wrapper m-1">
+                                            <div class="tooltip-wrapper mr-1">
                                                 <a href="{{ route('admin.candidates.documents', ['candidate' => $candidate->id]) }}"
                                                 class="btn btn-sm btn-outline-success">
                                                 Upload
@@ -281,7 +281,7 @@
 
                                         {{-- Re-upload condition --}}
                                         @elseif($candidate->status == "without_criminal_rejected_observation_only")
-                                            <div class="tooltip-wrapper m-1">
+                                            <div class="tooltip-wrapper mr-1">
                                                 <a href="{{ route('admin.candidates.documents', ['candidate' => $candidate->id]) }}"
                                                 class="btn btn-sm btn-outline-success">
                                                 Re-upload
@@ -291,14 +291,14 @@
 
                                         {{-- Preview condition --}}
                                         @elseif($candidate->status == "without_criminal_full_generation")
-                                            <div class="tooltip-wrapper m-1">
+                                            <div class="tooltip-wrapper mr-1">
                                                 <a href="{{ route('admin.candidates.documents', ['candidate' => $candidate->id]) }}"
                                                 class="btn btn-sm btn-outline-success">
                                                 Preview
                                                 </a>
                                                 <span class="tooltip-text">Preview Candidate Documents</span>
                                             </div>
-                                            <div class="tooltip-wrapper m-1">
+                                            <div class="tooltip-wrapper mr-1">
                                                 <button wire:click="downloadAcknowledgement({{ $candidate->id }})"
                                                         class="btn btn-sm btn-outline-primary">
                                                     <i class="bi bi-download me-1"></i> Acknowledgement
@@ -308,7 +308,7 @@
 
                                         {{-- Fallback --}}
                                         @else
-                                            <div class="tooltip-wrapper m-1">
+                                            <div class="tooltip-wrapper mr-1">
                                                 <a href="{{ route('admin.candidates.documents', ['candidate' => $candidate->id]) }}"
                                                 class="btn btn-sm btn-outline-success">
                                                 Upload
@@ -319,7 +319,7 @@
                                         @endif
                                         @if($candidate->status == "without_criminal_full_generation")
                                             @if($candidate->nominationForm && $candidate->nominationForm->logs->count())
-                                                <div class="tooltip-wrapper m-1">
+                                                <div class="tooltip-wrapper mr-1">
                                                     <button 
                                                             class="btn btn-sm btn-outline-primary"
                                                             wire:click="openFormModal({{ $candidate->id }})"
@@ -330,7 +330,7 @@
                                                     </button>
                                                 </div>
                                             @else
-                                                <div class="tooltip-wrapper m-1">
+                                                <div class="tooltip-wrapper mr-1">
                                                     <a href="{{ route('admin.candidates.form2B', $candidate->id) }}"
                                                     class="btn btn-sm btn-outline-success">
                                                     Generate Form 2B
@@ -340,10 +340,10 @@
                                             @endif
                                         @endif
                                     </td>
-                                    <td class="">
+                                    <td class="text-center">
                                             @if($candidate->document_collection_status !== 'rejected')
                                                 @if(childUserAccess(Auth::guard('admin')->user()->id,'nomination_assign_agents'))
-                                                <div class="tooltip-wrapper m-1">
+                                                <div class="tooltip-wrapper mr-1">
                                                     <button 
                                                         class="btn btn-sm btn-outline-{{ count($candidate->agents) > 0 ? 'primary' : 'danger' }}"
                                                         wire:click="openAgentModal({{ $candidate->id }})"
@@ -359,7 +359,7 @@
                                                 @endif
 
                                                 @if(childUserAccess(Auth::guard('admin')->user()->id,'nomination_update_candidate'))
-                                                <div class="tooltip-wrapper m-1">
+                                                <div class="tooltip-wrapper mr-1">
                                                     <button class="btn btn-sm btn-outline-success"
                                                         wire:click="edit({{ $candidate->id }})"
                                                         data-bs-toggle="modal"
@@ -373,7 +373,7 @@
                                             @endif
 
                                             @if(childUserAccess(Auth::guard('admin')->user()->id,'nomination_candidate_journey_timeline'))
-                                                <div class="tooltip-wrapper m-1">
+                                                <div class="tooltip-wrapper mr-1">
                                                     <a href="{{ route('admin.candidates.journey', $candidate->id) }}"
                                                     class="btn btn-sm btn-outline-success">
                                                     <i class="bi bi-clock-history"></i>
@@ -381,6 +381,21 @@
                                                     <span class="tooltip-text">Candidate Journey Timeline</span>
                                                 </div>
                                             @endif
+                                            <div class="tooltip-wrapper mr-1"> 
+                                                <button class="btn btn-sm btn-outline-success"
+                                                    wire:click="openEmailModal({{ $candidate->id }})">
+                                                    <i class="bi bi-envelope"></i>
+                                                </button>
+                                                <span class="tooltip-text">Send Mail</span>
+                                            </div>
+
+                                            <div class="tooltip-wrapper mr-1">
+                                                <button class="btn btn-sm btn-outline-success"
+                                                    wire:click="openWhatsappModal({{ $candidate->id }})">
+                                                    <i class="bi bi-whatsapp"></i>
+                                                </button>
+                                                <span class="tooltip-text">Send Whatsapp</span>
+                                            </div>
                                         </td>
 
                                     <!-- modal -->
@@ -770,7 +785,140 @@
             </div>
         </div>
     </div>
-    <div class="loader-container" wire:loading wire:target="saveCandidate,changeStatus,downloadAcknowledgement">
+
+    <!-- EMAIL MODAL -->
+    <div  class="modal fade {{ $is_active_email ? 'show d-block' : '' }}" 
+        id="send_email_modal" 
+        tabindex="-1"
+        style="{{ $is_active_email ? 'background: rgba(0,0,0,0.5);' : '' }}">
+        <div class="modal-dialog modal-{{count($emailLogs) > 0 ? "xl":"lg"}}">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div>
+                        <h5 class="modal-title">New mail</h5>
+                            @if($selectedCandidate)
+                                <small class="text-muted">
+                                    {{ $selectedCandidate->name ?? 'N/A' }}
+                                    | {{ $selectedCandidate->contact_number ?? 'N/A' }}
+                                    | {{ $selectedCandidate->email ?? 'N/A' }}
+                                    | {{ $selectedCandidate->assembly->assembly_name_en ?? 'N/A' }}
+                                </small>
+                            @endif
+                    </div>
+                    <button type="button" class="btn-close" wire:click="closeEmailWhatsappModal"></button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="row">
+
+                        <!-- LEFT: New Mail (col-8) -->
+                        <div class="col-md-{{count($emailLogs) > 0 ? 8:"12"}} border-end">
+
+                            <!-- Selected Emails -->
+                            <div class="mb-2">
+                                @foreach($emails as $index => $email)
+                                    <span class="badge bg-primary me-1">
+                                        {{ $email }}
+                                        <span style="cursor:pointer;" wire:click="removeEmail({{ $index }})">
+                                            &times;
+                                        </span>
+                                    </span>
+                                @endforeach
+                            </div>
+
+                            <!-- Input -->
+                            <div class="d-flex gap-2 mb-2">
+                                <input type="text"
+                                    class="form-control"
+                                    placeholder="Enter email & press Enter"
+                                    wire:model="emailInput"
+                                    wire:keydown.enter.prevent="addEmail">
+
+                                <button class="btn btn-secondary" wire:click="addEmail">Add</button>
+                            </div>
+
+                            {{-- <!-- Subject -->
+                            <input type="text" class="form-control mb-2"
+                                placeholder="Subject"
+                                wire:model="subject">
+
+                            <!-- Message -->
+                            <textarea class="form-control mb-2"
+                                rows="4"
+                                placeholder="Write message..."
+                                wire:model="message"></textarea> --}}
+
+                            <!-- Send -->
+                            @if(count($emails) > 0)
+                                <button class="btn btn-success w-100" wire:click="sendEmail">
+                                    Send Mail
+                                </button>
+                            @endif
+
+                        </div>
+
+                        <!-- RIGHT: Logs (col-4) -->
+                        @if(count($emailLogs)>0)
+                            <div class="col-md-4">
+
+                                <h6>Email Logs</h6>
+
+                                <div style="max-height:300px; overflow-y:auto;">
+                                    @forelse($emailLogs as $log)
+                                        <div class="border p-2 mb-2 rounded small">
+                                            
+                                            <strong>{{ $log->subject ?? 'No Subject' }}</strong><br>
+
+                                            <span class="text-muted">
+                                                {{ \Carbon\Carbon::parse($log->created_at)->format('d M Y, h:i A') }}
+                                            </span>
+
+                                            <div>
+                                                <b>To:</b>
+                                                {{ implode(', ', json_decode($log->recipients, true)) }}
+                                            </div>
+
+                                        </div>
+                                    @empty
+                                        <p class="text-muted">No logs found</p>
+                                    @endforelse
+                                </div>
+
+                            </div>
+                        @endif
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <div  class="modal fade {{ $is_active_whatsapp ? 'show d-block' : '' }}" 
+        id="send_whatsapp_modal" 
+        tabindex="-1"
+        style="{{ $is_active_email ? 'background: rgba(0,0,0,0.5);' : '' }}">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                
+                <div class="modal-header">
+                    <h5 class="modal-title">Email</h5>
+                    <button type="button" class="btn-close" wire:click="closeEmailWhatsappModal"></button>
+                </div>
+
+                <div class="modal-body">
+                    <p>hello email</p>
+
+                    <button class="btn btn-success" wire:click="closeEmailWhatsappModal">
+                        Send Email
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
+    <div class="loader-container" wire:loading wire:target="saveCandidate,changeStatus,downloadAcknowledgement,openEmailModal,openWhatsappModal,closeEmailWhatsappModal,addEmail,removeEmail,sendEmail">
         <div class="loader"></div>
     </div>
     @push('scripts')

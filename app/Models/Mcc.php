@@ -29,7 +29,7 @@ class Mcc extends Model
     {
         return $this->hasOne(MccRemarks::class, 'mcc_id')->latestOfMany();
     }
-    public function Remarks()
+    public function RemarksData()
     {
         return $this->hasMany(MccRemarks::class, 'mcc_id');
     }

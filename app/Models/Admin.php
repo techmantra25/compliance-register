@@ -40,9 +40,9 @@ class Admin extends Authenticatable
     public function getRoleLabelAttribute()
     {
         return match($this->role) {
-            'legal_associate' => 'Legal Associate (L1/TM)',
+            'legal_associate' => 'Legal Associate (L1/TL)',
             'employee' => 'Employee (L2)',
-            'admin' => 'Admin',
+            'admin' => 'Super Admin',
             default => ucwords(str_replace('_',' ',$this->role)),
         };
     }

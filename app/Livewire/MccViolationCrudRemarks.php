@@ -113,7 +113,7 @@ class MccViolationCrudRemarks extends Component
         $this->selectedFile = $path;
     }
 
-    public function render()
+   public function render()
     {
         $this->userRole = strtolower(Auth::guard('admin')->user()->role);
 
@@ -122,7 +122,21 @@ class MccViolationCrudRemarks extends Component
             ->orderBy('id', 'ASC')
             ->get();
 
-        return view('livewire.mcc-violation-crud-remarks', compact('remarks'))
+        // 🔥 Collect all tag IDs from all remarks
+        $allTagIds = collect($remarks)
+            ->pluck('tag_with') // get all tag_with strings
+            ->filter() // remove null
+            ->flatMap(function ($tags) {
+                return explode(',', $tags);
+            })
+            ->unique()
+            ->values();
+
+        // 🔥 Fetch all users in one query
+        $groupMembers = Admin::whereIn('id', $allTagIds)
+            ->pluck('name', 'id'); // [id => name]
+
+        return view('livewire.mcc-violation-crud-remarks', compact('remarks', 'groupMembers'))
             ->layout('layouts.admin');
     }
 }

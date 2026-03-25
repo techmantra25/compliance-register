@@ -16,6 +16,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
+use App\Models\EmailLog;
 use App\Models\CandidateAgent;
 use App\Models\CandidateDocumentType;
 use App\Models\NominationLog;
@@ -47,6 +48,11 @@ class CandidateContactList extends Component
     public $filter_by_assembly, $filter_by_district, $filter_by_phase;
     public $form2bLogs = [];
     public $form26Logs = [];
+    public $is_active_email = 0; // default
+    public $is_active_whatsapp = 0; // default
+    public $emails = [];
+    public $emailLogs = [];
+    public $emailInput = '';
 
     public $candidateFile, $csvError = null;
     
@@ -1018,6 +1024,99 @@ class CandidateContactList extends Component
 
             $this->dispatch('mail-sent-failed', message: $e->getMessage());
         }
+    }
+
+
+    public function addEmail()
+    {
+        $email = trim($this->emailInput);
+
+        //  Empty check
+        if (!$email) {
+            $this->dispatch('toastr:error', message: 'Email field is required');
+            return;
+        }
+
+        //  Invalid email check
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $this->dispatch('toastr:error', message: 'Please enter a valid email address');
+            return;
+        }
+
+        //  Duplicate check
+        if (in_array($email, $this->emails)) {
+            $this->dispatch('toastr:error', message: 'Email already added');
+            return;
+        }
+
+        //  Add email
+        $this->emails[] = $email;
+
+        // Reset input
+        $this->emailInput = '';
+
+        $this->dispatch('ResetFormData');
+        // Optional success (if you want)
+        $this->dispatch('toastr:success', message: 'Email added successfully');
+    }
+    public function loadEmailLogs()
+    {
+        $this->emailLogs = EmailLog::where('candidate_id', $this->candidateId)
+            ->latest()
+            ->get();
+    }
+
+    public function removeEmail($index)
+    {
+        unset($this->emails[$index]);
+        $this->emails = array_values($this->emails);
+    }
+    public function openEmailModal($id)
+    {
+        $this->candidateId = $id;
+        $this->selectedCandidate = Candidate::findOrFail($id);
+        $this->is_active_email = 1;
+        $this->loadEmailLogs();
+    }
+    public function closeEmailWhatsappModal()
+    {
+        $this->is_active_email = 0;
+        $this->is_active_whatsapp = 0;
+        $this->reset(['emailInput', 'emails']);
+    }
+
+    public function openWhatsappModal($id)
+    {
+        $this->candidateId = $id;
+
+        $this->is_active_whatsapp = 1;
+    }
+
+
+    public function sendEmail()
+    {
+        if (count($this->emails) == 0) {
+            $this->dispatch('toastr:error', message: 'Please add at least one email');
+            return;
+        }
+
+        // Send mail logic here
+        EmailLog::create([
+            'candidate_id' => $this->candidateId,
+            'sender'       => auth()->user()->email ?? 'system',
+            'recipients'   => json_encode($this->emails),
+            'subject'      => "",
+            'message'      => "",
+        ]);
+
+        // reload logs
+        $this->loadEmailLogs();
+
+        // reset form
+        $this->emails = [];
+        $this->emailInput = '';
+
+        $this->dispatch('toastr:success', message: 'Email sent successfully');
     }
 
     public function openPrintPreview($logId)

@@ -266,15 +266,15 @@
                                                 <div class="tooltip-wrapper">
                                                     <a href="{{route('admin.mcc_violation_remarks', $item->id)}}" class="btn btn-sm btn-outline-primary position-relative">
                                                         View Remarks <i class="bi bi-arrow-right"></i>
-                                                        @php
-                                                            $unreadRemarks = $item->Remarks()->where('is_read', 0)->count();
-                                                        @endphp
+                                                        {{-- @php
+                                                            $unreadRemarks = $item->RemarksData()->where('is_read', 0)->count();
+                                                        @endphp --}}
 
-                                                        @if($unreadRemarks > 0)
+                                                        {{-- @if($unreadRemarks > 0)
                                                             <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
                                                                 {{ $unreadRemarks }}
                                                             </span>
-                                                        @endif
+                                                        @endif --}}
 
                                                     </a>
                                                     <span class="tooltip-text">View Remarks</span>

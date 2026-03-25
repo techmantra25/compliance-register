@@ -508,11 +508,8 @@ class MccViolationCrud extends Component
                 'assembly.assemblyPhase.phase',
                 'latestRemark',
                 'legalAssociate',
+                'RemarksData',
             ])
-
-            ->when($user->role == 'legal_associate', function ($query) use ($user) {
-                $query->where('action_taken', $user->id);
-            })
 
             ->when($this->search, function ($query) {
                 $query->where(function ($q) {
@@ -526,6 +523,14 @@ class MccViolationCrud extends Component
                                 ->orWhere('assembly_name_en', "like", "%{$this->search}%")
                                 ->orWhere('assembly_code', "like", "%{$this->search}%");
                         });
+                });
+            })
+            ->whereHas('RemarksData', function ($q) use ($user) {
+                $q->where(function ($q2) use ($user) {
+                    $q2->where('tag_with', $user->id)
+                    ->orWhere('tag_with', 'like', "{$user->id},%")
+                    ->orWhere('tag_with', 'like', "%,{$user->id}")
+                    ->orWhere('tag_with', 'like', "%,{$user->id},%");
                 });
             })
 

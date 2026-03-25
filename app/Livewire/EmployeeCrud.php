@@ -44,46 +44,46 @@ class EmployeeCrud extends Component
     protected function validateAssemblies($ignoreId = null)
     {
         // assemblies required only for employee
-        if ($this->role === 'employee') {
+    //     if ($this->role === 'employee') {
 
-            if (empty($this->assemblies)) {
-                $this->addError('assemblies', 'At least one assembly is required.');
-                return false;
-            }
+    //         if (empty($this->assemblies)) {
+    //             $this->addError('assemblies', 'At least one assembly is required.');
+    //             return false;
+    //         }
 
-            // foreach ($this->assemblies as $assemblyId) {
+    //         // foreach ($this->assemblies as $assemblyId) {
 
-            //     $employee = Admin::where('role', 'employee')
-            //         ->where(function ($q) use ($assemblyId) {
+    //         //     $employee = Admin::where('role', 'employee')
+    //         //         ->where(function ($q) use ($assemblyId) {
 
-            //             $q->where('assemblies', $assemblyId)
-            //             ->orWhere('assemblies', 'like', "$assemblyId,%")
-            //             ->orWhere('assemblies', 'like', "%,$assemblyId")
-            //             ->orWhere('assemblies', 'like', "%,$assemblyId,%");
+    //         //             $q->where('assemblies', $assemblyId)
+    //         //             ->orWhere('assemblies', 'like', "$assemblyId,%")
+    //         //             ->orWhere('assemblies', 'like', "%,$assemblyId")
+    //         //             ->orWhere('assemblies', 'like', "%,$assemblyId,%");
 
-            //         })
-            //         ->when($ignoreId, function ($q) use ($ignoreId) {
-            //             $q->where('id', '!=', $ignoreId);
-            //         })
-            //         ->first();   // <-- get employee instead of exists()
+    //         //         })
+    //         //         ->when($ignoreId, function ($q) use ($ignoreId) {
+    //         //             $q->where('id', '!=', $ignoreId);
+    //         //         })
+    //         //         ->first();   // <-- get employee instead of exists()
 
-            //     if ($employee) {
+    //         //     if ($employee) {
 
-            //         // get assembly name
-            //         $assemblyName = \App\Models\Assembly::where('id', $assemblyId)
-            //             ->value('assembly_name_en');
+    //         //         // get assembly name
+    //         //         $assemblyName = \App\Models\Assembly::where('id', $assemblyId)
+    //         //             ->value('assembly_name_en');
 
-            //         $this->addError(
-            //             'assemblies',
-            //             "Assembly '{$assemblyName}' is already assigned to employee '{$employee->name}'."
-            //         );
+    //         //         $this->addError(
+    //         //             'assemblies',
+    //         //             "Assembly '{$assemblyName}' is already assigned to employee '{$employee->name}'."
+    //         //         );
 
-            //         return false;
-            //     }
-            // }
-        }
+    //         //         return false;
+    //         //     }
+    //         // }
+    //     }
 
-        return true;
+    //     return true;
     }
 
     public function DistrictUpdate($value)
@@ -154,9 +154,9 @@ class EmployeeCrud extends Component
     {
         $this->validate();
 
-        if (!$this->validateAssemblies()) {
-            return;
-        }
+        // if (!$this->validateAssemblies()) {
+        //     return;
+        // }
 
         $password = random_int(111111, 999999);
 
@@ -225,7 +225,6 @@ class EmployeeCrud extends Component
             DB::table('admin_permissions')->insert($data);
         }
        
-
         // Send login credentials email
         Mail::to($admin->email)->send(new EmployeeLoginMail($admin, $password));
 
@@ -271,9 +270,9 @@ class EmployeeCrud extends Component
 
         $this->validate($rules);
 
-        if (!$this->validateAssemblies($this->admin_id)) {
-            return;
-        }
+        // if (!$this->validateAssemblies($this->admin_id)) {
+        //     return;
+        // }
 
         $admin = Admin::findOrFail($this->admin_id);
 
