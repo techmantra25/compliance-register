@@ -101,6 +101,18 @@
 
             </table> -->
         </div>
+         @php
+            $isApprovedVersion = false;
+            $isRejectedVersion = false;
+
+            if ($versionData) {
+                if (!empty($versionData->observations) || !empty($versionData->others)) {
+                    $isRejectedVersion = true;
+                } else {
+                    $isApprovedVersion = true;
+                }
+            }
+        @endphp
 
         <div class="d-flex flex-column flex-md-row justify-content-between gap-2 align-items-center">
             {{-- APPROVED --}}
@@ -108,8 +120,8 @@
                 is_null($candidateData->legal_associate_id) || 
                 Auth::guard('admin')->user()->id == $candidateData->legal_associate_id
             )
-                @if($candidateData->status == "without_criminal_full_generation")
-
+                 {{-- VERSION BASED APPROVED --}}
+                    @if($versionData && $isApprovedVersion)
                     <span class="badge bg-success">
                         <i class="bi bi-check-circle"></i>
                         Candidate Approved — Acknowledgement Form Generated
@@ -128,7 +140,7 @@
 
 
                 {{-- REJECTED --}}
-                @elseif($candidateData->status == "without_criminal_rejected_observation_only")
+                @elseif($versionData && $isRejectedVersion)
 
                     <span class="badge bg-danger">
                         <i class="bi bi-x-circle"></i>
@@ -280,16 +292,14 @@
                 </div>
 
                 <div class="col-md-3 col-lg-3 border-start">
+                    @php
+                        $canEditObservation = !$versionData || (!$isApprovedVersion && !$isRejectedVersion);
+                    @endphp
 
                     <h6 class="section-header">Observation</h6>
                     @if(
                         (is_null($candidateData->legal_associate_id) || 
                         Auth::guard('admin')->user()->id == $candidateData->legal_associate_id)
-                        &&
-                        !in_array($candidateData->status, [
-                            'without_criminal_rejected_observation_only',
-                            'without_criminal_full_generation'
-                        ])
                     )
                     <!-- Checkboxes -->
                     <div class="mb-3">
@@ -298,31 +308,31 @@
 
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="obs1" 
-                                onchange="updateObservation()"
+                                onchange="updateObservation()" {{ !$canEditObservation ? 'disabled' : '' }}
                                 {{ in_array('Name is incorrect on the Nomination Form', $selectedObservations ?? []) ? 'checked' : '' }}>
                             <label class="form-check-label">Name is incorrect on the Nomination Form</label>
                         </div>
 
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="obs2" 
-                                onchange="updateObservation()"
+                                onchange="updateObservation()" {{ !$canEditObservation ? 'disabled' : '' }}
                                 {{ in_array('Address proof required for further verification', $selectedObservations ?? []) ? 'checked' : '' }}>
                             <label class="form-check-label">Address proof required for further verification</label>
                         </div>
 
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="obs3" onchange="updateObservation()" {{ in_array('Profile image is blurry', $selectedObservations ?? []) ? 'checked' : '' }}>
+                            <input class="form-check-input" type="checkbox" id="obs3" onchange="updateObservation()" {{ !$canEditObservation ? 'disabled' : '' }} {{ in_array('Profile image is blurry', $selectedObservations ?? []) ? 'checked' : '' }}>
                             <label class="form-check-label">Profile image is blurry</label>
                         </div>
 
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="obs4" onchange="updateObservation()" {{ in_array('Candidate Part number needs to be changed', $selectedObservations ?? []) ? 'checked' : '' }}>
+                            <input class="form-check-input" type="checkbox" id="obs4" onchange="updateObservation()" {{ !$canEditObservation ? 'disabled' : '' }} {{ in_array('Candidate Part number needs to be changed', $selectedObservations ?? []) ? 'checked' : '' }}>
                             <label class="form-check-label">Candidate Part number needs to be changed</label>
                         </div>
 
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="obs_other" 
-                                onchange="toggleOthers()"
+                                onchange="toggleOthers()" {{ !$canEditObservation ? 'disabled' : '' }}
                                 {{ in_array('Others', $selectedObservations ?? []) ? 'checked' : '' }}>
                             <label class="form-check-label">Others (Specify Reason)</label>
                         </div>
@@ -344,10 +354,12 @@
             <div class="card-footer flex-column flex-md-row d-flex justify-content-between gap-2 align-items-center">
                 {{-- APPROVED --}}
                 @if(
-                    is_null($candidateData->legal_associate_id) || 
-                    Auth::guard('admin')->user()->id == $candidateData->legal_associate_id
+                    (is_null($candidateData->legal_associate_id) || 
+                    Auth::guard('admin')->user()->id == $candidateData->legal_associate_id)
+                     &&
+                    $canEditObservation 
                 )
-                    @if($candidateData->status == "without_criminal_full_generation")
+                      @if($versionData && $isApprovedVersion)
 
                         <span class="badge bg-success ">
                             <i class="bi bi-check-circle"></i>
@@ -367,7 +379,7 @@
 
 
                     {{-- REJECTED --}}
-                    @elseif($candidateData->status == "without_criminal_rejected_observation_only")
+                    @elseif($versionData && $isRejectedVersion)
 
                         <span class="badge bg-danger ">
                             <i class="bi bi-x-circle"></i>
@@ -431,6 +443,10 @@
                 { name: 'basicstyles', items: ['Bold','Italic'] },
                 { name: 'paragraph', items: ['NumberedList','BulletedList'] }
             ]
+        });
+
+        editor.on('instanceReady', function () {
+            editor.setReadOnly(@json(!$canEditObservation));
         });
 
         // Set initial data from Livewire
