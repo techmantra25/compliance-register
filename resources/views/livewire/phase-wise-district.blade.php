@@ -119,7 +119,7 @@
                             </div>
     
                             <div class="table-responsive">
-                                <table class="custom-table custom-table-yellow">
+                                <table class="custom-table custom-table-yellow mobile-table">
                                     <thead>
                                         <th style="width:200px;">District Name</th>
                                         <th>Total Assembly</th>
@@ -132,11 +132,26 @@
                                     <tbody>
                                         @foreach($districtChart as $row)
                                         <tr>
-                                            <td>{{ $row['district'] }}</td>
-                                            <td>{{ $row['total_assembly'] }}</td>
-                                            <td>{{ $row['submitted_checked'] }}</td>
-                                            <td>{{ $row['not_submitted'] }}</td>
-                                            <td>{{ $row['incomplete'] }}</td>
+                                            <td>
+                                                <h6 class="responsive-title">District Name</h6>
+                                                {{ $row['district'] }}
+                                            </td>
+                                            <td>
+                                                <h6 class="responsive-title">Total Assembly</h6>
+                                                {{ $row['total_assembly'] }}
+                                            </td>
+                                            <td>
+                                                <h6 class="responsive-title">Submitted & Checked</h6>
+                                                {{ $row['submitted_checked'] }}
+                                            </td>
+                                            <td>
+                                                <h6 class="responsive-title">Not Submited</h6>
+                                                {{ $row['not_submitted'] }}
+                                            </td>
+                                            <td>
+                                                <h6 class="responsive-title">Incomplete</h6>
+                                                {{ $row['incomplete'] }}
+                                            </td>
     
                                             <td>
                                                 <div class="progress bg-white" style="height:24px;">

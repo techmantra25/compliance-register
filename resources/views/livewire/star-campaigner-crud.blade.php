@@ -31,8 +31,8 @@
         <!-- Table -->
         <div class="col-lg-12">
             <div class="card shadow-sm border-0 p-3 filter-card">
-                <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                    <h5 class="fw-bold mb-0">Campaigners</h5>
+                <div class="card-header bg-white d-flex flex-wrap justify-content-between align-items-center">
+                    <h5 class="fw-bold mb-4 mb-md-0">Campaigners</h5>
                     <div class="d-flex align-items-center">
                         <input type="text" wire:model="search" wire:keyup="filtercampaigner($event.target.value)"
                             class="form-control form-control-sm w-auto me-2"
@@ -45,7 +45,7 @@
                 </div>
                 <div class="card-body p-2">
                     <div class="table-responsive">
-                        <table class="table table-hover align-middle mb-0 shadow-sm rounded">
+                        <table class="table table-hover align-middle mb-0 shadow-sm rounded mobile-table">
                             <thead class="table-primary">
                                 <tr>
                                     <th width="30px">#</th>
@@ -61,22 +61,27 @@
                                 <tr class="">
 
                                     <td class="fw-bold text-dark">
+                                        <h6 class="responsive-title">#</h6>
                                         {{ $loop->iteration }}
                                     </td>
 
                                     <td class="text-start">
+                                        <h6 class="responsive-title">Name</h6>
                                         <div class="fw-semibold">{{ ucwords($camp->name) }}</div>
                                     </td>
 
                                     <td class="text-start">
+                                        <h6 class="responsive-title">Mobile</h6>
                                         <div class="fw-semibold">{{ $camp->mobile }}</div>
                                     </td>
 
                                     <td class="fw-semibold">
+                                        <h6 class="responsive-title">Extra Details</h6>
                                         {{ ucwords($camp->extra_details) ?? '-' }}
                                     </td>
 
                                     <td class="">
+                                        <h6 class="responsive-title">Action</h6>
                                         <div class="btn-group">
                                             <!-- Edit -->
                                             @if(childUserAccess(Auth::guard('admin')->user()->id,'campaign_update_campaigner'))

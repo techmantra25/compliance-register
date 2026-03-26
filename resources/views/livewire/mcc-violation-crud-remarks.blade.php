@@ -101,7 +101,7 @@
                 <div class="row">
 
                     <!-- LEFT: REMARKS -->
-                    <div class="col-lg-6">
+                    <div class="col-lg-6 mb-4 mb-md-0">
                         <h5 class="fw-bold mb-3">Remarks</h5>
                         <div class="chat-stack">
                             <div class="chat-box">

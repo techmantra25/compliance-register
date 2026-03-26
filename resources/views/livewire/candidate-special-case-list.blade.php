@@ -38,7 +38,7 @@
                                 </span>
                             </div>
                         </div>
-                        <div class="col-md-1 d-flex justify-content-end align-items-center gap-2">
+                        <div class="col-md-2 align-items-center gap-2">
 
                             <!-- Reset Button -->
                             <button class="btn btn-sm btn-danger"
@@ -108,14 +108,14 @@
 
                 <div class="card-body p-0">
                     <div class="table-responsive">
-                        <table class="table mb-0 align-middle">
+                        <table class="table mb-0 align-middle mobile-table">
                             <thead class="table-light">
                                 <tr>
                                     <th style="width: 30px;">#</th>
                                     <th>Candidate</th>
                                     <th>Assembly</th>
                                     <th>Documents</th>
-                                    <th >Final Status</th>
+                                    <th>Final Status</th>
                                     <th style="width:91px;">Last Date of Nomination</th>
                                     <th style="max-width: 250px;" class="text-center">Action</th>
                                 </tr>
@@ -123,8 +123,14 @@
                             <tbody>
                                 @forelse ($candidates as $candidate)
                                 <tr wire:key="candidate-{{ $candidate->id }}">
-                                    <td>{{ $candidates->firstItem() + $loop->index }}</td>
                                     <td>
+                                        <h6 class="responsive-title">#</h6>
+                                        {{ $candidates->firstItem() + $loop->index }}
+                                    </td>
+
+                                    <td>
+                                        <h6 class="responsive-title">Candidate</h6>
+
                                         <div class="fw-semibold text-primary">
                                             {{ ucwords($candidate->name) }}
                                         </div>
@@ -158,6 +164,7 @@
                                     </td>
 
                                     <td>
+                                        <h6 class="responsive-title">Assembly</h6>
                                         <span>
                                             @if(!empty($candidate->assembly->assembly_number))
                                                 {{ $candidate->assembly->assembly_number }} 
@@ -167,6 +174,8 @@
                                     </td>
 
                                     <td>
+                                        <h6 class="responsive-title">Documents</h6>
+
                                        @php
                                             $uploaded = $candidate->VedifiedDocuments->groupBy('type')->count();
                                         @endphp
@@ -179,6 +188,8 @@
                                     </td>
                                     
                                     <td>
+                                        <h6 class="responsive-title">Final Status</h6>
+
                                         {{ getFinalDocStatus($candidate->document_collection_status, 'icon') }}
                                         {{ getFinalDocStatus($candidate->document_collection_status, 'label') }}
                                         <br>
@@ -200,6 +211,8 @@
                                     </td>
 
                                     <td>
+                                        <h6 class="responsive-title">Last Date of Nomination</h6>
+
                                         {{
                                             optional(optional(optional($candidate->assembly)->assemblyPhase)->phase)->last_date_of_nomination
                                             ? \Carbon\Carbon::parse(
@@ -210,6 +223,8 @@
                                     </td>
 
                                     <td class="">
+                                        <h6 class="responsive-title">Action</h6>
+
                                         @if($candidate->status == "without_criminal_full_generation")
                                             @if($candidate->nominationForm && $candidate->nominationForm->logs->count())
                                                 <div class="tooltip-wrapper m-1">

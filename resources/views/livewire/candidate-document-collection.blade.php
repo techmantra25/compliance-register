@@ -528,8 +528,8 @@
 
                                             <!-- Step 2: Show dropdown ONLY when 'Included in Another' is selected -->
                                             @if(isset($skipOption[$key]) && $skipOption[$key] === 'yes')
-                                                <select class="form-select form-select-sm w-auto d-inline-block mt-2"
-                                                        style="min-width: 180px;"
+                                                <select class="form-select form-select-sm w-100 d-inline-block mt-2"
+                                                        
                                                         wire:model="attachedTo.{{ $key }}"
                                                         onchange="confirmUpdateAttachment('{{ $key }}', this)">
                                                     <option value="" > Document already included in</option>
@@ -651,7 +651,7 @@
                                        <input type="file"
                                             wire:model="newFile"
                                             multiple
-                                            class="form-control form-control-lg">
+                                            class="form-control form-control-sm">
                                            <small class="text-muted">
                                                 You can upload <strong>maximum 20 images</strong> at once or <strong>1 PDF file</strong>. 
                                                 Mixing PDF and images is not allowed.
@@ -674,7 +674,7 @@
                                     <label class="form-label fw-semibold">Remarks</label>
 
                                     <textarea wire:model="remarks"
-                                        class="form-control"
+                                        class="form-control form-control-sm"
                                         placeholder="Add remarks (optional)"
                                         rows="3"></textarea>
 

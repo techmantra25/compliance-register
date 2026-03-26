@@ -1,32 +1,36 @@
 <div>
     <div class="row g-4">
         <!-- Header -->
-       <div class="d-flex flex-wrap justify-content-between align-items-center">
-    
-    <div class="mb-4 mb-md-0">
-        <h4 class="fw-bold mb-1 text-dark">
-            <i class="bi bi-building me-2 text-primary"></i> {{ __('admin/assemblies.title') }}
-        </h4>
+       <div class="row justify-content-between align-items-center pt-4">
 
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb mb-0 small">
-                <li class="breadcrumb-item">
-                    <a href="#" class="text-decoration-none text-muted">
-                        <i class="bi bi-grid-fill me-1"></i> {{ __('admin/assemblies.breadcrumb_admin') }}
-                    </a>
-                </li>
-                <li class="breadcrumb-item active text-primary" aria-current="page">
-                    {{ __('admin/assemblies.breadcrumb_assemblies') }}
-                </li>
-            </ol>
-        </nav>
+        <div class="col-md col-lg">
+            <div class="mb-4 mb-md-0">
+                <h4 class="fw-bold mb-1 text-dark">
+                    <i class="bi bi-building me-2 text-primary"></i> {{ __('admin/assemblies.title') }}
+                </h4>
+
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-0 small">
+                        <li class="breadcrumb-item">
+                            <a href="#" class="text-decoration-none text-muted">
+                                <i class="bi bi-grid-fill me-1"></i> {{ __('admin/assemblies.breadcrumb_admin') }}
+                            </a>
+                        </li>
+                        <li class="breadcrumb-item active text-primary" aria-current="page">
+                            {{ __('admin/assemblies.breadcrumb_assemblies') }}
+                        </li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+
+        <div class="col-md text-start text-md-end col-lg">
+            <button class="btn btn-sm btn-success" wire:click="exportCsv">
+                Export CSV
+            </button>
+        </div>
+
     </div>
-
-    <button class="btn btn-sm btn-success" wire:click="exportCsv">
-        Export CSV
-    </button>
-
-</div>
 
         <div class="col-lg-12">
             <div class="card shadow-sm border-0 p-3">
@@ -35,7 +39,7 @@
                     <div class="row justify-content-end align-items-center">
                         <!-- District filter -->
                         <div class="col-md-4 mb-4 mb-md-0" wire:ignore>
-                            <select wire:model="district_id" class="form-select form-select-sm chosen-select"  data-placeholder="Select Assembly">
+                            <select wire:model="district_id" class="form-select form-control form-select-sm chosen-select"  data-placeholder="Select Assembly">
                                 <option value="">{{ __('admin/assemblies.filter_district') }}</option>
                                 @foreach($districts as $district)
                                     <option value="{{ $district->id }}">{{ app()->getLocale() === 'bn' ? $district->name_bn : $district->name_en }}</option>
@@ -66,7 +70,7 @@
                 <!-- Table -->
                 <div class="card-body p-0">
                     <div class="table-responsive">
-                        <table class="table mb-0 align-middle">
+                        <table class="table mb-0 align-middle mobile-table">
                             <thead class="table-light">
                                 <tr>
                                     <th>#</th>
@@ -84,22 +88,32 @@
                                 @forelse ($assemblies as $assembly)
                                     <tr wire:key="assembly-{{ $assembly->id }}">
                                         <td>
+                                            <h6 class="responsive-title">#</h6>
                                             {{ $assemblies->firstItem() + $loop->index }}
                                         </td>
-                                        <td>{{ $assembly->assembly_code }}</td>
+                                        <td>
+                                            <h6 class="responsive-title">Assembly Code</h6>
+                                            {{ $assembly->assembly_code }}
+                                        </td>
 
                                         <!-- Dynamic name based on locale -->
                                         <td>
+                                            <h6 class="responsive-title">Assembly (EN)</h6>
                                             {{ app()->getLocale() === 'bn' ? $assembly->assembly_name_bn : $assembly->assembly_name_en }}
                                         </td>
-                                        <td>{{ $assembly->assembly_name_bn }}</td>
+                                        <td>
+                                            <h6 class="responsive-title">Assembly (BN)</h6>
+                                            {{ $assembly->assembly_name_bn }}
+                                        </td>
 
                                         <td>
+                                            <h6 class="responsive-title">District</h6>
                                             {{ app()->getLocale() === 'bn' 
                                                 ? ($assembly->district->name_bn ?? 'N/A') 
                                                 : ($assembly->district->name_en ?? 'N/A') }}
                                         </td>
                                         <td>
+                                            <h6 class="responsive-title">Candidates</h6>
                                             @if($assembly->candidates->count())
                                                 <ul class="mb-0 ps-3">
                                                     @foreach($assembly->candidates as $candidate)
@@ -111,6 +125,7 @@
                                             @endif
                                         </td>
                                         <td>
+                                            <h6 class="responsive-title">Status</h6>
                                             <div class="tooltip-wrapper m-1">
                                                 <span class="badge bg-{{ $assembly->status == 'active' ? 'success' : 'secondary' }}">
                                                     {{ $assembly->status == 'active' 
@@ -120,6 +135,7 @@
                                             </div>
                                         </td>
                                         <td>
+                                            <h6 class="responsive-title">Assigned To</h6>
                                             @php
                                                 $employee = $this->getAssignedEmployee($assembly->id);
                                             @endphp
@@ -133,6 +149,7 @@
                                             @endif
                                         </td>
                                         <td>
+                                            <h6 class="responsive-title">Action</h6>
                                             <div class="tooltip-wrapper m-1">
                                                 {{-- <button class="btn btn-sm btn-outline-success" wire:click="editItem({{$assembly->id}})">
                                                     <i class="bi bi-pencil"></i>
@@ -315,6 +332,8 @@
                 });
             }
 
+
+
             document.addEventListener("livewire:navigated", () => {
                 initChosen();
             });
@@ -452,5 +471,41 @@
                 });
             </script>
 
+
+<script>
+// Responsive Chosen Fix
+function fixResponsiveChosen() {
+    $('.chosen-select').each(function() {
+        var $this = $(this);
+        var $container = $this.next('.chosen-container');
+        
+        // Set width to match parent
+        $container.css('width', $this.parent().width());
+        
+        // Fix dropdown width
+        $container.find('.chosen-drop').css('width', '100%');
+    });
+}
+
+// Call on load
+$(document).ready(function() {
+    $('.chosen-select').chosen({
+        width: '100%',
+        disable_search_threshold: 10
+    });
+    
+    fixResponsiveChosen();
+});
+
+// Call on resize
+$(window).on('resize', function() {
+    fixResponsiveChosen();
+    $('.chosen-select').trigger('chosen:updated');
+});
+</script>
+
     @endpush
+
+
+    
 </div>

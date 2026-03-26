@@ -160,20 +160,11 @@
 
                     </div>
 
-                    {{-- ROW 2 : SEARCH + RESET --}}
-                    <div class="d-flex align-items-center gap-2 justify-content-end">
-
-                        
-
-                        
-
-                    </div>
-
                 </div>
 
                 <div class="card-body p-2">
                     <div class="table-responsive">
-                        <table class="table align-middle">
+                        <table class="table align-middle mobile-table">
 
                             <thead class="table-light">
                                 <tr class="text-center">
@@ -193,12 +184,14 @@
                                 <tr wire:key="item-{{$index}}">
 
                                     <!-- SL -->
-                                    <td class="text-center fw-bold">
+                                    <td class=" fw-bold">
+                                        <h6 class="responsive-title">#</h6>
                                         {{ $campaigns->firstItem() + $index }}
                                     </td>
 
                                     <!-- Campaign Details -->
                                     <td class="text-start">
+                                        <h6 class="responsive-title">Campaign Details</h6>
 
                                         <div class="fw-semibold text-dark mb-1">
                                             <i class="bi bi-megaphone text-primary me-1"></i>
@@ -216,7 +209,10 @@
 
 
                                     </td>
-                                    <td>    
+
+                                    <td> 
+                                        <h6 class="responsive-title">Assembly</h6>
+
                                         <div class="small text-muted mb-1">
                                             @if(optional($camp->assembly)->assembly_name_en)
 
@@ -227,6 +223,7 @@
 
                                     <!-- Campaigner -->
                                     <td>
+                                        <h6 class="responsive-title">Campaigner</h6>
 
                                         @foreach($camp->campaigners as $campaigner)
 
@@ -286,7 +283,9 @@
 
 
                                     <!-- Action -->
-                                    <td class="text-center">
+                                    <td class="">
+
+                                    <h6 class="responsive-title">Action</h6>
 
                                         <div class="btn-group btn-group-sm">
 
@@ -388,7 +387,7 @@
             <div class="modal-dialog modal-xl">
                 <div class="modal-content">
 
-                    <div class="modal-header">
+                    <div class="modal-header bg-primary text-white">
                         <h5 class="modal-title" id="campaignModalLabel">{{ $isEdit ? 'Edit Campaign' : 'Add Campaign' }}</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
@@ -402,7 +401,7 @@
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">Assembly</label>
                                     <div wire:ignore>
-                                        <select class="form-control chosen-select" wire:model="assembly_id">
+                                        <select class="form-control form-control-sm chosen-select" wire:model="assembly_id">
                                             <option value="">Select Assembly</option>
                                             @foreach($assembly as $a)
                                                 <option value="{{ $a->id }}" data-code="{{ $a->assembly_code }}"
@@ -418,7 +417,7 @@
                                 <!-- Event Category -->
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">Event Category</label>
-                                    <select class="form-control" wire:model="event_category_id" wire:change="handleCategoryChange($event.target.value)">
+                                    <select class="form-control form-control-sm" wire:model="event_category_id" wire:change="handleCategoryChange($event.target.value)">
                                         <option value="">Select Event Category</option>
                                         @foreach($eventCategory as $cat)
                                             <option value="{{ $cat->id }}">{{ $cat->name }}</option>
@@ -433,7 +432,7 @@
 
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">Other Event Category</label>
-                                        <input class="form-control" wire:model="other_event_category">
+                                        <input class="form-control form-control-sm" wire:model="other_event_category">
 
                                         @error('other_event_category')
                                             <small class="text-danger">{{ $message }}</small>
@@ -444,21 +443,21 @@
                                 <!-- Address -->
                                 <div class="col-md-12 mb-3">
                                     <label class="form-label">Address</label>
-                                    <input type="text" class="form-control" wire:model="address">
+                                    <input type="text" class="form-control form-control-sm" wire:model="address">
                                     @error('address') <small class="text-danger">{{ $message }}</small> @enderror
                                 </div>
 
                                 <!-- Campaign Date -->
                                 <div class="col-md-6 col-lg-6 mb-3">
                                     <label class="form-label">Campaign Date</label>
-                                    <input type="datetime-local" class="form-control" wire:model="campaign_date">
+                                    <input type="datetime-local" class="form-control form-control-sm" wire:model="campaign_date">
                                     @error('campaign_date') <small class="text-danger">{{ $message }}</small> @enderror
                                 </div>
 
                                 <div class="col-md-12 col-lg-6 mb-3">
                                     <div wire:ignore>
                                         <label class="form-label">Event Campaigners</label>
-                                        <select class="form-control chosen-select" multiple wire:model="campaigner_ids">
+                                        <select class="form-control form-control-sm chosen-select form-control-sm" multiple wire:model="campaigner_ids">
                                             @foreach($campaigners as $camp)
                                                 <option value="{{ $camp->id }}">
                                                     {{ ucwords($camp->name) }} ({{ $camp->mobile }})
@@ -476,7 +475,7 @@
                                     <label class="form-label">Keywords</label>
 
                                     <!-- Fake Input Box -->
-                                    <div id="keyword-box" class="form-control d-flex flex-wrap gap-2 align-items-center" style="min-height: 45px; cursor: text;">
+                                    <div id="keyword-box" class="form-control form-control-sm d-flex flex-wrap gap-2 align-items-center" style="min-height: 45px; cursor: text;">
 
                                         <!-- Existing Keywords -->
                                             @foreach($keywords as $word)
@@ -501,7 +500,7 @@
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">Permission Documents</label>
 
-                                    <input type="file" class="form-control" wire:model="permission_documents" multiple>
+                                    <input type="file" class="form-control form-control-sm" wire:model="permission_documents" multiple>
 
                                     <div wire:loading wire:target="permission_documents" class="text-muted mt-2">
                                         <span class="spinner-border spinner-border-sm me-1"></span> Uploading...
@@ -600,9 +599,9 @@
                     </div>
 
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancel</button>
 
-                        <button type="submit" class="btn btn-primary" wire:click="save">
+                        <button type="submit" class="btn btn-sm btn-primary" wire:click="save">
                             {{ $isEdit ? 'Update' : 'Save' }}
                         </button>
                     </div>

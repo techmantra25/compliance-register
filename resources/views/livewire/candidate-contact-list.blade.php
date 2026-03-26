@@ -167,7 +167,7 @@
 
                 <div class="card-body p-0">
                     <div class="table-responsive">
-                        <table class="table mb-0 align-middle">
+                        <table class="table mb-0 align-middle mobile-table">
                             <thead class="table-light">
                                 <tr>
                                     <th style="width: 30px;">#</th>
@@ -178,14 +178,19 @@
                                     <th >Final Status</th>
                                     <th style="width:91px;">Last Date of Nomination</th>
                                     <th>Form</th>
-                                    <th style="max-width: 250px;" class="text-center">Action</th>
+                                    <th style="max-width: 250px;">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @forelse ($candidates as $candidate)
                                 <tr wire:key="candidate-{{ $candidate->id }}">
-                                    <td>{{ $candidates->firstItem() + $loop->index }}</td>
                                     <td>
+                                        <h6 class="responsive-title">#</h6>
+                                        {{ $candidates->firstItem() + $loop->index }}
+                                    </td>
+
+                                    <td>
+                                        <h6 class="responsive-title">Candidate</h6>
                                         <div class="fw-semibold text-primary">
                                             {{ ucwords($candidate->name) }}
                                         </div>
@@ -220,6 +225,7 @@
                                     </td>
 
                                     <td>
+                                        <h6 class="responsive-title">Assembly</h6>
                                         <span>
                                             @if(!empty($candidate->assembly->assembly_number))
                                                 {{ $candidate->assembly->assembly_number }} 
@@ -229,6 +235,7 @@
                                     </td>
 
                                     <td>
+                                        <h6 class="responsive-title">Documents</h6>
                                        @php
                                             $uploaded = $candidate->VedifiedDocuments->groupBy('type')->count();
                                         @endphp
@@ -241,6 +248,8 @@
                                     </td>
                                     
                                     <td>
+                                        <h6 class="responsive-title">Final Status</h6>
+
                                         {{ getFinalDocStatus($candidate->document_collection_status, 'icon') }}
                                         {{ getFinalDocStatus($candidate->document_collection_status, 'label') }}
                                         <br>
@@ -262,6 +271,7 @@
                                     </td>
 
                                     <td>
+                                        <h6 class="responsive-title">Last Date of Nomination</h6>
                                         {{
                                             optional(optional(optional($candidate->assembly)->assemblyPhase)->phase)->last_date_of_nomination
                                             ? \Carbon\Carbon::parse(
@@ -270,7 +280,9 @@
                                             : 'N/A'
                                         }}
                                     </td>
+
                                     <td class="">
+                                        <h6 class="responsive-title">Form</h6>
 
                                         {{-- Default when status is NULL --}}
                                         @if(is_null($candidate->status))
@@ -343,7 +355,10 @@
                                             @endif
                                         @endif
                                     </td>
-                                    <td class="text-center">
+
+                                    <td>
+                                        <h6 class="responsive-title">Action</h6>
+
                                             @if($candidate->document_collection_status !== 'rejected')
                                                 @if(childUserAccess(Auth::guard('admin')->user()->id,'nomination_assign_agents'))
                                                 <div class="tooltip-wrapper mr-1">
@@ -384,21 +399,23 @@
                                                     <span class="tooltip-text">Candidate Journey Timeline</span>
                                                 </div>
                                             @endif
-                                            <div class="tooltip-wrapper mr-1"> 
-                                                <button class="btn btn-sm btn-outline-success"
-                                                    wire:click="openEmailModal({{ $candidate->id }})">
-                                                    <i class="bi bi-envelope"></i>
-                                                </button>
-                                                <span class="tooltip-text">Send Mail</span>
-                                            </div>
+                                            @if($candidate->nominationForm && $candidate->nominationForm->logs->count() && $candidate->status == "without_criminal_full_generation")
+                                                <div class="tooltip-wrapper mr-1"> 
+                                                    <button class="btn btn-sm btn-outline-success"
+                                                        wire:click="openEmailModal({{ $candidate->id }})">
+                                                        <i class="bi bi-envelope"></i>
+                                                    </button>
+                                                    <span class="tooltip-text">Send Mail</span>
+                                                </div>
 
-                                            <div class="tooltip-wrapper mr-1">
-                                                <button class="btn btn-sm btn-outline-success"
-                                                    wire:click="openWhatsappModal({{ $candidate->id }})">
-                                                    <i class="bi bi-whatsapp"></i>
-                                                </button>
-                                                <span class="tooltip-text">Send Whatsapp</span>
-                                            </div>
+                                                <div class="tooltip-wrapper mr-1">
+                                                    <button class="btn btn-sm btn-outline-success"
+                                                        wire:click="openWhatsappModal({{ $candidate->id }})">
+                                                        <i class="bi bi-whatsapp"></i>
+                                                    </button>
+                                                    <span class="tooltip-text">Send Whatsapp</span>
+                                                </div>
+                                            @endif
                                         </td>
 
                                     <!-- modal -->
@@ -484,10 +501,10 @@
                         </table>
                     </div>
 
-                    <div class="mt-2 d-flex justify-content-between align-items-center">
+                    <div class="mt-2 d-flex flex-wrap  justify-content-between align-items-center">
 
                         <!-- Total Count -->
-                        <div>
+                        <div class="text-center text-md-start mb-4 mb-md-0">
                             Showing {{ $candidates->firstItem() }} to {{ $candidates->lastItem() }}
                             of {{ $candidates->total() }} entries
                         </div>
@@ -523,7 +540,7 @@
                         <!-- Download Sample CSV -->
                         <div class="col-12">
                             <a href="{{ asset('assets/sample-csv/bulk-candidate.csv') }}" download
-                                class="btn btn-outline-primary">
+                                class="btn btn-sm btn-outline-primary">
                                 <i class="bi bi-download me-1"></i>Download Sample CSV
                             </a>
                         </div>
@@ -531,7 +548,7 @@
                         <!-- Upload Field -->
                         <div class="col-12">
                             <label for="candidateFile" class="form-label fw-semibold mt-3">Upload Candidate CSV</label>
-                            <input type="file" class="form-control" id="candidateFile" wire:model="candidateFile" accept=".csv">
+                            <input type="file" class="form-control form-control-sm" id="candidateFile" wire:model="candidateFile" accept=".csv">
 
                             @error('candidateFile')
                                 <div class="text-danger mt-1">{{ $message }}</div>
@@ -552,11 +569,11 @@
 
                 <!-- Modal Footer -->
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal"
                         wire:click="resetForm">Close</button>
 
                     <!-- Upload button should appear only when NOT uploading -->
-                    <button type="button" class="btn btn-primary"
+                    <button type="button" class="btn btn-primary btn-sm"
                         wire:click="saveCandidate"
                         wire:loading.remove
                         wire:target="candidateFile">
@@ -595,7 +612,7 @@
                             </label>
 
                             <input type="file"
-                                class="form-control"
+                                class="form-control form-control-sm"
                                 wire:model="candidateFile"
                                 accept=".xlsx,.xls">
 
@@ -614,13 +631,13 @@
 
                 <!-- Footer -->
                 <div class="modal-footer">
-                    <button class="btn btn-secondary"
+                    <button class="btn btn-sm btn-secondary"
                             data-bs-dismiss="modal"
                             wire:click="resetForm">
                         Close
                     </button>
 
-                    <button class="btn btn-warning"
+                    <button class="btn btn-sm btn-warning"
                             wire:click="importAdditionalDetails"
                             wire:loading.remove
                             wire:target="candidateFile">

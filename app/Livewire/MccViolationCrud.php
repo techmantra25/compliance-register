@@ -526,13 +526,18 @@ class MccViolationCrud extends Component
                 });
             })
             ->whereHas('RemarksData', function ($q) use ($user) {
+            // If NOT admin → apply filter
+            if ($user->role != "admin") {
                 $q->where(function ($q2) use ($user) {
                     $q2->where('tag_with', $user->id)
-                    ->orWhere('tag_with', 'like', "{$user->id},%")
-                    ->orWhere('tag_with', 'like', "%,{$user->id}")
-                    ->orWhere('tag_with', 'like', "%,{$user->id},%");
+                        ->orWhere('tag_with', 'like', "{$user->id},%")
+                        ->orWhere('tag_with', 'like', "%,{$user->id}")
+                        ->orWhere('tag_with', 'like', "%,{$user->id},%");
                 });
-            })
+            }
+
+            // ✅ If admin → no condition (means all records)
+        })
 
             ->when($this->filter_by_assembly, function ($q) {
                 $q->where('assembly_id', $this->filter_by_assembly);

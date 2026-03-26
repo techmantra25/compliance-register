@@ -70,19 +70,22 @@
 
     <div class="row g-4">
         
-        <div class="d-flex flex-wrap justify-content-between align-items-center">
-            <div class="mb-4 mb-md-0">
-                <h4 class="fw-bold mb-1 text-dark">
-                    <i class="bi bi-megaphone-fill me-2 text-primary"></i> Complaint Manager
-                </h4>
-                <ol class="breadcrumb mb-0 small">
-                    <li class="breadcrumb-item">
-                        <a href="#" class="text-muted">Admin</a>
-                    </li>
-                    <li class="breadcrumb-item active text-primary">Complaint</li>
-                </ol>
+        <div class="row justify-content-between align-items-center pt-4">
+
+            <div class="col-sm col-md">
+                <div class="mb-4 mb-md-0">
+                    <h4 class="fw-bold mb-1 text-dark">
+                        <i class="bi bi-megaphone-fill me-2 text-primary"></i> Complaint Manager
+                    </h4>
+                    <ol class="breadcrumb mb-0 small">
+                        <li class="breadcrumb-item">
+                            <a href="#" class="text-muted">Admin</a>
+                        </li>
+                        <li class="breadcrumb-item active text-primary">Complaint</li>
+                    </ol>
+                </div>
             </div>
-            <div>
+            <div class="col-sm col-md text-start text-md-end">
                 @if(childUserAccess(Auth::guard('admin')->user()->id,'mcc_export_mcc'))
                 {{-- <button class="btn btn-primary btn-sm" wire:click="exportMcc">
                     <i class="bi bi-download me-1"></i> Export MCC
@@ -99,6 +102,7 @@
                 </button>
                 @endif
             </div>
+
         </div>
 
 
@@ -155,7 +159,7 @@
 
                 <div class="card-body p-0">
                     <div class="table-responsive">
-                        <table class="table mb-0 align-middle">
+                        <table class="table mb-0 align-middle mobile-table">
                             <thead class="table-light">
                                 <tr>
                                     <th>Code</th>
@@ -172,6 +176,8 @@
                                 @forelse($mccList as $key => $item)
                                     <tr>
                                         <td>
+                                            <h6 class="responsive-title">Code</h6>
+
                                             <div class="fw-bold">{{ $item->mcc_code }}</div>
 
                                             <div class="text-muted small">
@@ -182,25 +188,42 @@
                                                 @endif
                                             </div>
                                         </td>
+
                                         <td class="text-start">
+                                            <h6 class="responsive-title">Assembly</h6>
+                                            
                                             <div class="fw-semibold">{{ ucwords(optional($item->assembly)->assembly_name_en ?? '_') }}</div>
                                             <div class="text-muted small">District: {{ optional(optional($item->assembly)->district)->name_en }}</div>
                                             <div class="small text-primary">
                                                 {{ ucwords(optional(optional(optional($item->assembly)->assemblyPhase)->phase)->name ?? 'N/A') }}
                                             </div>
                                         </td>
+
                                         <td>
+                                            <h6 class="responsive-title">Block & GP</h6>
+
                                             <div class="fw-bold">{{ ucwords($item->block) }}</div>
                                             <div class="text-muted small">@if($item->gp) GP: {{ ucwords($item->gp) }} @endif</div>
                                         </td>
+
                                         <td>
+                                            <h6 class="responsive-title">Complainer Details</h6>
+
                                             <div class="fw-bold">{{ ucwords($item->complainer_name) }}</div>
                                             <div class="text-muted small">
                                                 @if($item->complainer_phone) <i class="bi bi-telephone me-1"></i> {{ $item->complainer_phone }} @endif
                                             </div>
                                         </td>
-                                        <td>{{ $item->created_at->format('d-m-Y h:i A') }}</td>
+
                                         <td>
+                                            <h6 class="responsive-title">Date & Time</h6>
+
+                                            {{ $item->created_at->format('d-m-Y h:i A') }}
+                                        </td>
+
+                                        <td>
+                                            <h6 class="responsive-title">Assign To</h6>
+
                                            @if($item->action_taken)
                                                 <span class="badge bg-success">
                                                     {{ ucwords($item->legalAssociate->name ?? 'Assigned') }}
@@ -213,7 +236,10 @@
 
                                             @endif
                                         </td>
+
                                         <td>
+                                            <h6 class="responsive-title">Status</h6>
+
                                             <span class="badge
                                                 @if($item->status == 'pending') bg-warning
                                                 @elseif($item->status == 'inprogress') bg-info
@@ -227,7 +253,7 @@
                                         </td>
 
                                         <td class="">
-
+                                            <h6 class="responsive-title">Action</h6>
                                             <!-- Edit Button -->
                                             @if(childUserAccess(Auth::guard('admin')->user()->id,'mcc_update_mcc') && $item->status == "pending")
                                             <div class="btn-group m-1">
@@ -307,9 +333,9 @@
             ria-hidden="true" style="background: rgba(0,0,0,0.5);">
             <div class="modal-dialog modal-xl">
                 <div class="modal-content">
-                    <div class="modal-header">
+                    <div class="modal-header bg-primary text-white">
                         <h5 class="modal-title" id="mccModalLabel">{{ $isEdit ? 'Edit Complaint' : 'Add Complaint' }}</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
 
                     <div class="modal-body">
@@ -323,7 +349,7 @@
                                     <div class="row">
 
                                         <!-- Assembly -->
-                                        <div class="col-7 mb-3">
+                                        <div class="col-md-7 mb-3">
                                             <label class="form-label">Assembly<span class="text-danger">*</span></label>
                                             <div wire:ignore>
                                                 <select class="form-control chosen-select" wire:model="assembly_id">
@@ -339,7 +365,7 @@
                                         </div>
 
                                         <!-- Category -->
-                                        <div class="col-5 mb-3">
+                                        <div class="col-md-5 mb-3">
                                             <label class="form-label">
                                                 Category<span class="text-danger">*</span>
                                             </label>
@@ -370,14 +396,14 @@
                                         </div>
 
                                         <!-- Block -->
-                                        <div class="col-7 mb-3">
+                                        <div class="col-md-7 mb-3">
                                             <label>Block/Municipality/Town</label>
                                             <input class="form-control" wire:model="block">
                                             @error('block') <small class="text-danger">{{ $message }}</small> @enderror
                                         </div>
 
                                         <!-- GP -->
-                                        <div class="col-5 mb-3">
+                                        <div class="col-md-5 mb-3">
                                             <label>GP/Ward</label>
                                             <input class="form-control" wire:model="gp">
                                         </div>
@@ -511,12 +537,12 @@
 
                     <div class="modal-footer">
 
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">
                             Cancel
                         </button>
 
                         <button type="button"
-                            class="btn btn-primary"
+                            class="btn btn-primary btn-sm"
                             wire:click="save"
                             wire:loading.attr="disabled"
                             wire:target="save,supporting_documents">
