@@ -145,7 +145,18 @@
                             </tbody>
 
                         </table>
+                            <div class="mt-2 ms-2 mb-2 d-flex flex-wrap justify-content-between align-items-center">
 
+                                <div class="text-center text-md-start mb-2 mb-md-0">
+                                    Showing {{ $admins->firstItem() }} to {{ $admins->lastItem() }}
+                                    of {{ $admins->total() }} entries
+                                </div>
+
+                                <div>
+                                    {{ $admins->links('pagination.custom') }}
+                                </div>
+
+                            </div>
                     </div>
 
                 </div>

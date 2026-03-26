@@ -121,7 +121,7 @@
 
                         <select class="form-select form-select-sm"
                                 wire:model="assignedLegalAssociate"
-                                wire:change="assignLegalAssociate">
+                                onchange="confirmLegalAssign(this.value)">
 
                             <option value="">Select Legal Associate</option>
 
@@ -255,7 +255,7 @@
 
                                     <select class="form-select form-select-sm"
                                             wire:model="assignedLegalAssociate"
-                                            wire:change="assignLegalAssociate">
+                                            onchange="confirmLegalAssign(this.value)">
 
                                         <option value="">Select Legal Associate</option>
 
@@ -831,6 +831,40 @@
                 }
             });
         });
+
+        // assigned legal associate
+        function confirmLegalAssign(associateId) {
+
+            let isRemove = !associateId;
+
+            Swal.fire({
+                title: isRemove ? "Remove Legal Associate?" : "Assign Legal Associate?",
+                html: isRemove 
+                    ? "Are you sure you want to remove the legal associate from this candidate?"
+                    : `
+                        Are you sure you want to assign this candidate to the selected legal associate?<br><br>
+                        <strong>📧 A notification email will be sent to the legal associate after confirmation.</strong>
+                    `,
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: isRemove ? "#d33" : "#198754",
+                cancelButtonColor: "#6c757d",
+                confirmButtonText: isRemove ? "Yes, Remove" : "Yes, Assign",
+                cancelButtonText: "Cancel"
+            }).then((result) => {
+
+                if (result.isConfirmed) {
+
+
+                    @this.call('assignLegalAssociate', associateId);
+
+                } else {
+                    // revert selection
+                    @this.set('assignedLegalAssociate', '{{ $candidateData->legal_associate_id }}');
+                }
+            });
+        }
+
         </script>
         {{-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script> --}}
         <script>

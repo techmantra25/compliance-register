@@ -38,7 +38,7 @@
                     <!-- <h5 class="fw-bold mb-0">{{ __('admin/assemblies.list_title') }}</h5> -->
                     <div class="row justify-content-end align-items-center">
                         <!-- District filter -->
-                        <div class="col-md-4 mb-4 mb-md-0" wire:ignore>
+                        <div class="col-md-3 mb-4 mb-md-0" wire:ignore>
                             <select wire:model="district_id" class="form-select form-control form-select-sm chosen-select"  data-placeholder="Select Assembly">
                                 <option value="">{{ __('admin/assemblies.filter_district') }}</option>
                                 @foreach($districts as $district)
@@ -48,6 +48,17 @@
                             @error('district_id') 
                                 <small class="text-danger">{{ $message }}</small> 
                             @enderror
+                        </div>
+                        <div class="col-md-3 mb-4 mb-md-0" wire:ignore>
+                            <select wire:model="filter_by_employee"
+                                    class="form-select form-control form-select-sm chosen-select">
+                                
+                                <option value="">Filter by Employee</option>
+
+                                @foreach($employees as $emp)
+                                    <option value="{{ $emp->id }}">{{ $emp->name }}</option>
+                                @endforeach
+                            </select>
                         </div>
 
                         <div class="col-md-4 mb-4 mb-md-0">

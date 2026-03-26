@@ -11,9 +11,14 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\EmployeeLoginMail;
+use Livewire\WithPagination;
 
 class EmployeeCrud extends Component
 {
+    use WithPagination;
+
+    protected $paginationTheme = 'bootstrap'; 
+
     public $name,$email,$mobile,$role,$admin_id;
 
     public $assemblies = [];
@@ -139,6 +144,11 @@ class EmployeeCrud extends Component
         $this->allAssemblies = Assembly::orderBy('district_id')->get();
 
         $this->dispatch('ResetForm');
+    }
+
+    public function updatingSearch()
+    {
+        $this->resetPage();
     }
 
     public function save()
@@ -409,7 +419,7 @@ class EmployeeCrud extends Component
                   ->orWhere('email','like','%'.$this->search.'%');
             })
             ->orderBy('name')
-            ->get();
+            ->paginate(10);
 
         return view('livewire.employee-crud',[
             'admins'=>$admins

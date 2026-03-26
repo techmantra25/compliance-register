@@ -24,6 +24,7 @@ class AssemblyList extends Component
     public $assignedEmployee;
     public $assembly_id;
     public $employeeStats = [];
+    public $filter_by_employee;
 
     protected $rules = [
         'assembly_name_en' => 'required|string|max:255',
@@ -47,7 +48,7 @@ class AssemblyList extends Component
 
     public function resetFilters()
     {
-        $this->reset(['district_id', 'search']);
+        $this->reset(['district_id', 'search', 'filter_by_employee']);
         $this->dispatch('ResetForm');
     }
      public function editItem($assembly_id)
@@ -303,6 +304,17 @@ class AssemblyList extends Component
                   ->orWhere('assembly_number', 'like', "%{$this->search}%"))
             ->when($this->district_id, fn($q) =>
                 $q->where('district_id', $this->district_id))
+
+            ->when($this->filter_by_employee, function ($q) {
+                    $employee = Admin::find($this->filter_by_employee);
+
+                    if ($employee && $employee->assemblies) {
+                        $assemblyIds = explode(',', $employee->assemblies);
+                        $q->whereIn('id', $assemblyIds);
+                    } else {
+                        $q->whereRaw('0=1'); // no results
+                    }
+                })
             ->orderBy('assembly_number')
             ->paginate(20);
 

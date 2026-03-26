@@ -134,13 +134,13 @@ class CandidateDocumentCollection extends Component
             );
     }
 
-    public function assignLegalAssociate()
+    public function assignLegalAssociate($associateId = null)
     {
         $old = $this->candidateData->legal_associate_id;
 
-        if ($this->assignedLegalAssociate) {
+        if ($associateId) {
 
-            $this->candidateData->legal_associate_id = $this->assignedLegalAssociate;
+            $this->candidateData->legal_associate_id = $associateId;
             $this->candidateData->save();
 
             $admin = Admin::find($this->assignedLegalAssociate);
@@ -155,6 +155,7 @@ class CandidateDocumentCollection extends Component
 
         } else {
 
+            $this->assignedLegalAssociate = null;
             $this->candidateData->legal_associate_id = null;
             $this->candidateData->save();
 
