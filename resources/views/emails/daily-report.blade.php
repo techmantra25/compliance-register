@@ -53,7 +53,7 @@
                                 <td style="border:1px solid #ddd;">{{ $data['phase1']['pending'] ?? 35 }}</td>
                             </tr>
                             <tr>
-                                <td style="border:1px solid #ddd;">Inappropriate Documents</td>
+                                <td style="border:1px solid #ddd;">Inadequate Documents</td>
                                 <td style="border:1px solid #ddd;">{{ $data['phase1']['inappropriate'] ?? 12 }}</td>
                             </tr>
                             <tr style="background:#f9f9f9;">
@@ -79,7 +79,7 @@
                                 <td style="border:1px solid #ddd;">{{ $data['phase2']['pending'] ?? 25 }}</td>
                             </tr>
                             <tr>
-                                <td style="border:1px solid #ddd;">Inappropriate Documents</td>
+                                <td style="border:1px solid #ddd;">Inadequate Documents</td>
                                 <td style="border:1px solid #ddd;">{{ $data['phase2']['inappropriate'] ?? 10 }}</td>
                             </tr>
                             <tr style="background:#f9f9f9;">
@@ -105,7 +105,7 @@
                                 <td style="border:1px solid #ddd;">{{ $data['overall']['pending'] ?? 60 }}</td>
                             </tr>
                             <tr>
-                                <td style="border:1px solid #ddd;">Inappropriate Documents</td>
+                                <td style="border:1px solid #ddd;">Inadequate Documents</td>
                                 <td style="border:1px solid #ddd;">{{ $data['overall']['inappropriate'] ?? 22 }}</td>
                             </tr>
                             <tr style="background:#f9f9f9;">

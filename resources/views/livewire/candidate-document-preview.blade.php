@@ -144,7 +144,7 @@
 
                     <span class="badge bg-danger">
                         <i class="bi bi-x-circle"></i>
-                        Inappropriate Documents — Observation Memo Generated
+                        Inadequate Documents — Observation Memo Generated
                     </span>
 
                     <button class="btn btn-danger btn-sm" wire:click="downloadObservationMemo">
@@ -169,7 +169,7 @@
                     <button class="btn btn-outline-danger btn-sm" onclick="confirmReject()">
 
                         <i class="bi bi-x-circle"></i>
-                        Inappropriate Documents & Generate Observation Memo
+                        Inadequate Documents & Generate Observation Memo
 
                     </button>
 
@@ -379,11 +379,12 @@
 
 
                     {{-- REJECTED --}}
+                    
                     @elseif($versionData && $isRejectedVersion)
 
                         <span class="badge bg-danger ">
                             <i class="bi bi-x-circle"></i>
-                            Inappropriate Documents — Observation Memo Generated
+                            Inadequate Documents — Observation Memo Generated
                         </span>
 
                         <button class="btn btn-danger btn-sm" wire:click="downloadObservationMemo">
@@ -397,19 +398,13 @@
 
                     {{-- DEFAULT (STATUS NULL / NOT PROCESSED) --}}
                     @else
-
                         <button class="btn btn-outline-success btn-sm" onclick="confirmApprove()">
-
                             <i class="bi bi-check-circle"></i>
                             Approved & Generate Acknowledgement Form
-
                         </button>
-
                         <button class="btn btn-outline-danger btn-sm" onclick="confirmReject()">
-
                             <i class="bi bi-x-circle"></i>
-                            Inappropriate Documents & Generate Observation Memo
-
+                            Inadequate Documents & Generate Observation Memo
                         </button>
 
                     @endif

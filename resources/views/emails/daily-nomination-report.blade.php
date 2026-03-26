@@ -76,7 +76,7 @@
                                 </tr>
 
                                 <tr>
-                                    <td style="border:1px solid #ddd;">Inappropriate Documents</td>
+                                    <td style="border:1px solid #ddd;">Inadequate Documents</td>
                                     <td style="border:1px solid #ddd;">{{ $phase['inappropriate_records'] }}</td>
                                 </tr>
 
@@ -110,7 +110,7 @@
                                 </tr>
 
                                 <tr>
-                                    <td style="border:1px solid #ddd;">Inappropriate Documents</td>
+                                    <td style="border:1px solid #ddd;">Inadequate Documents</td>
                                     <td style="border:1px solid #ddd;">{{ $grandInappropriate }}</td>
                                 </tr>
 

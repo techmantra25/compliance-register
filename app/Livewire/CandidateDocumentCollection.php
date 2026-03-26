@@ -56,7 +56,6 @@ class CandidateDocumentCollection extends Component
     public function mount(Request $request)
     {
         $candidateId = $request->query('candidate');
-
         $candidate = Candidate::find($candidateId);
 
         if (!$candidate) {

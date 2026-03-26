@@ -130,9 +130,9 @@
                             <div wire:ignore class="">
                                 <select wire:model="filter_by_status" class="form-select chosen-select">
                                     <option value="">Filter by Status</option>
-                                    <option value="pending">Pending</option>
-                                    <option value="inprogress">Inprogress</option>
-                                    <option value="resolved">Resolved</option>
+                                    <option value="Live">Live</option>
+                                    <option value="Parked">Parked</option>
+                                    <option value="Archive">Archive</option>
                                 </select>
                             </div>
                         </div>
@@ -250,9 +250,9 @@
                                             <h6 class="responsive-title">Status</h6>
 
                                             <span class="badge
-                                                @if($item->status == 'pending') bg-warning
-                                                @elseif($item->status == 'inprogress') bg-info
-                                                @elseif($item->status == 'resolved') bg-success
+                                                @if($item->status == 'Live') bg-warning
+                                                @elseif($item->status == 'Parked') bg-info
+                                                @elseif($item->status == 'Archive') bg-success
                                                 @else bg-secondary
                                                 @endif">
 
@@ -264,7 +264,7 @@
                                         <td class="">
                                             <h6 class="responsive-title">Action</h6>
                                             <!-- Edit Button -->
-                                            @if(childUserAccess(Auth::guard('admin')->user()->id,'mcc_update_mcc') && $item->status == "pending")
+                                            @if(childUserAccess(Auth::guard('admin')->user()->id,'mcc_update_mcc') && $item->status == "Live")
                                             <div class="btn-group m-1">
                                                 <div class="tooltip-wrapper">
                                                     <button class="btn btn-sm btn-outline-primary"
