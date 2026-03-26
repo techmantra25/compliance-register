@@ -49,8 +49,20 @@
                     <strong class="title-text">Phase</strong>
                     <h6>{{ $phase ?? 'N/A' }}</h6>
                 </div>
+                <div class="col-md-6 col-lg-1 mb-4 mb-lg-0">
+                    <strong class="title-text">Age</strong>
+                    <h6>{{ $candidateData->age ?? 'N/A' }}</h6>
+                </div>
+                <div class="col-md-6 col-lg-1 mb-4 mb-lg-0">
+                    <strong class="title-text">Serial No</strong>
+                    <h6>{{ $candidateData->serial_no ?? 'N/A' }}</h6>
+                </div>
+                <div class="col-md-6 col-lg-1 mb-4 mb-lg-0">
+                        <strong class="title-text">Part No</strong>
+                        <h6>{{ $candidateData->part_no ?? 'N/A' }}</h6>
+                </div>
 
-                <div class="col-md-6 col-lg-2 mb-4 mb-lg-0">
+                <div class="col-md-6 col-lg-3 mb-4 mb-lg-0">
                     <strong class="title-text">Last Date of Nomination</strong>
                     <h6>{{ $nomination_date
                             ? \Carbon\Carbon::parse($nomination_date)->format('d M Y')
@@ -477,6 +489,38 @@
 
 
     function confirmReject() {
+
+        let observations = [];
+
+        if (document.getElementById('obs1').checked) {
+            observations.push("Name is incorrect on the Nomination Form");
+        }
+
+        if (document.getElementById('obs2').checked) {
+            observations.push("Address proof required for further verification");
+        }
+
+        if (document.getElementById('obs3').checked) {
+            observations.push("Profile image is blurry");
+        }
+
+        if (document.getElementById('obs4').checked) {
+            observations.push("Candidate Part number needs to be changed");
+        }
+
+        if (document.getElementById('obs_other').checked) {
+            observations.push("Others");
+        }
+
+        if (observations.length === 0) {
+            Swal.fire({
+                icon: "warning",
+                title: "No Observation Selected",
+                text: "Please select at least one observation before generating the memo.",
+                confirmButtonColor: "#d33"
+            });
+            return;
+        }
 
         Swal.fire({
             title: "Generate Observation Memo?",
