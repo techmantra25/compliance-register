@@ -139,7 +139,7 @@
                     </div>
 
                     <div class="row mb-3">
-                        <label class="col-md-3 col-form-label fw-semibold">Relation Name</label>
+                        <label class="col-md-3 col-form-label fw-semibold">Name of Relative as stated above</label>
                         <div class="col-md-9">
                             <input type="text"
                                 class="form-control"
@@ -152,7 +152,7 @@
                     </div>
 
                     <div class="row mb-3">
-                        <label class="col-md-3 col-form-label fw-semibold">Pronoun</label>
+                        <label class="col-md-3 col-form-label fw-semibold">Gender</label>
                         <div class="col-md-9">
                             <div class="form-check form-check-inline">
                                 <input class="form-check-input"

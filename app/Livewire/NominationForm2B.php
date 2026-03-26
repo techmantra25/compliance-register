@@ -21,8 +21,8 @@ class NominationForm2B extends Component
     public $candidate_name;
     public $assembly_name;
     public $state = 'WEST BENGAL';
-    public $relation_type = 'father';
-    public $pronoun = 'his';
+    public $relation_type = '';
+    public $pronoun = '';
     
     public $relation_name;
     public $age;
