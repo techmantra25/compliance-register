@@ -119,7 +119,7 @@
 
                             <div class="color-label justify-content-center mb-4">
                                 <div class="color-grid"><span style="background-color: #dc3545;"></span>Pending</div>
-                                <div class="color-grid"><span style="background-color: #FDB747;"></span>Inappropriate Documents</div>
+                                <div class="color-grid"><span style="background-color: #FDB747;"></span>Inadequate Documents</div>
                                 <div class="color-grid"><span style="background-color: #1BC976;"></span>Completed</div>
                             </div>
                         </div>
@@ -155,7 +155,7 @@
                                                     <td>{{ $overall['pending'] }}</td>
                                                 </tr>
                                                 <tr>
-                                                    <td>Inappropriate Documents</td>
+                                                    <td>Inadequate Documents</td>
                                                     <td>{{ $overall['inappropriate'] }}</td>
                                                 </tr>
                                                 <tr>
@@ -189,7 +189,7 @@
                                                     <td>{{ $phaseArray[0]['pending_records'] ?? 0 }}</td>
                                                 </tr>
                                                 <tr>
-                                                    <td>Inappropriate Documents</td>
+                                                    <td>Inadequate Documents</td>
                                                     <td>{{ $phaseArray[0]['inappropriate_records'] ?? 0 }}</td>
                                                 </tr>
                                                 <tr>
@@ -223,7 +223,7 @@
                                                     <td>{{ $phaseArray[1]['pending_records'] ?? 0 }}</td>
                                                 </tr>
                                                 <tr>
-                                                    <td>Inappropriate Documents</td>
+                                                    <td>Inadequate Documents</td>
                                                     <td>{{ $phaseArray[1]['inappropriate_records'] ?? 0 }}</td>
                                                 </tr>
                                                 <tr>

@@ -398,7 +398,7 @@
                                                         @else bg-secondary @endif">
 
                                                         @if($doc['status'] == 'Rejected')
-                                                            Inappropriate documents
+                                                            Inadequate Documents
                                                         @else
                                                             {{ $doc['status'] ?? 'Uploaded' }}
                                                         @endif
@@ -484,7 +484,7 @@
                                                         @else bg-secondary @endif">
 
                                                         @if($doc['status'] == 'Rejected')
-                                                            Inappropriate documents
+                                                            Inadequate Documents
                                                         @else
                                                             {{ $doc['status'] ?? 'Uploaded' }}
                                                         @endif
