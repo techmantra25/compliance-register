@@ -148,6 +148,15 @@
                                 </select>
                             </div>
                         </div>
+                        <div class="col-md-4 col-lg-3">
+                            <div wire:ignore>
+                                <select wire:model="filter_by_category" class="form-select chosen-select">
+                                    <option value="">Filter by Category</option>
+                                    <option value="For AITC">For AITC</option>
+                                    <option value="Against AITC">Against AITC</option>
+                                </select>
+                            </div>
+                        </div>
                         <div class="col-md-2 col-lg-1">
                             <button class="btn btn-sm btn-danger" wire:click="resetFilters">
                                 <i class="bi bi-arrow-clockwise"></i> Reset

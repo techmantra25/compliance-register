@@ -23,7 +23,7 @@ class StarCampaignerCrud extends Component
 
     protected $rules = [
         'name' => 'required|string|max:255',
-        'mobile' => 'required|digits:10',
+        'mobile' => 'nullable|digits:10',
         'extra_details' => 'nullable|string|max:500',
     ];
     public function openAddModal(){
@@ -58,14 +58,18 @@ class StarCampaignerCrud extends Component
 
     public function save(){
         $this->validate();
-        $exists = Campaigner::where('mobile', $this->mobile)
-            ->when($this->isEdit, fn($q) => $q->where('id', '!=', $this->campaigner_id))
-            ->exists();
 
-        if ($exists) {
-            $this->dispatch('toastr:error', message: 'Mobile number already exists!');
-            return;
+        if ($this->mobile) {
+            $exists = Campaigner::where('mobile', $this->mobile)
+                ->when($this->isEdit, fn($q) => $q->where('id', '!=', $this->campaigner_id))
+                ->exists();
+
+            if ($exists) {
+                $this->dispatch('toastr:error', message: 'Mobile number already exists!');
+                return;
+            }
         }
+        
         if($this->isEdit){
             $old = Campaigner::find($this->campaigner_id);
 

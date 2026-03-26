@@ -59,13 +59,27 @@
                     <strong class="title-text">Candidate Name</strong>
                     {{ $candidateName ?? 'N/A' }}
                 </div>
-                <div class="col-md-4 col-lg-2 mb-4">
+                <div class="col-md-4 col-lg-3 mb-4">
                     <strong class="title-text">Assembly Name & No</strong>
                     {{ $assemblyName ?? 'N/A' }}
                 </div>
                 <div class="col-md-2 col-lg-1 mb-4">
                     <strong class="title-text">Phase</strong>
                     {{ $phase ?? 'N/A' }}
+                </div>
+                   <div class="col-md-2 col-lg-1 mb-4">
+                    <strong class="title-text">Age</strong>
+                    {{ $candidateData->age ?? 'N/A' }}
+                </div>
+
+                <div class="col-md-2 col-lg-1 mb-4">
+                    <strong class="title-text">Serial No</strong>
+                    {{ $candidateData->serial_no ?? 'N/A' }}
+                </div>
+
+                <div class="col-md-2 col-lg-1 mb-4">
+                    <strong class="title-text">Part No</strong>
+                    {{ $candidateData->part_no ?? 'N/A' }}
                 </div>
                 <div class="col-md-4 col-lg-2 mb-4">
                     <strong class="title-text">Last Date of Nomination</strong>

@@ -20,6 +20,7 @@ class CandidateDocumentPreview extends Component
     public $candidateId;
     public $versions;
     public $candidateName;
+    public $employeeCode;
     public $nomination_date;
     public $phase;
     public $availableDocuments = [];
@@ -94,6 +95,8 @@ class CandidateDocumentPreview extends Component
 
         $admin = Auth::guard('admin')->user();
         $userRole = strtolower(trim($admin->role));
+
+        $this->employeeCode = $admin->code ?? null;
 
         /*
         |--------------------------------------------------------------------------
@@ -300,6 +303,7 @@ class CandidateDocumentPreview extends Component
     {
         $data = [
             'candidateName'   => $this->candidateName,
+            'employeeCode'   => $this->employeeCode,
             'assemblyName'    => $this->assemblyName,
             'Examination'     => $this->versionData->created_at,
             'nomination_date' => $this->nomination_date,
@@ -424,6 +428,7 @@ class CandidateDocumentPreview extends Component
 
         $data = [
             'candidateName'   => $this->candidateName,
+            'employeeCode'   => $this->employeeCode,
             'assemblyName'    => $this->assemblyName,
             'examinationDate' => $this->versionData->created_at,
             'nomination_date' => $nominationDate,

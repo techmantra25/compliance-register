@@ -116,7 +116,7 @@
 
                         <p style="margin-bottom:0;">
                             Regards,<br>
-                            <strong>Election Management System</strong>
+                            <strong>Compliance Register System</strong>
                         </p>
 
                     </td>

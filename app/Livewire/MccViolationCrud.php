@@ -34,6 +34,7 @@ class MccViolationCrud extends Component
     public $isEdit = false;
     public $filter_by_assembly = '';
     public $filter_by_status = '';
+    public $filter_by_category = '';
 
     public $legalAssociates = [];
     public $supporting_documents = [];
@@ -462,6 +463,7 @@ class MccViolationCrud extends Component
     {
         $this->filter_by_assembly = '';
         $this->filter_by_status = '';
+        $this->filter_by_category = '';
         $this->search = '';
 
         $this->dispatch('refreshChosen'); 
@@ -542,7 +544,9 @@ class MccViolationCrud extends Component
             ->when($this->filter_by_assembly, function ($q) {
                 $q->where('assembly_id', $this->filter_by_assembly);
             })
-
+            ->when($this->filter_by_category, function ($q) {
+                $q->where('category', $this->filter_by_category);
+            })
             ->when($this->filter_by_status, function ($q) {
                 $q->where('status', $this->filter_by_status);
             });

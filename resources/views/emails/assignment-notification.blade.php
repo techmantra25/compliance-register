@@ -30,7 +30,7 @@
 
                             <p>
                                 You have been assigned to review and verify nomination documents for the following candidate
-                                under the <strong>Election Management System</strong>.
+                                under the <strong>Compliance Register System</strong>.
                             </p>
 
                             <!-- Details Table -->

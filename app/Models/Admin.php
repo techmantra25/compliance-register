@@ -17,6 +17,7 @@ class Admin extends Authenticatable
         'zone_id',
         'assemblies',
         'role',
+        'code',
         'suspended_status',
     ];
 

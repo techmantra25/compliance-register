@@ -134,18 +134,20 @@
     <br><br>
 
     <p>
-        Signature: ___________________________
+        <span style="text-decoration: underline;">
+            {{ $employeeCode ?? 'N/A' }}
+        </span>
     </p>
 
     <p>
-        Name: _______________________________
+        Date/Time:  <span style="text-decoration: underline;">
+                        {{ $examinationDate
+                            ? \Carbon\Carbon::parse($examinationDate)->format('d M Y h:i A')
+                            : \Carbon\Carbon::now()->format('d M Y h:i A') }}
+                    </span>
     </p>
 
-    <p>
-        Date/Time: __________________________
-    </p>
-
-    <div style="position: absolute; bottom: 40px;">
+    <div style="position: absolute; bottom: 30px;">
         <div style="width:200px; border-bottom:1px solid #000;"></div>
         <p style="font-size:11px; margin-top:5px;">Representative only</p>
     </div>

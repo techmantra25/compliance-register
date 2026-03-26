@@ -832,12 +832,14 @@ class CandidateContactList extends Component
 
     public function downloadAcknowledgement($candidate_id)
     {
+        $admin = Auth::guard('admin')->user(); 
         $candidate = Candidate::findOrFail($candidate_id);
         $versionData = CandidateObservationStep::where('candidate_id', $candidate->id)
                 ->orderByDesc('version')
                 ->first();
         $data = [
             'candidateName'   => $candidate->name,
+            'employeeCode'    => $admin->code,
             'assemblyName'    => $candidate->assembly->assembly_number.'-'.$candidate->assembly->assembly_name_en,
             'Examination'     => $versionData->created_at,
             'nomination_date' => $candidate?->assembly?->assemblyPhase?->phase?->last_date_of_nomination,

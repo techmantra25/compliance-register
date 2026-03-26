@@ -40,7 +40,7 @@
         }
 
         .signature {
-            margin-top: 20px;
+            margin-top: 30px;
         }
 
         .signature td {
@@ -137,13 +137,20 @@
 
     <table class="signature">
         <tr>
-            <td>Signature: ___________________________</td>
+            <td>
+                <span style="text-decoration: underline;">
+                    {{ $employeeCode ?? 'N/A' }}
+                </span>
+            </td>
         </tr>
         <tr>
-            <td>Name: _______________________________</td>
-        </tr>
-        <tr>
-            <td>Date/Time: __________________________</td>
+            <td>Name:Date/Time: 
+                <span style="text-decoration: underline;">
+                    {{ $Examination
+                        ? \Carbon\Carbon::parse($Examination)->format('d M Y h:i A')
+                        : \Carbon\Carbon::now()->format('d M Y h:i A') }}
+                </span>
+            </td>
         </tr>
     </table>
 

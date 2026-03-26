@@ -234,7 +234,7 @@
                                 </option>
 
                                 <option value="legal_associate">
-                                    Legal Associate(L1/TM)
+                                    Legal Associate(L1/TL)
                                 </option>
 
                             </select>

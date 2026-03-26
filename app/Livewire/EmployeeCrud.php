@@ -160,6 +160,8 @@ class EmployeeCrud extends Component
 
         $password = random_int(111111, 999999);
 
+        $code = $this->generateEmployeeCode($this->name);
+
         $admin = Admin::create([
             'name' => $this->name,
             'email' => $this->email,
@@ -167,7 +169,8 @@ class EmployeeCrud extends Component
             'role' => $this->role,
             'assemblies' => implode(',', $this->assemblies),
             'password' => Hash::make($password),
-            'suspended_status' => 1
+            'suspended_status' => 1,
+            'code' => $code
         ]);
 
         // if ($this->role == "legal_associate") {
@@ -270,6 +273,14 @@ class EmployeeCrud extends Component
 
         $this->validate($rules);
 
+        $admin = Admin::findOrFail($this->admin_id);
+
+        $code = $admin->code;
+
+        if ($admin->name !== $this->name || is_null($admin->code)) {
+            $code = $this->generateEmployeeCode($this->name, $this->admin_id);
+        }
+
         // if (!$this->validateAssemblies($this->admin_id)) {
         //     return;
         // }
@@ -281,12 +292,83 @@ class EmployeeCrud extends Component
             'email' => $this->email,
             'mobile' => $this->mobile,
             'role' => $this->role,
-            'assemblies' => implode(',', $this->assemblies)
+            'assemblies' => implode(',', $this->assemblies),
+            'code' => $code,
         ]);
 
         $this->dispatch('toastr:success', message: 'Employee updated successfully!');
 
         $this->resetInputFields();
+    }
+
+    protected function generateEmployeeCode($name, $ignoreId = null)
+    {
+        $words = preg_split('/\s+/', trim($name));
+        $cleanName = strtoupper(preg_replace('/[^A-Za-z]/', '', $name));
+
+        // Step 1: Base generation
+        if (count($words) === 1) {
+            // Single word → first 3 letters
+            $base = strtoupper(substr($words[0], 0, 3));
+        } else {
+            // Multi word → initials
+            $initials = '';
+            foreach ($words as $word) {
+                $initials .= strtoupper(substr($word, 0, 1));
+            }
+
+            if (strlen($initials) < 3) {
+                // Take extra letters from FIRST word (correct fix)
+                $firstWord = strtoupper($words[0]);
+                $extra = substr($firstWord, 1, 3 - strlen($initials));
+
+                $base = $initials . $extra;
+            } else {
+                $base = substr($initials, 0, 3);
+            }
+        }
+
+        // Step 2: Check uniqueness
+        $query = Admin::where('code', $base);
+        if ($ignoreId) {
+            $query->where('id', '!=', $ignoreId);
+        }
+
+        if (!$query->exists()) {
+            return $base;
+        }
+
+        // Step 3: Expand from full name
+        $cleanName = strtoupper(preg_replace('/[^A-Za-z]/', '', $name));
+
+        for ($i = strlen($base); $i < strlen($cleanName); $i++) {
+            $newCode = substr($cleanName, 0, $i + 1);
+
+            $query = Admin::where('code', $newCode);
+            if ($ignoreId) {
+                $query->where('id', '!=', $ignoreId);
+            }
+
+            if (!$query->exists()) {
+                return $newCode;
+            }
+        }
+
+        // Step 4: fallback
+        foreach (range('A', 'Z') as $char) {
+            $newCode = $base . $char;
+
+            $query = Admin::where('code', $newCode);
+            if ($ignoreId) {
+                $query->where('id', '!=', $ignoreId);
+            }
+
+            if (!$query->exists()) {
+                return $newCode;
+            }
+        }
+
+        return $base . rand(100, 999);
     }
 
     public function toggleStatus($id)

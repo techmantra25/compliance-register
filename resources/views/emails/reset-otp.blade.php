@@ -30,7 +30,7 @@
 
                             <p>
                                 We received a request to reset your password for the
-                                <strong>Election Management System</strong>.
+                                <strong>Compliance Register System</strong>.
                             </p>
 
                             <p>
@@ -63,7 +63,7 @@
 
                             <p style="margin-bottom:0;">
                                 Regards,<br>
-                                <strong>Election Management System</strong>
+                                <strong>Compliance Register System</strong>
                             </p>
 
                         </td>

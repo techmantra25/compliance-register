@@ -23,6 +23,7 @@ use App\Models\CandidateSkippedDocument;
 use App\Models\Admin;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Storage;
+use App\Mail\VettingRequestMail;
 
 class CandidateDocumentCollection extends Component
 {
@@ -138,10 +139,19 @@ class CandidateDocumentCollection extends Component
         $old = $this->candidateData->legal_associate_id;
 
         if ($this->assignedLegalAssociate) {
+
             $this->candidateData->legal_associate_id = $this->assignedLegalAssociate;
             $this->candidateData->save();
 
-            $this->dispatch('toastr:success', message: 'Legal Associate assigned successfully!');
+            $admin = Admin::find($this->assignedLegalAssociate);
+
+            if ($admin && $admin->email) {
+                Mail::to($admin->email)->send(
+                    new VettingRequestMail($admin, $this->candidateData)
+                );
+            }
+
+            $this->dispatch('toastr:success', message: 'Legal Associate assigned & mail sent!');
 
         } else {
 

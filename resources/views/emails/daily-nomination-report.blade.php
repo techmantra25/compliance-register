@@ -123,7 +123,7 @@
 
                             <p>
                                 Regards,<br>
-                                <strong>Election Management System</strong>
+                                <strong>Compliance Register System</strong>
                             </p>
 
                         </td>

@@ -605,6 +605,13 @@
                 <div class="modal-body">
                     <div class="row g-3">
 
+                        <div class="col-12">
+                            <a href="{{ asset('assets/sample-excel/candidate_more_details_sample.xlsx') }}" download
+                                class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-download me-1"></i>Download Sample
+                            </a>
+                        </div>
+
                         <!-- File Input -->
                         <div class="col-12">
                             <label class="form-label fw-semibold mt-3">
