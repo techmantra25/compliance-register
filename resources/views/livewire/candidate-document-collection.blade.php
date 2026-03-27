@@ -566,7 +566,7 @@
                                                     wire:click="SetDocType('{{ $key }}')" 
                                                     data-bs-toggle="modal" 
                                                     data-bs-target="#DocumentModal">
-                                                    <i class="bi bi-upload"></i>
+                                                    <i class="bi bi-upload"></i> Upload
                                                 </button>
                                                 <span class="tooltip-text">Please upload {{ $label }}</span>
                                             </div>
@@ -702,14 +702,14 @@
                             <!-- Footer -->
                             <div class="modal-footer bg-light rounded-bottom-4">
                                 <button type="button"
-                                    class="btn btn-outline-secondary btn-sm"
+                                    class="btn btn-outline-secondary btn-md"
                                     data-bs-dismiss="modal"
                                     wire:click="resetForm">
                                     Cancel
                                 </button>
 
                                 <button type="submit"
-                                    class="btn btn-success btn-sm px-4"
+                                    class="btn btn-success btn-md px-4"
                                     wire:loading.attr="disabled"
                                     wire:target="newFile">
 
