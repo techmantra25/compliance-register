@@ -66,6 +66,75 @@
             z-index: 99;
             box-shadow: 0 2px 6px rgba(0,0,0,0.2);
         }
+
+        .attachment-wrapper {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .attachment-card {
+            position: relative;
+            border: 1px solid #e5e5e5;
+            border-radius: 10px;
+            padding: 8px;
+            width: 220px;
+            background: #fafafa;
+        }
+
+        .attachment-content {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .attachment-img {
+            width: 45px;
+            height: 45px;
+            object-fit: cover;
+            border-radius: 6px;
+        }
+
+        .file-icon {
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f1f1f1;
+            border-radius: 6px;
+            font-size: 20px;
+        }
+
+        .file-info {
+            flex: 1;
+        }
+
+        .file-name {
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .file-size {
+            font-size: 11px;
+            color: #777;
+        }
+
+        .remove-btn {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            background: #ff4d4f;
+            color: white;
+            width: 18px;
+            height: 18px;
+            font-size: 11px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
     </style>
 
     <div class="row g-4">
@@ -97,7 +166,7 @@
                 </button> --}}
                 @endif
                 @if(childUserAccess(Auth::guard('admin')->user()->id,'mcc_add_mcc'))
-                <button class="btn btn-primary btn-sm" wire:click="openMccModal">
+                <button class="btn btn-primary btn-md" wire:click="openMccModal">
                     <i class="bi bi-plus-circle me-1"></i> Add Complaint
                 </button>
                 @endif
@@ -404,31 +473,6 @@
                                             @error('category') <small class="text-danger">{{ $message }}</small> @enderror
                                         </div>
 
-                                        <!-- Block -->
-                                        <div class="col-md-7 mb-3">
-                                            <label>Block/Municipality/Town</label>
-                                            <input class="form-control" wire:model="block">
-                                            @error('block') <small class="text-danger">{{ $message }}</small> @enderror
-                                        </div>
-
-                                        <!-- GP -->
-                                        <div class="col-md-5 mb-3">
-                                            <label>GP/Ward</label>
-                                            <input class="form-control" wire:model="gp">
-                                        </div>
-
-                                        <!-- Name -->
-                                        <div class="col-12 mb-3">
-                                            <label>Complainer Name</label>
-                                            <input class="form-control" wire:model="complainer_name">
-                                        </div>
-
-                                        <!-- Phone -->
-                                        <div class="col-12 mb-3">
-                                            <label>Complainer Phone</label>
-                                            <input type="text" maxlength="10" class="form-control" wire:model="complainer_phone">
-                                        </div>
-
                                         <!-- Assign -->
                                         <div class="col-12 mb-3">
                                             <label class="form-label">Assign To<span class="text-danger">*</span></label>
@@ -447,15 +491,59 @@
                                                 <small class="text-danger">{{ $message }}</small>
                                             @enderror
                                         </div>
+
+                                         <!-- Description -->
+                                        <div class="mb-3">
+                                            <label class="form-label">Complaint Description<span class="text-danger">*</span></label>
+                                            <!-- <textarea class="form-control" rows="10"
+                                                wire:model="complainer_description"
+                                                placeholder="Write your complain here"></textarea> -->
+                                                <div wire:ignore>
+                                                    <textarea id="complaint_description" class="form-control"></textarea>
+                                                </div>
+                                                @error('complainer_description')
+                                                    <small class="text-danger">{{ $message }}</small>
+                                                @enderror
+                                        </div>
+                                        
+                                    </div>
+                                </div>
+
+                                <!-- RIGHT SIDE -->
+                                <div class="col-md-6">
+                                    <div class="row">
+
+                                        <!-- Block -->
+                                        <div class="col-md-7 mb-3">
+                                            <label>Block/Municipality/Town</label>
+                                            <input class="form-control" wire:model="block">
+                                            @error('block') <small class="text-danger">{{ $message }}</small> @enderror
+                                        </div>
+                                        <!-- GP -->
+                                        <div class="col-md-5 mb-3">
+                                            <label>GP/Ward</label>
+                                            <input class="form-control" wire:model="gp">
+                                        </div>
+                                        <!-- Name -->
+                                        <div class="col-12 mb-3">
+                                            <label>Complainer Name</label>
+                                            <input class="form-control" wire:model="complainer_name">
+                                        </div>
+                                        <!-- Phone -->
+                                        <div class="col-12 mb-3">
+                                            <label>Complainer Phone</label>
+                                            <input type="text" maxlength="10" class="form-control" wire:model="complainer_phone">
+                                        </div>
+
                                         <div class="col-12 mb-3">
                                             <label class="form-label">Keywords</label>
                                             <div id="keyword-box" class="form-control d-flex flex-wrap gap-2 align-items-center" style="min-height: 45px; cursor: text;">
                                                 @foreach($keywords as $word)
-                                                        <span class="badge bg-primary d-flex align-items-center">
-                                                            {{ $word }}
-                                                            <span class="ms-2" wire:click="removeKeyword('{{ $word }}')" style="cursor:pointer;">&times;</span>
+                                                    <span class="badge bg-primary d-flex align-items-center">
+                                                        {{ $word }}
+                                                        <span class="ms-2" wire:click="removeKeyword('{{ $word }}')" style="cursor:pointer;">&times;</span>
                                                         </span>
-                                                    @endforeach
+                                                @endforeach
                                                 <input 
                                                     type="text" 
                                                     id="keyword-input"
@@ -463,30 +551,16 @@
                                                     wire:keydown.enter.prevent="addKeyword"
                                                     style="border:none; outline:none; flex:1; min-width:120px;"
                                                     placeholder="Write Keyword And Press Enter"
-                                                >
+                                                    >
                                             </div>
-
                                         </div>
-                                    </div>
-                                </div>
 
-                                <!-- RIGHT SIDE -->
-                                <div class="col-md-6">
-
-                                    <!-- Description -->
-                                    <div class="mb-3">
-                                        <label class="form-label">Complaint Description<span class="text-danger">*</span></label>
-                                        <textarea class="form-control" rows="10"
-                                            wire:model="complainer_description"
-                                            placeholder="Write your complain here"></textarea>
-                                             @error('complainer_description')
-                                                <small class="text-danger">{{ $message }}</small>
-                                            @enderror
                                     </div>
+                                   
                                     <div class="mb-3">
                                         <label class="form-label">Supporting Documents</label>
 
-                                        <input type="file" class="form-control" wire:model="supporting_documents" multiple>
+                                        <input type="file" class="form-control" wire:model="new_documents" multiple>
                                         @if($errors->has('supporting_documents.*'))
                                             @foreach($errors->get('supporting_documents.*') as $messages)
                                                 @foreach($messages as $message)
@@ -496,49 +570,64 @@
                                         @endif
 
                                         <!-- Loader -->
-                                        <div wire:loading wire:target="supporting_documents" class="text-muted mt-2">
+                                        <div wire:loading wire:target="new_documents" class="text-muted mt-2">
                                             <span class="spinner-border spinner-border-sm me-1"></span> Uploading...
                                         </div>
 
                                         <!-- Selected Files Preview -->
                                         @if(!empty($supporting_documents))
-                                            <div class="d-flex flex-wrap gap-3 mt-3">
+                                        <div class="attachment-wrapper mt-3">
 
-                                                @foreach($supporting_documents as $index => $file)
-                                                    @php
-                                                        $ext = strtolower($file->getClientOriginalExtension());
-                                                        $isImage = in_array($ext, ['jpg','jpeg','png','gif','webp']);
-                                                    @endphp
+                                            @foreach($supporting_documents as $index => $file)
 
-                                                    <div class="text-center" style="width:40px;">
+                                                @php
+                                                    $ext = strtolower($file->getClientOriginalExtension());
+                                                    $isImage = in_array($ext, ['jpg','jpeg','png','gif','webp']);
+                                                @endphp
 
-                                                        <div class="file-box">
+                                                <div class="attachment-card">
 
-                                                            <!--  Remove -->
-                                                            <span class="file-remove"
-                                                                wire:click="removeTempFile({{ $index }})">
-                                                                &times;
-                                                            </span>
+                                                    <!-- Remove -->
+                                                    <span class="remove-btn"
+                                                        wire:click="removeTempFile({{ $index }})">
+                                                        ✕
+                                                    </span>
 
-                                                            <!-- Preview -->
-                                                            @if($isImage)
-                                                                <img src="{{ $file->temporaryUrl() }}">
-                                                            @else
-                                                                <i class="bi bi-file-earmark-text"></i>
-                                                            @endif
+                                                    <div class="attachment-content">
 
+                                                        @if($isImage)
+                                                            <img src="{{ $file->temporaryUrl() }}" class="attachment-img">
+                                                        @else
+                                                            <div class="file-icon">
+                                                                <i class="bi bi-paperclip"></i>
+                                                            </div>
+                                                        @endif
+
+                                                        <div class="file-info">
+                                                            <div class="file-name">
+                                                                {{ Str::limit($file->getClientOriginalName(), 25) }}
+                                                            </div>
+
+                                                            <div class="file-size">
+                                                                {{ number_format($file->getSize() / 1024, 1) }} KB
+                                                            </div>
                                                         </div>
 
-                                                        <!-- File Name -->
-                                                        {{-- <div class="file-name">
-                                                            {{ Str::limit($file->getClientOriginalName(), 18) }}
-                                                        </div> --}}
-
                                                     </div>
-                                                @endforeach
 
-                                            </div>
-                                    @endif
+                                                    <!-- Progress -->
+                                                    <div class="progress mt-2" wire:loading wire:target="new_documents">
+                                                        <div class="progress-bar progress-bar-striped progress-bar-animated"
+                                                            style="width: 100%">
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+
+                                            @endforeach
+
+                                        </div>
+                                        @endif
                                 </div>
                             </div>
                         </form>
@@ -800,6 +889,7 @@
 
     </div>
         @push('scripts')
+        <script src="{{ asset('build/ckeditor/ckeditor.js') }}"></script>
         <link rel="stylesheet" href="{{ asset('assets/css/component-chosen.css') }}">
         {{-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script> --}}
         <script src="{{ asset('assets/js/chosen.jquery.js') }}"></script>
@@ -886,9 +976,17 @@
             });
             window.addEventListener('open-edit-modal', () => {
                 $("#mccModal").modal('show');
+
+                setTimeout(() => {
+                    initCkEditor();
+                }, 300);
             });
             window.addEventListener('open-mcc-modal', () => {
                 $("#mccModal").modal('show');
+
+                setTimeout(() => {
+                    initCkEditor();
+                }, 300);    
             });
             // window.addEventListener('open-view-modal', () => {
             //     $("#viewMccModal").modal('show');
@@ -903,6 +1001,32 @@
                 const input = document.querySelector('input[wire\\:model="search"]');
                 if (input) input.value = '';
             });
+        </script>
+        <script>
+            let editor;
+
+            function initCkEditor() {
+                if (editor) {
+                    editor.destroy(true);
+                }
+
+                editor = CKEDITOR.replace('complaint_description', {
+                    height: 200,
+                    toolbar: [
+                        { name: 'basicstyles', items: ['Bold', 'Italic', 'Underline'] },
+                        { name: 'paragraph', items: ['NumberedList', 'BulletedList'] },
+                        { name: 'links', items: ['Link'] }
+                    ],
+                    removeButtons: 'Subscript,Superscript,Anchor,SpecialChar,Styles,Font,FontSize',
+                    resize_enabled: false
+                });
+
+                editor.setData(@this.get('complainer_description') || '');
+
+                editor.on('change', function () {
+                    @this.set('complainer_description', editor.getData());
+                });
+            }
         </script>
         @endpush
 </div>
