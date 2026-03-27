@@ -199,8 +199,8 @@
                     <div class="row justify-content-center mb-2 g-2">
                         <div class="col-md-4 col-lg-3">
                             <div wire:ignore class="">
-                                <select wire:model="filter_by_status" class="form-select chosen-select">
-                                    <option value="">Filter by Status</option>
+                                <select wire:model="filter_by_status" id="statusSelect" class="form-select">
+                                    <option></option>
                                     <option value="Live">Live</option>
                                     <option value="Parked">Parked</option>
                                     <option value="Archive">Archive</option>
@@ -209,8 +209,8 @@
                         </div>
                         <div class="col-md-4 col-lg-3">
                             <div wire:ignore class="">
-                                <select wire:model="filter_by_assembly" class="form-select chosen-select">
-                                    <option value="">Filter by Assembly</option>
+                                <select wire:model="filter_by_assembly" id="assemblySelect" class="form-select">
+                                    <option></option>
                                     @foreach ($assembly as $assemb)
                                     <option value="{{ $assemb->id }}">
                                         ({{ $assemb->assembly_code }}) {{ $assemb->assembly_name_en }}
@@ -221,8 +221,8 @@
                         </div>
                         <div class="col-md-4 col-lg-3">
                             <div wire:ignore>
-                                <select wire:model="filter_by_category" class="form-select chosen-select">
-                                    <option value="">Filter by Category</option>
+                                <select wire:model="filter_by_category" id="categorySelect" class="form-select">
+                                    <option></option>
                                     <option value="For AITC">For AITC</option>
                                     <option value="Against AITC">Against AITC</option>
                                 </select>
@@ -432,7 +432,7 @@
                                         <div class="col-md-7 mb-3">
                                             <label class="form-label">Assembly<span class="text-danger">*</span></label>
                                             <div wire:ignore>
-                                                <select class="form-control chosen-select" wire:model="assembly_id">
+                                                <select id="modalAssemblySelect" class="form-control" wire:model="assembly_id">
                                                     <option value="">Select Assembly</option>
                                                     @foreach($assembly as $a)
                                                         <option value="{{ $a->id }}">
@@ -480,7 +480,7 @@
                                             <label class="form-label">Assign To<span class="text-danger">*</span></label>
 
                                             <div wire:ignore>
-                                                <select class="form-control chosen-select" wire:model="action_taken">
+                                                <select  id="modalAssignSelect" class="form-control" wire:model="action_taken">
                                                     <option value="">Select Legal Associate</option>
                                                     @foreach($legalAssociates as $associate)
                                                         <option value="{{ $associate->id }}">
@@ -856,7 +856,7 @@
                         <div class="mb-3">
                             <label class="form-label">Assign To</label>
 
-                            <select class="form-control" wire:model="associate_id">
+                            <select id="associateSelect" class="form-control" wire:model="associate_id">>
                                 <option value="">Select Legal Associate</option>
 
                                 @foreach($legalAssociates as $associate)
@@ -892,54 +892,85 @@
     </div>
         @push('scripts')
         <script src="{{ asset('build/ckeditor/ckeditor.js') }}"></script>
-        <link rel="stylesheet" href="{{ asset('assets/css/component-chosen.css') }}">
+
+        {{-- <link rel="stylesheet" href="{{ asset('assets/css/component-chosen.css') }}"> --}}
         {{-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script> --}}
-        <script src="{{ asset('assets/js/chosen.jquery.js') }}"></script>
+        {{-- <script src="{{ asset('assets/js/chosen.jquery.js') }}"></script> --}}
+
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <link href="{{ asset('assets/css/select2.min.css') }}" rel="stylesheet">
+        <script src="{{ asset('assets/js/select2.min.js') }}"></script>
+
         <script>
             window.addEventListener('toastr:error', e => toastr.error(e.detail.message));
             window.addEventListener('toastr:success', e => toastr.success(e.detail.message));
         </script>
 
         <script>
-            function initChosen() {
-                $('.chosen-select').chosen({
+          function initSelect2() {
+
+                // FILTER DROPDOWNS
+                $('#statusSelect').select2({
                     width: '100%',
-                    no_results_text: "No result found",
-                    search_contains: true
-                })
-                .off('change')
-                .on('change', function () {
-                    let model = $(this).attr('wire:model');
-                    if (model) {
-                        @this.set(model, $(this).val());
-                    }
+                    placeholder: 'Filter by Status',
+                    allowClear: true
+                }).off('change').on('change', function () {
+                    @this.set('filter_by_status', $(this).val());
+                });
+
+                $('#assemblySelect').select2({
+                    width: '100%',
+                    placeholder: 'Filter by Assembly',
+                    allowClear: true
+                }).off('change').on('change', function () {
+                    @this.set('filter_by_assembly', $(this).val());
+                });
+
+                $('#categorySelect').select2({
+                    width: '100%',
+                    placeholder: 'Filter by Category',
+                    allowClear: true
+                }).off('change').on('change', function () {
+                    @this.set('filter_by_category', $(this).val());
+                });
+
+                // MODAL DROPDOWNS
+                $('#modalAssemblySelect').select2({
+                    dropdownParent: $('#mccModal'),
+                    width: '100%',
+                    placeholder: 'Select Assembly',
+                    allowClear: true
+                }).off('change').on('change', function () {
+                    @this.set('assembly_id', $(this).val());
+                });
+
+                $('#modalAssignSelect').select2({
+                    dropdownParent: $('#mccModal'),
+                    width: '100%',
+                    placeholder: 'Select Legal Associate',
+                    allowClear: true
+                }).off('change').on('change', function () {
+                    @this.set('action_taken', $(this).val());
+                });
+
+                $('#associateSelect').select2({
+                    dropdownParent: $('#assignModal'),
+                    width: '100%',
+                    placeholder: 'Assign Legal Associate',
+                    allowClear: true
+                }).off('change').on('change', function () {
+                    @this.set('associate_id', $(this).val());
                 });
             }
 
-            document.addEventListener("DOMContentLoaded", () => {
-                initChosen();
+            // Initial load
+            document.addEventListener("DOMContentLoaded", function () {
+                initSelect2();
             });
 
+            // Re-init after Livewire DOM updates
             Livewire.hook('morph.updated', () => {
-            
-                $('.chosen-select').each(function () {
-                    const el = $(this);
-                    const model = el.attr('wire:model');
-                    const liveValue = @this.get(model);
-                    
-                    if (liveValue !== undefined && liveValue !== null) {
-                        el.val(liveValue).trigger('chosen:updated');
-                    }
-                });
-                initChosen();
-            });
-
-            document.addEventListener('refreshChosen', () => {
-                const chosen = $('.chosen-select');
-
-                if (chosen.length) {
-                    chosen.trigger('chosen:updated');
-                }
+                initSelect2();
             });
 
             document.addEventListener('resetField', () => {

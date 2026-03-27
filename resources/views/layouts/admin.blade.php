@@ -171,76 +171,36 @@
                     </div>
                 </li>
             @endif
-            <!-- Candidates Dropdown -->
-            @if(userAccess(Auth::guard('admin')->user()->id,'campaign_management'))
-                <li class="nav-item mb-2">
-                    <a class="nav-link d-flex justify-content-between align-items-center 
-                        {{ request()->is('admin/campaign*') ? 'active' : 'collapsed' }}"
-                        data-bs-toggle="collapse"
-                        href="#campaignMenu"
-                        role="button"
-                        aria-expanded="{{ request()->is('admin/campaign*') ? 'true' : 'false' }}"
-                        aria-controls="campaignMenu">
 
+             @if(childUserAccess(Auth::guard('admin')->user()->id,'campaign_view_campaign'))
+                <li class="nav-item mb-1">
+                    <a href="{{ route('admin.campaigns') }}"
+                    class="nav-link small {{ request()->routeIs('admin.campaigns') ? 'active' : '' }}">
                         <span><i class="bi bi-megaphone-fill me-2"></i> Campaigns</span>
-                        <i class="bi bi-chevron-down small"></i>
                     </a>
-
-                    <div class="collapse {{ request()->is('admin/campaign*') ? 'show' : '' }}" id="campaignMenu">
-                        <ul class="nav flex-column border-start mt-1">
-                            @if(childUserAccess(Auth::guard('admin')->user()->id,'campaign_view_campaign'))
-                                <li class="nav-item mb-1">
-                                    <a href="{{ route('admin.campaigns') }}"
-                                    class="nav-link small {{ request()->routeIs('admin.campaigns') ? 'active' : '' }}">
-                                        <i class="bi bi-clipboard-data me-2"></i> List
-                                    </a>
-                                </li>
-                            @endif
-                        </ul>
-                    </div>
-                    <div class="collapse {{ request()->is('admin/campaign*') ? 'show' : '' }}" id="campaignMenu">
-                        <ul class="nav flex-column border-start mt-1">
-                            @if(childUserAccess(Auth::guard('admin')->user()->id,'campaign_view_campaigner'))
-                                <li class="nav-item mb-1">
-                                    <a href="{{route('admin.campaigns.star-campaigner')}}"
-                                    class="nav-link small {{ request()->routeIs('admin.campaigns') ? 'active' : '' }}">
-                                        <i class="bi bi-star me-2"></i> Star Campaigner
-                                    </a>
-                                </li>
-                            @endif
-                        </ul>
-                    </div>
+                </li>
+            @endif
+ 
+            @if(childUserAccess(Auth::guard('admin')->user()->id,'campaign_view_campaigner'))
+                <li class="nav-item mb-1">
+                    <a href="{{route('admin.campaigns.star-campaigner')}}"
+                    class="nav-link small {{ request()->routeIs('admin.campaigns.star-campaigner') ? 'active' : '' }}">
+                        <i class="bi bi-star me-2"></i> Star Campaigner
+                    </a>
                 </li>
             @endif
 
-            @if(userAccess(Auth::guard('admin')->user()->id,'mcc_violation'))
-                <li class="nav-item mb-2">
-                    <a class="nav-link d-flex justify-content-between align-items-center 
-                        {{ request()->is('admin/mcc*') ? 'active' : 'collapsed' }}"
-                        data-bs-toggle="collapse"
-                        href="#mccMenu"
-                        role="button"
-                        aria-expanded="{{ request()->is('admin/mcc*') ? 'true' : 'false' }}"
-                        aria-controls="mccMenu">
 
+            @if(childUserAccess(Auth::guard('admin')->user()->id,'mcc_view_mcc'))
+                <li class="nav-item mb-1">
+                    <a href="{{route('admin.mcc_violation')}}"
+                        class="nav-link small {{ request()->routeIs('admin.mcc_violation') ? 'active' : '' }}">
                         <span><i class="bi bi-controller me-2"></i> Complaint</span>
-                        <i class="bi bi-chevron-down small"></i>
                     </a>
-
-                    <div class="collapse {{ request()->is('admin/mcc*') ? 'show' : '' }}" id="mccMenu">
-                        <ul class="nav flex-column border-start mt-1">
-                            @if(childUserAccess(Auth::guard('admin')->user()->id,'mcc_view_mcc'))
-                                <li class="nav-item mb-1">
-                                    <a href="{{route('admin.mcc_violation')}}"
-                                    class="nav-link small {{ request()->routeIs('admin.mcc_violation') ? 'active' : '' }}">
-                                        <i class="bi bi-clipboard-data me-2"></i> List
-                                    </a>
-                                </li>
-                            @endif
-                        </ul>
-                    </div>
                 </li>
             @endif
+                        
+                
             @if(userAccess(Auth::guard('admin')->user()->id,'war_room'))
                 <li class="nav-item mb-2">
                     <a href="{{ route('admin.war_room') }}"

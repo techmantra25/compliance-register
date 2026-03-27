@@ -343,7 +343,7 @@
                         <h5 class="modal-title">
                             {{$selected_status == 'rescheduled' ? 'Rescheduled Campaign' : 'Cancel Campaign'}}
                         </h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                     </div>
 
                     @if($selected_status == 'rescheduled')
@@ -389,7 +389,7 @@
 
                     <div class="modal-header bg-primary text-white">
                         <h5 class="modal-title" id="campaignModalLabel">{{ $isEdit ? 'Edit Campaign' : 'Add Campaign' }}</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
 
                     <div class="modal-body">
