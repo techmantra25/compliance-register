@@ -913,7 +913,7 @@
                 $('#statusSelect').select2({
                     width: '100%',
                     placeholder: 'Filter by Status',
-                    allowClear: true
+                   
                 }).off('change').on('change', function () {
                     @this.set('filter_by_status', $(this).val());
                 });
@@ -921,7 +921,6 @@
                 $('#assemblySelect').select2({
                     width: '100%',
                     placeholder: 'Filter by Assembly',
-                    allowClear: true
                 }).off('change').on('change', function () {
                     @this.set('filter_by_assembly', $(this).val());
                 });
@@ -929,7 +928,6 @@
                 $('#categorySelect').select2({
                     width: '100%',
                     placeholder: 'Filter by Category',
-                    allowClear: true
                 }).off('change').on('change', function () {
                     @this.set('filter_by_category', $(this).val());
                 });
@@ -939,7 +937,6 @@
                     dropdownParent: $('#mccModal'),
                     width: '100%',
                     placeholder: 'Select Assembly',
-                    allowClear: true
                 }).off('change').on('change', function () {
                     @this.set('assembly_id', $(this).val());
                 });
@@ -948,7 +945,6 @@
                     dropdownParent: $('#mccModal'),
                     width: '100%',
                     placeholder: 'Select Legal Associate',
-                    allowClear: true
                 }).off('change').on('change', function () {
                     @this.set('action_taken', $(this).val());
                 });
@@ -957,7 +953,6 @@
                     dropdownParent: $('#assignModal'),
                     width: '100%',
                     placeholder: 'Assign Legal Associate',
-                    allowClear: true
                 }).off('change').on('change', function () {
                     @this.set('associate_id', $(this).val());
                 });
@@ -1011,7 +1006,12 @@
                 $("#mccModal").modal('show');
 
                 setTimeout(() => {
+                    initSelect2();
                     initCkEditor();
+
+                    $('#modalAssemblySelect').val(@this.get('assembly_id')).trigger('change');
+                    $('#modalAssignSelect').val(@this.get('action_taken')).trigger('change');
+
                 }, 300);
             });
             window.addEventListener('open-mcc-modal', () => {
