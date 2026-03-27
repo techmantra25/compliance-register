@@ -272,9 +272,11 @@
                     <div class="preview-box">
                         {{-- {{dd($active_file)}} --}}
                         @if($active_file)
-
                             @php
                                 $extension = strtolower(pathinfo($active_file, PATHINFO_EXTENSION));
+                                $fileUrl = asset($active_file);
+
+                                $docTypes = ['doc','docx','xls','xlsx','ppt','pptx','txt','csv','odt','ods','odp'];
                             @endphp
 
                             {{-- PDF --}}
@@ -284,6 +286,14 @@
                                     src="{{ asset($active_file) }}" 
                                      width="100%" style="border:none; height:600px">
                                 </iframe>
+
+                            {{-- Image --}}
+                            @elseif(in_array($extension, $docTypes))
+
+                            <iframe 
+                                src="https://docs.google.com/gview?url={{ urlencode($fileUrl) }}&embedded=true"
+                                width="100%" style="border:none; height:600px">
+                            </iframe>
 
                             {{-- Image --}}
                             @else

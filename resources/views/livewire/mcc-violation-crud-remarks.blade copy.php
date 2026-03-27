@@ -1,8 +1,8 @@
 <div>
     <!-- HEADER -->
-    <div class="row align-items-center mb-4  mb-md-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
 
-        <div class="col-md-6 mb-4 mb-md-0">
+        <div>
             <h4 class="fw-bold mb-1 text-dark">
                 <i class="bi bi-chat-left-text me-2 text-primary"></i>
                 Complaint Remarks
@@ -18,22 +18,18 @@
             </ol>
         </div>
 
-        <div class="col-md-6 text-start text-md-end">
-            <div class="d-flex align-items-center gap-2 justify-content-start justify-content-md-end">
-                <a href="#add-remark" class="btn btn-primary btn-md">Add Remark</a>
-                <a href="{{ route('admin.mcc_violation') }}" 
-                class="btn btn-md btn-danger shadow-sm">
-                    <i class="bi bi-arrow-left-circle me-1"></i> Back
-                </a>
+        <div>
+            <a href="{{ route('admin.mcc_violation') }}" 
+            class="btn btn-sm btn-danger shadow-sm">
+                <i class="bi bi-arrow-left-circle me-1"></i> Back
             </a>
-            </div>
         </div>
 
     </div>
     <div class="mb-3 mt-2">
         <div class="card shadow-sm border-0 p-3">
 
-            <div class="card-body bg-white p-0">
+            <div class="card-body bg-white">
 
                 <div class="d-flex justify-content-between align-items-start flex-wrap">
                     <h5 class="fw-bold mb-4">
@@ -42,48 +38,48 @@
                 </div>
                     
                 <div class="row pb-3">
-                    <div class="col-6 col-md-6 col-lg-2 mb-4 mb-lg-4">
+                    <div class="col-md-6 col-lg-2 mb-4 mb-lg-4">
                         <strong class="title-text">Complaint Code</strong>
                         {{ $mcc->mcc_code }}
                     </div>
-                    <div class="col-6 col-md-6 col-lg-2 mb-4 mb-lg-4">
+                    <div class="col-md-6 col-lg-2 mb-4 mb-lg-4">
                         <strong class="title-text">Category</strong>
                         {{ $mcc->category }}
                     </div>
-                    <div class="col-6 col-md-6 col-lg-2 mb-4 mb-lg-4">
+                    <div class="col-md-6 col-lg-2 mb-4 mb-lg-4">
                         <strong class="title-text">Block</strong>
                         {{ $mcc->block }}
                     </div>
-                    <div class="col-6 col-md-6 col-lg-1 mb-4 mb-lg-4">
+                    <div class="col-md-6 col-lg-1 mb-4 mb-lg-4">
                         <strong class="title-text">GP</strong>
                         {{ $mcc->gp }}
                     </div>
-                    <div class="col-6 col-md-6 col-lg-2 mb-4 mb-lg-4">
+                    <div class="col-md-6 col-lg-2 mb-4 mb-lg-4">
                         <strong class="title-text">Complainer</strong>
                         {{ $mcc->complainer_name }}
                     </div>
-                    <div class="col-6 col-md-6 col-lg-2 mb-4 mb-lg-4">
+                    <div class="col-md-6 col-lg-2 mb-4 mb-lg-4">
                         <strong class="title-text">Phone</strong>
                         {{ $mcc->complainer_phone }}
                     </div>
                     @if($mcc->legalAssociate)
-                    <div class="col-6 col-md-6 col-lg-2 mb-4 mb-lg-4">
+                    <div class="col-md-6 col-lg-2 mb-4 mb-lg-4">
                         <strong class="title-text">Assigned To</strong>
                         {{ $mcc->legalAssociate->name }}
                     </div>
                     @endif
-                    <div class="col-6 col-md-6 col-lg-1 mb-4 mb-lg-4">
+                    <div class="col-md-6 col-lg-1 mb-4 mb-lg-4">
                         <strong class="title-text">Status</strong>
                         {{ $mcc->status }}
                     </div>
-                    <div class="col-6 col-md-6 col-lg-3 mb-4">
+                    <div class="col-md-6 col-lg-3 mb-4">
                          <strong class="title-text">Group Members:</strong>
 
                         @foreach($groupMembers as $name)
                             <span class="badge bg-info">{{ $name }}</span>
                         @endforeach
                     </div>
-                    <div class="col-6 col-md-6 col-lg-3 mb-4">
+                    <div class="col-md-6 col-lg-3 mb-4">
                         <strong class="title-text">Keywords</strong>
 
                         @php
@@ -100,7 +96,7 @@
                     </div>
                 </div>
             </div>
-            <div class="card-body p-0">
+            <div class="card-body">
                 <!-- MAIN LAYOUT -->
                 <div class="row">
 
@@ -165,7 +161,7 @@
 
                                             <!-- FILE BUTTONS (F1, F2) -->
                                             @if($r->supportingDocuments->count())
-                                                <div class="mt-3 d-flex gap-2 preview-list">
+                                                <div class="mt-2 d-flex flex-column gap-2">
                                                     @foreach($r->supportingDocuments as $index => $doc)
 
                                                         @php
@@ -175,7 +171,8 @@
                                                     @endphp
 
                                                     <button 
-                                                        class="text-start"
+                                                        class="text-start p-1"
+                                                        style="color: #0d6efd;"
                                                         wire:click="selectFile('{{ asset($doc->file_path) }}')"
                                                     >
                                                         {{ Str::limit($name, 15) }}.{{ $ext }}
@@ -235,9 +232,9 @@
     </div>
     <!-- ADD REMARK -->
     @if($groupMembers->has(auth()->guard('admin')->id()))
-        <div id="add-remark" class="card shadow-sm border-0 mt-4 p-3">
+        <div class="card shadow-sm border-0 mt-4 p-3">
            
-            <div class="card-body p-0">
+            <div class="card-body">
                 <h5 class="fw-bold mb-4">Add Remark</h5>
 
                 @if($mcc->status == 'resolved')
