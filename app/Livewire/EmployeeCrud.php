@@ -12,6 +12,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\EmployeeLoginMail;
 use Livewire\WithPagination;
+use Illuminate\Validation\Rule;
 
 class EmployeeCrud extends Component
 {
@@ -31,11 +32,40 @@ class EmployeeCrud extends Component
     public $isEdit=false;
     public $uncheckedAssembly =[];
 
-    protected $rules = [
-        'name' => 'required',
-        'email' => 'required|email|unique:admins,email',
-        'role' => 'required',
-    ];
+    protected function rules()
+    {
+        return [
+            'name'   => 'required|string|max:255',
+            'email'  => 'required|email|unique:admins,email',
+            'role'   => 'required',
+
+            // ✅ Conditional validation
+            'mobile' => in_array($this->role, ['admin', 'legal_associate'])
+                ? 'required|digits:10'
+                : 'nullable',
+        ];
+    }
+    protected function messages()
+    {
+        return [
+            // Name
+            'name.required' => 'Employee name is required.',
+            'name.string'   => 'Name must be a valid text.',
+            'name.max'      => 'Name cannot exceed 255 characters.',
+
+            // Email
+            'email.required' => 'Email address is required.',
+            'email.email'    => 'Please enter a valid email address.',
+            'email.unique'   => 'This email is already registered.',
+
+            // Role
+            'role.required' => 'Please select a role.',
+
+            // Mobile
+            'mobile.required' => 'WhatsApp number is required for this role.',
+            'mobile.digits'   => 'WhatsApp number must be exactly 10 digits.',
+        ];
+    }
 
     public function mount()
     {
@@ -163,11 +193,6 @@ class EmployeeCrud extends Component
     protected function storeEmployee()
     {
         $this->validate();
-
-        // if (!$this->validateAssemblies()) {
-        //     return;
-        // }
-
         $password = random_int(111111, 999999);
 
         $code = $this->generateEmployeeCode($this->name);
@@ -277,9 +302,22 @@ class EmployeeCrud extends Component
 
     protected function updateEmployee()
     {
-        $rules = $this->rules;
+        $rules = [
+            'name'  => 'required|string|max:255',
 
-        $rules['email'] = 'required|email|unique:admins,email,' . $this->admin_id;
+            'email' => [
+                'required',
+                'email',
+                Rule::unique('admins', 'email')->ignore($this->admin_id),
+            ],
+
+            'role' => 'required',
+
+            //  WhatsApp condition
+            'mobile' => in_array($this->role, ['admin', 'legal_associate'])
+                ? ['required', 'regex:/^[6-9]\d{9}$/']
+                : 'nullable',
+        ];
 
         $this->validate($rules);
 

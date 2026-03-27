@@ -133,25 +133,20 @@
 
     <br><br>
 
-    <p>
-        <span style="text-decoration: underline;">
-            {{ $employeeCode ?? 'N/A' }}
-        </span>
-    </p>
-
-    <p>
-        Date/Time:  <span style="text-decoration: underline;">
-                        {{ $examinationDate
-                            ? \Carbon\Carbon::parse($examinationDate)->format('d M Y h:i A')
-                            : \Carbon\Carbon::now()->format('d M Y h:i A') }}
-                    </span>
-    </p>
-
-    <div style="position: absolute; bottom: 30px;">
-        <div style="width:200px; border-bottom:1px solid #000;"></div>
-        <p style="font-size:11px; margin-top:5px;">Representative only</p>
+    <div style="position: absolute; bottom: 5px; width:100%">
+        <p style="text-align:center; font-size:10px; font-style: italic; color:#858585">
+            <span style="text-decoration: underline;">
+                This is a computer-generated document and does not require a physical signature
+            </span>
+        </p>
+        <p style="text-align:center; font-size:10px; font-style: italic; color:#858585">
+            <span> {{ $employeeCode ?? 'N/A' }}:</span>
+            <span style="text-decoration: underline;">
+                            {{ $examinationDate
+                                ? \Carbon\Carbon::parse($examinationDate)->format('d M Y h:i A')
+                                : \Carbon\Carbon::now()->format('d M Y h:i A') }}
+                        </span>
+        </p>
     </div>
-
 </body>
-
 </html>

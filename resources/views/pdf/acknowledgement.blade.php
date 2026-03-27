@@ -135,24 +135,27 @@
         after finally reviewing the contents of the Form and Affidavit and checking that all disclosures are true and accurate.
     </p>
 
-    <table class="signature">
-        <tr>
-            <td>
-                <span style="text-decoration: underline;">
-                    {{ $employeeCode ?? 'N/A' }}
-                </span>
-            </td>
-        </tr>
-        <tr>
-            <td>Date/Time: 
-                <span style="text-decoration: underline;">
-                    {{ $Examination
-                        ? \Carbon\Carbon::parse($Examination)->format('d M Y h:i A')
-                        : \Carbon\Carbon::now()->format('d M Y h:i A') }}
-                </span>
-            </td>
-        </tr>
-    </table>
+    <br><br>
+
+    
+
+    
+
+    <div style="position: absolute; bottom: 5px; width:100%">
+        <p style="text-align:center; font-size:10px; font-style: italic; color:#858585">
+            <span style="text-decoration: underline;">
+                This is a computer-generated document and does not require a physical signature
+            </span>
+        </p>
+        <p style="text-align:center; font-size:10px; font-style: italic; color:#858585">
+            <span> {{ $employeeCode ?? 'N/A' }}:</span>
+            <span style="text-decoration: underline;">
+                            {{ $Examination
+                                ? \Carbon\Carbon::parse($Examination)->format('d M Y h:i A')
+                                : \Carbon\Carbon::now()->format('d M Y h:i A') }}
+                        </span>
+        </p>
+    </div>
 
 </div>
 

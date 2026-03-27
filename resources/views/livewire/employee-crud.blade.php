@@ -216,7 +216,7 @@
                         {{-- MOBILE --}}
                         <div class="mb-3">
 
-                            <label class="form-label">Mobile</label>
+                            <label class="form-label">Mobile(Whatsapp)</label>
 
                             <input type="text" wire:model="mobile" class="form-control">
 

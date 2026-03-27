@@ -11,6 +11,7 @@ use App\Models\CandidateObservationStep;
 use Illuminate\Support\Facades\Auth;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
+use App\Models\Admin;
 use App\Models\CandidateSkippedDocument;
 use Illuminate\Support\Facades\DB;
 
@@ -228,7 +229,7 @@ class CandidateDocumentPreview extends Component
         DB::beginTransaction();
 
         try {
-
+            // $this->SendWhatsapp($candidate->id);
             $oldStatus = [
                 'status' => $candidate->status,
                 'document_collection_status' => $candidate->document_collection_status,
@@ -299,6 +300,63 @@ class CandidateDocumentPreview extends Component
             );
         }
     }
+
+    private function SendWhatsapp($candidate_id){
+        $candidate = Candidate::findOrFail($candidate_id);
+       
+        // WhatsApp config
+        $apiDomainUrl  = config('whatsapp.api_domain_url');
+        $apiVersion    = config('whatsapp.api_version');
+        $channelNumber = config('whatsapp.channel_number');
+        $apiKey        = config('whatsapp.api_key');
+        $apiEndPoint   = config('whatsapp.api_end_point');
+
+        $apiUrl = "{$apiDomainUrl}/{$apiVersion}/{$channelNumber}/{$apiEndPoint}";
+
+        // get all Admin & legal associate
+       $admins = Admin::where('suspended_status', 1)
+        ->whereIn('role', ['admin', 'legal_associate'])
+        ->whereNotNull('mobile')
+        ->where('mobile', '!=', '')
+        ->get();
+        foreach($admins as $key=>$item){
+            // dd($item);
+            // Format Indian mobile number
+            $mobile = preg_replace('/\D/', '', $item->mobile);
+            $recipientPhone = '91' . substr($mobile, -10);
+            // Convert full URL → relative path
+
+            // Build WhatsApp payload using SAME helper
+            $payload =""; 
+            // {"messaging_product":"whatsapp","recipient_type":"individual","to":"{{to}}","type":"template","template":{"name":"acknowledgement_copy","language":{"code":"en"},"components":[{"type":"header","parameters":[{"type":"document","document":{"id":"{{1}}","link":"{{1}}","filename":"{{filename}}"}}]},{"type":"body","parameters":[{"type":"text","text":"{{1}}"},{"type":"text","text":"{{2}}"},{"type":"text","text":"{{3}}"},{"type":"text","text":"{{4}}"}]}]},"biz_opaque_callback_data":"{{BizOpaqueCallbackData}}"}
+
+            // Send WhatsApp message
+            $ch = curl_init();
+            curl_setopt_array($ch, [
+                CURLOPT_URL => $apiUrl,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_POST => true,
+                CURLOPT_HTTPHEADER => [
+                    "Authorization: Bearer {$apiKey}",
+                    "Content-Type: application/json",
+                ],
+                CURLOPT_POSTFIELDS => json_encode($payload),
+            ]);
+
+            $response = curl_exec($ch);
+            $error    = curl_error($ch);
+            curl_close($ch);
+
+            if ($error) {
+                throw new Exception($error);
+            }
+
+            $responseData = json_decode($response, true);
+
+        }
+        
+    }
+
     public function downloadAcknowledgement()
     {
         $data = [
