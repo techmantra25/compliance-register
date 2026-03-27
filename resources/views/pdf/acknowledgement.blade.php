@@ -144,7 +144,7 @@
             </td>
         </tr>
         <tr>
-            <td>Name:Date/Time: 
+            <td>Date/Time: 
                 <span style="text-decoration: underline;">
                     {{ $Examination
                         ? \Carbon\Carbon::parse($Examination)->format('d M Y h:i A')

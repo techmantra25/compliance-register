@@ -38,6 +38,7 @@ class MccViolationCrud extends Component
 
     public $legalAssociates = [];
     public $supporting_documents = [];
+    public $new_documents = [];
 
     public $keywords = [];
     public $keywordInput = '';
@@ -457,6 +458,15 @@ class MccViolationCrud extends Component
     public function removeExistingFile($id)
     {
         $this->deletedFiles[] = $id;
+    }
+
+    public function updatedNewDocuments()
+    {
+        foreach ($this->new_documents as $file) {
+            $this->supporting_documents[] = $file;
+        }
+
+        $this->new_documents = [];
     }
 
     public function resetFilters()

@@ -29,7 +29,7 @@
     <div class="mb-3 mt-2">
         <div class="card shadow-sm border-0 p-3">
 
-            <div class="card-header bg-white">
+            <div class="card-body bg-white">
 
                 <div class="d-flex justify-content-between align-items-start flex-wrap">
                     <h5 class="fw-bold mb-4">
@@ -50,11 +50,11 @@
                         <strong class="title-text">Block</strong>
                         {{ $mcc->block }}
                     </div>
-                    <div class="col-md-6 col-lg-2 mb-4 mb-lg-4">
+                    <div class="col-md-6 col-lg-1 mb-4 mb-lg-4">
                         <strong class="title-text">GP</strong>
                         {{ $mcc->gp }}
                     </div>
-                    <div class="col-md-6 col-lg-3 mb-4 mb-lg-4">
+                    <div class="col-md-6 col-lg-2 mb-4 mb-lg-4">
                         <strong class="title-text">Complainer</strong>
                         {{ $mcc->complainer_name }}
                     </div>
@@ -68,18 +68,18 @@
                         {{ $mcc->legalAssociate->name }}
                     </div>
                     @endif
-                    <div class="col-md-6 col-lg-2 mb-4 mb-lg-4">
+                    <div class="col-md-6 col-lg-1 mb-4 mb-lg-4">
                         <strong class="title-text">Status</strong>
                         {{ $mcc->status }}
                     </div>
-                    <div class="col-md-6 col-lg-6 mb-4">
+                    <div class="col-md-6 col-lg-3 mb-4">
                          <strong class="title-text">Group Members:</strong>
 
                         @foreach($groupMembers as $name)
                             <span class="badge bg-info">{{ $name }}</span>
                         @endforeach
                     </div>
-                    <div class="">
+                    <div class="col-md-6 col-lg-3 mb-4">
                         <strong class="title-text">Keywords</strong>
 
                         @php
@@ -102,7 +102,7 @@
 
                     <!-- LEFT: REMARKS -->
                     <div class="col-lg-6 mb-4 mb-md-0">
-                        <h5 class="fw-bold mb-3">Remarks</h5>
+                        <h5 class="section-header">Remarks</h5>
                         <div class="chat-stack">
                             <div class="chat-box">
 
@@ -196,7 +196,7 @@
 
                     <!-- RIGHT: PREVIEW -->
                     <div class="col-lg-6">
-                        <h5 class="fw-bold mb-3">Preview</h5>
+                        <h5 class="section-header">Preview</h5>
 
                         
                             @if($selectedFile)
@@ -225,12 +225,10 @@
     </div>
     <!-- ADD REMARK -->
     @if($groupMembers->has(auth()->guard('admin')->id()))
-        <div class="card mt-4">
-            <div class="card-header">
-                <h6>Add Remark</h6>
-            </div>
-
+        <div class="card shadow-sm border-0 mt-4 p-3">
+           
             <div class="card-body">
+                <h5 class="fw-bold mb-4">Add Remark</h5>
 
                 @if($mcc->status == 'resolved')
                     <div class="alert alert-success">
@@ -273,7 +271,7 @@
                             </div>
                         </div>
                     <div class="d-flex justify-content-end align-items-start flex-wrap">
-                            <button class="btn btn-primary btn-sm"
+                            <button class="btn btn-primary btn-md"
                                     wire:loading.attr="disabled"
                                     wire:target="saveRemark,attachment">
 

@@ -322,31 +322,31 @@
                             <input class="form-check-input" type="checkbox" id="obs1" 
                                 onchange="updateObservation()" {{ !$canEditObservation ? 'disabled' : '' }}
                                 {{ in_array('Name is incorrect on the Nomination Form', $selectedObservations ?? []) ? 'checked' : '' }}>
-                            <label class="form-check-label">Name is incorrect on the Nomination Form</label>
+                            <label class="form-check-label" for="obs1">Name is incorrect on the Nomination Form</label>
                         </div>
 
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="obs2" 
                                 onchange="updateObservation()" {{ !$canEditObservation ? 'disabled' : '' }}
                                 {{ in_array('Address proof required for further verification', $selectedObservations ?? []) ? 'checked' : '' }}>
-                            <label class="form-check-label">Address proof required for further verification</label>
+                            <label class="form-check-label" for="obs2">Address proof required for further verification</label>
                         </div>
 
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="obs3" onchange="updateObservation()" {{ !$canEditObservation ? 'disabled' : '' }} {{ in_array('Profile image is blurry', $selectedObservations ?? []) ? 'checked' : '' }}>
-                            <label class="form-check-label">Profile image is blurry</label>
+                            <label class="form-check-label" for="obs3">Profile image is blurry</label>
                         </div>
 
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="obs4" onchange="updateObservation()" {{ !$canEditObservation ? 'disabled' : '' }} {{ in_array('Candidate Part number needs to be changed', $selectedObservations ?? []) ? 'checked' : '' }}>
-                            <label class="form-check-label">Candidate Part number needs to be changed</label>
+                            <label class="form-check-label" for="obs4">Candidate Part number needs to be changed</label>
                         </div>
 
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="obs_other" 
                                 onchange="toggleOthers()" {{ !$canEditObservation ? 'disabled' : '' }}
                                 {{ in_array('Others', $selectedObservations ?? []) ? 'checked' : '' }}>
-                            <label class="form-check-label">Others (Specify Reason)</label>
+                            <label class="form-check-label" for="obs_other">Others (Specify Reason)</label>
                         </div>
 
                     </div>
