@@ -229,7 +229,7 @@ class CandidateDocumentPreview extends Component
         DB::beginTransaction();
 
         try {
-            // $this->SendWhatsapp($candidate->id);
+            $this->SendWhatsapp($candidate->id);
             $oldStatus = [
                 'status' => $candidate->status,
                 'document_collection_status' => $candidate->document_collection_status,
@@ -291,9 +291,7 @@ class CandidateDocumentPreview extends Component
             return redirect()->route('admin.candidates.documents.preview', ['candidate'=>$this->candidateId, 'version'=>$latestVersion]);
 
         } catch (\Exception $e) {
-
             DB::rollBack();
-
             $this->dispatch(
                 'toastr:error',
                 message: 'Error generating acknowledgement: ' . $e->getMessage()
@@ -302,6 +300,7 @@ class CandidateDocumentPreview extends Component
     }
 
     private function SendWhatsapp($candidate_id){
+
         $candidate = Candidate::findOrFail($candidate_id);
        
         // WhatsApp config
@@ -314,24 +313,82 @@ class CandidateDocumentPreview extends Component
         $apiUrl = "{$apiDomainUrl}/{$apiVersion}/{$channelNumber}/{$apiEndPoint}";
 
         // get all Admin & legal associate
-       $admins = Admin::where('suspended_status', 1)
+        $admins = Admin::where('suspended_status', 1)
         ->whereIn('role', ['admin', 'legal_associate'])
         ->whereNotNull('mobile')
         ->where('mobile', '!=', '')
         ->get();
-        foreach($admins as $key=>$item){
-            // dd($item);
-            // Format Indian mobile number
+
+        $url = $this->generateAcknowledgementPdf();
+        foreach ($admins as $key => $item) {
+
+            // =========================
+            // VARIABLES
+            // =========================
+            $var1 = $item->name; // Admin name
+            $var2 = Auth::guard('admin')->user()->name; // Sender name
+            $var3 = $candidate->name; // Candidate name
+
+            $var4 = optional($candidate->assembly)->assembly_number 
+                ? optional($candidate->assembly)->assembly_number . '-' . optional($candidate->assembly)->assembly_name_en
+                : '';
+
+            // =========================
+            // MOBILE FORMAT (91XXXXXXXXXX)
+            // =========================
             $mobile = preg_replace('/\D/', '', $item->mobile);
             $recipientPhone = '91' . substr($mobile, -10);
-            // Convert full URL → relative path
 
-            // Build WhatsApp payload using SAME helper
-            $payload =""; 
-            // {"messaging_product":"whatsapp","recipient_type":"individual","to":"{{to}}","type":"template","template":{"name":"acknowledgement_copy","language":{"code":"en"},"components":[{"type":"header","parameters":[{"type":"document","document":{"id":"{{1}}","link":"{{1}}","filename":"{{filename}}"}}]},{"type":"body","parameters":[{"type":"text","text":"{{1}}"},{"type":"text","text":"{{2}}"},{"type":"text","text":"{{3}}"},{"type":"text","text":"{{4}}"}]}]},"biz_opaque_callback_data":"{{BizOpaqueCallbackData}}"}
+            // =========================
+            // DOCUMENT URL (PUBLIC URL MUST)
+            // =========================
+            $document = $url; //  use generated PDF URL
+            $filename = basename($document);
 
-            // Send WhatsApp message
+            // =========================
+            // PAYLOAD
+            // =========================
+            $payload = [
+                "messaging_product" => "whatsapp",
+                "recipient_type" => "individual",
+                "to" => $recipientPhone,
+                "type" => "template",
+                "template" => [
+                    "name" => "acknowledgement_copy",
+                    "language" => [
+                        "code" => "en"
+                    ],
+                    "components" => [
+                        [
+                            "type" => "header",
+                            "parameters" => [
+                                [
+                                    "type" => "document",
+                                    "document" => [
+                                        "link" => $document,
+                                        "filename" => $filename
+                                    ]
+                                ]
+                            ]
+                        ],
+                        [
+                            "type" => "body",
+                            "parameters" => [
+                                ["type" => "text", "text" => $var1],
+                                ["type" => "text", "text" => $var2],
+                                ["type" => "text", "text" => $var3],
+                                ["type" => "text", "text" => $var4],
+                            ]
+                        ]
+                    ]
+                ],
+            ];
+
+            // =========================
+            // CURL REQUEST
+            // =========================
             $ch = curl_init();
+
             curl_setopt_array($ch, [
                 CURLOPT_URL => $apiUrl,
                 CURLOPT_RETURNTRANSFER => true,
@@ -345,18 +402,56 @@ class CandidateDocumentPreview extends Component
 
             $response = curl_exec($ch);
             $error    = curl_error($ch);
+
             curl_close($ch);
 
+            // =========================
+            // ERROR HANDLE
+            // =========================
             if ($error) {
-                throw new Exception($error);
+                \Log::error("WhatsApp CURL Error: " . $error);
+                continue;
             }
 
             $responseData = json_decode($response, true);
-
+            // =========================
+            // OPTIONAL DEBUG LOG
+            // =========================
+            \Log::info('WhatsApp Response', [
+                'phone' => $recipientPhone,
+                'response' => $responseData
+            ]);
         }
         
     }
 
+
+    public function generateAcknowledgementPdf()
+    {
+        $data = [
+            'candidateName'   => $this->candidateName,
+            'employeeCode'   => $this->employeeCode,
+            'assemblyName'   => $this->assemblyName,
+            'Examination' => now()->timezone('Asia/Kolkata')->format('d-m-Y h:i A'),
+            'nomination_date'=> $this->nomination_date,
+            'authorizedBy'   => Auth::guard('admin')->user()->name,
+        ];
+
+        $pdf = Pdf::loadView('pdf.acknowledgement', $data)
+            ->setPaper('A4', 'portrait');
+
+        // filename
+        $filename = str_replace(' ', '-', $this->assemblyName) . '-acknowledgement-form.pdf';
+
+        // storage path
+        $path = "candidate_docs/{$this->candidateId}/" . $filename;
+
+        // save file in storage/app/public
+        \Storage::disk('public')->put($path, $pdf->output());
+
+        // return public URL for WhatsApp
+        return asset('storage/' . $path);
+    }
     public function downloadAcknowledgement()
     {
         $data = [
@@ -390,6 +485,7 @@ class CandidateDocumentPreview extends Component
                 ->pluck('id');
 
             $docs = CandidateDocument::whereIn('id', $latestDocs)->get();
+            $latestVersion = CandidateDocument::where('candidate_id', $this->candidateId)->max('version');
 
             foreach ($docs as $item) {
 
@@ -413,11 +509,10 @@ class CandidateDocumentPreview extends Component
                         'attached_with'       => $item->attached_with,
                         'attached_with_slug'  => $item->attached_with_slug,
                     ]);
-
                     // Delete from original table
-                    $item->delete();
+                    $item->version = $item->version + 1;
+                    $item->save();
                 } else {
-
                     $item->status = "Rejected";
                     $item->save();
                 }
@@ -426,8 +521,6 @@ class CandidateDocumentPreview extends Component
             $update = Candidate::findOrFail($this->candidateId);
             $update->status = "without_criminal_rejected_observation_only";
             $update->document_collection_status = "incomplete_additional_required";
-
-            $latestVersion = CandidateDocument::where('candidate_id', $this->candidateId)->max('version');
 
             CandidateObservationStep::updateOrCreate(
                 [

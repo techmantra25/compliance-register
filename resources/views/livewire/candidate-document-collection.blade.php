@@ -309,8 +309,8 @@
                                 <th width="10%">Upload History</th>
                                 <th width="14%">Date & Time</th>
                                 <th width="8%">Status</th>
-                                <th width="18%">Remarks by Data uploader</th>
-                                <th width="18%">Action</th>
+                                {{-- <th width="18%">Remarks by Data uploader</th> --}}
+                                <th width="36%">Action</th>
                                 <th width="8%">Upload Now</th>
                             </tr>
                         </thead>
@@ -358,7 +358,7 @@
                                                                 @default
                                                                     <i class="bi bi-file-earmark-text text-secondary me-2 fs-5"></i>
                                                             @endswitch
-
+                                                          
                                                             <strong class="text-dark fw-medium">V{{ count($documents[$key]) - $index }}</strong>
                                                         </div>
 
@@ -406,11 +406,11 @@
                                                 </td>
 
                                                 {{-- Remarks --}}
-                                                <td>
+                                                {{-- <td>
                                                     <span class="text-muted">
                                                         {{ $doc['remarks'] ?: '-' }}
                                                     </span>
-                                                </td>
+                                                </td> --}}
                                                 {{-- Uploaded By --}}
                                                 <td class="align-middle" style="font-size:12px;">
                                                     <div class="d-flex flex-column text-start">
@@ -434,9 +434,7 @@
                                                                     <strong>Rejected By:</strong> {{ $doc['vetted_by_name'] }}
                                                                 </div>
                                                             @endif
-
                                                         @else
-
                                                             {{-- Vetted On --}}
                                                             @if(!empty($doc['vetted_on']))
                                                                 <div>
@@ -463,7 +461,7 @@
                                                                     wire:click="SetDocType('{{ $key }}')" 
                                                                     data-bs-toggle="modal" 
                                                                     data-bs-target="#DocumentModal">
-                                                                    <i class="bi bi-upload"></i>
+                                                                    <i class="bi bi-upload"></i> Upload
                                                                 </button>
                                                                 <span class="tooltip-text">Please upload {{ $label }}</span>
                                                             </div>
@@ -476,7 +474,7 @@
                                                     </td>
                                                 @endif
                                             @else
-                                                <td colspan="4" class="text-center">
+                                                <td colspan="3" class="text-center">
                                                 <span class="cursor-pointer badge
                                                         @if($doc['status'] == 'Uploaded') bg-lavel-success
                                                         @elseif($doc['status'] == 'Rejected') bg-lavel-danger text-danger
@@ -492,25 +490,39 @@
                                                     </span>
                                                 </td>
                                                 <td colspan="2">
-                                                    <div class="p-2 bg-light rounded border small">
+                                                    <div class="p-2 bg-light rounded border small d-flex justify-content-between align-items-start">
 
-                                                        {{-- Skipped By --}}
-                                                        <div class="mb-1">
-                                                            <i class="bi bi-person-check me-1 text-primary"></i>
-                                                            <strong>Skipped By:</strong>
-                                                            <span class="text-dark">{{ $doc['uploaded_by_name'] ?? 'N/A' }}</span>
-                                                        </div>
-
-                                                        {{-- Attached With --}}
                                                         <div>
-                                                            <i class="bi bi-link-45deg me-1 text-danger"></i>
-                                                            @if($doc['attached_with_slug']=="documents_not_required" || $doc['attached_with_slug']=='documents_required' || $doc['attached_with_slug']=='documents_not_received')
-                                                                <strong>Remarks:</strong>
-                                                            @else
-                                                            <strong>Attached With:</strong>
-                                                            @endif
-                                                            <span class="text-dark">{{ $doc['attached_with'] ?? 'N/A' }}</span>
+                                                            {{-- Skipped By --}}
+                                                            <div class="mb-1">
+                                                                <i class="bi bi-person-check me-1 text-primary"></i>
+                                                                <strong>Skipped By:</strong>
+                                                                <span class="text-dark">{{ $doc['uploaded_by_name'] ?? 'N/A' }}</span>
+                                                            </div>
+
+                                                            {{-- Attached With --}}
+                                                            <div>
+                                                                @if($doc['attached_with_slug']=="documents_not_required" || $doc['attached_with_slug']=='documents_required' || $doc['attached_with_slug']=='documents_not_received')
+                                                                    <strong>Remarks:</strong>
+                                                                @else
+                                                                    <strong>Attached With:</strong>
+                                                                @endif
+                                                                <span class="text-dark">{{ $doc['attached_with'] ?? 'N/A' }}</span>
+                                                            </div>
                                                         </div>
+
+                                                        {{-- Upload Button on Right --}}
+                                                        @if(isset($candidateData) && $candidateData->status !== "without_criminal_full_generation")
+                                                            <div class="ms-3">
+                                                                <button class="btn btn-outline-success btn-sm"
+                                                                    wire:click="SetDocType('{{ $key }}')" 
+                                                                    data-bs-toggle="modal" 
+                                                                    data-bs-target="#DocumentModal">
+                                                                    <i class="bi bi-upload"></i> Upload
+                                                                </button>
+                                                                <span class="tooltip-text">Please upload {{ $label }}</span>
+                                                            </div>
+                                                        @endif
 
                                                     </div>
                                                 </td>
@@ -522,7 +534,7 @@
                                     {{-- No Documents Yet --}}
                                     <tr>
                                         <td><strong>{{ $label }}</strong></td>
-                                        <td colspan="4" class="text-center text-muted">
+                                        <td colspan="3" class="text-center text-muted">
                                             <i class="bi bi-inbox"></i> No documents uploaded yet
                                         </td>
                                         <td colspan="1" class="text-center">
