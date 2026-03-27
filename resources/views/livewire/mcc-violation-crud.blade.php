@@ -71,14 +71,15 @@
             display: flex;
             flex-wrap: wrap;
             gap: 10px;
+            flex-direction:column;
         }
 
         .attachment-card {
             position: relative;
             border: 1px solid #e5e5e5;
             border-radius: 10px;
-            padding: 8px;
-            width: 220px;
+            padding:4px;
+            width: 100%;
             background: #fafafa;
         }
 
@@ -89,15 +90,15 @@
         }
 
         .attachment-img {
-            width: 45px;
-            height: 45px;
+            width: 30px;
+            height: 30px;
             object-fit: cover;
             border-radius: 6px;
         }
 
         .file-icon {
-            width: 45px;
-            height: 45px;
+            width: 30px;
+            height: 30px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -113,6 +114,7 @@
         .file-name {
             font-size: 13px;
             font-weight: 600;
+            margin-top:0;
         }
 
         .file-size {
@@ -635,12 +637,12 @@
 
                     <div class="modal-footer">
 
-                        <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">
+                        <button type="button" class="btn btn-md btn-secondary" data-bs-dismiss="modal">
                             Cancel
                         </button>
 
                         <button type="button"
-                            class="btn btn-primary btn-sm"
+                            class="btn btn-primary btn-md"
                             wire:click="save"
                             wire:loading.attr="disabled"
                             wire:target="save,supporting_documents">
