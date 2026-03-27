@@ -667,8 +667,8 @@
                                             multiple
                                             class="form-control form-control-sm">
                                            <small class="text-muted">
-                                                You can upload <strong>maximum 20 images</strong> at once or <strong>1 PDF file</strong>. 
-                                                Mixing PDF and images is not allowed.
+                                                You can upload <strong>Images, PDF, or DOC files</strong>, but <strong>only one file type at a time</strong>. 
+                                                Mixing different file types (e.g., images with PDF or DOC, or PDF with DOC) is not allowed.
                                             </small>
                                         @error('newFile')
                                             <small class="text-danger">{{ $message }}</small>
