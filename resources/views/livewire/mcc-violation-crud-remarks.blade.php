@@ -161,15 +161,22 @@
 
                                             <!-- FILE BUTTONS (F1, F2) -->
                                             @if($r->supportingDocuments->count())
-                                                <div class="mt-2 d-flex gap-2 flex-wrap">
+                                                <div class="mt-2 d-flex flex-column gap-2">
                                                     @foreach($r->supportingDocuments as $index => $doc)
 
-                                                        <button 
-                                                            class="btn btn-sm btn-outline-{{ $isMe ? 'primary' : 'primary' }}"
-                                                            wire:click="selectFile('{{ asset($doc->file_path) }}')"
-                                                        >
-                                                            F{{ $index + 1 }}
-                                                        </button>
+                                                        @php
+                                                        $fileName = basename($doc->file_path);
+                                                        $name = pathinfo($fileName, PATHINFO_FILENAME);
+                                                        $ext = pathinfo($fileName, PATHINFO_EXTENSION);
+                                                    @endphp
+
+                                                    <button 
+                                                        class="text-start p-1"
+                                                        style="color: #0d6efd;"
+                                                        wire:click="selectFile('{{ asset($doc->file_path) }}')"
+                                                    >
+                                                        {{ Str::limit($name, 15) }}.{{ $ext }}
+                                                    </button>
 
                                                     @endforeach
                                                 </div>
@@ -213,7 +220,7 @@
 
                             @else
                                 <div class="text-muted text-center mt-5">
-                                    Click F1, F2 to preview file
+                                    Click file to preview
                                 </div>
                             @endif
                         
