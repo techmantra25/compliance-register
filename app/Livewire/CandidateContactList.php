@@ -566,14 +566,14 @@ class CandidateContactList extends Component
         $query = Candidate::query()
             ->where('type', 'Candidate');
 
-        if ($this->authUser->role === 'employee') {
+        // if ($this->authUser->role === 'employee') {
 
-            $assemblies = $this->authUser->assemblies
-                ? array_map('intval', explode(',', $this->authUser->assemblies))
-                : [];
+        //     $assemblies = $this->authUser->assemblies
+        //         ? array_map('intval', explode(',', $this->authUser->assemblies))
+        //         : [];
 
-            $query->whereIn('assembly_id', $assemblies);
-        }
+        //     $query->whereIn('assembly_id', $assemblies);
+        // }
 
         // if ($this->authUser->role === 'legal_associate') {
         //     $query->where('legal_associate_id', $this->authUser->id);
@@ -849,9 +849,12 @@ class CandidateContactList extends Component
         $pdf = Pdf::loadView('pdf.acknowledgement', $data)
             ->setPaper('A4', 'portrait');
 
+        $filename = $candidate->assembly->assembly_number . '-' .
+            str_replace(' ', '-', $candidate->assembly->assembly_name_en) .
+            '-acknowledgement-form.pdf';
         return response()->streamDownload(
             fn () => print($pdf->output()),
-            "acknowledgement_form.pdf"
+            $filename,
         );
     }
     public function ConfirmSendMail()

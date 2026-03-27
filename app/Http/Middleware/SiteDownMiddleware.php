@@ -15,7 +15,7 @@ class SiteDownMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-         if (env('SITE_DOWN', false) === true || env('SITE_DOWN', false) === 'true') {
+        if (env('SITE_DOWN', false) === true || env('SITE_DOWN', false) === 'true') {
             abort(503, 'The site is temporarily down for maintenance.');
         }
         

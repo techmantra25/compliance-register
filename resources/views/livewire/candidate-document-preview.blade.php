@@ -513,12 +513,13 @@
         }
 
         if (observations.length === 0) {
-            Swal.fire({
-                icon: "warning",
-                title: "No Observation Selected",
-                text: "Please select at least one observation before generating the memo.",
-                confirmButtonColor: "#d33"
-            });
+            toastr.error('Please select at least one observation before generating the memo.');
+            // Swal.fire({
+            //     icon: "warning",
+            //     title: "No Observation Selected",
+            //     text: "Please select at least one observation before generating the memo.",
+            //     confirmButtonColor: "#d33"
+            // });
             return;
         }
 
@@ -531,11 +532,8 @@
             cancelButtonColor: "#6c757d",
             confirmButtonText: "Yes"
         }).then((result) => {
-
             if (result.isConfirmed) {
-
                 @this.call('GenerateObservationMemo');
-
             }
 
         });

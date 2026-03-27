@@ -66,16 +66,16 @@ class CandidateDocumentCollection extends Component
         $userRole = trim(strtolower($admin->role));
 
         // If employee, check assembly permission
-        if ($userRole === 'employee') {
+        // if ($userRole === 'employee') {
 
-            $employeeAssemblies = $admin->assemblies
-                ? array_map('intval', explode(',', $admin->assemblies))
-                : [];
+        //     $employeeAssemblies = $admin->assemblies
+        //         ? array_map('intval', explode(',', $admin->assemblies))
+        //         : [];
 
-            if (!in_array($candidate->assembly_id, $employeeAssemblies)) {
-                abort(403, 'You are not authorized to access this candidate.');
-            }
-        }
+        //     if (!in_array($candidate->assembly_id, $employeeAssemblies)) {
+        //         abort(403, 'You are not authorized to access this candidate.');
+        //     }
+        // }
 
         $this->nomination_date = $candidate?->assembly?->assemblyPhase?->phase?->last_date_of_nomination;
         $this->phase = $candidate?->assembly?->assemblyPhase?->phase?->name;
@@ -241,7 +241,7 @@ class CandidateDocumentCollection extends Component
     protected function remainDocuments(){
         $skippedDocs = CandidateDocument::where('candidate_id', $this->candidateId)->where('status', 'Skipped')->pluck('type')->toArray();
         $allDocs = CandidateDocumentType::whereNotIn('key', $skippedDocs)->pluck('name','key')->toArray();
-        $allDocs = ['documents_not_required' => 'Documents Not Required'] + $allDocs;
+        $allDocs = ['documents_required'=>'Documents Required', 'documents_not_required' => 'Documents Not Required'] + $allDocs;
         return $allDocs;
     }
 

@@ -103,16 +103,16 @@ class CandidateDocumentPreview extends Component
         | Employee Access Check
         |--------------------------------------------------------------------------
         */
-        if ($userRole === 'employee') {
+        // if ($userRole === 'employee') {
 
-            $employeeAssemblies = $admin->assemblies
-                ? array_map('intval', explode(',', $admin->assemblies))
-                : [];
+        //     $employeeAssemblies = $admin->assemblies
+        //         ? array_map('intval', explode(',', $admin->assemblies))
+        //         : [];
 
-            if (!in_array($candidate->assembly_id, $employeeAssemblies)) {
-                abort(403, 'You are not authorized to access this candidate.');
-            }
-        }
+        //     if (!in_array($candidate->assembly_id, $employeeAssemblies)) {
+        //         abort(403, 'You are not authorized to access this candidate.');
+        //     }
+        // }
 
         /*
         |--------------------------------------------------------------------------
@@ -266,8 +266,8 @@ class CandidateDocumentPreview extends Component
              logChange([
                 'module_name' => 'Acknowledgement',
                 'module_id' => $this->candidateId,
-                'action' => 'Insert',
-                'description' => "Acknowledgement generated.",
+                'action' => 'Generate',
+                'description' => "The acknowledgement has been generated successfully.",
                 'old_data' => json_encode($oldStatus),
                 'new_data' => json_encode([
                     'version' => $latestVersion,
@@ -313,9 +313,11 @@ class CandidateDocumentPreview extends Component
         $pdf = Pdf::loadView('pdf.acknowledgement', $data)
             ->setPaper('A4', 'portrait');
 
+        $filename = str_replace(' ', '-', $this->assemblyName) .
+            '-acknowledgement-form.pdf';
         return response()->streamDownload(
             fn () => print($pdf->output()),
-            "acknowledgement_form.pdf"
+            $filename,
         );
     }
 
@@ -386,10 +388,10 @@ class CandidateDocumentPreview extends Component
             $update->save();
 
             logChange([
-                'module_name' => 'Observation Memo',
+                'module_name' => 'Observation Memo generated',
                 'module_id' => $this->candidateId,
-                'action' => 'Insert',
-                'description' => "Observation memo generated.",
+                'action' => 'Generate',
+                'description' => "The observation memo has been generated successfully.",
                 'old_data' => null,
                 'new_data' => json_encode([
                     'status' => $update->status,
@@ -440,10 +442,17 @@ class CandidateDocumentPreview extends Component
         $pdf = Pdf::loadView('pdf.observation_memo', $data)
             ->setPaper('A4', 'portrait');
 
+        $filename = str_replace(' ', '-', $this->assemblyName) .
+            '-observation-memo.pdf';
+
         return response()->streamDownload(
             fn () => print($pdf->output()),
-            "observation_memo.pdf"
+            $filename,
         );
+        // return response()->streamDownload(
+        //     fn () => print($pdf->output()),
+        //     "observation_memo.pdf"
+        // );
     }
 
     public function render()

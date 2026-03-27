@@ -21,7 +21,7 @@ class CandidateJourney extends Component
         }
         
         $this->change_logs = ChangeLog::with('user')->where('module_id', $id)
-            ->orderBy('created_at', 'ASC')
+            ->orderBy('created_at', 'DESC')
             ->get();
 
     }
@@ -89,6 +89,8 @@ class CandidateJourney extends Component
     private function getBadgeColor(ChangeLog $log): string
     {
         switch ($log->action) {
+            case 'Generate':
+                return 'bg-success';
             case 'Insert':
                 return 'bg-success';
             case 'Update':
