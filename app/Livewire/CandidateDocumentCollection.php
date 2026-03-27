@@ -295,37 +295,59 @@ class CandidateDocumentCollection extends Component
 
         if (!$this->sameAsBefore) {
             $rules['newFile'] = 'required';
-            $rules['newFile.*'] = 'file|mimes:pdf,jpg,jpeg,png,gif,bmp,webp,,doc,docx|max:20480';
+            $rules['newFile.*'] = 'file|mimes:pdf,jpg,jpeg,png,gif,bmp,webp,doc,docx|max:20480';
         }
 
         $this->validate($rules);
 
-        //  CUSTOM VALIDATION (PDF vs IMAGES)
+        // CUSTOM VALIDATION
         if (!$this->sameAsBefore) {
 
             $files = is_array($this->newFile) ? $this->newFile : [$this->newFile];
 
             $hasPdf = false;
             $hasImage = false;
+            $hasDoc = false;
 
             foreach ($files as $file) {
                 $ext = strtolower($file->getClientOriginalExtension());
 
                 if ($ext === 'pdf') $hasPdf = true;
-                if (in_array($ext, ['jpg','jpeg','png','gif','bmp','webp'])) $hasImage = true;
+
+                if (in_array($ext, ['jpg','jpeg','png','gif','bmp','webp'])) {
+                    $hasImage = true;
+                }
+
+                if (in_array($ext, ['doc','docx'])) {
+                    $hasDoc = true;
+                }
             }
 
-            if ($hasPdf && $hasImage) {
-                $this->addError('newFile', 'Upload either PDF or images, not both.');
+            //  Mixed file types not allowed
+            if (
+                ($hasPdf && $hasImage) ||
+                ($hasPdf && $hasDoc) ||
+                ($hasDoc && $hasImage)
+            ) {
+                $this->addError('newFile', 'Upload only one type: PDF or Images or Word document.');
                 return;
             }
 
+            //  Only one PDF allowed
             if ($hasPdf && count($files) > 1) {
                 $this->addError('newFile', 'Only one PDF file allowed.');
                 return;
             }
-            if (count($files) > 20) {
-                $this->addError('newFile', 'Too many files. Please upload in smaller batches.');
+
+            //  Only one DOC/DOCX allowed
+            if ($hasDoc && count($files) > 1) {
+                $this->addError('newFile', 'Only one Word document allowed.');
+                return;
+            }
+
+            //  Max 20 images
+            if ($hasImage && count($files) > 20) {
+                $this->addError('newFile', 'Too many images. Max 20 allowed.');
                 return;
             }
         }
@@ -396,15 +418,17 @@ class CandidateDocumentCollection extends Component
                         ->update(['image' => 'storage/'.$path]);
                 }
 
-                // SINGLE PDF (FAST)
-                elseif (count($files) == 1 && $files[0]->getClientOriginalExtension() == 'pdf') {
+               elseif (
+                    count($files) == 1 && 
+                    in_array($files[0]->getClientOriginalExtension(), ['pdf','doc','docx'])
+                ) {
 
+                    $ext = $files[0]->getClientOriginalExtension();
                     $originalName = pathinfo($files[0]->getClientOriginalName(), PATHINFO_FILENAME);
-                    $filename = "{$originalName}_{$timestamp}.pdf";
+                    $filename = "{$originalName}_{$timestamp}.".$ext;
 
                     $path = $files[0]->storeAs("candidate_docs/{$this->candidateId}", $filename, 'public');
                 }
-
                 //  MULTIPLE IMAGES → QUEUE PDF
                 else {
 

@@ -45,6 +45,7 @@
             @php
                 $extension = strtolower(pathinfo($document->path, PATHINFO_EXTENSION));
                 $fileUrl = asset($document->path);
+                $docTypes = ['doc','docx','xls','xlsx','ppt','pptx','txt','csv','odt','ods','odp'];
             @endphp
 
             <div class="card shadow-sm border-0">
@@ -62,7 +63,12 @@
                         <iframe src="{{ $fileUrl }}" 
                                 style="width:100%; height:600px; border:none;" 
                                 frameborder="0"></iframe>
+                    @elseif(in_array($extension, $docTypes))
 
+                            <iframe 
+                                src="https://docs.google.com/gview?url={{ urlencode($fileUrl) }}&embedded=true"
+                                width="100%" style="border:none; height:600px">
+                            </iframe>
                     {{-- 📊 If CSV or TXT --}}
                     @elseif(in_array($extension, ['csv', 'txt']))
                         <div class="bg-light p-3 rounded border text-start">
