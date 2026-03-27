@@ -39,22 +39,19 @@
                     <div class="row justify-content-end align-items-center">
                         <!-- District filter -->
                         <div class="col-md-3 mb-4 mb-md-0" wire:ignore>
-                            <select wire:model="district_id" class="form-select form-control form-select-sm chosen-select"  data-placeholder="Select Assembly">
+                            <select id="districtSelect" class="form-select form-control form-select-sm">
                                 <option value="">{{ __('admin/assemblies.filter_district') }}</option>
                                 @foreach($districts as $district)
-                                    <option value="{{ $district->id }}">{{ app()->getLocale() === 'bn' ? $district->name_bn : $district->name_en }}</option>
+                                    <option value="{{ $district->id }}">
+                                        {{ app()->getLocale() === 'bn' ? $district->name_bn : $district->name_en }}
+                                    </option>
                                 @endforeach
                             </select>
-                            @error('district_id') 
-                                <small class="text-danger">{{ $message }}</small> 
-                            @enderror
                         </div>
-                        <div class="col-md-3 mb-4 mb-md-0" wire:ignore>
-                            <select wire:model="filter_by_employee"
-                                    class="form-select form-control form-select-sm chosen-select">
-                                
-                                <option value="">Filter by Employee</option>
 
+                        <div class="col-md-3 mb-4 mb-md-0" wire:ignore>
+                            <select id="employeeSelect" class="form-select form-control form-select-sm">
+                                <option value="">Filter by Employee</option>
                                 @foreach($employees as $emp)
                                     <option value="{{ $emp->id }}">{{ $emp->name }}</option>
                                 @endforeach
@@ -311,209 +308,163 @@
     </div>
 
     @push('scripts')
-        <script>
-            window.addEventListener('toastr:success', event => toastr.success(event.detail.message));
-            window.addEventListener('toastr:error', event => toastr.error(event.detail.message));
-        </script>
-        <script>
-            
-            window.addEventListener('ResetForm', event => {
-                document.querySelectorAll('input, textarea, select').forEach(el => el.value = '');
-                const chosen = $('.chosen-select');
-                if (chosen.length) {
-                    chosen.val('').trigger('chosen:updated');
-                    $('.chosen-single span').text('Filter by district');
-                }
-            });
-        </script>
-        <link rel="stylesheet" href="{{ asset('assets/css/component-chosen.css') }}">
-        <script src="{{ asset('assets/js/chosen.jquery.js') }}"></script>
-        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-        <script>
-           function initChosen() {
-                $('.chosen-select').chosen({
-                    width: '100%',
-                    no_results_text: "No result found"
-                }).off('change').on('change', function () {
-                    let model = $(this).attr('wire:model');
 
-                    if (model) {
-                        @this.set(model, $(this).val());
-                    }
-                });
-            }
+    <!-- ✅ jQuery (ONLY ONCE in whole project) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
+    <!-- ✅ Local Select2 -->
+    <link href="{{ asset('assets/css/select2.min.css') }}" rel="stylesheet">
+    <script src="{{ asset('assets/js/select2.min.js') }}"></script>
 
+    <!-- ✅ SweetAlert -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-            document.addEventListener("livewire:navigated", () => {
-                initChosen();
-            });
+    <script>
+    console.log("jQuery:", typeof $);
+    console.log("Select2:", typeof $.fn.select2);
+    </script>
 
-            Livewire.hook('morph.updated', ({ el, component }) => {
-                initChosen();
-                //  After re-init, sync the Livewire value back to Chosen
-                $('.chosen-select').each(function () {
-                    const el = $(this);
-                    const model = el.attr('wire:model');
-                    if (model && @this.get(model)) {
-                        el.val(@this.get(model)).trigger('chosen:updated');
-                    }
-                });
-            });
+    <script>
+    function initSelect2() {
 
-            Livewire.hook('morph.updated', () => {
-                initChosen();
+        // 🔥 Destroy old instances (important for Livewire)
+        if ($('#districtSelect').hasClass("select2-hidden-accessible")) {
+            $('#districtSelect').select2('destroy');
+        }
 
-                setTimeout(() => {
-                    $('.chosen-select').trigger('chosen:updated');
-                }, 200);
-            });
+        if ($('#employeeSelect').hasClass("select2-hidden-accessible")) {
+            $('#employeeSelect').select2('destroy');
+        }
 
-            $(document).ready(function () {
-                initChosen();
-            });
+        // ✅ Initialize Select2
+        $('#districtSelect').select2({
+            width: '100%',
+            placeholder: "Filter by District",
+            allowClear: true
+        });
 
-            window.addEventListener('openUpdateModel', (event) => {
-                $('#assembly_name_en').val(event.detail[0].assembly_name_en);
-                $('#assembly_name_bn').val(event.detail[0].assembly_name_bn);
+        $('#employeeSelect').select2({
+            width: '100%',
+            placeholder: "Filter by Employee",
+            allowClear: true
+        });
 
-                $('#updateModal').modal('show');
-            });
+        // ✅ Sync with Livewire
+        $('#districtSelect').off('change').on('change', function () {
+            @this.set('district_id', $(this).val());
+        });
 
-            window.addEventListener('closeUpdateModel', () => {
-                $('#updateModal').modal('hide');
-            });
-        </script>
+        $('#employeeSelect').off('change').on('change', function () {
+            @this.set('filter_by_employee', $(this).val());
+        });
+    }
 
-        <script>
-            window.addEventListener('openAssignModal', () => {
-                $('#assignModal').modal('show');
-
-                setTimeout(() => {
-                    $('.chosen-select').trigger('chosen:updated');
-                }, 300);
-            });
-            window.addEventListener('closeAssignModal', () => {
-                $('#assignModal').modal('hide');
-            });
-
-           window.addEventListener('refreshChosen', () => {
-                setTimeout(() => {
-                    $('.chosen-select').each(function () {
-                        let el = $(this);
-                        let model = el.attr('wire:model');
-
-                        if (model) {
-                            let value = @this.get(model);
-                            el.val(value).trigger('chosen:updated'); // single value
-                        }
-                    });
-                }, 200);
-            });
-        </script>
-        <script>
-            function confirmSave() {
-                Swal.fire({
-                    title: "Are you sure?",
-                    text: "Do you want to save this assignment?",
-                    icon: "question",
-                    showCancelButton: true,
-                    confirmButtonColor: "#198754",
-                    cancelButtonColor: "#d33",
-                    confirmButtonText: "Yes, Save"
-                }).then((result) => {
-
-                    if (result.isConfirmed) {
-
-                        //  SHOW LOADER
-                        Swal.fire({
-                            title: "Please wait...",
-                            text: "Saving & sending email",
-                            allowOutsideClick: false,
-                            allowEscapeKey: false,
-                            showConfirmButton: false,
-                            didOpen: () => {
-                                Swal.showLoading();
-                            }
-                        });
-
-                        @this.call('saveAssignments');
-                    }
-
-                });
-            }
-
-            //  SUCCESS
-            window.addEventListener('assignment-success', event => {
-                Swal.close(); //  CLOSE LOADER
-
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Success',
-                    text: event.detail.message
-                });
-            });
-
-            // ⚠ WARNING
-            window.addEventListener('assignment-warning', event => {
-                Swal.close(); //  CLOSE LOADER
-
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Warning',
-                    text: event.detail.message
-                });
-            });
-
-            // ❌ ERROR
-            window.addEventListener('assignment-error', event => {
-                Swal.close(); // 🔥 CLOSE LOADER
-
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: event.detail.message
-                });
-            });
-            </script>
-            <script>
-                window.addEventListener('closeSwal', () => {
-                    Swal.close();
-                });
-            </script>
-
-
-<script>
-// Responsive Chosen Fix
-function fixResponsiveChosen() {
-    $('.chosen-select').each(function() {
-        var $this = $(this);
-        var $container = $this.next('.chosen-container');
-        
-        // Set width to match parent
-        $container.css('width', $this.parent().width());
-        
-        // Fix dropdown width
-        $container.find('.chosen-drop').css('width', '100%');
+    // ✅ First Load
+    document.addEventListener("DOMContentLoaded", function () {
+        initSelect2();
     });
-}
 
-// Call on load
-$(document).ready(function() {
-    $('.chosen-select').chosen({
-        width: '100%',
-        disable_search_threshold: 10
+    // ✅ After Livewire Update
+    Livewire.hook('morph.updated', () => {
+
+        initSelect2();
+
+        // 🔄 Sync Livewire → UI
+        $('#districtSelect').val(@this.get('district_id')).trigger('change.select2');
+        $('#employeeSelect').val(@this.get('filter_by_employee')).trigger('change.select2');
     });
-    
-    fixResponsiveChosen();
-});
+    </script>
 
-// Call on resize
-$(window).on('resize', function() {
-    fixResponsiveChosen();
-    $('.chosen-select').trigger('chosen:updated');
-});
-</script>
+    <!-- ✅ Toastr -->
+    <script>
+    window.addEventListener('toastr:success', event => toastr.success(event.detail.message));
+    window.addEventListener('toastr:error', event => toastr.error(event.detail.message));
+    </script>
+
+    <!-- ✅ Reset Form -->
+    <script>
+    window.addEventListener('ResetForm', () => {
+        $('#districtSelect').val(null).trigger('change');
+        $('#employeeSelect').val(null).trigger('change');
+    });
+    </script>
+
+    <!-- ✅ Modal -->
+    <script>
+    window.addEventListener('openAssignModal', () => {
+        $('#assignModal').modal('show');
+    });
+
+    window.addEventListener('closeAssignModal', () => {
+        $('#assignModal').modal('hide');
+    });
+    </script>
+
+    <!-- ✅ SweetAlert -->
+    <script>
+    function confirmSave() {
+        Swal.fire({
+            title: "Are you sure?",
+            text: "Do you want to save this assignment?",
+            icon: "question",
+            showCancelButton: true,
+            confirmButtonColor: "#198754",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, Save"
+        }).then((result) => {
+
+            if (result.isConfirmed) {
+
+                Swal.fire({
+                    title: "Please wait...",
+                    text: "Saving & sending email",
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    showConfirmButton: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+                @this.call('saveAssignments');
+            }
+        });
+    }
+
+    // SUCCESS
+    window.addEventListener('assignment-success', event => {
+        Swal.close();
+        Swal.fire({
+            icon: 'success',
+            title: 'Success',
+            text: event.detail.message
+        });
+    });
+
+    // WARNING
+    window.addEventListener('assignment-warning', event => {
+        Swal.close();
+        Swal.fire({
+            icon: 'warning',
+            title: 'Warning',
+            text: event.detail.message
+        });
+    });
+
+    // ERROR
+    window.addEventListener('assignment-error', event => {
+        Swal.close();
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: event.detail.message
+        });
+    });
+
+    window.addEventListener('closeSwal', () => {
+        Swal.close();
+    });
+    </script>
 
     @endpush
 
