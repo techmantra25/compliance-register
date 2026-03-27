@@ -877,9 +877,10 @@ header button {
 }
 
 .chat-bubble {
-    max-width: 75%;
+    max-width: 100%;
     padding: 10px 12px;
     border-radius: 12px;
+    width:100%;
 }
 
 .chat-bubble.me {
@@ -899,6 +900,50 @@ header button {
   font-weight: 600;
   color: #198754;
   display: none;
+}
+
+.form-check input[type="checkbox"] {
+    border-color: #727272 !important;
+    width: 15px;
+    height: 15px;
+}
+
+.check-list {
+    display: flex;
+    flex-direction: column;
+    font-size: 13px;
+    line-height: 17px;
+}
+
+.s0-heading {
+    font-size: 16px;
+    font-weight: 600;
+    color: #2caa2c;
+    margin-bottom: 17px;
+}
+
+.box-written {
+    height: 327px;
+}
+
+.box-written .cke_chrome {
+    height:100%;
+    overflow-y: scroll;
+}
+
+.preview-list {
+    flex-wrap: wrap;
+}
+
+.preview-list button {
+    font-size: 13px;
+    color: #017601;
+    display: inline-block;
+    border: 1px solid #12a012;
+    border-radius: 4px;
+    padding: 7px;
+    width: fit-content;
+    background: #f5fff5;
 }
 
 /*-----responsive----*/
@@ -968,6 +1013,10 @@ header button {
     .pagination {
         flex-wrap: wrap;
         gap: 10px;
+    }
+
+    .title-text {
+        font-size: 13px;
     }
 
 }
