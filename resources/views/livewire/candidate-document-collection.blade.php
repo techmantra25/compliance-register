@@ -504,7 +504,7 @@
                                                         {{-- Attached With --}}
                                                         <div>
                                                             <i class="bi bi-link-45deg me-1 text-danger"></i>
-                                                            @if($doc['attached_with_slug']=="documents_not_required" || $doc['attached_with_slug']=='documents_required')
+                                                            @if($doc['attached_with_slug']=="documents_not_required" || $doc['attached_with_slug']=='documents_required' || $doc['attached_with_slug']=='documents_not_received')
                                                                 <strong>Remarks:</strong>
                                                             @else
                                                             <strong>Attached With:</strong>

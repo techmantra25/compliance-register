@@ -241,7 +241,7 @@ class CandidateDocumentCollection extends Component
     protected function remainDocuments(){
         $skippedDocs = CandidateDocument::where('candidate_id', $this->candidateId)->where('status', 'Skipped')->pluck('type')->toArray();
         $allDocs = CandidateDocumentType::whereNotIn('key', $skippedDocs)->pluck('name','key')->toArray();
-        $allDocs = ['documents_required'=>'Documents Required', 'documents_not_required' => 'Documents Not Required'] + $allDocs;
+        $allDocs = ['documents_not_received'=>'Documents Not Received', 'documents_required'=>'Documents Required', 'documents_not_required' => 'Documents Not Required'] + $allDocs;
         return $allDocs;
     }
 
