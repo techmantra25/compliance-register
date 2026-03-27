@@ -295,7 +295,7 @@ class CandidateDocumentCollection extends Component
 
         if (!$this->sameAsBefore) {
             $rules['newFile'] = 'required';
-            $rules['newFile.*'] = 'file|mimes:pdf,jpg,jpeg,png,gif,bmp,webp|max:20480';
+            $rules['newFile.*'] = 'file|mimes:pdf,jpg,jpeg,png,gif,bmp,webp,,doc,docx|max:20480';
         }
 
         $this->validate($rules);
