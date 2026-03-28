@@ -366,8 +366,8 @@
                             </div>
 
                             <div class="form-check mb-3">
-                                <input class="form-check-input" type="checkbox" id="obs4" onchange="updateObservation()" {{ !$canEditObservation ? 'disabled' : '' }} {{ in_array('No due certificate received', $selectedObservations ?? []) ? 'checked' : '' }}>
-                                <label class="form-check-label" for="obs4">No due certificate received</label>
+                                <input class="form-check-input" type="checkbox" id="obs4" onchange="updateObservation()" {{ !$canEditObservation ? 'disabled' : '' }} {{ in_array('No due certificate not received', $selectedObservations ?? []) ? 'checked' : '' }}>
+                                <label class="form-check-label" for="obs4">No due certificate not received</label>
                             </div>
 
                             <div class="form-check mb-3">
@@ -607,7 +607,7 @@
         }
 
         if (document.getElementById('obs4').checked) {
-            observations.push("No due certificate received");
+            observations.push("No due certificate not received");
         }
 
         if (document.getElementById('obs5').checked) {
@@ -667,7 +667,7 @@
         }
 
         if (document.getElementById('obs4').checked) {
-            observations.push("No due certificate received");
+            observations.push("No due certificate not received");
         }
 
         if (document.getElementById('obs5').checked) {

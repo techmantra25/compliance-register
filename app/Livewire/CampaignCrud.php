@@ -390,7 +390,7 @@ class CampaignCrud extends Component
     public function resetForm(){
         $this->reset('campaignerFile');
         $this->dispatch('close-modal', ['modalId' => 'uploadcampaignerModal']);
-        $this->dispatch('reset-file-input');
+        $this->dispatch('reset-file-input');    
     }
 
      private function isValidStatusChange($current, $new)
