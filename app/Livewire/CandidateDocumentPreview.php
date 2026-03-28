@@ -34,6 +34,9 @@ class CandidateDocumentPreview extends Component
     public $observation_description;
     public $observation_others_description;
     public $selectedObservations = [];
+    public $is_active_observation_whatsapp = 0;
+    public $whatsapp_receiver = [];
+    public $all_whatsapp_receiver = [];
 
      public function mount(Request $request)
     {
@@ -52,7 +55,7 @@ class CandidateDocumentPreview extends Component
         if ($version_id) {
             $versionData = CandidateObservationStep::where('candidate_id', $candidate->id)
                 ->where('version', $version_id)
-                ->first();
+                ->firstOrFail();
         }
 
         
@@ -150,6 +153,263 @@ class CandidateDocumentPreview extends Component
         $this->ChangeDocument($firstKey, $this->version_index);
     }
 
+    public function closeWhatsappModal()
+    {
+        $this->is_active_observation_whatsapp = 0;
+    }
+    public function openWhatsappModal()
+    {
+        $admins = $this->getActiveAdminsWithMobile();
+        $this->all_whatsapp_receiver = $admins->map(function ($admin) {
+            return [
+                'name'   => ucwords($admin->name),
+                'mobile' => $admin->mobile,
+                'role' => ucwords(str_replace('_', ' ', $admin->role)),
+            ];
+        })->values()->toArray(); // ensures proper indexing
+        $this->whatsapp_receiver = $this->all_whatsapp_receiver;
+        $this->is_active_observation_whatsapp = 1;
+    }
+
+    public function toggleReceiver($index)
+    {
+        $user = $this->all_whatsapp_receiver[$index];
+
+        $exists = collect($this->whatsapp_receiver)
+            ->contains(fn($item) => $item['mobile'] === $user['mobile']);
+
+        if ($exists) {
+            // Remove
+            $this->whatsapp_receiver = array_values(array_filter(
+                $this->whatsapp_receiver,
+                fn($item) => $item['mobile'] !== $user['mobile']
+            ));
+        } else {
+            // Add
+            $this->whatsapp_receiver[] = $user;
+        }
+    }
+
+    public function sendObservationWhatsapp()
+    {
+        if (count($this->whatsapp_receiver) > 0) {
+
+            $apiDomainUrl  = config('whatsapp.api_domain_url');
+            $apiVersion    = config('whatsapp.api_version');
+            $channelNumber = config('whatsapp.channel_number');
+            $apiKey        = config('whatsapp.api_key');
+            $apiEndPoint   = config('whatsapp.api_end_point');
+
+            $apiUrl = "{$apiDomainUrl}/{$apiVersion}/{$channelNumber}/{$apiEndPoint}";
+
+            // Generate PDF once
+            $url = $this->generateObservationMemoPdf();
+            $filename = basename($url);
+
+            $success = false;
+
+            foreach ($this->whatsapp_receiver as $item) {
+
+                // =========================
+                // VARIABLES
+                // =========================
+                $var1 = $item['name']; // Receiver name
+                $var2 = auth('admin')->user()->name; // Sender name
+                $var3 = $this->candidateName;
+                $var4 = $this->assemblyName;
+
+                // =========================
+                // MOBILE FORMAT
+                // =========================
+                $mobile = preg_replace('/\D/', '', $item['mobile']);
+                $recipientPhone = '91' . substr($mobile, -10);
+
+                // =========================
+                // PAYLOAD
+                // =========================
+                $payload = [
+                    "messaging_product" => "whatsapp",
+                    "recipient_type" => "individual",
+                    "to" => $recipientPhone,
+                    "type" => "template",
+                    "template" => [
+                        "name" => "observation_memo",
+                        "language" => [
+                            "code" => "en"
+                        ],
+                        "components" => [
+                            [
+                                "type" => "header",
+                                "parameters" => [
+                                    [
+                                        "type" => "document",
+                                        "document" => [
+                                            "link" => $url,
+                                            "filename" => $filename
+                                        ]
+                                    ]
+                                ]
+                            ],
+                            [
+                                "type" => "body",
+                                "parameters" => [
+                                    ["type" => "text", "text" => $var1],
+                                    ["type" => "text", "text" => $var2],
+                                    ["type" => "text", "text" => $var3],
+                                    ["type" => "text", "text" => $var4],
+                                ]
+                            ]
+                        ]
+                    ],
+                    "biz_opaque_callback_data" => "observation_memo_{$this->candidateId}"
+                ];
+
+                // =========================
+                // CURL REQUEST
+                // =========================
+                $ch = curl_init();
+
+                curl_setopt_array($ch, [
+                    CURLOPT_URL => $apiUrl,
+                    CURLOPT_RETURNTRANSFER => true,
+                    CURLOPT_POST => true,
+                    CURLOPT_HTTPHEADER => [
+                        "Authorization: Bearer {$apiKey}",
+                        "Content-Type: application/json",
+                    ],
+                    CURLOPT_POSTFIELDS => json_encode($payload),
+                ]);
+
+                $response = curl_exec($ch);
+                $error    = curl_error($ch);
+
+                curl_close($ch);
+
+                // =========================
+                // ERROR HANDLE
+                // =========================
+                if ($error) {
+                    \Log::error("WhatsApp CURL Error: " . $error);
+                    continue;
+                }
+
+                $responseData = json_decode($response, true);
+
+                // =========================
+                // SUCCESS CHECK
+                // =========================
+                if (isset($responseData['messages'])) {
+                    $success = true;
+                }
+
+                // =========================
+                // LOG RESPONSE
+                // =========================
+                \Log::info('WhatsApp Response', [
+                    'phone' => $recipientPhone,
+                    'response' => $responseData
+                ]);
+            }
+
+            // =========================
+            // FINAL RESPONSE
+            // =========================
+            if ($success) {
+                // =========================
+                // LOG ENTRY
+                // =========================
+                logChange([
+                    'module_name' => 'Observation Memo',
+                    'module_id' => $this->candidateId,
+                    'action' => 'Send WhatsApp',
+                    'description' => "Observation memo sent successfully via WhatsApp.",
+                    'old_data' => json_encode([]),
+                    'new_data' => json_encode([
+                        'version'   => $this->version_index,
+                        'sender'    => auth('admin')->user()->name,
+                        'receivers' => json_encode(
+                            collect($this->whatsapp_receiver)->map(function ($item) {
+                                return [
+                                    'name'   => $item['name'],
+                                    'mobile' => $item['mobile'],
+                                    'role'   => $item['role'] ?? null,
+                                ];
+                            })->values()->toArray()
+                        ),
+                    ]),
+                    'document_name' => 'Observation Memo',
+                ]);
+                $this->dispatch(
+                    'toastr:success',
+                    message: 'Acknowledgement generated successfully!'
+                );
+
+                return redirect()->route(
+                    'admin.candidates.documents.preview',
+                    [
+                        'candidate' => $this->candidateId,
+                        'version'   => $this->version_index
+                    ]
+                );
+            } else {
+                $this->dispatch(
+                    'toastr:error',
+                    message: 'Failed to send WhatsApp messages. Please try again.'
+                );
+            }
+
+        } else {
+            $this->dispatch(
+                'toastr:error',
+                message: 'Please select at least one recipient to send WhatsApp.'
+            );
+            return true;
+        }
+    }
+
+    public function generateObservationMemoPdf()
+    {
+        $candidate = Candidate::findOrFail($this->candidateId);
+
+        // Calculate adjusted nomination date (excluding Sundays)
+        $hoursToSubtract = 48;
+        $nominationDate = \Carbon\Carbon::parse($this->nomination_date);
+
+        while ($hoursToSubtract > 0) {
+            $nominationDate->subHour();
+
+            if (!$nominationDate->isSunday()) {
+                $hoursToSubtract--;
+            }
+        }
+
+        $nominationDate->setTime(15, 0, 0);
+
+        $data = [
+            'candidateName'   => $this->candidateName,
+            'employeeCode'    => $this->employeeCode,
+            'assemblyName'    => $this->assemblyName,
+            'examinationDate' => $this->versionData->created_at,
+            'nomination_date' => $nominationDate,
+            'observations'    => $this->observation_description,
+            'others'          => $this->observation_others_description,
+            'authorizedBy'    => auth('admin')->user()->name,
+        ];
+
+        $pdf = Pdf::loadView('pdf.observation_memo', $data)
+            ->setPaper('A4', 'portrait');
+
+        // filename
+        $filename = str_replace(' ', '-', $this->assemblyName) . '-observation-memo.pdf';
+
+        // storage path
+        $path = "candidate_docs/{$this->candidateId}/" . $filename;
+        // save file
+        \Storage::disk('public')->put($path, $pdf->output());
+
+        // return public URL (for WhatsApp or anywhere)
+        return asset('storage/' . $path);
+    }
     public function saveObservations($observations)
     {
         Candidate::where('id', $this->candidateId)->update([
@@ -299,6 +559,14 @@ class CandidateDocumentPreview extends Component
         }
     }
 
+    private function getActiveAdminsWithMobile()
+    {
+        return Admin::where('suspended_status', 1)
+            ->whereIn('role', ['admin', 'legal_associate'])
+            ->whereNotNull('mobile')
+            ->where('mobile', '!=', '')
+            ->get();
+    }
     private function SendWhatsapp($candidate_id){
 
         $candidate = Candidate::findOrFail($candidate_id);
@@ -313,11 +581,7 @@ class CandidateDocumentPreview extends Component
         $apiUrl = "{$apiDomainUrl}/{$apiVersion}/{$channelNumber}/{$apiEndPoint}";
 
         // get all Admin & legal associate
-        $admins = Admin::where('suspended_status', 1)
-        ->whereIn('role', ['admin', 'legal_associate'])
-        ->whereNotNull('mobile')
-        ->where('mobile', '!=', '')
-        ->get();
+        $admins = $this->getActiveAdminsWithMobile();
 
         $url = $this->generateAcknowledgementPdf();
         foreach ($admins as $key => $item) {
@@ -600,10 +864,6 @@ class CandidateDocumentPreview extends Component
             fn () => print($pdf->output()),
             $filename,
         );
-        // return response()->streamDownload(
-        //     fn () => print($pdf->output()),
-        //     "observation_memo.pdf"
-        // );
     }
 
     public function render()
