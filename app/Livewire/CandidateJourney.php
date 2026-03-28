@@ -60,6 +60,7 @@ class CandidateJourney extends Component
     // Helper to determine the timeline entry details
     private function getLogDetails(ChangeLog $log): string
     {
+
         if ($log->action === 'Verification Update') {
             preg_match('/status updated to (\w+)/', $log->description, $matches);
             $status = $matches[1] ?? 'Updated';
@@ -72,7 +73,7 @@ class CandidateJourney extends Component
 
             return $log->description . ' (No effective data change detected in log data)';
 
-        } elseif ($log->module_name === 'Document' && in_array($log->action, ['Uploaded', 'Re-Uploaded'])) {
+        } elseif ($log->module_name === 'Candidate Document' && in_array($log->action, ['Uploaded', 'Re-Uploaded'])) {
 
             // ✅ Add clickable link
             $link = $log->link 

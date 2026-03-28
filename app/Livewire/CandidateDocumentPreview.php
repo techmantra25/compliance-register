@@ -803,7 +803,7 @@ class CandidateDocumentPreview extends Component
             $update->save();
 
             logChange([
-                'module_name' => 'Observation Memo generated',
+                'module_name' => 'Observation Memo',
                 'module_id' => $this->candidateId,
                 'action' => 'Generate',
                 'description' => "The observation memo has been generated successfully.",
