@@ -11,6 +11,11 @@
 .text-primary { 
     color: var(--primary-color) !important;
 }
+.btn-check:checked+.btn, .btn.active, .btn.show, .btn:first-child:active, :not(.btn-check)+.btn:active {
+    color: var(--primary-color) !important;
+    background-color: var(--primary-color) !important;
+    border-color: var(--primary-color);
+}
 
 /* ---------- BACKGROUND ---------- */
 .bg-primary {
@@ -902,12 +907,6 @@ header button {
   display: none;
 }
 
-.form-check input[type="checkbox"] {
-    border-color: #727272 !important;
-    width: 15px;
-    height: 15px;
-}
-
 .check-list {
     display: flex;
     flex-direction: column;
@@ -920,6 +919,12 @@ header button {
     font-weight: 600;
     color: #2caa2c;
     margin-bottom: 17px;
+}
+
+.check-list .form-check input[type="checkbox"] {
+  border-color: #727272 !important;
+  width: 15px;
+  height: 15px;
 }
 
 .box-written {
@@ -945,6 +950,82 @@ header button {
     width: fit-content;
     background: #f5fff5;
 }
+
+
+.light-bg-blue {
+    background: #49beff1a;
+}
+
+        .attachment-wrapper {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            flex-direction:column;
+        }
+
+        .attachment-card {
+            position: relative;
+            border: 1px solid #e5e5e5;
+            border-radius: 10px;
+            padding:4px;
+            width: 100%;
+            background: #fafafa;
+        }
+
+        .attachment-content {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .attachment-img {
+            width: 30px;
+            height: 30px;
+            object-fit: cover;
+            border-radius: 6px;
+        }
+
+        .file-icon {
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f1f1f1;
+            border-radius: 6px;
+            font-size: 20px;
+        }
+
+        .file-info {
+            flex: 1;
+        }
+
+        .file-name {
+            font-size: 13px;
+            font-weight: 600;
+            margin-top:0;
+        }
+
+        .file-size {
+            font-size: 11px;
+            color: #777;
+        }
+
+        .remove-btn {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            background: #ff4d4f;
+            color: white;
+            width: 18px;
+            height: 18px;
+            font-size: 11px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
 
 /*-----responsive----*/
 
