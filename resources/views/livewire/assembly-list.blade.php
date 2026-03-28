@@ -1,7 +1,7 @@
 <div>
-    <div class="row g-4">
+    <div class=" g-4">
         <!-- Header -->
-       <div class="row justify-content-between align-items-center pt-4">
+       <div class="row justify-content-between align-items-center mb-3">
 
         <div class="col-md col-lg">
             <div class="mb-4 mb-md-0">
@@ -24,8 +24,8 @@
             </div>
         </div>
 
-        <div class="col-md text-start text-md-end col-lg">
-            <button class="btn btn-sm btn-success" wire:click="exportCsv">
+        <div class="col-md text-end col-lg">
+            <button class="btn btn-md btn-success" wire:click="exportCsv">
                 Export CSV
             </button>
         </div>
@@ -34,12 +34,30 @@
 
         <div class="col-lg-12">
             <div class="card shadow-sm border-0 p-3">
-                <div class="card-header bg-white">
+
+                <div class="row justify-content-center mb-4">
+                    <div class="col-md-12 col-lg-6">
+                        <div class="canditate-search">
+
+                            <input type="text"
+                            wire:model="search"
+                            class="form-control form-control-md"
+                            placeholder="{{ __('admin/assemblies.search_placeholder') }}"
+                            wire:keyup="filterData($event.target.value)">
+
+                            <span>
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-search"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white mb-4">
                     <!-- <h5 class="fw-bold mb-0">{{ __('admin/assemblies.list_title') }}</h5> -->
-                    <div class="row justify-content-end align-items-center">
+                    <div class="row justify-content-center align-items-center">
                         <!-- District filter -->
                         <div class="col-md-3 mb-4 mb-md-0" wire:ignore>
-                            <select id="districtSelect" class="form-select form-control form-select-sm">
+                            <select id="districtSelect" class="form-select form-control form-select-md">
                                 <option value="">{{ __('admin/assemblies.filter_district') }}</option>
                                 @foreach($districts as $district)
                                     <option value="{{ $district->id }}">
@@ -50,7 +68,7 @@
                         </div>
 
                         <div class="col-md-3 mb-4 mb-md-0" wire:ignore>
-                            <select id="employeeSelect" class="form-select form-control form-select-sm">
+                            <select id="employeeSelect" class="form-select form-control form-select-md">
                                 <option value="">Filter by Employee</option>
                                 @foreach($employees as $emp)
                                     <option value="{{ $emp->id }}">{{ $emp->name }}</option>
@@ -58,18 +76,10 @@
                             </select>
                         </div>
 
-                        <div class="col-md-4 mb-4 mb-md-0">
-                            <input type="text"
-                            wire:model="search"
-                            class="form-control form-control-sm"
-                            placeholder="{{ __('admin/assemblies.search_placeholder') }}"
-                            wire:keyup="filterData($event.target.value)">
-                        </div>
-
-                        <div class="col-auto text-right">
-                        <button class="btn btn-sm btn-danger ms-2" wire:click="resetFilters">
-                            <i class="bi bi-x"></i> {{ __('admin/assemblies.reset_button') }}
-                        </button>
+                        <div class="col-12 col-md-auto text-md-right">
+                            <button class="btn btn-sm btn-danger" wire:click="resetFilters">
+                                <i class="bi bi-x"></i> {{ __('admin/assemblies.reset_button') }}
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -78,7 +88,7 @@
                 <!-- Table -->
                 <div class="card-body p-0">
                     <div class="table-responsive">
-                        <table class="table mb-0 align-middle mobile-table">
+                        <table class="table mb-0 align-middle">
                             <thead class="table-light">
                                 <tr>
                                     <th>#</th>
@@ -96,32 +106,26 @@
                                 @forelse ($assemblies as $assembly)
                                     <tr wire:key="assembly-{{ $assembly->id }}">
                                         <td>
-                                            <h6 class="responsive-title">#</h6>
                                             {{ $assemblies->firstItem() + $loop->index }}
                                         </td>
                                         <td>
-                                            <h6 class="responsive-title">Assembly Code</h6>
                                             {{ $assembly->assembly_code }}
                                         </td>
 
                                         <!-- Dynamic name based on locale -->
                                         <td>
-                                            <h6 class="responsive-title">Assembly (EN)</h6>
                                             {{ app()->getLocale() === 'bn' ? $assembly->assembly_name_bn : $assembly->assembly_name_en }}
                                         </td>
                                         <td>
-                                            <h6 class="responsive-title">Assembly (BN)</h6>
                                             {{ $assembly->assembly_name_bn }}
                                         </td>
 
                                         <td>
-                                            <h6 class="responsive-title">District</h6>
                                             {{ app()->getLocale() === 'bn' 
                                                 ? ($assembly->district->name_bn ?? 'N/A') 
                                                 : ($assembly->district->name_en ?? 'N/A') }}
                                         </td>
                                         <td>
-                                            <h6 class="responsive-title">Candidates</h6>
                                             @if($assembly->candidates->count())
                                                 <ul class="mb-0 ps-3">
                                                     @foreach($assembly->candidates as $candidate)
@@ -133,7 +137,6 @@
                                             @endif
                                         </td>
                                         <td>
-                                            <h6 class="responsive-title">Status</h6>
                                             <div class="tooltip-wrapper m-1">
                                                 <span class="badge bg-{{ $assembly->status == 'active' ? 'success' : 'secondary' }}">
                                                     {{ $assembly->status == 'active' 
@@ -143,7 +146,6 @@
                                             </div>
                                         </td>
                                         <td>
-                                            <h6 class="responsive-title">Assigned To</h6>
                                             @php
                                                 $employee = $this->getAssignedEmployee($assembly->id);
                                             @endphp
@@ -157,7 +159,6 @@
                                             @endif
                                         </td>
                                         <td>
-                                            <h6 class="responsive-title">Action</h6>
                                             <div class="tooltip-wrapper m-1">
                                                 {{-- <button class="btn btn-sm btn-outline-success" wire:click="editItem({{$assembly->id}})">
                                                     <i class="bi bi-pencil"></i>
@@ -278,7 +279,7 @@
                 <div class="modal-body">
                     <label class="form-label">Select Employees</label>
                     <div wire:ignore>
-                        <select class="form-control chosen-select" wire:model="assignedEmployee">
+                        <select id="assignEmployeeSelect" class="form-control" wire:model="assignedEmployee">
                             <option value="">Select Employee</option>
                            @foreach($employees as $emp)
                                 @php
@@ -327,6 +328,11 @@
     <script>
     function initSelect2() {
 
+        // Destroy old instances
+        if ($('#assignEmployeeSelect').hasClass("select2-hidden-accessible")) {
+            $('#assignEmployeeSelect').select2('destroy');
+        }
+
         // 🔥 Destroy old instances (important for Livewire)
         if ($('#districtSelect').hasClass("select2-hidden-accessible")) {
             $('#districtSelect').select2('destroy');
@@ -346,6 +352,13 @@
         $('#employeeSelect').select2({
             width: '100%',
             placeholder: "Filter by Employee",
+            allowClear: true
+        });
+
+         $('#assignEmployeeSelect').select2({
+            width: '100%',
+            dropdownParent: $('#assignModal'), // 🔥 VERY IMPORTANT for modal
+            placeholder: "Select Employee",
             allowClear: true
         });
 
@@ -372,6 +385,7 @@
         // 🔄 Sync Livewire → UI
         $('#districtSelect').val(@this.get('district_id')).trigger('change.select2');
         $('#employeeSelect').val(@this.get('filter_by_employee')).trigger('change.select2');
+        $('#assignEmployeeSelect').val(@this.get('assignedEmployee')).trigger('change.select2');
     });
     </script>
 
@@ -393,6 +407,10 @@
     <script>
     window.addEventListener('openAssignModal', () => {
         $('#assignModal').modal('show');
+
+         setTimeout(() => {
+            initSelect2(); 
+        }, 300);
     });
 
     window.addEventListener('closeAssignModal', () => {

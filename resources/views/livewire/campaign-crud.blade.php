@@ -1,115 +1,10 @@
 <div>
-   <style>
-        .status-dropdown {
-            background: #f8f9fa;
-            border: 1px solid #dee2e6 !important;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .status-dropdown:hover {
-            background: #eef2f6;
-        }
-        .alert {
-            border-left-width: 4px;
-            border-left-style: solid;
-        }
-        .alert-primary { border-left-color: #0d6efd; }
-        .alert-danger { border-left-color: #dc3545; }
 
-        .file-remove {
-            position: absolute;
-            top: -6px;
-            right: -6px;
-            background: #dc3545;
-            color: #fff;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            font-size: 13px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            z-index: 99;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-        }
-
-        .attachment-wrapper {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            flex-direction:column;
-        }
-
-        .attachment-card {
-            position: relative;
-            border: 1px solid #e5e5e5;
-            border-radius: 10px;
-            padding:4px;
-            width: 100%;
-            background: #fafafa;
-        }
-
-        .attachment-content {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .attachment-img {
-            width: 30px;
-            height: 30px;
-            object-fit: cover;
-            border-radius: 6px;
-        }
-
-        .file-icon {
-            width: 30px;
-            height: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #f1f1f1;
-            border-radius: 6px;
-            font-size: 20px;
-        }
-
-        .file-info {
-            flex: 1;
-        }
-
-        .file-name {
-            font-size: 13px;
-            font-weight: 600;
-            margin-top:0;
-        }
-
-        .file-size {
-            font-size: 11px;
-            color: #777;
-        }
-
-        .remove-btn {
-            position: absolute;
-            top: -6px;
-            right: -6px;
-            background: #ff4d4f;
-            color: white;
-            width: 18px;
-            height: 18px;
-            font-size: 11px;
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-    </style>
-
-    <div class="row g-4">
+    <div class="g-4">
         
-        <div class="d-flex flex-wrap justify-content-between align-items-center">
-            <div class="mb-4 mb-md-0">
+        <div class="row align-items-center mb-4">
+
+            <div class="col-md-6 mb-4 mb-md-0">
                 <h4 class="fw-bold mb-1 text-dark">
                     <i class="bi bi-megaphone-fill me-2 text-primary"></i> Campaigns
                 </h4>
@@ -120,9 +15,9 @@
                     <li class="breadcrumb-item active text-primary">Campaigns</li>
                 </ol>
             </div>
-            <div>
+            <div class="col-md-6 text-end">
                 {{-- @if(childUserAccess(Auth::guard('admin')->user()->id,'campaign_import_campaigner'))
-                <button class="btn btn-secondary btn-sm me-2" data-bs-toggle="modal" data-bs-target="#uploadcampaignerModal">
+                <button class="btn btn-secondary btn-md me-2" data-bs-toggle="modal" data-bs-target="#uploadcampaignerModal">
                     <i class="bi bi-upload me-1"></i> Import Campaigner
                 </button>
                 @endif --}}
@@ -133,6 +28,7 @@
                 </button>
                 @endif
             </div>
+
         </div>
 
 
@@ -140,7 +36,7 @@
         <div class="col-lg-12">
             <div class="card shadow-sm border-0 p-3 ">
 
-                <div class="card-header bg-white">
+                <div class="bg-white">
 
                     <div class="row g-2 mb-4 justify-content-center">
                         <div class="col-md-12 col-lg-6">
@@ -157,7 +53,7 @@
                     <div class="row g-2 mb-2 justify-content-center">
 
                         <div class="col-md-6 col-lg-2" wire:ignore>
-                            <select wire:model="filter_by_assembly" class="form-select chosen-select">
+                            <select id="assemblyFilter" wire:ignore class="form-select">
                                 <option value="">Filter by Assembly</option>
                                 @foreach ($assembly as $assemb)
                                     <option value="{{ $assemb->id }}">
@@ -165,10 +61,11 @@
                                     </option>
                                 @endforeach
                             </select>
+
                         </div>
 
                         <div class="col-md-6 col-lg-2" wire:ignore>
-                            <select wire:model="filter_by_district" class="form-select chosen-select">
+                            <select id="districtFilter" wire:ignore class="form-select">
                                 <option value="">Filter by District</option>
                                 @foreach ($districts as $district)
                                     <option value="{{ $district->id }}">
@@ -179,7 +76,7 @@
                         </div>
 
                         <div class="col-md-6 col-lg-2" wire:ignore>
-                            <select wire:model="filter_by_zone" class="form-select chosen-select">
+                            <select id="zoneFilter" wire:ignore class="form-select">
                                 <option value="">Filter by Zone</option>
                                 @foreach ($zones as $z)
                                     <option value="{{ $z->id }}">{{ $z->name }}</option>
@@ -188,7 +85,7 @@
                         </div>
 
 
-                        <div class="col-md-3 col-lg-2 text-md-center text-end">
+                        <div class="col-md-3 col-lg-2 text-md-end text-start">
                             <button class="btn btn-sm btn-danger"
                                 wire:click="resetFilters">
                                 <i class="bi bi-arrow-clockwise"></i> Reset
@@ -201,7 +98,7 @@
 
                 <div class="card-body p-2">
                     <div class="table-responsive">
-                        <table class="table align-middle mobile-table">
+                        <table class="table align-middle">
 
                             <thead class="table-light">
                                 <tr class="text-center">
@@ -210,7 +107,7 @@
                                     <th class="text-start">Assembly</th>
                                     <th class="text-start">Campaigner</th>
                                     {{-- <th>Permissions</th> --}}
-                                    <th>Action</th>
+                                    <th class="text-start">Action</th>
                                 </tr>
                             </thead>
 
@@ -222,14 +119,11 @@
 
                                     <!-- SL -->
                                     <td class=" fw-bold">
-                                        <h6 class="responsive-title">#</h6>
                                         {{ $campaigns->firstItem() + $index }}
                                     </td>
 
                                     <!-- Campaign Details -->
                                     <td class="text-start">
-                                        <h6 class="responsive-title">Campaign Details</h6>
-
                                         <div class="fw-semibold text-dark mb-1">
                                             <i class="bi bi-megaphone text-primary me-1"></i>
                                             {{ ucwords($camp->event_category_others ?? optional($camp->category)->name ?? 'N/A') }}
@@ -248,7 +142,6 @@
                                     </td>
 
                                     <td> 
-                                        <h6 class="responsive-title">Assembly</h6>
 
                                         <div class="small text-muted mb-1">
                                             @if(optional($camp->assembly)->assembly_name_en)
@@ -260,7 +153,6 @@
 
                                     <!-- Campaigner -->
                                     <td>
-                                        <h6 class="responsive-title">Campaigner</h6>
 
                                         @foreach($camp->campaigners as $campaigner)
 
@@ -321,8 +213,6 @@
 
                                     <!-- Action -->
                                     <td class="">
-
-                                    <h6 class="responsive-title">Action</h6>
 
                                         <div class="btn-group btn-group-sm">
 
@@ -438,7 +328,7 @@
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">Assembly</label>
                                     <div wire:ignore>
-                                        <select class="form-control form-control-sm chosen-select" wire:model="assembly_id">
+                                        <select id="assemblySelect" wire:ignore class="form-control form-control-sm">
                                             <option value="">Select Assembly</option>
                                             @foreach($assembly as $a)
                                                 <option value="{{ $a->id }}" data-code="{{ $a->assembly_code }}"
@@ -494,7 +384,7 @@
                                 <div class="col-md-12 col-lg-6 mb-3">
                                     <div wire:ignore>
                                         <label class="form-label">Event Campaigners</label>
-                                        <select class="form-control form-control-sm chosen-select form-control-sm" multiple wire:model="campaigner_ids">
+                                        <select id="campaignerSelect" wire:ignore multiple class="form-control form-control-sm">
                                             @foreach($campaigners as $camp)
                                                 <option value="{{ $camp->id }}">
                                                     {{ ucwords($camp->name) }} ({{ $camp->mobile }})
@@ -669,9 +559,9 @@
                     </div>
 
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-md btn-secondary" data-bs-dismiss="modal">Cancel</button>
 
-                        <button type="submit" class="btn btn-sm btn-primary" wire:click="save">
+                        <button type="submit" class="btn btn-md btn-primary" wire:click="save">
                             {{ $isEdit ? 'Update' : 'Save' }}
                         </button>
                     </div>
@@ -747,84 +637,108 @@
 
     </div>
     @push('scripts')
-    <link rel="stylesheet" href="{{ asset('assets/css/component-chosen.css') }}">
     
-    <script src="{{ asset('assets/js/chosen.jquery.js') }}"></script>
     <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script> -->
         <script>
             window.addEventListener('toastr:error', e => toastr.error(e.detail.message));
             window.addEventListener('toastr:success', e => toastr.success(e.detail.message));
         </script>
 
-    <script>
-        window.addEventListener('reload-page', () => {
-            setTimeout(() => {
-                location.reload();
-            }, 2000); // 2 seconds
-        });
-        function initChosen() {
-            $('.chosen-select').chosen({
+        <!-- ✅ jQuery (ONLY ONCE in whole project) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- ✅ Local Select2 -->
+    <link href="{{ asset('assets/css/select2.min.css') }}" rel="stylesheet">
+    <script src="{{ asset('assets/js/select2.min.js') }}"></script>
+
+        <script>
+        function initSelect2() {
+
+            // 🔥 Destroy old instances (important)
+            $('#assemblyFilter, #districtFilter, #zoneFilter, #assemblySelect, #campaignerSelect')
+                .each(function () {
+                    if ($(this).hasClass("select2-hidden-accessible")) {
+                        $(this).select2('destroy');
+                    }
+                });
+
+            // ✅ Initialize
+            $('#assemblyFilter').select2({
                 width: '100%',
-                no_results_text: "No result found",
-                search_contains: true
-            })
-            .off('change')
-            .on('change', function () {
-                let model = $(this).attr('wire:model');
-                if (model) {
-                    @this.set(model, $(this).val());
-                }
+                placeholder: "Filter by Assembly",
+                allowClear: true
+            });
+
+            $('#districtFilter').select2({
+                width: '100%',
+                placeholder: "Filter by District",
+                allowClear: true
+            });
+
+            $('#zoneFilter').select2({
+                width: '100%',
+                placeholder: "Filter by Zone",
+                allowClear: true
+            });
+
+            $('#assemblySelect').select2({
+                width: '100%',
+                dropdownParent: $('#campaignModal') // 🔥 REQUIRED
+            });
+
+            $('#campaignerSelect').select2({
+                width: '100%',
+                dropdownParent: $('#campaignModal') // 🔥 REQUIRED
+            });
+
+            // ✅ Sync with Livewire
+            $('#assemblyFilter').off('change').on('change', function () {
+                @this.set('filter_by_assembly', $(this).val());
+            });
+
+            $('#districtFilter').off('change').on('change', function () {
+                @this.set('filter_by_district', $(this).val());
+            });
+
+            $('#zoneFilter').off('change').on('change', function () {
+                @this.set('filter_by_zone', $(this).val());
+            });
+
+            $('#assemblySelect').off('change').on('change', function () {
+                @this.set('assembly_id', $(this).val());
+            });
+
+            $('#campaignerSelect').off('change').on('change', function () {
+                @this.set('campaigner_ids', $(this).val());
             });
         }
 
-        document.addEventListener("DOMContentLoaded", () => {
-            initChosen();
+        // ✅ First load
+        document.addEventListener("DOMContentLoaded", function () {
+            initSelect2();
         });
 
+        // ✅ Livewire update
         Livewire.hook('morph.updated', () => {
-           
-            $('.chosen-select').each(function () {
-                const el = $(this);
-                const model = el.attr('wire:model');
-                const liveValue = @this.get(model);
-                
-                if (liveValue !== undefined && liveValue !== null) {
-                    el.val(liveValue).trigger('chosen:updated');
-                }
-            });
-            initChosen();
+
+            initSelect2();
+
+            // 🔄 Sync Livewire → UI
+            $('#assemblyFilter').val(@this.get('filter_by_assembly')).trigger('change.select2');
+            $('#districtFilter').val(@this.get('filter_by_district')).trigger('change.select2');
+            $('#zoneFilter').val(@this.get('filter_by_zone')).trigger('change.select2');
+
+            $('#assemblySelect').val(@this.get('assembly_id')).trigger('change.select2');
+            $('#campaignerSelect').val(@this.get('campaigner_ids')).trigger('change.select2');
         });
-
-        document.addEventListener('refreshChosen', () => {
-
-            setTimeout(() => {
-
-                $('.chosen-select').each(function () {
-
-                    let el = $(this);
-                    let model = el.attr('wire:model');
-
-                    if (!model) return;
-
-                    let component = Livewire.find(
-                        el.closest('[wire\\:id]').attr('wire:id')
-                    );
-
-                    let value = component.get(model);
-
-                    if (el.prop('multiple')) {
-                        // multiple select (campaigners)
-                        el.val(value).trigger('chosen:updated');
-                    } else {
-                        // single select (assembly)
-                        el.val(value).trigger('chosen:updated');
-                    }
-
-                });
-
-            }, 200);
-
+        
+        window.addEventListener('reset-select2', () => {
+            $('#assemblyFilter').val(null).trigger('change');
+            $('#districtFilter').val(null).trigger('change');
+            $('#zoneFilter').val(null).trigger('change');
         });
+        </script>
+    <script>
 
         document.addEventListener('resetField', () => {
             document.querySelectorAll('input, textarea, select').forEach(el => el.value = '');
@@ -862,6 +776,10 @@
         document.addEventListener('DOMContentLoaded', function () {
             $('#campaignModal').on('hidden.bs.modal', function () {
                 location.reload();
+                setTimeout(() => {
+                    initSelect2();
+                }, 200);
+
             });
         });
     </script>

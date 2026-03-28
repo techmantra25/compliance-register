@@ -17,36 +17,36 @@
             <div class="row">
 
                 <!-- Assembly -->
-                <div class="col-md-6 mb-3">
-                    <strong>Assembly</strong><br>
+                <div class="col-6 col-md-2 mb-4">
+                    <strong class="title-text">Assembly</strong>
                     ({{ $camp->assembly->assembly_code ?? 'N/A' }})
                     {{ $camp->assembly->assembly_name_en ?? 'N/A' }}
                 </div>
 
                 <!-- Phase -->
-                <div class="col-md-6 mb-3">
-                    <strong>Phase</strong><br>
+                <div class="col-6 col-md-1 mb-4">
+                    <strong class="title-text">Phase</strong>
                     {{ optional(optional($camp->assembly->assemblyPhase)->phase)->name ?? 'N/A' }}
                 </div>
 
                 <!-- Event Type -->
-                <div class="col-md-6 mb-3">
+                <div class="col-6 col-md-2 mb-4">
                     @if($camp->event_category_others)
-                        <strong>Other Event Category</strong><br> {{ $camp->event_category_others }}
+                        <strong class="title-text">Other Event Category</strong> {{ $camp->event_category_others }}
                     @else
-                        <strong>Event Category</strong><br>{{ $camp->category->name ?? 'N/A' }}
+                        <strong class="title-text">Event Category</strong>{{ $camp->category->name ?? 'N/A' }}
                     @endif
                 </div>
 
                 <!-- Address -->
-                <div class="col-md-6 mb-3">
-                    <strong>Address</strong><br>
+                <div class="col-6 col-md-2 mb-4">
+                    <strong class="title-text">Address</strong>
                     {{ $camp->address }}
                 </div>
 
                 <!-- Dates -->
-                <div class="col-md-6 mb-3">
-                    <strong>Date & Time</strong>
+                <div class="col-6 col-md-2 mb-4">
+                    <strong class="title-text">Date & Time</strong>
 
                     <div>
                         <i class="bi bi-calendar-event text-primary me-1"></i>
@@ -56,8 +56,8 @@
                 </div>
 
                 <!-- Campaigner -->
-                <div class="col-md-6 mb-3">
-                    <strong>Campaigner Details</strong>
+                <div class="col-6 col-md-3 mb-4">
+                    <strong class="title-text">Campaigner Details</strong>
 
                     @foreach($camp->campaigners as $c)
                         <div class="mt-2">
@@ -73,9 +73,10 @@
                 </div>
 
                 <!-- Keywords -->
-                <div class="col-md-6 mb-3">
-                    <strong>Keywords</strong><br>
+                <div class="col-6 col-md-3 mb-4">
+                    <strong class="title-text">Keywords</strong>
 
+                    <div class="btn-grup flex-wrap gap-1">
                     @if($camp->keywords)
                         @foreach(explode(',', $camp->keywords) as $key)
                             <span class="badge bg-primary">{{ $key }}</span>
@@ -83,18 +84,19 @@
                     @else
                         N/A
                     @endif
+                    </div>
                 </div>
 
                 <!-- Remarks -->
-                <div class="col-md-12 mb-3">
-                    <strong>Remarks</strong><br>
+                <div class="col-6 col-md-3 mb-4">
+                    <strong class="title-text">Remarks</strong>
                     {{ $camp->remarks ?? 'N/A' }}
                 </div>
 
-                <div class="col-md-12 mt-3">
-                    <strong>Uploaded Files</strong>
+                <div class="col-12 col-md-5 mb-4">
+                    <strong class="title-text">Uploaded Files</strong>
 
-                    <div class="d-flex flex-wrap gap-3 mt-2">
+                    <div class="btn-group flex-wrap gap-2">
 
                         @forelse($camp->documents as $doc)
 
@@ -103,7 +105,7 @@
                                 $isImage = in_array($ext, ['jpg','jpeg','png','gif','webp']);
                             @endphp
 
-                            <div class="file-card border rounded p-2" style="width:120px">
+                            <div class="file-card border rounded p-2" style="width:70px">
 
                                 <!-- Preview -->
                                 <div class="file-box text-center mb-2">
