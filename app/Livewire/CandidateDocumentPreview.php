@@ -384,7 +384,6 @@ class CandidateDocumentPreview extends Component
         }
 
         $nominationDate->setTime(15, 0, 0);
-
         $data = [
             'candidateName'   => $this->candidateName,
             'employeeCode'    => $this->employeeCode,
@@ -400,7 +399,7 @@ class CandidateDocumentPreview extends Component
             ->setPaper('A4', 'portrait');
 
         // filename
-        $filename = str_replace(' ', '-', $this->assemblyName) . '-observation-memo.pdf';
+        $filename = str_replace(' ', '-', $this->assemblyName) .'-'.$this->version_index. '-observation-memo.pdf';
 
         // storage path
         $path = "candidate_docs/{$this->candidateId}/" . $filename;
@@ -410,6 +409,7 @@ class CandidateDocumentPreview extends Component
         // return public URL (for WhatsApp or anywhere)
         return asset('storage/' . $path);
     }
+    
     public function saveObservations($observations)
     {
         Candidate::where('id', $this->candidateId)->update([
@@ -567,10 +567,10 @@ class CandidateDocumentPreview extends Component
             ->where('mobile', '!=', '')
             ->get();
     }
-    private function SendWhatsapp($candidate_id){
-
+    private function SendWhatsapp($candidate_id)
+    {
         $candidate = Candidate::findOrFail($candidate_id);
-       
+
         // WhatsApp config
         $apiDomainUrl  = config('whatsapp.api_domain_url');
         $apiVersion    = config('whatsapp.api_version');
@@ -583,31 +583,31 @@ class CandidateDocumentPreview extends Component
         // get all Admin & legal associate
         $admins = $this->getActiveAdminsWithMobile();
 
+        // Generate PDF once
         $url = $this->generateAcknowledgementPdf();
-        foreach ($admins as $key => $item) {
+        $filename = basename($url);
+
+        $success = false;
+        $receiversLog = [];
+
+        foreach ($admins as $item) {
 
             // =========================
             // VARIABLES
             // =========================
-            $var1 = $item->name; // Admin name
-            $var2 = Auth::guard('admin')->user()->name; // Sender name
-            $var3 = $candidate->name; // Candidate name
+            $var1 = $item->name;
+            $var2 = auth('admin')->user()->name;
+            $var3 = $candidate->name;
 
             $var4 = optional($candidate->assembly)->assembly_number 
                 ? optional($candidate->assembly)->assembly_number . '-' . optional($candidate->assembly)->assembly_name_en
                 : '';
 
             // =========================
-            // MOBILE FORMAT (91XXXXXXXXXX)
+            // MOBILE FORMAT
             // =========================
             $mobile = preg_replace('/\D/', '', $item->mobile);
             $recipientPhone = '91' . substr($mobile, -10);
-
-            // =========================
-            // DOCUMENT URL (PUBLIC URL MUST)
-            // =========================
-            $document = $url; //  use generated PDF URL
-            $filename = basename($document);
 
             // =========================
             // PAYLOAD
@@ -629,7 +629,7 @@ class CandidateDocumentPreview extends Component
                                 [
                                     "type" => "document",
                                     "document" => [
-                                        "link" => $document,
+                                        "link" => $url,
                                         "filename" => $filename
                                     ]
                                 ]
@@ -649,7 +649,7 @@ class CandidateDocumentPreview extends Component
             ];
 
             // =========================
-            // CURL REQUEST
+            // CURL
             // =========================
             $ch = curl_init();
 
@@ -669,24 +669,52 @@ class CandidateDocumentPreview extends Component
 
             curl_close($ch);
 
-            // =========================
-            // ERROR HANDLE
-            // =========================
             if ($error) {
                 \Log::error("WhatsApp CURL Error: " . $error);
                 continue;
             }
 
             $responseData = json_decode($response, true);
+
             // =========================
-            // OPTIONAL DEBUG LOG
+            // SUCCESS CHECK
             // =========================
+            if (isset($responseData['messages'])) {
+                $success = true;
+
+                // store receiver for log
+                $receiversLog[] = [
+                    'name'   => $item->name,
+                    'mobile' => $item->mobile,
+                    'role'   => $item->role ?? null,
+                ];
+            }
+
             \Log::info('WhatsApp Response', [
                 'phone' => $recipientPhone,
                 'response' => $responseData
             ]);
         }
-        
+
+        // =========================
+        // SINGLE LOG (AFTER LOOP)
+        // =========================
+        if ($success) {
+
+            logChange([
+                'module_name' => 'Acknowledgement',
+                'module_id' => $candidate_id,
+                'action' => 'Send WhatsApp',
+                'description' => "Acknowledgement sent successfully via WhatsApp.",
+                'old_data' => json_encode([]),
+                'new_data' => json_encode([
+                    'version'   => $this->version_index,
+                    'sender'    => auth('admin')->user()->name,
+                    'receivers' => $receiversLog, // ✅ NO double encode
+                ]),
+                'document_name' => 'Acknowledgement Form',
+            ]);
+        }
     }
 
 
@@ -857,7 +885,7 @@ class CandidateDocumentPreview extends Component
         $pdf = Pdf::loadView('pdf.observation_memo', $data)
             ->setPaper('A4', 'portrait');
 
-        $filename = str_replace(' ', '-', $this->assemblyName) .
+        $filename = str_replace(' ', '-', $this->assemblyName) .'-'.$this->version_index.
             '-observation-memo.pdf';
 
         return response()->streamDownload(

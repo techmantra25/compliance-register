@@ -311,7 +311,7 @@
                                 <th width="8%">Status</th>
                                 {{-- <th width="18%">Remarks by Data uploader</th> --}}
                                 <th width="36%">Action</th>
-                                <th width="8%">Upload Now</th>
+                                <th width="10%">Upload Now</th>
                             </tr>
                         </thead>
 
@@ -492,35 +492,79 @@
                                                 <td colspan="2">
                                                     <div class="p-2 bg-light rounded border small d-flex justify-content-between align-items-start">
 
-                                                        <div>
-                                                            {{-- Skipped By --}}
-                                                            <div class="mb-1">
-                                                                <i class="bi bi-person-check me-1 text-primary"></i>
-                                                                <strong>Skipped By:</strong>
-                                                                <span class="text-dark">{{ $doc['uploaded_by_name'] ?? 'N/A' }}</span>
-                                                            </div>
+                                                        <div class="w-100">
 
-                                                            {{-- Attached With --}}
-                                                            <div>
-                                                                @if($doc['attached_with_slug']=="documents_not_required" || $doc['attached_with_slug']=='documents_required' || $doc['attached_with_slug']=='documents_not_received')
-                                                                    <strong>Remarks:</strong>
-                                                                @else
-                                                                    <strong>Attached With:</strong>
-                                                                @endif
-                                                                <span class="text-dark">{{ $doc['attached_with'] ?? 'N/A' }}</span>
-                                                            </div>
+                                                            @if($editingDocKey === $key)
+                                                                <!--  EDIT MODE -->
+
+                                                                <div class="d-flex align-items-center gap-1 mt-2">
+
+                                                                    <select class="form-select form-select-sm w-100"
+                                                                        wire:model="attachedTo.{{ $key }}"
+                                                                        onchange="confirmUpdateAttachment('{{ $key }}', this)">
+
+                                                                        <option value="">Document already included</option>
+
+                                                                        @foreach($remainRequiredDocuments as $parent_key => $parent)
+                                                                            @if($parent_key !== $key)
+                                                                                <option value="{{ $parent }}" data-key="{{ $parent_key }}">
+                                                                                    {{ $parent }}
+                                                                                </option>
+                                                                            @endif
+                                                                        @endforeach
+                                                                    </select>
+
+                                                                    <!-- ❌ Clear Button -->
+                                                                    <button class="btn btn-outline-danger btn-sm"
+                                                                        wire:click="clearEditOption">
+                                                                        <i class="bi bi-x"></i>
+                                                                    </button>
+
+                                                                </div>
+
+                                                            @else
+                                                                <!-- NORMAL VIEW -->
+
+                                                                {{-- Skipped By --}}
+                                                                <div class="mb-1">
+                                                                    <i class="bi bi-person-check me-1 text-primary"></i>
+                                                                    <strong>Skipped By:</strong>
+                                                                    <span class="text-dark">{{ $doc['uploaded_by_name'] ?? 'N/A' }}</span>
+                                                                </div>
+
+                                                                {{-- Attached With --}}
+                                                                <div>
+                                                                    @if($doc['attached_with_slug']=="documents_not_required" 
+                                                                        || $doc['attached_with_slug']=='documents_required' 
+                                                                        || $doc['attached_with_slug']=='documents_not_received')
+                                                                        <strong>Remarks:</strong>
+                                                                    @else
+                                                                        <strong>Attached With:</strong>
+                                                                    @endif
+                                                                    <span class="text-dark">{{ $doc['attached_with'] ?? 'N/A' }}</span>
+                                                                </div>
+                                                            @endif
+
                                                         </div>
 
-                                                        {{-- Upload Button on Right --}}
+                                                        {{-- RIGHT SIDE BUTTONS --}}
                                                         @if(isset($candidateData) && $candidateData->status !== "without_criminal_full_generation")
-                                                            <div class="ms-3">
+                                                            <div class="ms-3 d-flex align-items-start gap-1 w-100 justify-content-end">
+
+                                                                <!-- Edit Button -->
+                                                                <button class="btn btn-outline-primary btn-sm"
+                                                                    wire:click="ShowEditOption('{{ $key }}')">
+                                                                    <i class="bi bi-pencil"></i>
+                                                                </button>
+
+                                                                <!-- Upload Button -->
                                                                 <button class="btn btn-outline-success btn-sm"
                                                                     wire:click="SetDocType('{{ $key }}')" 
                                                                     data-bs-toggle="modal" 
                                                                     data-bs-target="#DocumentModal">
                                                                     <i class="bi bi-upload"></i> Upload
                                                                 </button>
-                                                                <span class="tooltip-text">Please upload {{ $label }}</span>
+
                                                             </div>
                                                         @endif
 
@@ -554,11 +598,9 @@
 
                                             <!-- Step 2: Show dropdown ONLY when 'Included in Another' is selected -->
                                             @if(isset($skipOption[$key]) && $skipOption[$key] === 'yes')
-                                                <select class="form-select form-select-sm w-100 d-inline-block mt-2"
-                                                        
-                                                        wire:model="attachedTo.{{ $key }}"
+                                                <select class="form-select form-select-sm w-100 d-inline-block mt-2" wire:model="attachedTo.{{ $key }}"
                                                         onchange="confirmUpdateAttachment('{{ $key }}', this)">
-                                                    <option value="" > Document already included in</option>
+                                                    <option value="" > Document already included</option>
                                                     @foreach($remainRequiredDocuments as $parent_key => $parent)
                                                         @if($parent_key !== $key)
                                                             <option value="{{ $parent }}" data-key="{{ $parent_key }}">

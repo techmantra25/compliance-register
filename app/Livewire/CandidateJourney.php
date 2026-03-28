@@ -68,6 +68,33 @@ class CandidateJourney extends Component
             $vettedBy = json_decode($log->new_data, true)['vetted_by'] ?? 'N/A';
 
             return "Status changed to <strong>{$status}</strong> by <strong>{$vettedBy}</strong>.";
+        }
+        elseif ($log->action === 'Send WhatsApp') {
+
+            $data = json_decode($log->new_data, true);
+
+            $sender = $data['sender'] ?? 'N/A';
+            $version = $data['version'] ?? 'N/A';
+
+            // decode receivers (since stored as JSON string)
+            $receivers = isset($data['receivers'])
+                ? json_decode($data['receivers'], true)
+                : [];
+
+            //  make HTML list
+            $receiverList = '<ul class="mb-1">';
+            foreach ($receivers as $item) {
+                $name = $item['name'] ?? '';
+                $mobile = $item['mobile'] ?? '';
+                $receiverList .= "<li>{$name} ({$mobile})</li>";
+            }
+            $receiverList .= '</ul>';
+
+            return "
+                Observation memo (Version <strong>{$version}</strong>) sent via WhatsApp by 
+                <strong>{$sender}</strong> to:
+                {$receiverList}
+            ";
 
         } elseif ($log->action === 'Update' && $log->old_data === $log->new_data) {
 
@@ -75,7 +102,7 @@ class CandidateJourney extends Component
 
         } elseif ($log->module_name === 'Candidate Document' && in_array($log->action, ['Uploaded', 'Re-Uploaded'])) {
 
-            // ✅ Add clickable link
+            // ✅Add clickable link
             $link = $log->link 
                 ? "<a href='{$log->link}' target='_blank'>View File</a>" 
                 : '';

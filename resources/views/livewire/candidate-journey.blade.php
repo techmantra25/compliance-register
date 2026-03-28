@@ -149,7 +149,10 @@
                                 <div class="timeline-badge {{ $item['badge_color'] }}">
                                     @if ($item['action'] == 'Generate')
                                         <i class="bi bi-plus-circle"></i>
+                                    @elseif ($item['action'] == 'Send WhatsApp')
+                                        <i class="bi bi-whatsapp"></i>
                                     @elseif ($item['action'] == 'Insert')
+                                    
                                         <i class="bi bi-plus-circle"></i>
                                     @elseif ($item['action'] == 'Update')
                                         <i class="bi bi-pencil-square"></i>

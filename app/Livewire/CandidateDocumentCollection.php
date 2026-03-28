@@ -52,7 +52,17 @@ class CandidateDocumentCollection extends Component
     public $sameAsBefore = false;
     public $withCriminal = false;
     public $assignedLegalAssociate;
+    public $editingDocKey = null;
 
+    public function ShowEditOption($key)
+    {
+        $this->editingDocKey = $key;
+    }
+
+    public function clearEditOption()
+    {
+        $this->editingDocKey = null;
+    }
     public function mount(Request $request)
     {
         $candidateId = $request->query('candidate');
@@ -228,6 +238,7 @@ class CandidateDocumentCollection extends Component
             ]
         );
         $this->dispatch('toastr:success', message: 'Attachment updated successfully!');
+        $this->editingDocKey = null;
         $this->loadDocuments();
     }
     
@@ -239,9 +250,9 @@ class CandidateDocumentCollection extends Component
         return CandidateDocumentType::orderBy('position','ASC')->pluck('name', 'key')->toArray();
     }
     protected function remainDocuments(){
-        $skippedDocs = CandidateDocument::where('candidate_id', $this->candidateId)->where('status', 'Skipped')->pluck('type')->toArray();
-        $allDocs = CandidateDocumentType::whereNotIn('key', $skippedDocs)->pluck('name','key')->toArray();
-        $allDocs = ['documents_not_received'=>'Documents Not Received', 'documents_required'=>'Documents Required', 'documents_not_required' => 'Documents Not Required'] + $allDocs;
+        // $skippedDocs = CandidateDocument::where('candidate_id', $this->candidateId)->where('status', 'Skipped')->pluck('type')->toArray();
+        // $allDocs = CandidateDocumentType::whereNotIn('key', $skippedDocs)->pluck('name','key')->toArray();
+        $allDocs = ['documents_not_received'=>'Documents Not Received', 'documents_required'=>'Documents Required', 'documents_not_required' => 'Documents Not Required'];
         return $allDocs;
     }
 
