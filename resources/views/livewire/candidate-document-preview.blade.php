@@ -161,22 +161,24 @@
 
                 {{-- REJECTED --}}
                 @elseif($versionData && $isRejectedVersion)
-                    <h6 class="mb-0">
-                        <span class="badge bg-danger">
-                            <i class="bi bi-x-circle"></i>
-                            Inadequate Documents — Observation Memo Generated
-                        </span>
-                    </h6>
-
-                    <button class="btn btn-danger btn-md" wire:click="downloadObservationMemo">
-
-                        <i class="bi bi-download"></i>
-                        Download Observation Memo
-
-                    </button>
-
-
-
+                    <div>
+                        <h6 class="mb-0">
+                            <span class="badge bg-danger">
+                                <i class="bi bi-x-circle"></i>
+                                Inadequate Documents — Observation Memo Generated
+                            </span>
+                        </h6>
+                    </div>
+                    <div>
+                        <button class="btn btn-danger btn-md" wire:click="downloadObservationMemo">
+                            <i class="bi bi-download"></i>
+                            Download Observation Memo
+                        </button>
+                        <button class="btn btn-success btn-md" wire:click="sendWhatsapp">
+                            <i class="bi bi-whatsapp"></i>
+                            Send WhatsApp
+                        </button>
+                    </div>
                 {{-- DEFAULT (STATUS NULL / NOT PROCESSED) --}}
                 @else
 
@@ -434,22 +436,26 @@
                     
                     @elseif($versionData && $isRejectedVersion)
 
-                        <h6 class="mb-0">
-                        <span class="badge bg-danger ">
-                            <i class="bi bi-x-circle"></i>
-                            Inadequate Documents — Observation Memo Generated
-                        </span>
-                        </h6>
+                       <div>
+                            <h6 class="mb-0">
+                                <span class="badge bg-danger ">
+                                    <i class="bi bi-x-circle"></i>
+                                    Inadequate Documents — Observation Memo Generated
+                                </span>
+                            </h6>
+                       </div>
+                       <div>
+                            <button class="btn btn-danger btn-md" wire:click="downloadObservationMemo">
 
-                        <button class="btn btn-danger btn-md" wire:click="downloadObservationMemo">
+                                <i class="bi bi-download"></i>
+                                Download Observation Memo
 
-                            <i class="bi bi-download"></i>
-                            Download Observation Memo
-
-                        </button>
-
-
-
+                            </button>
+                            <button class="btn btn-success btn-md" wire:click="sendWhatsapp">
+                                <i class="bi bi-whatsapp"></i>
+                                Send WhatsApp
+                            </button>
+                       </div>
                     {{-- DEFAULT (STATUS NULL / NOT PROCESSED) --}}
                     @else
                         <button class="btn btn-outline-success btn-md" onclick="confirmApprove()">

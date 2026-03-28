@@ -286,7 +286,7 @@
 
                                         {{-- Default when status is NULL --}}
                                         @if(is_null($candidate->status))
-                                            <div class="tooltip-wrapper mr-1">
+                                            <div class="tooltip-wrapper m-1">
                                                 <a href="{{ route('admin.candidates.documents', ['candidate' => $candidate->id]) }}"
                                                 class="btn btn-sm btn-outline-success">
                                                 Upload
@@ -296,7 +296,7 @@
 
                                         {{-- Re-upload condition --}}
                                         @elseif($candidate->status == "without_criminal_rejected_observation_only")
-                                            <div class="tooltip-wrapper mr-1">
+                                            <div class="tooltip-wrapper m-1">
                                                 <a href="{{ route('admin.candidates.documents', ['candidate' => $candidate->id]) }}"
                                                 class="btn btn-sm btn-outline-success">
                                                 Re-upload
@@ -306,14 +306,14 @@
 
                                         {{-- Preview condition --}}
                                         @elseif($candidate->status == "without_criminal_full_generation")
-                                            <div class="tooltip-wrapper mr-1">
+                                            <div class="tooltip-wrapper m-1">
                                                 <a href="{{ route('admin.candidates.documents', ['candidate' => $candidate->id]) }}"
                                                 class="btn btn-sm btn-outline-success">
                                                 Preview
                                                 </a>
                                                 <span class="tooltip-text">Preview Candidate Documents</span>
                                             </div>
-                                            <div class="tooltip-wrapper mr-1">
+                                            <div class="tooltip-wrapper m-1">
                                                 <button wire:click="downloadAcknowledgement({{ $candidate->id }})"
                                                         class="btn btn-sm btn-outline-primary">
                                                     <i class="bi bi-download me-1"></i> Acknowledgement
@@ -323,7 +323,7 @@
 
                                         {{-- Fallback --}}
                                         @else
-                                            <div class="tooltip-wrapper mr-1">
+                                            <div class="tooltip-wrapper m-1">
                                                 <a href="{{ route('admin.candidates.documents', ['candidate' => $candidate->id]) }}"
                                                 class="btn btn-sm btn-outline-success">
                                                 Upload
@@ -334,7 +334,7 @@
                                         @endif
                                         @if($candidate->status == "without_criminal_full_generation")
                                             @if($candidate->nominationForm && $candidate->nominationForm->logs->count())
-                                                <div class="tooltip-wrapper mr-1">
+                                                <div class="tooltip-wrapper m-1">
                                                     <button 
                                                             class="btn btn-sm btn-outline-primary"
                                                             wire:click="openFormModal({{ $candidate->id }})"
@@ -345,7 +345,7 @@
                                                     </button>
                                                 </div>
                                             @else
-                                                <div class="tooltip-wrapper mr-1">
+                                                <div class="tooltip-wrapper m-1">
                                                     <a href="{{ route('admin.candidates.form2B', $candidate->id) }}"
                                                     class="btn btn-sm btn-outline-success">
                                                     Generate Form 2B
@@ -361,7 +361,7 @@
 
                                             @if($candidate->document_collection_status !== 'rejected')
                                                 @if(childUserAccess(Auth::guard('admin')->user()->id,'nomination_assign_agents'))
-                                                <div class="tooltip-wrapper mr-1">
+                                                <div class="tooltip-wrapper m-1">
                                                     <button 
                                                         class="btn btn-sm btn-outline-{{ count($candidate->agents) > 0 ? 'primary' : 'danger' }}"
                                                         wire:click="openAgentModal({{ $candidate->id }})"
@@ -377,7 +377,7 @@
                                                 @endif
 
                                                 @if(childUserAccess(Auth::guard('admin')->user()->id,'nomination_update_candidate'))
-                                                <div class="tooltip-wrapper mr-1">
+                                                <div class="tooltip-wrapper m-1">
                                                     <button class="btn btn-sm btn-outline-success"
                                                         wire:click="edit({{ $candidate->id }})"
                                                         data-bs-toggle="modal"
@@ -391,7 +391,7 @@
                                             @endif
 
                                             @if(childUserAccess(Auth::guard('admin')->user()->id,'nomination_candidate_journey_timeline'))
-                                                <div class="tooltip-wrapper mr-1">
+                                                <div class="tooltip-wrapper m-1">
                                                     <a href="{{ route('admin.candidates.journey', $candidate->id) }}"
                                                     class="btn btn-sm btn-outline-success">
                                                     <i class="bi bi-clock-history"></i>
@@ -400,7 +400,7 @@
                                                 </div>
                                             @endif
                                             @if($candidate->nominationForm && $candidate->nominationForm->logs->count() && $candidate->status == "without_criminal_full_generation")
-                                                <div class="tooltip-wrapper mr-1"> 
+                                                <div class="tooltip-wrapper m-1"> 
                                                     <button class="btn btn-sm btn-outline-success"
                                                         wire:click="openEmailModal({{ $candidate->id }})">
                                                         <i class="bi bi-envelope"></i>
@@ -408,7 +408,7 @@
                                                     <span class="tooltip-text">Send Mail</span>
                                                 </div>
 
-                                                <div class="tooltip-wrapper mr-1">
+                                                <div class="tooltip-wrapper m-1">
                                                     <button class="btn btn-sm btn-outline-success"
                                                         wire:click="openWhatsappModal({{ $candidate->id }})">
                                                         <i class="bi bi-whatsapp"></i>
