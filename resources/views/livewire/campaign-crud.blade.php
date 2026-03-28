@@ -127,7 +127,7 @@
                 </button>
                 @endif --}}
                 @if(childUserAccess(Auth::guard('admin')->user()->id,'campaign_add_campaign'))
-                <button class="btn btn-primary btn-sm" wire:click="openCampaignModal" data-bs-toggle="modal"
+                <button class="btn btn-primary btn-md" wire:click="openCampaignModal" data-bs-toggle="modal"
                     data-bs-target="#campaignModal">
                     <i class="bi bi-plus-circle me-1"></i> Add Campaign
                 </button>

@@ -174,7 +174,7 @@
                             <i class="bi bi-download"></i>
                             Download Observation Memo
                         </button>
-                        <button class="btn btn-success btn-md" wire:click="sendWhatsapp">
+                        <button class="btn btn-success btn-md" wire:click="openWhatsappModal">
                             <i class="bi bi-whatsapp"></i>
                             Send WhatsApp
                         </button>
@@ -473,8 +473,61 @@
             </div>
 
     </div>
+
+    <div  class="modal fade {{ $is_active_observation_whatsapp ? 'show d-block' : '' }}" 
+        id="active_observation_whatsapp" 
+        tabindex="-1"
+        style="{{ $is_active_observation_whatsapp ? 'background: rgba(0,0,0,0.5);' : '' }}">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div>
+                        <h5 class="modal-title">Send Observation Memo</h5>
+                    </div>
+                    <button type="button" class="btn-close" wire:click="closeWhatsappModal"></button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-12">
+
+                            <div class="list-group">
+                                @foreach($all_whatsapp_receiver as $user_index => $user)
+                                    <label class="list-group-item d-flex align-items-center justify-content-between cursor-pointer" wire:key="user-list-{{$user_index}}">
+                                        <div>
+                                            <input type="checkbox"
+                                                class="form-check-input me-2"
+                                                name="receiver"
+                                                wire:change="toggleReceiver({{ $user_index }})"
+                                                {{ in_array($user['mobile'], array_column($whatsapp_receiver, 'mobile')) ? 'checked' : '' }}>
+                                            
+                                            <strong>{{ $user['name'] }}</strong>
+                                            <small class="text-muted">({{ $user['role'] }})</small>
+                                            <small>{{ $user['mobile'] }}</small>
+                                        </div>
+
+                                    </label>
+                                @endforeach
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="mt-3 text-end">
+                        @if(count($whatsapp_receiver)>0)
+                            <button class="btn btn-success"
+                                    wire:click="sendObservationWhatsapp">
+                                <i class="bi bi-whatsapp"></i> Send
+                            </button>
+                        @endif
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
     
-    <div class="loader-container" wire:loading wire:target="downloadAcknowledgement, downloadObservationMemo">
+    <div class="loader-container" wire:loading wire:target="downloadAcknowledgement, downloadObservationMemo,openWhatsappModal,closeWhatsappModal,sendObservationWhatsapp">
         <div class="loader"></div>
     </div>
 @push('scripts')
