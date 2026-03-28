@@ -576,6 +576,46 @@
                                             <span class="spinner-border spinner-border-sm me-1"></span> Uploading...
                                         </div>
 
+                                         @if(!empty($existing_documents))
+                                            <div class="attachment-wrapper mt-3">
+
+                                                @foreach($existing_documents as $file)
+                                                    @php
+                                                        $ext = strtolower(pathinfo($file->file_path, PATHINFO_EXTENSION));
+                                                        $isImage = in_array($ext, ['jpg','jpeg','png','gif','webp']);
+                                                    @endphp
+
+                                                    <div class="attachment-card">
+
+                                                        <!-- Remove -->
+                                                        <span class="remove-btn"
+                                                            wire:click="removeExistingFile({{ $file->id }})">
+                                                            ✕
+                                                        </span>
+
+                                                        <div class="attachment-content">
+
+                                                            @if($isImage)
+                                                                <img src="{{ asset($file->file_path) }}" class="attachment-img">
+                                                            @else
+                                                                <div class="file-icon">
+                                                                    <i class="bi bi-paperclip"></i>
+                                                                </div>
+                                                            @endif
+
+                                                            <div class="file-info">
+                                                                <div class="file-name">
+                                                                    {{ basename($file->file_path) }}
+                                                                </div>
+                                                            </div>
+
+                                                        </div>
+                                                    </div>
+                                                @endforeach
+
+                                            </div>
+                                        @endif
+
                                         <!-- Selected Files Preview -->
                                         @if(!empty($supporting_documents))
                                         <div class="attachment-wrapper mt-3">
@@ -638,6 +678,7 @@
 
                                         </div>
                                         @endif
+                                    </div>
                                 </div>
                             </div>
                         </form>

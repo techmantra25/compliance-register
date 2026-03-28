@@ -59,6 +59,8 @@ class CampaignCrud extends Component
     public $show_other_category = false;
     public $campaignerFile;
     public $permission_documents = [];
+    public $new_documents = [];
+    public $existing_documents = [];
 
     protected $campaignerRules = [
         'campaignerFile' => 'required|mimes:csv,txt|max:10240',
@@ -77,7 +79,7 @@ class CampaignCrud extends Component
                 ? 'required|string'
                 : 'nullable',
             'keywords' => 'nullable|array',
-            'permission_documents.*' => 'file',
+            'new_documents.*' => 'file',
         ];
     }
     
@@ -136,6 +138,7 @@ class CampaignCrud extends Component
         $this->campaigner_ids = $campaign->campaigners->pluck('id')->toArray();
         $this->keywords = $campaign->keywords ? array_map('trim', explode(',', $campaign->keywords)) : [];
         $this->isEdit = true;
+        $this->existing_documents = CampaignPermissionDocument::where('campaign_id', $id)->get();
         $this->dispatch('refreshChosen');
         
     }
@@ -153,6 +156,10 @@ class CampaignCrud extends Component
     public function removeExistingFile($id)
     {
         $this->deletedFiles[] = $id;
+
+        $this->existing_documents = collect($this->existing_documents)
+        ->filter(fn($file) => $file->id != $id)
+        ->values();
     }
 
     public function updateCampaign()
@@ -276,6 +283,15 @@ class CampaignCrud extends Component
             $this->show_other_category = false;
             $this->other_event_category = null;
         }
+    }
+
+    public function updatedNewDocuments()
+    {
+        foreach ($this->new_documents as $file) {
+            $this->permission_documents[] = $file;
+        }
+
+        $this->new_documents = [];
     }
 
     public function storeCampaign()

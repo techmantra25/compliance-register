@@ -39,6 +39,7 @@ class MccViolationCrud extends Component
     public $legalAssociates = [];
     public $supporting_documents = [];
     public $new_documents = [];
+    public $existing_documents = [];
 
     public $keywords = [];
     public $keywordInput = '';
@@ -147,6 +148,7 @@ class MccViolationCrud extends Component
         $this->complainer_description = $mcc->complainer_description;
         $this->action_taken = $mcc->action_taken;
         $this->keywords = $mcc->keywords ? array_map('trim', explode(',', $mcc->keywords)) : [];
+        $this->existing_documents = MccSupportingDocument::where('mcc_remarks_id', $id)->get();
 
         $this->isEdit = true;
         $this->dispatch('refreshChosen');
@@ -458,6 +460,10 @@ class MccViolationCrud extends Component
     public function removeExistingFile($id)
     {
         $this->deletedFiles[] = $id;
+
+        $this->existing_documents = collect($this->existing_documents)
+        ->filter(fn($file) => $file->id != $id)
+        ->values();
     }
 
     public function updatedNewDocuments()
