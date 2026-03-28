@@ -1,4 +1,76 @@
 <div>
+    <style>
+        .attachment-wrapper {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            flex-direction:column;
+        }
+
+        .attachment-card {
+            position: relative;
+            border: 1px solid #e5e5e5;
+            border-radius: 10px;
+            padding:4px;
+            width: 100%;
+            background: #fafafa;
+        }
+
+        .attachment-content {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .attachment-img {
+            width: 30px;
+            height: 30px;
+            object-fit: cover;
+            border-radius: 6px;
+        }
+
+        .file-icon {
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f1f1f1;
+            border-radius: 6px;
+            font-size: 20px;
+        }
+
+        .file-info {
+            flex: 1;
+        }
+
+        .file-name {
+            font-size: 13px;
+            font-weight: 600;
+            margin-top:0;
+        }
+
+        .file-size {
+            font-size: 11px;
+            color: #777;
+        }
+
+        .remove-btn {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            background: #ff4d4f;
+            color: white;
+            width: 18px;
+            height: 18px;
+            font-size: 11px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
     <!-- HEADER -->
     <div class="row align-items-center mb-4  mb-md-5">
 
@@ -265,6 +337,59 @@
                                     @error('attachment')
                                         <small class="text-danger">{{ $message }}</small>
                                     @enderror
+                                    @if(!empty($attachment))
+                                        <div class="attachment-wrapper mt-3">
+
+                                            @foreach($attachment as $index => $file)
+
+                                                @php
+                                                    $ext = strtolower($file->getClientOriginalExtension());
+                                                    $isImage = in_array($ext, ['jpg','jpeg','png','gif','webp']);
+                                                @endphp
+
+                                                <div class="attachment-card">
+
+                                                    <!-- Remove -->
+                                                    <span class="remove-btn"
+                                                        wire:click="removeTempFile({{ $index }})">
+                                                        ✕
+                                                    </span>
+
+                                                    <div class="attachment-content">
+
+                                                        @if($isImage)
+                                                            <img src="{{ $file->temporaryUrl() }}" class="attachment-img">
+                                                        @else
+                                                            <div class="file-icon">
+                                                                <i class="bi bi-paperclip"></i>
+                                                            </div>
+                                                        @endif
+
+                                                        <div class="file-info">
+                                                            <div class="file-name">
+                                                                {{ Str::limit($file->getClientOriginalName(), 25) }}
+                                                            </div>
+
+                                                            <div class="file-size">
+                                                                {{ number_format($file->getSize() / 1024, 1) }} KB
+                                                            </div>
+                                                        </div>
+
+                                                    </div>
+
+                                                    <!-- Progress -->
+                                                    <div class="progress mt-2" wire:loading wire:target="new_documents">
+                                                        <div class="progress-bar progress-bar-striped progress-bar-animated"
+                                                            style="width: 100%">
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+
+                                            @endforeach
+
+                                        </div>
+                                    @endif
                                 </div>
                                 <div class="mb-3" wire:ignore>
                                     <label class="form-label">Tag With</label>

@@ -112,6 +112,11 @@ class MccViolationCrudRemarks extends Component
     {
         $this->selectedFile = $path;
     }
+    public function removeTempFile($index)
+    {
+        unset($this->attachment[$index]);
+        $this->attachment = array_values($this->attachment);
+    }
 
    public function render()
     {

@@ -118,7 +118,14 @@
             $isRejectedVersion = false;
 
             if ($versionData) {
-                if (!empty($versionData->observations) || !empty($versionData->others)) {
+
+                // observations = JSON → array
+                $observations = json_decode($versionData->observations ?? '[]', true);
+
+                // others = normal string
+                $others = $versionData->others;
+
+                if (!empty($observations) || !empty($others)) {
                     $isRejectedVersion = true;
                 } else {
                     $isApprovedVersion = true;
@@ -154,7 +161,6 @@
 
                 {{-- REJECTED --}}
                 @elseif($versionData && $isRejectedVersion)
-
                     <h6 class="mb-0">
                         <span class="badge bg-danger">
                             <i class="bi bi-x-circle"></i>

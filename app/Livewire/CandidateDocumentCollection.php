@@ -451,10 +451,20 @@ class CandidateDocumentCollection extends Component
                 ->where('candidate_id', $this->candidateId)
                 ->max('version');
 
+            $latestskipFile = CandidateDocument::where('type', $this->type)
+                ->where('candidate_id', $this->candidateId)
+                ->where('status', 'Skipped')
+                ->first();
+
             $newVersion = 1;
 
             if ($latestVersion) {
-                $newVersion = $latestVersion + 1;
+                if($latestskipFile){
+                    $newVersion = $latestVersion;
+                    $latestskipFile->delete();
+                }else{
+                    $newVersion = $latestVersion + 1;
+                }
             } else {
                 $otherLatestVersion = CandidateDocument::where('candidate_id', $this->candidateId)->max('version');
                 if ($otherLatestVersion) {
