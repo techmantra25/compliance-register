@@ -1,115 +1,10 @@
 <div>
-   <style>
-        .status-dropdown {
-            background: #f8f9fa;
-            border: 1px solid #dee2e6 !important;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .status-dropdown:hover {
-            background: #eef2f6;
-        }
-        .alert {
-            border-left-width: 4px;
-            border-left-style: solid;
-        }
-        .alert-primary { border-left-color: #0d6efd; }
-        .alert-danger { border-left-color: #dc3545; }
 
-        .file-remove {
-            position: absolute;
-            top: -6px;
-            right: -6px;
-            background: #dc3545;
-            color: #fff;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            font-size: 13px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            z-index: 99;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-        }
-
-        .attachment-wrapper {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            flex-direction:column;
-        }
-
-        .attachment-card {
-            position: relative;
-            border: 1px solid #e5e5e5;
-            border-radius: 10px;
-            padding:4px;
-            width: 100%;
-            background: #fafafa;
-        }
-
-        .attachment-content {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .attachment-img {
-            width: 30px;
-            height: 30px;
-            object-fit: cover;
-            border-radius: 6px;
-        }
-
-        .file-icon {
-            width: 30px;
-            height: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #f1f1f1;
-            border-radius: 6px;
-            font-size: 20px;
-        }
-
-        .file-info {
-            flex: 1;
-        }
-
-        .file-name {
-            font-size: 13px;
-            font-weight: 600;
-            margin-top:0;
-        }
-
-        .file-size {
-            font-size: 11px;
-            color: #777;
-        }
-
-        .remove-btn {
-            position: absolute;
-            top: -6px;
-            right: -6px;
-            background: #ff4d4f;
-            color: white;
-            width: 18px;
-            height: 18px;
-            font-size: 11px;
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-    </style>
-
-    <div class="row g-4">
+    <div class="g-4">
         
-        <div class="d-flex flex-wrap justify-content-between align-items-center">
-            <div class="mb-4 mb-md-0">
+        <div class="row align-items-center mb-4">
+
+            <div class="col-md-6 mb-4 mb-md-0">
                 <h4 class="fw-bold mb-1 text-dark">
                     <i class="bi bi-megaphone-fill me-2 text-primary"></i> Campaigns
                 </h4>
@@ -120,19 +15,20 @@
                     <li class="breadcrumb-item active text-primary">Campaigns</li>
                 </ol>
             </div>
-            <div>
+            <div class="col-md-6 text-end">
                 {{-- @if(childUserAccess(Auth::guard('admin')->user()->id,'campaign_import_campaigner'))
-                <button class="btn btn-secondary btn-sm me-2" data-bs-toggle="modal" data-bs-target="#uploadcampaignerModal">
+                <button class="btn btn-secondary btn-md me-2" data-bs-toggle="modal" data-bs-target="#uploadcampaignerModal">
                     <i class="bi bi-upload me-1"></i> Import Campaigner
                 </button>
                 @endif --}}
                 @if(childUserAccess(Auth::guard('admin')->user()->id,'campaign_add_campaign'))
-                <button class="btn btn-primary btn-sm" wire:click="openCampaignModal" data-bs-toggle="modal"
+                <button class="btn btn-primary btn-md" wire:click="openCampaignModal" data-bs-toggle="modal"
                     data-bs-target="#campaignModal">
                     <i class="bi bi-plus-circle me-1"></i> Add Campaign
                 </button>
                 @endif
             </div>
+
         </div>
 
 
@@ -140,7 +36,7 @@
         <div class="col-lg-12">
             <div class="card shadow-sm border-0 p-3 ">
 
-                <div class="card-header bg-white">
+                <div class="bg-white">
 
                     <div class="row g-2 mb-4 justify-content-center">
                         <div class="col-md-12 col-lg-6">
@@ -188,7 +84,7 @@
                         </div>
 
 
-                        <div class="col-md-3 col-lg-2 text-md-center text-end">
+                        <div class="col-md-3 col-lg-2 text-md-end text-start">
                             <button class="btn btn-sm btn-danger"
                                 wire:click="resetFilters">
                                 <i class="bi bi-arrow-clockwise"></i> Reset
@@ -201,7 +97,7 @@
 
                 <div class="card-body p-2">
                     <div class="table-responsive">
-                        <table class="table align-middle mobile-table">
+                        <table class="table align-middle">
 
                             <thead class="table-light">
                                 <tr class="text-center">
@@ -210,7 +106,7 @@
                                     <th class="text-start">Assembly</th>
                                     <th class="text-start">Campaigner</th>
                                     {{-- <th>Permissions</th> --}}
-                                    <th>Action</th>
+                                    <th class="text-start">Action</th>
                                 </tr>
                             </thead>
 
@@ -222,14 +118,11 @@
 
                                     <!-- SL -->
                                     <td class=" fw-bold">
-                                        <h6 class="responsive-title">#</h6>
                                         {{ $campaigns->firstItem() + $index }}
                                     </td>
 
                                     <!-- Campaign Details -->
                                     <td class="text-start">
-                                        <h6 class="responsive-title">Campaign Details</h6>
-
                                         <div class="fw-semibold text-dark mb-1">
                                             <i class="bi bi-megaphone text-primary me-1"></i>
                                             {{ ucwords($camp->event_category_others ?? optional($camp->category)->name ?? 'N/A') }}
@@ -248,7 +141,6 @@
                                     </td>
 
                                     <td> 
-                                        <h6 class="responsive-title">Assembly</h6>
 
                                         <div class="small text-muted mb-1">
                                             @if(optional($camp->assembly)->assembly_name_en)
@@ -260,7 +152,6 @@
 
                                     <!-- Campaigner -->
                                     <td>
-                                        <h6 class="responsive-title">Campaigner</h6>
 
                                         @foreach($camp->campaigners as $campaigner)
 
@@ -321,8 +212,6 @@
 
                                     <!-- Action -->
                                     <td class="">
-
-                                    <h6 class="responsive-title">Action</h6>
 
                                         <div class="btn-group btn-group-sm">
 
@@ -669,9 +558,9 @@
                     </div>
 
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-md btn-secondary" data-bs-dismiss="modal">Cancel</button>
 
-                        <button type="submit" class="btn btn-sm btn-primary" wire:click="save">
+                        <button type="submit" class="btn btn-md btn-primary" wire:click="save">
                             {{ $isEdit ? 'Update' : 'Save' }}
                         </button>
                     </div>
