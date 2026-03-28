@@ -606,8 +606,16 @@
                                                         @endif
 
                                                         <div class="file-info">
+                                                            @php
+                                                                $originalName = $file->getClientOriginalName();
+                                                                $name = pathinfo($originalName, PATHINFO_FILENAME);
+                                                                $ext = pathinfo($originalName, PATHINFO_EXTENSION);
+
+                                                                $shortName = Str::limit($name, 25); // truncate only name
+                                                            @endphp
+
                                                             <div class="file-name">
-                                                                {{ Str::limit($file->getClientOriginalName(), 25) }}
+                                                                {{ $shortName }}.{{ $ext }}
                                                             </div>
 
                                                             <div class="file-size">

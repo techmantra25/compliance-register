@@ -92,7 +92,11 @@
 
         <div class="col-md-6 text-start text-md-end">
             <div class="d-flex align-items-center gap-2 justify-content-start justify-content-md-end">
-                <a href="#add-remark" class="btn btn-primary btn-md">Add Remark</a>
+                @if($groupMembers->has(auth()->guard('admin')->id()))
+                    @if($mcc->status !== 'resolved')
+                        <a href="#add-remark" class="btn btn-primary btn-md">Add Remark</a>
+                    @endif
+                @endif
                 <a href="{{ route('admin.mcc_violation') }}" 
                 class="btn btn-md btn-danger shadow-sm">
                     <i class="bi bi-arrow-left-circle me-1"></i> Back
@@ -283,21 +287,75 @@
                         
                             @if($selectedFile)
 
-                                @if(Str::endsWith($selectedFile, ['jpg','jpeg','png','webp']))
-                                <div class="preview-image-stack">
-                                    <img src="{{ $selectedFile }}" class="img-fluid border rounded">
-                                </div>
-                                @else
-                                <div class="preview-wrapper-stack">
-                                    <iframe src="{{ $selectedFile }}" width="100%" height="100%"></iframe>
-                                </div>
-                                @endif
+                            @php
+                                $extension = strtolower(pathinfo($selectedFile, PATHINFO_EXTENSION));
 
+                                $docTypes = ['doc','docx','xls','xlsx','ppt','pptx','txt','csv','odt','ods','odp'];
+                            @endphp
+
+                            {{-- 🖼️ IMAGE --}}
+                            @if(in_array($extension, ['jpg','jpeg','png','gif','bmp','webp']))
+                                <div class="preview-image-stack">
+                                    <img src="{{ $selectedFile }}" 
+                                        class="img-fluid border rounded"
+                                        style="max-height: 500px; object-fit: contain;">
+                                </div>
+
+                            {{-- 📄 PDF --}}
+                            @elseif($extension === 'pdf')
+                                <iframe src="{{ $selectedFile }}" 
+                                        style="width:100%; height:500px; border:none;">
+                                </iframe>
+
+                            {{-- 📄 DOC / DOCX / PPT / XLS (Google Viewer) --}}
+                            @elseif(in_array($extension, $docTypes))
+                                <iframe 
+                                    src="https://docs.google.com/gview?url={{ urlencode($selectedFile) }}&embedded=true"
+                                    width="100%" 
+                                    style="border:none; height:500px">
+                                </iframe>
+
+                            {{-- 📊 CSV / TXT --}}
+                            @elseif(in_array($extension, ['csv','txt']))
+                                <div class="bg-light p-3 rounded border text-start">
+                                    <strong>Preview:</strong>
+                                    <pre class="small text-muted" style="max-height: 400px; overflow-y: auto;">
+                        File preview not available. Please download.
+                                    </pre>
+                                    <a href="{{ $selectedFile }}" target="_blank" class="btn btn-sm btn-primary mt-2">
+                                        Download File
+                                    </a>
+                                </div>
+
+                            {{-- 📊 Excel special UI --}}
+                            @elseif(in_array($extension, ['xlsx','xls']))
+                                <div class="text-center p-4 bg-light border rounded">
+                                    <i class="bi bi-file-earmark-excel text-success fs-1 mb-2"></i>
+                                    <h6>Excel File</h6>
+                                    <p class="small text-muted mb-2">
+                                        You can download and open this file in Excel or Google Sheets.
+                                    </p>
+                                    <a href="{{ $selectedFile }}" class="btn btn-success btn-sm" target="_blank">
+                                        <i class="bi bi-download"></i> Download Excel
+                                    </a>
+                                </div>
+
+                            {{-- 📁 FALLBACK --}}
                             @else
-                                <div class="text-muted text-center mt-5">
-                                    Click file to preview
+                                <div class="text-center p-4">
+                                    <i class="bi bi-file-earmark text-secondary fs-1"></i>
+                                    <p class="mt-2">Preview not available</p>
+                                    <a href="{{ $selectedFile }}" target="_blank" class="btn btn-primary btn-sm">
+                                        Open File
+                                    </a>
                                 </div>
                             @endif
+
+                        @else
+                            <div class="text-muted text-center mt-5">
+                                Click file to preview
+                            </div>
+                        @endif
                         
                     </div>
 

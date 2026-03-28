@@ -23,7 +23,7 @@
             </div>
 
             <div class="col-md-6 mb-3">
-                <label class="form-label">Mobile</label>
+                <label class="form-label">Mobile (Whatsapp)</label>
                 <input type="text" class="form-control" wire:model.defer="mobile">
                 @error('mobile') <small class="text-danger">{{ $message }}</small> @enderror
             </div>
