@@ -39,6 +39,7 @@ class MccViolationCrud extends Component
     public $legalAssociates = [];
     public $supporting_documents = [];
     public $new_documents = [];
+    public $existing_documents = [];
 
     public $keywords = [];
     public $keywordInput = '';

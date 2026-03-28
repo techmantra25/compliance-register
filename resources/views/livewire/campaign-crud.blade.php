@@ -16,40 +16,6 @@
         .alert-primary { border-left-color: #0d6efd; }
         .alert-danger { border-left-color: #dc3545; }
 
-        .file-card {
-            width: 110px;
-            text-align: center;
-            position: relative;
-        }
-        .file-box {
-            width: 100px;
-            height: 100px;
-            border-radius: 12px;
-            border: 1px solid #ddd;
-            background: #f8f9fa;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            margin: auto;
-            position: relative;
-        }
-        .file-box img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 12px;
-        }
-        .file-box i {
-            font-size: 28px;
-            color: #6c757d;
-        }
-        .file-name {
-            margin-top: 6px;
-            font-size: 12px;
-            word-break: break-word;
-            line-height: 1.2;
-        }
         .file-remove {
             position: absolute;
             top: -6px;
@@ -66,6 +32,77 @@
             cursor: pointer;
             z-index: 99;
             box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
+
+        .attachment-wrapper {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            flex-direction:column;
+        }
+
+        .attachment-card {
+            position: relative;
+            border: 1px solid #e5e5e5;
+            border-radius: 10px;
+            padding:4px;
+            width: 100%;
+            background: #fafafa;
+        }
+
+        .attachment-content {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .attachment-img {
+            width: 30px;
+            height: 30px;
+            object-fit: cover;
+            border-radius: 6px;
+        }
+
+        .file-icon {
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f1f1f1;
+            border-radius: 6px;
+            font-size: 20px;
+        }
+
+        .file-info {
+            flex: 1;
+        }
+
+        .file-name {
+            font-size: 13px;
+            font-weight: 600;
+            margin-top:0;
+        }
+
+        .file-size {
+            font-size: 11px;
+            color: #777;
+        }
+
+        .remove-btn {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            background: #ff4d4f;
+            color: white;
+            width: 18px;
+            height: 18px;
+            font-size: 11px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
     </style>
 
@@ -497,93 +534,126 @@
                                         />
                                     </div>
                                 </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Permission Documents</label>
 
-                                    <input type="file" class="form-control form-control-sm" wire:model="permission_documents" multiple>
+                                <div class="col-lg-6 mb-3">
+                                        <label class="form-label">Permission Documents</label>
 
-                                    <div wire:loading wire:target="permission_documents" class="text-muted mt-2">
-                                        <span class="spinner-border spinner-border-sm me-1"></span> Uploading...
-                                    </div>
+                                        <input type="file" class="form-control" wire:model="new_documents" multiple>
+                                        @if($errors->has('permission_documents.*'))
+                                            @foreach($errors->get('permission_documents.*') as $messages)
+                                                @foreach($messages as $message)
+                                                    <small class="text-danger d-block">{{ $message }}</small>
+                                                @endforeach
+                                            @endforeach
+                                        @endif
 
-                                    @error('permission_documents.*') 
-                                        <small class="text-danger">{{ $message }}</small> 
-                                    @enderror
+                                        <!-- Loader -->
+                                        <div wire:loading wire:target="new_documents" class="text-muted mt-2">
+                                            <span class="spinner-border spinner-border-sm me-1"></span> Uploading...
+                                        </div>
 
-                                    <div class="d-flex flex-wrap gap-3 mt-3">
+                                        <!-- Selected Files Preview -->
 
-                                        @foreach($permission_documents as $index => $file)
-                                            @php
-                                                $ext = strtolower($file->getClientOriginalExtension());
-                                                $isImage = in_array($ext, ['jpg','jpeg','png','gif','webp']);
-                                            @endphp
+                                        @if(!empty($existing_documents))
+                                            <div class="attachment-wrapper mt-3">
 
-                                            <div class="file-card">
-
-                                                <span class="file-remove"
-                                                    wire:click="removeTempFile({{ $index }})">
-                                                    &times;
-                                                </span>
-
-                                                <!-- Preview -->
-                                                <div class="file-box">
-                                                    @if($isImage)
-                                                        <img src="{{ $file->temporaryUrl() }}">
-                                                    @else
-                                                        <i class="bi bi-file-earmark-text"></i>
-                                                    @endif
-                                                </div>
-
-                                                <!-- File Name -->
-                                                <div class="file-name">
-                                                    {{ Str::limit($file->getClientOriginalName(), 18) }}
-                                                </div>
-
-                                            </div>
-
-                                        @endforeach
-
-                                    </div>
-
-                                    @if($isEdit && $campaign_id)
-                                        @php
-                                            $docs = \App\Models\CampaignPermissionDocument::where('campaign_id', $campaign_id)->get();
-                                        @endphp
-
-                                        <div class="d-flex flex-wrap gap-3 mt-3">
-
-                                            @foreach($docs as $doc)
-                                                @if(!in_array($doc->id, $deletedFiles))
+                                                @foreach($existing_documents as $file)
                                                     @php
-                                                        $ext = strtolower(pathinfo($doc->file_path, PATHINFO_EXTENSION));
+                                                        $ext = strtolower(pathinfo($file->file_path, PATHINFO_EXTENSION));
                                                         $isImage = in_array($ext, ['jpg','jpeg','png','gif','webp']);
                                                     @endphp
 
-                                                    <div class="file-card">
+                                                    <div class="attachment-card">
 
-                                                        <span class="file-remove"
-                                                            wire:click="removeExistingFile({{ $doc->id }})">
-                                                            &times;
+                                                        <!-- Remove -->
+                                                        <span class="remove-btn"
+                                                            wire:click="removeExistingFile({{ $file->id }})">
+                                                            ✕
                                                         </span>
 
-                                                        <div class="file-box">
-                                                            @if($isImage)
-                                                                <img src="{{ asset($doc->file_path) }}">
-                                                            @else
-                                                                <i class="bi bi-file-earmark-text"></i>
-                                                            @endif
-                                                        </div>
+                                                        <div class="attachment-content">
 
-                                                        <div class="file-name">
-                                                            {{ basename($doc->file_path) }}
+                                                            @if($isImage)
+                                                                <img src="{{ asset($file->file_path) }}" class="attachment-img">
+                                                            @else
+                                                                <div class="file-icon">
+                                                                    <i class="bi bi-paperclip"></i>
+                                                                </div>
+                                                            @endif
+
+                                                            <div class="file-info">
+                                                                <div class="file-name">
+                                                                    {{ basename($file->file_path) }}
+                                                                </div>
+                                                            </div>
+
+                                                        </div>
+                                                    </div>
+                                                @endforeach
+
+                                            </div>
+                                        @endif
+                                        @if(!empty($permission_documents))
+                                        <div class="attachment-wrapper mt-3">
+
+                                            @foreach($permission_documents as $index => $file)
+
+                                                @php
+                                                    $ext = strtolower($file->getClientOriginalExtension());
+                                                    $isImage = in_array($ext, ['jpg','jpeg','png','gif','webp']);
+                                                @endphp
+
+                                                <div class="attachment-card">
+
+                                                    <!-- Remove -->
+                                                    <span class="remove-btn"
+                                                        wire:click="removeTempFile({{ $index }})">
+                                                        ✕
+                                                    </span>
+
+                                                    <div class="attachment-content">
+
+                                                        @if($isImage)
+                                                            <img src="{{ $file->temporaryUrl() }}" class="attachment-img">
+                                                        @else
+                                                            <div class="file-icon">
+                                                                <i class="bi bi-paperclip"></i>
+                                                            </div>
+                                                        @endif
+
+                                                        <div class="file-info">
+                                                            @php
+                                                                $originalName = $file->getClientOriginalName();
+                                                                $name = pathinfo($originalName, PATHINFO_FILENAME);
+                                                                $ext = pathinfo($originalName, PATHINFO_EXTENSION);
+
+                                                                $shortName = Str::limit($name, 25); // truncate only name
+                                                            @endphp
+
+                                                            <div class="file-name">
+                                                                {{ $shortName }}.{{ $ext }}
+                                                            </div>
+
+                                                            <div class="file-size">
+                                                                {{ number_format($file->getSize() / 1024, 1) }} KB
+                                                            </div>
                                                         </div>
 
                                                     </div>
-                                                @endif
+
+                                                    <!-- Progress -->
+                                                    <div class="progress mt-2" wire:loading wire:target="new_documents">
+                                                        <div class="progress-bar progress-bar-striped progress-bar-animated"
+                                                            style="width: 100%">
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+
                                             @endforeach
 
-                                            </div>
-                                    @endif
+                                        </div>
+                                        @endif
                                 </div>
 
                                 <!-- Remarks -->
