@@ -452,7 +452,6 @@ class NominationForm2B extends Component
 
     public function render()
     {
-       // dd($this->all());
         return view('livewire.nomination-form2-b')->layout('layouts.admin');
     }
 }

@@ -381,11 +381,15 @@
     Livewire.hook('morph.updated', () => {
 
         initSelect2();
-
-        // 🔄 Sync Livewire → UI
+        // Sync Livewire → UI
         $('#districtSelect').val(@this.get('district_id')).trigger('change.select2');
         $('#employeeSelect').val(@this.get('filter_by_employee')).trigger('change.select2');
         $('#assignEmployeeSelect').val(@this.get('assignedEmployee')).trigger('change.select2');
+
+        $('#assignEmployeeSelect').off('change').on('change', function () {
+            let value = $(this).val();
+            @this.set('assignedEmployee', value);
+        });
     });
     </script>
 

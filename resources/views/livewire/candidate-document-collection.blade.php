@@ -311,7 +311,7 @@
                                 <th width="8%">Status</th>
                                 {{-- <th width="18%">Remarks by Data uploader</th> --}}
                                 <th width="36%">Action</th>
-                                <th width="10%">Upload Now</th>
+                                <th width="%">Upload Now</th>
                             </tr>
                         </thead>
 
@@ -503,8 +503,7 @@
                                                                         wire:model="attachedTo.{{ $key }}"
                                                                         onchange="confirmUpdateAttachment('{{ $key }}', this)">
 
-                                                                        <option value="">Document already included</option>
-
+                                                                        {{-- <option value="">Document already included</option> --}}
                                                                         @foreach($remainRequiredDocuments as $parent_key => $parent)
                                                                             @if($parent_key !== $key)
                                                                                 <option value="{{ $parent }}" data-key="{{ $parent_key }}">
@@ -521,10 +520,8 @@
                                                                     </button>
 
                                                                 </div>
-
                                                             @else
                                                                 <!-- NORMAL VIEW -->
-
                                                                 {{-- Skipped By --}}
                                                                 <div class="mb-1">
                                                                     <i class="bi bi-person-check me-1 text-primary"></i>
@@ -600,7 +597,7 @@
                                             @if(isset($skipOption[$key]) && $skipOption[$key] === 'yes')
                                                 <select class="form-select form-select-sm w-100 d-inline-block mt-2" wire:model="attachedTo.{{ $key }}"
                                                         onchange="confirmUpdateAttachment('{{ $key }}', this)">
-                                                    <option value="" > Document already included</option>
+                                                    {{-- <option value="" > Document already included</option> --}}
                                                     @foreach($remainRequiredDocuments as $parent_key => $parent)
                                                         @if($parent_key !== $key)
                                                             <option value="{{ $parent }}" data-key="{{ $parent_key }}">
@@ -810,23 +807,24 @@
                 toastr.success("Attachment reset.");
                 return;
             }
-            Swal.fire({
-                title: "Update Attachment?",
-                text: "Are you sure you want to attach this document?",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#3085d6",
-                cancelButtonColor: "#d33",
-                confirmButtonText: "Yes, Update"
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    // Livewire call to updateAttachment
-                    @this.call('updateAttachment', key, parentValue, parentKey);
-                } else {
-                    // If cancelled, revert the dropdown
-                    @this.set('attachedTo.' + key, '');
-                }
-            });
+            @this.call('updateAttachment', key, parentValue, parentKey);
+            // Swal.fire({
+            //     title: "Update Attachment?",
+            //     text: "Are you sure you want to attach this document?",
+            //     icon: "warning",
+            //     showCancelButton: true,
+            //     confirmButtonColor: "#3085d6",
+            //     cancelButtonColor: "#d33",
+            //     confirmButtonText: "Yes, Update"
+            // }).then((result) => {
+            //     if (result.isConfirmed) {
+            //         // Livewire call to updateAttachment
+                    
+            //     } else {
+            //         // If cancelled, revert the dropdown
+            //         @this.set('attachedTo.' + key, '');
+            //     }
+            // });
         }
         function confirmPendingCases(el) {
             let checked = el.checked;
@@ -932,8 +930,18 @@
                     toastr.error(event.message);
                 });
             });
+            window.addEventListener("beforeunload", function () {
+                sessionStorage.setItem("scrollPosition", window.scrollY);
+            });
 
+            window.addEventListener("load", function () {
+                const scrollPosition = sessionStorage.getItem("scrollPosition");
+                if (scrollPosition !== null) {
+                    window.scrollTo(0, parseInt(scrollPosition));
+                }
+            });
         </script>
+
     @endpush
 
     <style>

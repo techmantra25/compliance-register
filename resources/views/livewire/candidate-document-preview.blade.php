@@ -349,8 +349,8 @@
                             <div class="form-check mb-3">
                                 <input class="form-check-input" type="checkbox" id="obs1" 
                                     onchange="updateObservation()" {{ !$canEditObservation ? 'disabled' : '' }}
-                                    {{ in_array('Candidate’s Epic is Missing', $selectedObservations ?? []) ? 'checked' : '' }}>
-                                <label class="form-check-label" for="obs1">Candidate’s Epic is Missing</label>
+                                    {{ in_array('Candidate’s Epic has not been received', $selectedObservations ?? []) ? 'checked' : '' }}>
+                                <label class="form-check-label" for="obs1">Candidate’s Epic has not been received</label>
                             </div>
 
                             <div class="form-check mb-3">
@@ -527,7 +527,7 @@
         </div>
     </div>
     
-    <div class="loader-container" wire:loading wire:target="downloadAcknowledgement, downloadObservationMemo,openWhatsappModal,closeWhatsappModal,sendObservationWhatsapp">
+    <div class="loader-container" wire:loading wire:target="downloadAcknowledgement, downloadObservationMemo,openWhatsappModal,closeWhatsappModal,sendObservationWhatsapp,GenerateAcknowledgementForm,GenerateObservationMemo">
         <div class="loader"></div>
     </div>
 @push('scripts')
@@ -595,7 +595,7 @@
         let observations = [];
 
         if (document.getElementById('obs1').checked) {
-            observations.push("Candidate’s Epic is Missing");
+            observations.push("Candidate’s Epic has not been received");
         }
 
         if (document.getElementById('obs2').checked) {
@@ -645,9 +645,7 @@
             if (result.isConfirmed) {
                 @this.call('GenerateObservationMemo');
             }
-
         });
-
     }
 
     function updateObservation() {
@@ -655,7 +653,7 @@
         let observations = [];
 
         if (document.getElementById('obs1').checked) {
-            observations.push("Candidate’s Epic is Missing");
+            observations.push("Candidate’s Epic has not been received");
         }
 
         if (document.getElementById('obs2').checked) {

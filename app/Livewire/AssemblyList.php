@@ -134,9 +134,9 @@ class AssemblyList extends Component
         ];
     }
 
-   public function saveAssignments()
+    public function saveAssignments()
     {
-        //  Step 0: Validation
+        // Step 0: Validation
         if (empty($this->assembly_id)) {
             $this->dispatch('assignment-error', message: 'Please select an assembly first');
             return;
@@ -147,7 +147,7 @@ class AssemblyList extends Component
             return;
         }
 
-        //  Step 1: Remove this assembly from all employees
+        // Step 1: Remove this assembly from all employees
         $allEmployees = Admin::where('role', 'employee')->get();
 
         foreach ($allEmployees as $emp) {
@@ -160,7 +160,7 @@ class AssemblyList extends Component
             $emp->save();
         }
 
-        //  Step 2: Assign selected employee
+        // Step 2: Assign selected employee
         $emp = Admin::find($this->assignedEmployee);
 
         if (!$emp) {
@@ -177,10 +177,10 @@ class AssemblyList extends Component
         $emp->assemblies = implode(',', $assemblies);
         $emp->save();
 
-        //  Step 3: Get Candidate using Assembly
+        // Step 3: Get Candidate using Assembly
         $candidate = Candidate::where('assembly_id', $this->assembly_id)->first();
 
-        //  Step 4: Send Mail to Employee
+        // Step 4: Send Mail + WhatsApp
         $mailSent = false;
 
         if ($candidate && !empty($emp->email)) {
@@ -204,24 +204,102 @@ class AssemblyList extends Component
             ];
 
             try {
-                //  IMPORTANT: Sending to EMPLOYEE
+                // ✅ Send Email
                 Mail::to($emp->email)->send(new AssignmentNotification($data));
+
+                // =========================
+                // ✅ WHATSAPP SEND
+                // =========================
+                if (!empty($emp->mobile)) {
+
+                    $apiDomainUrl  = config('whatsapp.api_domain_url');
+                    $apiVersion    = config('whatsapp.api_version');
+                    $channelNumber = config('whatsapp.channel_number');
+                    $apiKey        = config('whatsapp.api_key');
+                    $apiEndPoint   = config('whatsapp.api_end_point');
+
+                    $apiUrl = "{$apiDomainUrl}/{$apiVersion}/{$channelNumber}/{$apiEndPoint}";
+
+                    // format mobile
+                    $mobile = preg_replace('/\D/', '', $emp->mobile);
+                    $recipientPhone = '91' . substr($mobile, -10);
+
+                    // Template variables
+                    $var1 = $emp->name;
+                    $var2 = $candidate->name ?? 'N/A';
+                    $var3 = optional($candidate->assembly)->assembly_code . ' | ' .
+                    optional($candidate->assembly)->assembly_name_en .
+                    ' (' . optional($candidate->assembly)->assembly_name_bn . ')';
+
+                    $payload = [
+                        "messaging_product" => "whatsapp",
+                        "recipient_type" => "individual",
+                        "to" => $recipientPhone,
+                        "type" => "template",
+                        "template" => [
+                            "name" => "doc_vetting",
+                            "language" => [
+                                "code" => "en"
+                            ],
+                            "components" => [
+                                [
+                                    "type" => "body",
+                                    "parameters" => [
+                                        ["type" => "text", "text" => $var1],
+                                        ["type" => "text", "text" => $var2],
+                                        ["type" => "text", "text" => $var3],
+                                    ]
+                                ]
+                            ]
+                        ],
+                        "biz_opaque_callback_data" => "assignment_{$this->assembly_id}"
+                    ];
+
+                    // CURL
+                    $ch = curl_init();
+
+                    curl_setopt_array($ch, [
+                        CURLOPT_URL => $apiUrl,
+                        CURLOPT_RETURNTRANSFER => true,
+                        CURLOPT_POST => true,
+                        CURLOPT_HTTPHEADER => [
+                            "Authorization: Bearer {$apiKey}",
+                            "Content-Type: application/json",
+                        ],
+                        CURLOPT_POSTFIELDS => json_encode($payload),
+                    ]);
+
+                    $response = curl_exec($ch);
+                    $error    = curl_error($ch);
+
+                    curl_close($ch);
+
+                    if ($error) {
+                        \Log::error("WhatsApp Error: " . $error);
+                    } else {
+                        \Log::info('WhatsApp Sent', [
+                            'phone' => $recipientPhone,
+                            'response' => json_decode($response, true)
+                        ]);
+                    }
+                }
 
                 $mailSent = true;
 
             } catch (\Exception $e) {
                 $mailSent = false;
+                \Log::error("Mail/WhatsApp Error: " . $e->getMessage());
             }
         }
 
-        //  Step 5: Close Modal
+        // Step 5: Close Modal
         $this->dispatch('closeAssignModal');
-        
-        //  Step 6: Final Alert
+
+        // Step 6: Final Alert
         if ($mailSent) {
-            $this->dispatch('assignment-success', message: 'Assignment saved & email sent to employee');
+            $this->dispatch('assignment-success', message: 'Assignment saved & notification sent');
         } else {
-            $this->dispatch('assignment-warning', message: 'Assignment saved but email not sent');
+            $this->dispatch('assignment-warning', message: 'Assignment saved but notification failed');
         }
     }
 

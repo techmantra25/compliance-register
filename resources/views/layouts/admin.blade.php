@@ -132,6 +132,12 @@
                         <i class="bi bi-building me-2"></i> {{ __('admin/sidebar.assemblies') }}
                     </a>
                 </li>
+                <li class="nav-item mb-2">
+                    <a href="{{ route('admin.form-2b-generate') }}"
+                    class="nav-link {{ request()->routeIs('admin.form-2b-generate') ? 'active' : '' }}">
+                        <i class="bi bi-building me-2"></i> Independent Candidates List
+                    </a>
+                </li>
             @endif
             <!-- Candidates Dropdown -->
             @if(userAccess(Auth::guard('admin')->user()->id,'nomination_management'))

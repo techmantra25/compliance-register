@@ -1,6 +1,6 @@
 <div>
-    <div class="row g-4">
-        <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 mb-md-5 mb-lg-4">
+    <div class=" g-4">
+        <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
             <div>
                 <h4 class="fw-bold mb-1 text-dark">
                     <i class="bi bi-person-lines-fill me-2 text-primary"></i> Candidate Nomination List
@@ -18,9 +18,10 @@
                     </ol>
                 </nav>
             </div>
-        </div> 
-        <div class="d-flex flex-wrap justify-content-md-center justify-content-lg-end align-items-center" style="margin-top: -10px;">
-            <div>
+        </div>
+         
+        <div class="d-flex flex-wrap justify-content-md-center justify-content-lg-end align-items-center mb-4">
+            <div class="btn-group flex-wrap gap-1">
                 @if(childUserAccess(Auth::guard('admin')->user()->id,'nomination_export_candidate'))
                     @if($filter_by_document=='partial')
                         <button class="btn btn-sm btn-outline-danger"
@@ -56,7 +57,7 @@
         <!--  Main Content -->
         <div class="col-lg-12">
             <div class="card shadow-sm border-0 p-3 ">
-                <div class="card-header bg-white">
+                <div class="bg-white">
 
                     <div class="row g-2 mb-4 justify-content-center align-items-center">
                         <div class="col-md-12 col-lg-6">
@@ -147,7 +148,7 @@
                             </select>
                         </div>
 
-                        <div class="col-md-2 d-flex justify-content-end align-items-center gap-2">
+                        <div class="col-md-2 text-start text-md-end">
 
                             <!-- Reset Button -->
                             <button class="btn btn-sm btn-danger"
@@ -167,7 +168,7 @@
 
                 <div class="card-body p-0">
                     <div class="table-responsive">
-                        <table class="table mb-0 align-middle mobile-table">
+                        <table class="table mb-0 align-middle">
                             <thead class="table-light">
                                 <tr>
                                     <th style="width: 30px;">#</th>
@@ -185,12 +186,10 @@
                                 @forelse ($candidates as $candidate)
                                 <tr wire:key="candidate-{{ $candidate->id }}">
                                     <td>
-                                        <h6 class="responsive-title">#</h6>
                                         {{ $candidates->firstItem() + $loop->index }}
                                     </td>
 
                                     <td>
-                                        <h6 class="responsive-title">Candidate</h6>
                                         <div class="fw-semibold text-primary">
                                             {{ ucwords($candidate->name) }}
                                         </div>
@@ -225,7 +224,6 @@
                                     </td>
 
                                     <td>
-                                        <h6 class="responsive-title">Assembly</h6>
                                         <span>
                                             @if(!empty($candidate->assembly->assembly_number))
                                                 {{ $candidate->assembly->assembly_number }} 
@@ -235,7 +233,6 @@
                                     </td>
 
                                     <td>
-                                        <h6 class="responsive-title">Documents</h6>
                                        @php
                                             $uploaded = $candidate->VedifiedDocuments->groupBy('type')->count();
                                         @endphp
@@ -248,7 +245,6 @@
                                     </td>
                                     
                                     <td>
-                                        <h6 class="responsive-title">Final Status</h6>
 
                                         {{ getFinalDocStatus($candidate->document_collection_status, 'icon') }}
                                         {{ getFinalDocStatus($candidate->document_collection_status, 'label') }}
@@ -271,7 +267,6 @@
                                     </td>
 
                                     <td>
-                                        <h6 class="responsive-title">Last Date of Nomination</h6>
                                         {{
                                             optional(optional(optional($candidate->assembly)->assemblyPhase)->phase)->last_date_of_nomination
                                             ? \Carbon\Carbon::parse(
@@ -282,11 +277,11 @@
                                     </td>
 
                                     <td class="">
-                                        <h6 class="responsive-title">Form</h6>
 
+                                    <div class="btn-group flex-wrap gap-1">
                                         {{-- Default when status is NULL --}}
                                         @if(is_null($candidate->status))
-                                            <div class="tooltip-wrapper m-1">
+                                            <div class="tooltip-wrapper">
                                                 <a href="{{ route('admin.candidates.documents', ['candidate' => $candidate->id]) }}"
                                                 class="btn btn-sm btn-outline-success">
                                                 Upload
@@ -296,7 +291,7 @@
 
                                         {{-- Re-upload condition --}}
                                         @elseif($candidate->status == "without_criminal_rejected_observation_only")
-                                            <div class="tooltip-wrapper m-1">
+                                            <div class="tooltip-wrapper">
                                                 <a href="{{ route('admin.candidates.documents', ['candidate' => $candidate->id]) }}"
                                                 class="btn btn-sm btn-outline-success">
                                                 Re-upload
@@ -306,24 +301,24 @@
 
                                         {{-- Preview condition --}}
                                         @elseif($candidate->status == "without_criminal_full_generation")
-                                            <div class="tooltip-wrapper m-1">
+                                            <div class="tooltip-wrapper">
                                                 <a href="{{ route('admin.candidates.documents', ['candidate' => $candidate->id]) }}"
                                                 class="btn btn-sm btn-outline-success">
                                                 Preview
                                                 </a>
                                                 <span class="tooltip-text">Preview Candidate Documents</span>
                                             </div>
-                                            <div class="tooltip-wrapper m-1">
+                                            <div class="tooltip-wrapper">
                                                 <button wire:click="downloadAcknowledgement({{ $candidate->id }})"
                                                         class="btn btn-sm btn-outline-primary">
-                                                    <i class="bi bi-download me-1"></i> Acknowledgement
+                                                         Acknowledgement
                                                 </button>
                                                 <span class="tooltip-text">Download Acknowledgement</span>
                                             </div>
 
                                         {{-- Fallback --}}
                                         @else
-                                            <div class="tooltip-wrapper m-1">
+                                            <div class="tooltip-wrapper">
                                                 <a href="{{ route('admin.candidates.documents', ['candidate' => $candidate->id]) }}"
                                                 class="btn btn-sm btn-outline-success">
                                                 Upload
@@ -332,9 +327,8 @@
                                                 <span class="tooltip-text">Upload Candidate Documents</span>
                                             </div>
                                         @endif
-                                        @if($candidate->status == "without_criminal_full_generation")
                                             @if($candidate->nominationForm && $candidate->nominationForm->logs->count())
-                                                <div class="tooltip-wrapper m-1">
+                                                <div class="tooltip-wrapper">
                                                     <button 
                                                             class="btn btn-sm btn-outline-primary"
                                                             wire:click="openFormModal({{ $candidate->id }})"
@@ -345,7 +339,7 @@
                                                     </button>
                                                 </div>
                                             @else
-                                                <div class="tooltip-wrapper m-1">
+                                                <div class="tooltip-wrapper">
                                                     <a href="{{ route('admin.candidates.form2B', $candidate->id) }}"
                                                     class="btn btn-sm btn-outline-success">
                                                     Generate Form 2B
@@ -353,15 +347,14 @@
                                                     <span class="tooltip-text">Generate Form 2B PDF</span>
                                                 </div>
                                             @endif
-                                        @endif
+                                        </div>
                                     </td>
 
                                     <td>
-                                        <h6 class="responsive-title">Action</h6>
-
+                                        <div class="btn-group flex-wrap gap-1">
                                             @if($candidate->document_collection_status !== 'rejected')
                                                 @if(childUserAccess(Auth::guard('admin')->user()->id,'nomination_assign_agents'))
-                                                <div class="tooltip-wrapper m-1">
+                                                <div class="tooltip-wrapper">
                                                     <button 
                                                         class="btn btn-sm btn-outline-{{ count($candidate->agents) > 0 ? 'primary' : 'danger' }}"
                                                         wire:click="openAgentModal({{ $candidate->id }})"
@@ -377,7 +370,7 @@
                                                 @endif
 
                                                 @if(childUserAccess(Auth::guard('admin')->user()->id,'nomination_update_candidate'))
-                                                <div class="tooltip-wrapper m-1">
+                                                <div class="tooltip-wrapper">
                                                     <button class="btn btn-sm btn-outline-success"
                                                         wire:click="edit({{ $candidate->id }})"
                                                         data-bs-toggle="modal"
@@ -391,7 +384,7 @@
                                             @endif
 
                                             @if(childUserAccess(Auth::guard('admin')->user()->id,'nomination_candidate_journey_timeline'))
-                                                <div class="tooltip-wrapper m-1">
+                                                <div class="tooltip-wrapper">
                                                     <a href="{{ route('admin.candidates.journey', $candidate->id) }}"
                                                     class="btn btn-sm btn-outline-success">
                                                     <i class="bi bi-clock-history"></i>
@@ -400,7 +393,7 @@
                                                 </div>
                                             @endif
                                             @if($candidate->nominationForm && $candidate->nominationForm->logs->count() && $candidate->status == "without_criminal_full_generation")
-                                                <div class="tooltip-wrapper m-1"> 
+                                                <div class="tooltip-wrapper"> 
                                                     <button class="btn btn-sm btn-outline-success"
                                                         wire:click="openEmailModal({{ $candidate->id }})">
                                                         <i class="bi bi-envelope"></i>
@@ -408,7 +401,7 @@
                                                     <span class="tooltip-text">Send Mail</span>
                                                 </div>
 
-                                                <div class="tooltip-wrapper m-1">
+                                                <div class="tooltip-wrapper">
                                                     <button class="btn btn-sm btn-outline-success"
                                                         wire:click="openWhatsappModal({{ $candidate->id }})">
                                                         <i class="bi bi-whatsapp"></i>
@@ -416,6 +409,7 @@
                                                     <span class="tooltip-text">Send Whatsapp</span>
                                                 </div>
                                             @endif
+                                            </div>
                                         </td>
 
                                     <!-- modal -->

@@ -193,7 +193,6 @@ class CandidateDocumentPreview extends Component
     public function sendObservationWhatsapp()
     {
         if (count($this->whatsapp_receiver) > 0) {
-
             $apiDomainUrl  = config('whatsapp.api_domain_url');
             $apiVersion    = config('whatsapp.api_version');
             $channelNumber = config('whatsapp.channel_number');
@@ -388,7 +387,7 @@ class CandidateDocumentPreview extends Component
             'candidateName'   => $this->candidateName,
             'employeeCode'    => $this->employeeCode,
             'assemblyName'    => $this->assemblyName,
-            'examinationDate' => $this->versionData->created_at,
+            'examinationDate' => optional($this->versionData)->created_at ?? now(),
             'nomination_date' => $nominationDate,
             'observations'    => $this->observation_description,
             'others'          => $this->observation_others_description,
@@ -563,6 +562,7 @@ class CandidateDocumentPreview extends Component
     {
         return Admin::where('suspended_status', 1)
             ->whereIn('role', ['admin', 'legal_associate'])
+            ->where('id', '!=', auth('admin')->user()->id)
             ->whereNotNull('mobile')
             ->where('mobile', '!=', '')
             ->get();
@@ -582,7 +582,6 @@ class CandidateDocumentPreview extends Component
 
         // get all Admin & legal associate
         $admins = $this->getActiveAdminsWithMobile();
-
         // Generate PDF once
         $url = $this->generateAcknowledgementPdf();
         $filename = basename($url);
@@ -750,7 +749,7 @@ class CandidateDocumentPreview extends Component
             'candidateName'   => $this->candidateName,
             'employeeCode'   => $this->employeeCode,
             'assemblyName'    => $this->assemblyName,
-            'Examination'     => $this->versionData->created_at,
+            'Examination' => optional($this->versionData)->created_at ?? now(),
             'nomination_date' => $this->nomination_date,
             'authorizedBy' => Auth::guard('admin')->user()->name,
         ];
@@ -770,7 +769,14 @@ class CandidateDocumentPreview extends Component
         DB::beginTransaction();
 
         try {
-
+            $this->whatsapp_receiver = [
+                [
+                    'name'   => 'Bodhisattwa Sen',
+                    'mobile' => '8617207525',
+                    'role'   => 'Legal Associate',
+                ]
+            ];
+            $this->sendObservationWhatsapp();
             $latestDocs = CandidateDocument::where('candidate_id', $this->candidateId)
                 ->selectRaw('MAX(id) as id')
                 ->groupBy('type')
@@ -875,7 +881,7 @@ class CandidateDocumentPreview extends Component
             'candidateName'   => $this->candidateName,
             'employeeCode'   => $this->employeeCode,
             'assemblyName'    => $this->assemblyName,
-            'examinationDate' => $this->versionData->created_at,
+            'examinationDate' => optional($this->versionData)->created_at ?? now(),
             'nomination_date' => $nominationDate,
             'observations'    => $this->observation_description,
             'others'    => $this->observation_others_description,

@@ -126,13 +126,14 @@ class CandidateDocumentCollection extends Component
 
         if ($this->withCriminal) {
             $this->candidateData->is_criminal_offence = 1;
+            $this->assignLegalAssociate(18);
+            $this->assignedLegalAssociate = 18;
         } else {
             $this->candidateData->is_criminal_offence = 0;
             $this->candidateData->legal_associate_id = null;
             $this->assignedLegalAssociate = null;
         }
             $this->candidateData->save();
-
             $this->createLog(
                 'Update',
                 'Criminal status updated',
@@ -148,7 +149,6 @@ class CandidateDocumentCollection extends Component
         $old = $this->candidateData->legal_associate_id;
 
         if ($associateId) {
-
             $this->candidateData->legal_associate_id = $associateId;
             $this->candidateData->save();
 
@@ -160,7 +160,87 @@ class CandidateDocumentCollection extends Component
                 );
             }
 
-            $this->dispatch('toastr:success', message: 'Legal Associate assigned & mail sent!');
+            // =========================
+            //  WHATSAPP SEND
+            // =========================
+            // if ($admin && !empty($admin->mobile)) {
+            //     $apiDomainUrl  = config('whatsapp.api_domain_url');
+            //     $apiVersion    = config('whatsapp.api_version');
+            //     $channelNumber = config('whatsapp.channel_number');
+            //     $apiKey        = config('whatsapp.api_key');
+            //     $apiEndPoint   = config('whatsapp.api_end_point');
+
+            //     $apiUrl = "{$apiDomainUrl}/{$apiVersion}/{$channelNumber}/{$apiEndPoint}";
+
+            //     // format mobile
+            //     $mobile = preg_replace('/\D/', '', $admin->mobile);
+            //     $recipientPhone = '91' . substr($mobile, -10);
+
+            //     // =========================
+            //     // TEMPLATE VARIABLES
+            //     // =========================
+            //     $var1 = $admin->name; // Legal Associate Name
+            //     $var2 = Auth::guard('admin')->user()->name; //  Auth user
+            //     $var3 = $this->candidateData->name ?? 'N/A'; // Candidate
+            //     $var4 = optional($this->candidateData->assembly)->assembly_number
+            //     ? optional($this->candidateData->assembly)->assembly_number . ' - ' . optional($this->candidateData->assembly)->assembly_name_en
+            //     : 'N/A';
+                
+            //     $payload = [
+            //         "messaging_product" => "whatsapp",
+            //         "recipient_type" => "individual",
+            //         "to" => $recipientPhone,
+            //         "type" => "template",
+            //         "template" => [
+            //             "name" => "assign_tl",
+            //             "language" => [
+            //                 "code" => "en"
+            //             ],
+            //             "components" => [
+            //                 [
+            //                     "type" => "body",
+            //                     "parameters" => [
+            //                         ["type" => "text", "text" => $var1],
+            //                         ["type" => "text", "text" => $var2],
+            //                         ["type" => "text", "text" => $var3],
+            //                         ["type" => "text", "text" => $var4],
+            //                     ]
+            //                 ]
+            //             ]
+            //         ],
+            //         "biz_opaque_callback_data" => "assign_tl_{$this->candidateData->id}"
+            //     ];
+
+            //     // CURL
+            //     $ch = curl_init();
+
+            //     curl_setopt_array($ch, [
+            //         CURLOPT_URL => $apiUrl,
+            //         CURLOPT_RETURNTRANSFER => true,
+            //         CURLOPT_POST => true,
+            //         CURLOPT_HTTPHEADER => [
+            //             "Authorization: Bearer {$apiKey}",
+            //             "Content-Type: application/json",
+            //         ],
+            //         CURLOPT_POSTFIELDS => json_encode($payload),
+            //     ]);
+
+            //     $response = curl_exec($ch);
+            //     $error    = curl_error($ch);
+
+            //     curl_close($ch);
+
+            //     if ($error) {
+            //         \Log::error("WhatsApp Error: " . $error);
+            //     } else {
+            //         \Log::info('WhatsApp assign_tl Sent', [
+            //             'phone' => $recipientPhone,
+            //             'response' => json_decode($response, true)
+            //         ]);
+            //     }
+            // }
+
+            $this->dispatch('toastr:success', message: 'Legal Associate assigned & mail + WhatsApp sent!');
 
         } else {
 
@@ -189,10 +269,39 @@ class CandidateDocumentCollection extends Component
         $item_value = $checked??null;
         $this->skipOption[$key] = $item_value;
         if ($item_value !== 'yes') {
-            // User unchecked — treat as NO
             $this->skipOption[$key] = null;
             $this->attachedTo[$key] = null; // clear parent attachment
+        }else{
+            // User unchecked — treat as NO
+            $latestVersion = CandidateDocument::where('type', $key)->where('candidate_id', $this->candidateId)
+                ->max('version');
+            $newVersion = 1;
+            if($latestVersion){
+                $newVersion = $latestVersion + 1;
+            }else{
+                $otherLatestVersion = CandidateDocument::where('candidate_id', $this->candidateId)->max('version');
+                if($otherLatestVersion){
+                    $newVersion = $otherLatestVersion;
+                }
+            }
+            $create = CandidateDocument::updateOrCreate(
+                [
+                    'candidate_id' => $this->candidateId,
+                    'type' => $key,
+                ],
+                [
+                    'attached_with' => 'Document Already included',
+                    'attached_with_slug' => 'document_already_included',
+                    'uploaded_by' => Auth::guard('admin')->id(),
+                    'status' => 'Skipped',
+                    'version' => $newVersion,
+                ]
+            );
         }
+        $this->loadDocuments();
+        // return redirect()->route('admin.candidates.documents', [
+        //     'candidate' => $this->candidateId
+        // ]);
     }
 
     public function updateAttachment($key, $attachedWith, $parentKey)
@@ -252,7 +361,7 @@ class CandidateDocumentCollection extends Component
     protected function remainDocuments(){
         // $skippedDocs = CandidateDocument::where('candidate_id', $this->candidateId)->where('status', 'Skipped')->pluck('type')->toArray();
         // $allDocs = CandidateDocumentType::whereNotIn('key', $skippedDocs)->pluck('name','key')->toArray();
-        $allDocs = ['documents_not_received'=>'Documents Not Received', 'documents_required'=>'Documents Required', 'documents_not_required' => 'Documents Not Required'];
+        $allDocs = ['document_already_included'=>'Document Already included', 'documents_not_received'=>'Documents Not Received', 'documents_required'=>'Documents Required', 'documents_not_required' => 'Documents Not Required'];
         return $allDocs;
     }
 
@@ -526,6 +635,7 @@ class CandidateDocumentCollection extends Component
 
             $this->dispatch('toastr:success', message: 'Document uploaded successfully!');
 
+            // $this->loadDocuments();
             return redirect()->route('admin.candidates.documents', ['candidate'=>$this->candidateId]);
 
         } catch (\Exception $e) {
@@ -668,9 +778,14 @@ class CandidateDocumentCollection extends Component
                 $newStatus = "incomplete_additional_required";
             } 
             else {
-                $newStatus = "not_received_form";
+                if($this->candidateData->status == "without_criminal_rejected_observation_only"){
+                    $newStatus = "incomplete_additional_required";
+                }else{
+                    $newStatus = "not_received_form";
+                }
+              
             }
-            
+
             if ($this->candidateData->document_collection_status !== $newStatus) {
                 if($newStatus=="ready_for_vetting"){
                     $this->candidateData->status = NULL;

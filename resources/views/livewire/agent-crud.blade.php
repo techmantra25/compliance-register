@@ -1,7 +1,7 @@
 <div>
-    <div class="row g-4">
-        <div class="d-flex flex-wrap justify-content-between align-items-center">
-            <div class="mb-4 mb-md-0">
+    <div class=" g-4">
+        <div class="row justify-content-between align-items-center mb-4">
+            <div class="col-md-6 mb-4 mb-md-0">
                 <h4 class="fw-bold mb-1 text-dark ">
                     <i class="bi bi-person-lines-fill me-2 text-primary"></i> Contact Management
                 </h4>
@@ -18,44 +18,58 @@
                     </ol>
                 </nav>
             </div>
-            <div>
-                @if(childUserAccess(Auth::guard('admin')->user()->id,'contact_bulk_contact_upload'))
-                    <button class="btn btn-primary btn-sm" wire:click="import" data-bs-toggle="modal" data-bs-target="#importModal">
-                        <i class="bi bi-plus-circle me-1"></i> Bulk Upload
-                    </button>
-                @endif
-                @if(childUserAccess(Auth::guard('admin')->user()->id,'contact_add_contact'))
-                    <button class="btn btn-primary btn-sm" wire:click="newAgent" data-bs-toggle="modal"
-                        data-bs-target="#agentModal">
-                        <i class="bi bi-plus-circle me-1"></i> Add New Contacts
-                    </button>
-                @endif
+            <div class="col-md-6 text-end">
+                <div class="btn-group flex-wrap gap-1">
+                    @if(childUserAccess(Auth::guard('admin')->user()->id,'contact_bulk_contact_upload'))
+                        <button class="btn btn-primary btn-md" wire:click="import" data-bs-toggle="modal" data-bs-target="#importModal">
+                            <i class="bi bi-plus-circle me-1"></i> Bulk Upload
+                        </button>
+                    @endif
+                    @if(childUserAccess(Auth::guard('admin')->user()->id,'contact_add_contact'))
+                        <button class="btn btn-primary btn-md" wire:click="newAgent" data-bs-toggle="modal"
+                            data-bs-target="#agentModal">
+                            <i class="bi bi-plus-circle me-1"></i> Add New Contacts
+                        </button>
+                    @endif
+                </div>
             </div>
         </div>
 
         <!--  Main Content -->
         <div class="col-lg-12">
             <div class="card shadow-sm border-0 p-3">
-                <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                    <h5 class="fw-bold mb-0"> Contacts</h5>
+                <div class="row justify-content-between align-items-center mb-4">
+                    <div class="col-md-12 mb-4">
+                        <h5 class="fw-bold mb-0"> Contacts</h5>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="row justify-content-center">
+                            <div class="col-12 col-md-6">
+                                <div class="d-flex flex-wrap align-items-center gap-2">
+                                    <div class="canditate-search col-12 col-md-10">
+                                        <input type="text" wire:model="search" wire:keyup="filterAgents($event.target.value)" data-category-field
+                                        class="form-control form-control-sm me-2" placeholder="Search here...">
+                                        <span>
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-search"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                                        </span>
+                                    </div>
 
-                    <div class="d-flex align-items-center">
-                        <input type="text" wire:model="search" wire:keyup="filterAgents($event.target.value)" data-category-field
-                            class="form-control form-control-sm w-auto me-2" placeholder="Search here...">
-
-                        <button type="button" class="btn btn-sm btn-danger" wire:click="resetForm">
-                            <i class="bi bi-arrow-clockwise"></i> Reset
-                        </button>
+                                    <button type="button" class="btn btn-sm btn-danger" wire:click="resetForm">
+                                        <i class="bi bi-arrow-clockwise"></i> Reset
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <div class="card-body p-2">
+                <div class="card-body p-0">
                     <div class="table-responsive">
                         <table class="table mb-0 align-middle">
                             <thead class="table-light">
                                 <tr>
                                     <th>Sl.No</th>
-                                    <th> Name</th>
+                                    <th>Name</th>
                                     <th>Designation</th>
                                     <th>Type</th>
                                     <th>Mobile No / Whatsapp No</th>
@@ -78,23 +92,25 @@
                                     <td>{{ $agent->email ?? '-' }}</td>
                                     <td>{{ $agent->area ?? '-' }}</td>
                                     <td>
-                                        <button class="btn btn-sm btn-outline-primary"
-                                            wire:click="view({{ $agent->id }})">
-                                            <i class="bi bi-eye"></i>
-                                        </button>
-                                        @if(childUserAccess(Auth::guard('admin')->user()->id,'contact_update_contact'))
-                                        <button class="btn btn-sm btn-outline-primary"
-                                            wire:click.prevent="edit({{ $agent->id }})" data-bs-toggle="modal"
-                                            data-bs-target="#agentModal">
-                                            <i class="bi bi-pencil"></i>
-                                        </button>
-                                        @endif
-                                        @if(childUserAccess(Auth::guard('admin')->user()->id,'contact_delete_contact'))
-                                        <button class="btn btn-sm btn-outline-primary"
-                                            wire:click="confirmDelete({{ $agent->id }})">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-                                        @endif
+                                        <div class="btn-group flex-wrap gap-1">
+                                            <button class="btn btn-sm btn-outline-primary"
+                                                wire:click="view({{ $agent->id }})">
+                                                <i class="bi bi-eye"></i>
+                                            </button>
+                                            @if(childUserAccess(Auth::guard('admin')->user()->id,'contact_update_contact'))
+                                            <button class="btn btn-sm btn-outline-primary"
+                                                wire:click.prevent="edit({{ $agent->id }})" data-bs-toggle="modal"
+                                                data-bs-target="#agentModal">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                            @endif
+                                            @if(childUserAccess(Auth::guard('admin')->user()->id,'contact_delete_contact'))
+                                            <button class="btn btn-sm btn-outline-primary"
+                                                wire:click="confirmDelete({{ $agent->id }})">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                            @endif
+                                        </div>
 
                                     </td>
 
@@ -104,67 +120,67 @@
                                 <tr class="bg-light">
                                     <td colspan="6">
                                         <div class="p-3">
-                                            <h6 class="fw-bold mb-2 text-primary">
+                                            <h6 class="fw-bold mb-3 text-primary">
                                                 <i class="bi bi-info-circle me-1"></i> Contact Details
                                             </h6>
                                             <div class="row">
                                                 @if($agent->type === 'bureaucrat')
-                                                <div class="col-md-6">
-                                                    <p><strong>Designation:</strong> {{ $agent->designation ?? '-' }}
+                                                <div class="col-6 col-md-6">
+                                                    <p><strong class="title-text">Designation:</strong> {{ $agent->designation ?? '-' }}
                                                     </p>
-                                                    <p><strong>Area:</strong> {{ $agent->area ?? '-' }}</p>
-                                                    <p><strong>Phone No:</strong> {{ $agent->phone_number ?? '-' }}</p>
+                                                    <p><strong class="title-text">Area:</strong> {{ $agent->area ?? '-' }}</p>
+                                                    <p><strong class="title-text">Phone No:</strong> {{ $agent->phone_number ?? '-' }}</p>
                                                 </div>
-                                                <div class="col-md-6">
-                                                    <p><strong>Email:</strong> {{ $agent->email ?? '-' }}</p>
-                                                    <p><strong>Comments:</strong> {{ $agent->comments ?? '-' }}</p>
+                                                <div class="col-6 col-md-6">
+                                                    <p><strong class="title-text">Email:</strong> {{ $agent->email ?? '-' }}</p>
+                                                    <p><strong class="title-text">Comments:</strong> {{ $agent->comments ?? '-' }}</p>
                                                 </div>
                                                 @elseif($agent->type === 'political')
-                                                <div class="col-md-6">
-                                                    <p><strong>Assembly:</strong> 
+                                                <div class="col-6 col-md-6">
+                                                    <p><strong class="title-text">Assembly:</strong> 
                                                         ({{ $agent->assembliesDetails?->assembly_code ?? '-' }})
                                                         {{ $agent->assembliesDetails?->assembly_name_en ?? '-' }}
                                                     </p>
-                                                    <p><strong>Name:</strong> {{ $agent->name ?? '-' }}</p>
-                                                    <p><strong>Mobile No:</strong> {{ $agent->contact_number ?? '-' }}
+                                                    <p><strong class="title-text">Name:</strong> {{ $agent->name ?? '-' }}</p>
+                                                    <p><strong class="title-text">Mobile No:</strong> {{ $agent->contact_number ?? '-' }}
                                                     </p>
-                                                    <p><strong>Whatsapp No:</strong> {{ $agent->whatsapp_number ?? '-'
+                                                    <p><strong class="title-text">Whatsapp No:</strong> {{ $agent->whatsapp_number ?? '-'
                                                         }}</p>
                                                 </div>
-                                                <div class="col-md-6">
-                                                    <p><strong>Email:</strong> {{ $agent->email ?? '-' }}</p>
-                                                    <p><strong>Designation:</strong> {{ $agent->designation ?? '-' }}
+                                                <div class="col-6 col-md-6">
+                                                    <p><strong class="title-text">Email:</strong> {{ $agent->email ?? '-' }}</p>
+                                                    <p><strong class="title-text">Designation:</strong> {{ $agent->designation ?? '-' }}
                                                     </p>
-                                                    <p><strong>Comments:</strong> {{ $agent->comments ?? '-' }}</p>
+                                                    <p><strong class="title-text">Comments:</strong> {{ $agent->comments ?? '-' }}</p>
                                                 </div>
                                                {{-- @elseif($agent->type === 'CAMAC')
-                                                <div class="col-md-6">
-                                                    <p><strong>Name:</strong> {{ $agent->name ?? '-' }}</p>
-                                                    <p><strong>Mobile No:</strong> {{ $agent->contact_number ?? '-' }}
+                                                <div class="col-6 col-md-6">
+                                                    <p><strong class="title-text">Name:</strong> {{ $agent->name ?? '-' }}</p>
+                                                    <p><strong class="title-text">Mobile No:</strong> {{ $agent->contact_number ?? '-' }}
                                                     </p>
-                                                    <p><strong>Whatsapp No:</strong> {{ $agent->whatsapp_number ?? '-'
+                                                    <p><strong class="title-text">Whatsapp No:</strong> {{ $agent->whatsapp_number ?? '-'
                                                         }}</p>
                                                 </div>
-                                                <div class="col-md-6">
-                                                    <p><strong>Email:</strong> {{ $agent->email ?? '-' }}</p>
-                                                    <p><strong>Designation:</strong> {{ $agent->designation ?? '-' }}
+                                                <div class="col-6 col-md-6">
+                                                    <p><strong class="title-text">Email:</strong> {{ $agent->email ?? '-' }}</p>
+                                                    <p><strong class="title-text">Designation:</strong> {{ $agent->designation ?? '-' }}
                                                     </p>
-                                                    <p><strong>Comments:</strong> {{ $agent->comments ?? '-' }}</p>
+                                                    <p><strong class="title-text">Comments:</strong> {{ $agent->comments ?? '-' }}</p>
                                                 </div>
                                                 @elseif($agent->type === 'other')
-                                                <div class="col-md-6">
-                                                    <p><strong>Name:</strong> {{ $agent->name ?? '-' }}</p>
-                                                    <p><strong>Mobile No:</strong> {{ $agent->contact_number ?? '-' }}
+                                                <div class="col-6 col-md-6">
+                                                    <p><strong class="title-text">Name:</strong> {{ $agent->name ?? '-' }}</p>
+                                                    <p><strong class="title-text">Mobile No:</strong> {{ $agent->contact_number ?? '-' }}
                                                     </p>
-                                                    <p><strong>Whatsapp No:</strong> {{ $agent->whatsapp_number ?? '-'
+                                                    <p><strong class="title-text">Whatsapp No:</strong> {{ $agent->whatsapp_number ?? '-'
                                                         }}</p>
-                                                    <p><strong>Designation:</strong> {{ $agent->designation ?? '-' }}
+                                                    <p><strong class="title-text">Designation:</strong> {{ $agent->designation ?? '-' }}
                                                     </p>
                                                 </div>
-                                                <div class="col-md-6">
-                                                    <p><strong>Area:</strong> {{ $agent->area ?? '-' }}</p>
-                                                    <p><strong>Email:</strong> {{ $agent->email ?? '-' }}</p>
-                                                    <p><strong>Comments:</strong> {{ $agent->comments ?? '-' }}</p>
+                                                <div class="col-6 col-md-6">
+                                                    <p><strong class="title-text">Area:</strong> {{ $agent->area ?? '-' }}</p>
+                                                    <p><strong class="title-text">Email:</strong> {{ $agent->email ?? '-' }}</p>
+                                                    <p><strong class="title-text">Comments:</strong> {{ $agent->comments ?? '-' }}</p>
                                                 </div>
                                                 @endif --}}
                                                 @endif
@@ -577,7 +593,7 @@
             // Handle Livewire updates (morph/re-render)
             Livewire.hook('morph.updated', ({ el, component }) => {
                 initChosen();
-                // ✅ After re-init, sync the Livewire value back to Chosen
+                // âœ… After re-init, sync the Livewire value back to Chosen
                 $('.chosen-select').each(function () {
                     const el = $(this);
                     const model = el.attr('wire:model');
@@ -614,7 +630,7 @@
                 $('#agent_type').val(type);
                 toggleCategoryFields();
     
-                // 🔹 IMPORTANT: Update the chosen dropdown with the Livewire value
+                // ðŸ”¹ IMPORTANT: Update the chosen dropdown with the Livewire value
                 setTimeout(() => {
                     const assemblyId = @this.get('assemblies_id');
                     if (assemblyId) {
@@ -665,11 +681,6 @@
                 });
             });
         });
-
     </script>
-
-
-
     @endpush
-
 </div>

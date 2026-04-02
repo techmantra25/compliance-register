@@ -12,6 +12,9 @@ use App\Livewire\{
     EventCategoryCrud,
     EmployeeCrud,
     AssemblyList,
+    GenerateForm2bIndex,
+    Form2BCreate,
+    Form2bPreviewNew,
     CandidateContactList,
     CandidateSpecialCaseList,
     CandidateDocumentCollection,
@@ -124,6 +127,11 @@ Route::prefix('/admin')->middleware('auth:admin')->group(function () {
     });
 
     Route::get('/assemblies', AssemblyList::class)->name('admin.assemblies')->middleware('employee.permission:assembly_view_assembly');
+
+    Route::get('/independent-candidates/list', GenerateForm2bIndex::class)->name('admin.form-2b-generate');
+    Route::get('/independent-candidates/create/{id}', Form2BCreate::class)->name('admin.form-2b-create');
+    Route::get('/independent-candidates/preview/{id}', Form2bPreviewNew::class)->name('admin.form-2b-preview');
+
     Route::get('/contacts', AgentCrud::class)->name('admin.agents')->middleware('employee.permission:contact_view_contacts');
     
     Route::get('candidate/special-cases', CandidateSpecialCaseList::class)->name('admin.candidates.special_case');
